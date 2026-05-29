@@ -707,6 +707,7 @@
 
   let currentUser = null;
 
+  // Dados globais
   window.tarefas = [];
   window.metas = [];
   window.cardsMetas = [
@@ -722,17 +723,44 @@
     { id: "tarefa_waw", nome: "WAW" }
   ];
 
+  // Função para forçar atualização da interface
+  function forcarAtualizacaoInterface() {
+    console.log("🔄 Forçando atualização da interface...");
+    console.log("📊 Dados atuais:", { 
+      tarefas: window.tarefas?.length || 0, 
+      metas: window.metas?.length || 0 
+    });
+    
+    if (window.atualizarSelectCategorias) window.atualizarSelectCategorias();
+    if (window.renderizarDashboardMetas) window.renderizarDashboardMetas();
+    if (window.renderizarTarefas) window.renderizarTarefas();
+    if (window.renderizarEstatisticas) window.renderizarEstatisticas();
+    
+    console.log("✅ Interface atualizada!");
+  }
+
+  // Função para salvar no Firebase
   async function salvarTudoNoFirebase() {
-    if (!currentUser) return false;
+    if (!currentUser) {
+      console.log("⚠️ Nenhum usuário logado para salvar");
+      return false;
+    }
+    
+    console.log("💾 Salvando dados no Firebase...");
+    console.log("📊 Dados a salvar:", { 
+      tarefas: window.tarefas?.length || 0, 
+      metas: window.metas?.length || 0 
+    });
+    
     try {
       await setDoc(doc(db, "usuarios", currentUser.uid), {
-        tarefas: window.tarefas,
-        metas: window.metas,
-        cardsMetas: window.cardsMetas,
-        cardsTarefas: window.cardsTarefas,
+        tarefas: window.tarefas || [],
+        metas: window.metas || [],
+        cardsMetas: window.cardsMetas || [],
+        cardsTarefas: window.cardsTarefas || [],
         ultimaAtualizacao: new Date().toISOString()
       });
-      console.log("✅ Dados salvos com sucesso!");
+      console.log("✅ Dados salvos com sucesso no Firebase!");
       return true;
     } catch (error) {
       console.error("❌ Erro ao salvar:", error);
@@ -740,14 +768,23 @@
     }
   }
 
+  // Função para carregar do Firebase
   async function carregarDadosDoFirebase() {
-    if (!currentUser) return false;
+    if (!currentUser) {
+      console.log("⚠️ Nenhum usuário logado para carregar");
+      return false;
+    }
+    
+    console.log("📥 Carregando dados do Firebase para UID:", currentUser.uid);
+    
     try {
       const docRef = doc(db, "usuarios", currentUser.uid);
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
         const dados = docSnap.data();
+        console.log("📦 Dados brutos do Firebase:", dados);
+        
         window.tarefas = dados.tarefas || [];
         window.metas = dados.metas || [];
         window.cardsMetas = dados.cardsMetas || window.cardsMetas;
@@ -755,11 +792,20 @@
         
         console.log(`✅ Dados carregados: ${window.tarefas.length} tarefas, ${window.metas.length} metas`);
         
-        if (typeof atualizarTudo === 'function') {
-          atualizarTudo();
+        // Sincronizar com variáveis locais
+        if (typeof tarefas !== 'undefined') {
+          tarefas = window.tarefas;
+          metas = window.metas;
+          cardsMetas = window.cardsMetas;
+          cardsTarefas = window.cardsTarefas;
         }
+        
+        // Forçar atualização da interface
+        forcarAtualizacaoInterface();
+        
         return true;
       } else {
+        console.log("📁 Nenhum dado encontrado. Criando registro inicial...");
         await setDoc(docRef, {
           tarefas: [],
           metas: [],
@@ -775,18 +821,23 @@
     }
   }
 
+  // Expor funções globalmente
   window.salvarTudoFirebase = salvarTudoNoFirebase;
   window.carregarDadosFirebase = carregarDadosDoFirebase;
+  window.forcarAtualizacaoInterface = forcarAtualizacaoInterface;
 
+  // Evento quando usuário loga
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
       console.log("✅ Usuário logado:", user.email);
+      console.log("🆔 UID:", user.uid);
       
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       document.getElementById('userName').textContent = user.email;
       
+      // Carregar dados do Firebase
       await carregarDadosDoFirebase();
       
     } else {
@@ -797,6 +848,7 @@
     }
   });
 
+  // Funções de login/cadastro
   window.fazerLogin = async function() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -917,15 +969,6 @@
   let tarefaFocoAtual = null;
   let viewAtual = 'cards';
   let dataAtualCalendario = new Date();
-
-  function atualizarTudo() {
-    console.log("🔄 Atualizando toda a interface...");
-    atualizarSelectCategorias();
-    renderizarDashboardMetas();
-    renderizarTarefas();
-    renderizarEstatisticas();
-  }
-  window.atualizarTudo = atualizarTudo;
 
   function escapeHtml(text) {
     if (!text) return '';
@@ -1366,6 +1409,7 @@
     const container = document.getElementById('dashboardMetasGrid');
     if (!container) return;
     container.innerHTML = '';
+    console.log("🎨 Renderizando metas...");
     cardsMetas.forEach(card => {
       const metasBloco = metas.filter(m => m.categoria === card.nome);
       const total = metasBloco.length;
@@ -1439,6 +1483,7 @@
     if (!container) return;
     container.innerHTML = '';
     const hoje = new Date().toISOString().split('T')[0];
+    console.log("🎨 Renderizando tarefas...", tarefas.length);
     cardsTarefas.forEach(card => {
       let tarefasBloco = filtrarTarefas(tarefas.filter(t => t.bloco === card.nome));
       const ativas = tarefasBloco.filter(t => !t.concluida).length;
@@ -1642,10 +1687,7 @@
     const hora10min = em10min.getHours().toString().padStart(2, '0') + ':' + em10min.getMinutes().toString().padStart(2, '0');
     const hoje = agora.toISOString().split('T')[0];
 
-    let notificacaoEnviada = false;
-
     tarefas.forEach(t => {
-      // Verificar tarefas que vencem em 10 minutos
       if (!t.concluida && t.data === hoje && t.hora && t.hora === hora10min && !t.alertado) {
         new Notification('⏰ Tarefa em 10 minutos!', {
           body: `"${t.texto}" - ${t.data} às ${t.hora}`,
@@ -1653,11 +1695,9 @@
           silent: false
         });
         t.alertado = true;
-        notificacaoEnviada = true;
         salvarTarefas();
       }
       
-      // Verificar tarefas atrasadas (opcional - uma vez por dia)
       if (!t.concluida && t.data && t.data < hoje && !t.alertadoAtraso) {
         new Notification('⚠️ Tarefa atrasada!', {
           body: `"${t.texto}" estava marcada para ${t.data}`,
@@ -1665,26 +1705,16 @@
           silent: false
         });
         t.alertadoAtraso = true;
-        notificacaoEnviada = true;
         salvarTarefas();
       }
     });
-    
-    if (notificacaoEnviada) {
-      console.log('🔔 Notificação enviada!');
-    }
   }
 
-  // ========== INICIALIZAÇÃO DAS NOTIFICAÇÕES ==========
+  // ========== INICIALIZAÇÃO ==========
   pedirPermissaoNotificacoes();
-  
-  // Verificar notificações a cada minuto
   setInterval(checarNotificacoes, 60000);
-  
-  // Verificar imediatamente ao carregar
   setTimeout(checarNotificacoes, 5000);
 
-  // ========== INICIALIZAÇÃO DO APP ==========
   atualizarSelectCategorias();
   carregarTema();
   atualizarDataHoje();
