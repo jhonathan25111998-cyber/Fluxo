@@ -6,7 +6,6 @@
 <title>FLUXO - Organize. Execute. Flua.</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://apis.google.com/js/api.js"></script>
 <style>
   * {
     margin: 0;
@@ -27,7 +26,6 @@
     margin: 0 auto;
   }
 
-  /* FLUXO: Glass Header Premium */
   .header {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -127,7 +125,6 @@
     color: white;
   }
 
-  /* FLUXO: Login com Google Modal */
   .login-overlay {
     display: flex;
     position: fixed;
@@ -182,7 +179,6 @@
     font-size: 20px;
   }
 
-  /* FLUXO: Top Bar com Busca e Visualização */
   .top-bar {
     display: flex;
     justify-content: space-between;
@@ -215,7 +211,6 @@
   }
   .view-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.15); }
 
-  /* FLUXO: Busca Compacta */
   .busca-global {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -247,7 +242,6 @@
     color: rgba(255, 255, 255, 0.5);
   }
 
-  /* FLUXO: Dashboard Metas */
   .dashboard-metas h2 {
     color: white;
     margin-bottom: 20px;
@@ -258,7 +252,6 @@
     gap: 16px;
   }
 
-  /* FLUXO: Cards Premium */
   .metas-dashboard-grid, .blocos-tarefas {
     display: flex;
     flex-wrap: wrap;
@@ -290,7 +283,6 @@
     outline-offset: 2px;
   }
 
-  /* FLUXO: Headers dos Cards - Gradiente Uniforme */
   .meta-card-header, .bloco-header {
     padding: 20px 24px;
     font-weight: 700;
@@ -341,14 +333,12 @@
     transition: width 0.3s;
   }
 
-  /* FLUXO: Listas Internas */
   .meta-lista, .tarefa-lista {
     padding: 20px;
     max-height: 350px;
     overflow-y: auto;
   }
 
-  /* FLUXO: Scrollbar customizada */
   .meta-lista::-webkit-scrollbar, .tarefa-lista::-webkit-scrollbar {
     width: 6px;
   }
@@ -364,7 +354,6 @@
     background: rgba(102, 126, 234, 0.5);
   }
 
-  /* FLUXO: Itens */
   .meta-item-dash, .tarefa-item {
     display: flex;
     align-items: center;
@@ -412,7 +401,6 @@
     margin-top: 8px;
   }
 
-  /* FLUXO: Badges Premium */
   .badge {
     padding: 4px 12px;
     border-radius: 20px;
@@ -453,7 +441,6 @@
   }
   .item-actions button:hover { background: rgba(255, 255, 255, 0.1); color: white; transform: scale(1.05); }
 
-  /* FLUXO: Add Meta Section */
   .meta-add-dash {
     padding: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -482,7 +469,6 @@
     color: rgba(255, 255, 255, 0.4);
   }
 
-  /* FLUXO: Card Adicionar */
   .card-adicionar {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(24px);
@@ -517,7 +503,6 @@
     font-size: 14px;
   }
 
-  /* FLUXO: Botão Glass Premium */
   .btn-glass {
     background: linear-gradient(135deg, #667eea, #764ba2);
     border: none;
@@ -537,7 +522,6 @@
     box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
   }
 
-  /* FLUXO: Formulários */
   .adicionar {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -580,7 +564,6 @@
     color: rgba(255, 255, 255, 0.4);
   }
 
-  /* FLUXO: Filtros */
   .filtros {
     display: flex;
     gap: 12px;
@@ -607,7 +590,6 @@
   }
   .filtro-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.15); }
 
-  /* FLUXO: Estatísticas Premium */
   .estatisticas {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -697,7 +679,6 @@
     margin-top: 32px;
   }
 
-  /* FLUXO: Estados Vazios */
   .empty-state {
     text-align: center;
     padding: 40px 20px;
@@ -717,7 +698,6 @@
     opacity: 0.8;
   }
 
-  /* FLUXO: Modal Foco */
   .modal-foco-overlay {
     display: none;
     position: fixed;
@@ -764,7 +744,6 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* FLUXO: Calendário */
   .calendario-grade {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -794,7 +773,6 @@
     border: 1px solid #667eea;
   }
 
-  /* FLUXO: Responsivo */
   @media (max-width: 768px) {
     body { padding: 16px; }
     .user-info { position: static; justify-content: center; margin-top: 16px; }
@@ -808,7 +786,6 @@
     .stats-grid { grid-template-columns: 1fr 1fr; }
   }
 
-  /* FLUXO: Dark Mode suporte */
   [data-theme="dark"] body {
     background: linear-gradient(135deg, #1a1b2e, #2d1b3e);
   }
@@ -819,6 +796,9 @@
     background: rgba(20, 20, 30, 0.95);
   }
 </style>
+<!-- Google API Scripts carregados com callback -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js?onload=gapiLoaded" async defer></script>
 </head>
 <body>
 <!-- FLUXO: Tela de Login com Google -->
@@ -837,6 +817,7 @@
     <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 20px;">
       Seus dados serão salvos na sua conta do Google Drive
     </p>
+    <p id="statusMsg" style="color: #ff9800; font-size: 12px; margin-top: 15px;"></p>
   </div>
 </div>
 
@@ -961,15 +942,14 @@
 <script>
 // ========== CONFIGURAÇÃO DO GOOGLE DRIVE ==========
 const CLIENT_ID = '171476045237-h2a8irvpmp50mhe5ddjuc00bc3rtralr.apps.googleusercontent.com';
-const API_KEY = ''; // Não precisa para Drive API com OAuth
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 const FILE_NAME = 'fluxo_dados.json';
 
 let tokenClient = null;
-let gapiInited = false;
-let gisInited = false;
 let accessToken = null;
 let userGoogle = null;
+let gapiInited = false;
+let gisInited = false;
 
 // ========== DADOS DO APP ==========
 let tarefas = [];
@@ -1001,49 +981,73 @@ let tarefaFocoAtual = null;
 let viewAtual = 'cards';
 let dataAtualCalendario = new Date();
 
-// ========== FUNÇÕES GOOGLE DRIVE ==========
-function carregarBibliotecas() {
-  // Carregar GAPI
+// ========== INICIALIZAÇÃO DAS BIBLIOTECAS ==========
+window.gapiLoaded = function() {
   gapi.load('client', iniciarGAPI);
-  
-  // Carregar Token Client
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: (resp) => {
-      if (resp.error) {
-        console.error('Erro no token:', resp);
-        return;
-      }
-      accessToken = resp.access_token;
-      carregarDadosDoDrive();
-    },
-  });
-}
+};
 
 function iniciarGAPI() {
   gapi.client.init({}).then(() => {
     gapiInited = true;
+    console.log('GAPI inicializado');
+    document.getElementById('statusMsg').textContent = '✓ Pronto para login';
+  }).catch((err) => {
+    console.error('Erro ao iniciar GAPI:', err);
+    document.getElementById('statusMsg').textContent = 'Erro ao carregar. Recarregue a página.';
   });
 }
 
-function loginComGoogle() {
-  if (tokenClient) {
-    tokenClient.requestAccessToken({ prompt: 'consent' });
-  } else {
-    alert('Erro ao carregar bibliotecas. Recarregue a página.');
+// Inicializar Token Client quando o script carregar
+window.onload = function() {
+  try {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: (resp) => {
+        if (resp.error) {
+          console.error('Erro no token:', resp);
+          document.getElementById('statusMsg').textContent = 'Erro no login: ' + resp.error;
+          return;
+        }
+        accessToken = resp.access_token;
+        carregarDadosDoDrive();
+      },
+    });
+    gisInited = true;
+    console.log('Token Client inicializado');
+  } catch (err) {
+    console.error('Erro ao criar token client:', err);
+    document.getElementById('statusMsg').textContent = 'Erro ao carregar Google. Recarregue a página.';
   }
+};
+
+function loginComGoogle() {
+  if (!tokenClient) {
+    document.getElementById('statusMsg').textContent = 'Aguarde, carregando...';
+    setTimeout(() => loginComGoogle(), 1000);
+    return;
+  }
+  document.getElementById('statusMsg').textContent = 'Abrindo login do Google...';
+  tokenClient.requestAccessToken({ prompt: 'consent' });
 }
 
 async function carregarDadosDoDrive() {
+  document.getElementById('statusMsg').textContent = 'Carregando dados...';
   try {
-    const response = await fetch('https://www.googleapis.com/drive/v3/files?q=name="' + FILE_NAME + '"', {
+    // Buscar informações do usuário
+    const userResponse = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     });
-    const data = await response.json();
+    userGoogle = await userResponse.json();
     
-    if (data.files && data.files.length > 0) {
-      const fileId = data.files[0].id;
+    // Buscar arquivo no Drive
+    const searchResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=name="' + FILE_NAME + '"', {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
+    const searchData = await searchResponse.json();
+    
+    if (searchData.files && searchData.files.length > 0) {
+      const fileId = searchData.files[0].id;
       const fileResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
         headers: { 'Authorization': 'Bearer ' + accessToken }
       });
@@ -1054,17 +1058,12 @@ async function carregarDadosDoDrive() {
       cardsMetas = dados.cardsMetas || cardsMetas;
       cardsTarefas = dados.cardsTarefas || cardsTarefas;
       
-      alert('✅ Dados carregados do Google Drive!');
+      document.getElementById('statusMsg').textContent = '✓ Dados carregados!';
     } else {
-      alert('📁 Nenhum dado encontrado no Drive. Vamos criar um novo arquivo ao sincronizar.');
+      document.getElementById('statusMsg').textContent = '✓ Nenhum dado salvo ainda';
     }
     
-    // Buscar informações do usuário
-    const userResponse = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    });
-    userGoogle = await userResponse.json();
-    
+    // Atualizar interface
     document.getElementById('userName').textContent = userGoogle.name;
     if (userGoogle.picture) {
       document.getElementById('userAvatar').src = userGoogle.picture;
@@ -1083,7 +1082,7 @@ async function carregarDadosDoDrive() {
     
   } catch (error) {
     console.error('Erro ao carregar dados:', error);
-    alert('❌ Erro ao carregar dados do Drive. Tente novamente.');
+    document.getElementById('statusMsg').textContent = 'Erro ao carregar. Tente novamente.';
   }
 }
 
@@ -1106,7 +1105,6 @@ async function sincronizarComGoogle() {
       ultimaSincronizacao: new Date().toISOString()
     };
     
-    // Verificar se arquivo já existe
     const searchResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=name="' + FILE_NAME + '"', {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     });
@@ -1115,7 +1113,6 @@ async function sincronizarComGoogle() {
     let fileId = null;
     if (searchData.files && searchData.files.length > 0) {
       fileId = searchData.files[0].id;
-      // Atualizar arquivo existente
       await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
         method: 'PATCH',
         headers: {
@@ -1125,7 +1122,6 @@ async function sincronizarComGoogle() {
         body: JSON.stringify(dados)
       });
     } else {
-      // Criar novo arquivo
       const metadata = {
         name: FILE_NAME,
         mimeType: 'application/json'
@@ -1157,9 +1153,11 @@ function logout() {
   userGoogle = null;
   document.getElementById('loginOverlay').style.display = 'flex';
   document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('userName').textContent = '';
+  document.getElementById('userAvatar').style.display = 'none';
 }
 
-// ========== FUNÇÕES DO APP (mantidas do original) ==========
+// ========== FUNÇÕES DO APP ==========
 function escapeHtml(text) {
   if (!text) return '';
   const div = document.createElement('div');
@@ -1178,18 +1176,6 @@ function carregarTema() {
   const saved = localStorage.getItem('tema');
   if (saved === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
-  }
-}
-
-function toggleTema() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  if (isDark) {
-    html.removeAttribute('data-theme');
-    localStorage.setItem('tema', 'light');
-  } else {
-    html.setAttribute('data-theme', 'dark');
-    localStorage.setItem('tema', 'dark');
   }
 }
 
@@ -1820,9 +1806,6 @@ function importarBackup(event) {
   reader.readAsText(file);
   event.target.value = '';
 }
-
-// Inicialização
-carregarBibliotecas();
 </script>
 </body>
 </html>
