@@ -6,6 +6,123 @@
 <title>FLUXO - Organize. Execute. Flua.</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWUCRDmwf5_332izdNMCRsrjTG5z4Ho9g",
+    authDomain: "fluxo-app-c71ec.firebaseapp.com",
+    projectId: "fluxo-app-c71ec",
+    storageBucket: "fluxo-app-c71ec.firebasestorage.app",
+    messagingSenderId: "942507349330",
+    appId: "1:942507349330:web:6ce004396cf55ec5ca568b",
+    measurementId: "G-SVRN7MRG3L"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  const db = getFirestore(app);
+
+  // Expor funções globalmente
+  window.auth = auth;
+  window.signInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log("Usuário logado:", user);
+      
+      // Carregar dados do Firestore
+      const docRef = doc(db, "usuarios", user.uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const dados = docSnap.data();
+        window.tarefas = dados.tarefas || [];
+        window.metas = dados.metas || [];
+        window.cardsMetas = dados.cardsMetas || window.cardsMetas;
+        window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
+      } else {
+        window.tarefas = [];
+        window.metas = [];
+      }
+      
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      document.getElementById('userName').textContent = user.displayName || user.email;
+      if (user.photoURL) {
+        document.getElementById('userAvatar').src = user.photoURL;
+        document.getElementById('userAvatar').style.display = 'inline-block';
+      }
+      
+      // Recarregar interface
+      atualizarSelectCategorias();
+      carregarTema();
+      atualizarDataHoje();
+      renderizarDashboardMetas();
+      renderizarTarefas();
+      renderizarEstatisticas();
+      
+    } catch (error) {
+      console.error("Erro no login:", error);
+      document.getElementById('statusMsg').textContent = 'Erro no login: ' + error.message;
+    }
+  };
+  
+  window.fazerLogout = async () => {
+    await signOut(auth);
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('userName').textContent = '';
+    document.getElementById('userAvatar').style.display = 'none';
+  };
+  
+  window.salvarDadosFirebase = async () => {
+    if (!auth.currentUser) return;
+    try {
+      const docRef = doc(db, "usuarios", auth.currentUser.uid);
+      await setDoc(docRef, {
+        tarefas: window.tarefas,
+        metas: window.metas,
+        cardsMetas: window.cardsMetas,
+        cardsTarefas: window.cardsTarefas,
+        ultimaAtualizacao: new Date().toISOString()
+      });
+      console.log("Dados salvos no Firebase");
+      return true;
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      return false;
+    }
+  };
+  
+  window.sincronizarFirebase = async () => {
+    const syncBtn = document.getElementById('syncBtn');
+    syncBtn.classList.add('syncing');
+    syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sincronizando...';
+    
+    const sucesso = await window.salvarDadosFirebase();
+    
+    if (sucesso) {
+      alert('✅ Dados sincronizados com sucesso!');
+    } else {
+      alert('❌ Erro ao sincronizar. Tente novamente.');
+    }
+    
+    syncBtn.classList.remove('syncing');
+    syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
+  };
+  
+  // Verificar estado de autenticação
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Usuário autenticado:", user.uid);
+    }
+  });
+</script>
 <style>
   * {
     margin: 0;
@@ -796,9 +913,6 @@
     background: rgba(20, 20, 30, 0.95);
   }
 </style>
-<!-- Google API Scripts carregados com callback -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js?onload=gapiLoaded" async defer></script>
 </head>
 <body>
 <!-- FLUXO: Tela de Login com Google -->
@@ -811,13 +925,10 @@
       <h2>FLUXO</h2>
       <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 30px;">Organize. Execute. Flua.</p>
     </div>
-    <button class="google-btn" onclick="loginComGoogle()">
+    <button class="google-btn" onclick="window.signInWithGoogle()">
       <i class="fab fa-google"></i> Entrar com Google
     </button>
-    <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 20px;">
-      Seus dados serão salvos na sua conta do Google Drive
-    </p>
-    <p id="statusMsg" style="color: #ff9800; font-size: 12px; margin-top: 15px;"></p>
+    <p id="statusMsg" style="color: #ff9800; font-size: 12px; margin-top: 20px;"></p>
   </div>
 </div>
 
@@ -826,8 +937,8 @@
     <div class="user-info" id="userInfo">
       <img id="userAvatar" src="" alt="Avatar" style="display: none;">
       <span id="userName"></span>
-      <button class="sync-btn" onclick="sincronizarComGoogle()" id="syncBtn"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button>
-      <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+      <button class="sync-btn" onclick="window.sincronizarFirebase()" id="syncBtn"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button>
+      <button class="logout-btn" onclick="window.fazerLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>
     <div class="header-content">
       <div class="logo-img">
@@ -940,17 +1051,6 @@
 </div>
 
 <script>
-// ========== CONFIGURAÇÃO DO GOOGLE DRIVE ==========
-const CLIENT_ID = '171476045237-h2a8irvpmp50mhe5ddjuc00bc3rtralr.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-const FILE_NAME = 'fluxo_dados.json';
-
-let tokenClient = null;
-let accessToken = null;
-let userGoogle = null;
-let gapiInited = false;
-let gisInited = false;
-
 // ========== DADOS DO APP ==========
 let tarefas = [];
 let metas = [];
@@ -967,6 +1067,12 @@ let cardsTarefas = [
   { id: "tarefa_waw", nome: "WAW" }
 ];
 
+// Expor para o Firebase script
+window.tarefas = tarefas;
+window.metas = metas;
+window.cardsMetas = cardsMetas;
+window.cardsTarefas = cardsTarefas;
+
 let filtroAtual = 'hoje';
 let termoBusca = '';
 let tarefaArrastando = null;
@@ -980,182 +1086,6 @@ let pomodoroInterval = null;
 let tarefaFocoAtual = null;
 let viewAtual = 'cards';
 let dataAtualCalendario = new Date();
-
-// ========== INICIALIZAÇÃO DAS BIBLIOTECAS ==========
-window.gapiLoaded = function() {
-  gapi.load('client', iniciarGAPI);
-};
-
-function iniciarGAPI() {
-  gapi.client.init({}).then(() => {
-    gapiInited = true;
-    console.log('GAPI inicializado');
-    document.getElementById('statusMsg').textContent = '✓ Pronto para login';
-  }).catch((err) => {
-    console.error('Erro ao iniciar GAPI:', err);
-    document.getElementById('statusMsg').textContent = 'Erro ao carregar. Recarregue a página.';
-  });
-}
-
-// Inicializar Token Client quando o script carregar
-window.onload = function() {
-  try {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: (resp) => {
-        if (resp.error) {
-          console.error('Erro no token:', resp);
-          document.getElementById('statusMsg').textContent = 'Erro no login: ' + resp.error;
-          return;
-        }
-        accessToken = resp.access_token;
-        carregarDadosDoDrive();
-      },
-    });
-    gisInited = true;
-    console.log('Token Client inicializado');
-  } catch (err) {
-    console.error('Erro ao criar token client:', err);
-    document.getElementById('statusMsg').textContent = 'Erro ao carregar Google. Recarregue a página.';
-  }
-};
-
-function loginComGoogle() {
-  if (!tokenClient) {
-    document.getElementById('statusMsg').textContent = 'Aguarde, carregando...';
-    setTimeout(() => loginComGoogle(), 1000);
-    return;
-  }
-  document.getElementById('statusMsg').textContent = 'Abrindo login do Google...';
-  tokenClient.requestAccessToken({ prompt: 'consent' });
-}
-
-async function carregarDadosDoDrive() {
-  document.getElementById('statusMsg').textContent = 'Carregando dados...';
-  try {
-    // Buscar informações do usuário
-    const userResponse = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    });
-    userGoogle = await userResponse.json();
-    
-    // Buscar arquivo no Drive
-    const searchResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=name="' + FILE_NAME + '"', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    });
-    const searchData = await searchResponse.json();
-    
-    if (searchData.files && searchData.files.length > 0) {
-      const fileId = searchData.files[0].id;
-      const fileResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-        headers: { 'Authorization': 'Bearer ' + accessToken }
-      });
-      const dados = await fileResponse.json();
-      
-      tarefas = dados.tarefas || [];
-      metas = dados.metas || [];
-      cardsMetas = dados.cardsMetas || cardsMetas;
-      cardsTarefas = dados.cardsTarefas || cardsTarefas;
-      
-      document.getElementById('statusMsg').textContent = '✓ Dados carregados!';
-    } else {
-      document.getElementById('statusMsg').textContent = '✓ Nenhum dado salvo ainda';
-    }
-    
-    // Atualizar interface
-    document.getElementById('userName').textContent = userGoogle.name;
-    if (userGoogle.picture) {
-      document.getElementById('userAvatar').src = userGoogle.picture;
-      document.getElementById('userAvatar').style.display = 'inline-block';
-    }
-    
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    
-    atualizarSelectCategorias();
-    carregarTema();
-    atualizarDataHoje();
-    renderizarDashboardMetas();
-    renderizarTarefas();
-    renderizarEstatisticas();
-    
-  } catch (error) {
-    console.error('Erro ao carregar dados:', error);
-    document.getElementById('statusMsg').textContent = 'Erro ao carregar. Tente novamente.';
-  }
-}
-
-async function sincronizarComGoogle() {
-  if (!accessToken) {
-    alert('Faça login novamente');
-    return;
-  }
-  
-  const syncBtn = document.getElementById('syncBtn');
-  syncBtn.classList.add('syncing');
-  syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sincronizando...';
-  
-  try {
-    const dados = {
-      tarefas: tarefas,
-      metas: metas,
-      cardsMetas: cardsMetas,
-      cardsTarefas: cardsTarefas,
-      ultimaSincronizacao: new Date().toISOString()
-    };
-    
-    const searchResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=name="' + FILE_NAME + '"', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    });
-    const searchData = await searchResponse.json();
-    
-    let fileId = null;
-    if (searchData.files && searchData.files.length > 0) {
-      fileId = searchData.files[0].id;
-      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': 'Bearer ' + accessToken,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dados)
-      });
-    } else {
-      const metadata = {
-        name: FILE_NAME,
-        mimeType: 'application/json'
-      };
-      
-      const formData = new FormData();
-      formData.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-      formData.append('file', new Blob([JSON.stringify(dados)], { type: 'application/json' }));
-      
-      await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + accessToken },
-        body: formData
-      });
-    }
-    
-    alert('✅ Dados sincronizados com o Google Drive!');
-  } catch (error) {
-    console.error('Erro ao sincronizar:', error);
-    alert('❌ Erro ao sincronizar. Tente novamente.');
-  } finally {
-    syncBtn.classList.remove('syncing');
-    syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
-  }
-}
-
-function logout() {
-  accessToken = null;
-  userGoogle = null;
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('userName').textContent = '';
-  document.getElementById('userAvatar').style.display = 'none';
-}
 
 // ========== FUNÇÕES DO APP ==========
 function escapeHtml(text) {
@@ -1183,23 +1113,28 @@ function salvarTarefas() {
   localStorage.setItem('tarefas', JSON.stringify(tarefas));
   renderizarTarefas();
   renderizarEstatisticas();
+  // Salvar no Firebase se estiver logado
+  if (window.salvarDadosFirebase) window.salvarDadosFirebase();
 }
 
 function salvarMetas() {
   localStorage.setItem('metas', JSON.stringify(metas));
   renderizarDashboardMetas();
   renderizarEstatisticas();
+  if (window.salvarDadosFirebase) window.salvarDadosFirebase();
 }
 
 function salvarCardsMetas() {
   localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
   renderizarDashboardMetas();
+  if (window.salvarDadosFirebase) window.salvarDadosFirebase();
 }
 
 function salvarCardsTarefas() {
   localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
   atualizarSelectCategorias();
   renderizarTarefas();
+  if (window.salvarDadosFirebase) window.salvarDadosFirebase();
 }
 
 function atualizarSelectCategorias() {
@@ -1219,6 +1154,7 @@ function adicionarCardMeta() {
   if (!nome || nome.trim() === '') return;
   cardsMetas.push({ id: 'meta_' + Date.now(), nome: nome.trim() });
   salvarCardsMetas();
+  alert(`✅ Card "${nome}" criado!`);
 }
 
 function adicionarCardTarefa() {
@@ -1226,6 +1162,7 @@ function adicionarCardTarefa() {
   if (!nome || nome.trim() === '') return;
   cardsTarefas.push({ id: 'tarefa_' + Date.now(), nome: nome.trim() });
   salvarCardsTarefas();
+  alert(`✅ Card "${nome}" criado!`);
 }
 
 function editarCardMeta(id) {
@@ -1238,6 +1175,7 @@ function editarCardMeta(id) {
   }
   salvarCardsMetas();
   salvarMetas();
+  alert(`✅ Card "${card.nome}" atualizado!`);
 }
 
 function editarCardTarefa(id) {
@@ -1250,29 +1188,32 @@ function editarCardTarefa(id) {
   }
   salvarCardsTarefas();
   salvarTarefas();
+  alert(`✅ Card "${card.nome}" atualizado!`);
 }
 
 function excluirCardMeta(id) {
   const card = cardsMetas.find(c => c.id === id);
   if (!card) return;
-  if (confirm(`Excluir "${card.nome}"?`)) {
+  if (confirm(`Excluir "${card.nome}"? Metas serão movidas para "Pessoal".`)) {
     const alvo = cardsMetas.find(c => c.nome === 'Pessoal') || cardsMetas[0];
     metas.forEach(m => { if (m.categoria === card.nome) m.categoria = alvo.nome; });
     cardsMetas = cardsMetas.filter(c => c.id !== id);
     salvarCardsMetas();
     salvarMetas();
+    alert(`🗑️ Card "${card.nome}" excluído!`);
   }
 }
 
 function excluirCardTarefa(id) {
   const card = cardsTarefas.find(c => c.id === id);
   if (!card) return;
-  if (confirm(`Excluir "${card.nome}"?`)) {
+  if (confirm(`Excluir "${card.nome}"? Tarefas serão movidas para "Pessoal".`)) {
     const alvo = cardsTarefas.find(c => c.nome === 'Pessoal') || cardsTarefas[0];
     tarefas.forEach(t => { if (t.bloco === card.nome) t.bloco = alvo.nome; });
     cardsTarefas = cardsTarefas.filter(c => c.id !== id);
     salvarCardsTarefas();
     salvarTarefas();
+    alert(`🗑️ Card "${card.nome}" excluído!`);
   }
 }
 
@@ -1309,6 +1250,7 @@ function adicionarMeta(categoria, cardId) {
   if (input) input.value = '';
   if (dataInput) dataInput.value = '';
   salvarMetas();
+  alert('✅ Meta adicionada!');
 }
 
 function adicionarTarefa() {
@@ -1350,6 +1292,7 @@ function excluirMeta(id) {
   if (confirm('Excluir esta meta?')) {
     metas = metas.filter(m => m.id !== id);
     salvarMetas();
+    alert('🗑️ Meta excluída!');
   }
 }
 
@@ -1357,6 +1300,7 @@ function excluirTarefa(id) {
   if (confirm('Excluir esta tarefa?')) {
     tarefas = tarefas.filter(t => t.id !== id);
     salvarTarefas();
+    alert('🗑️ Tarefa excluída!');
   }
 }
 
@@ -1368,6 +1312,7 @@ function editarMetaPrompt(id) {
   const novaData = prompt('Data limite:', meta.dataLimite || '');
   if (novaData !== null) meta.dataLimite = novaData;
   salvarMetas();
+  alert('✅ Meta atualizada!');
 }
 
 function editarTarefa(id) {
@@ -1380,6 +1325,7 @@ function editarTarefa(id) {
   const novaPrioridade = prompt('Prioridade (p1/p2/p3):', t.prioridade);
   if (novaPrioridade && ['p1','p2','p3'].includes(novaPrioridade)) t.prioridade = novaPrioridade;
   salvarTarefas();
+  alert('✅ Tarefa atualizada!');
 }
 
 function setFiltro(filtro, btn) {
@@ -1752,11 +1698,16 @@ function abrirModalNovaMeta() {
     const texto = prompt('Meta:');
     if (texto && texto.trim()) metas.push({ id: Date.now(), texto: texto.trim(), categoria: cat, atingida: false, dataLimite: '' });
     salvarMetas();
+    alert('✅ Meta adicionada!');
   }
 }
 
 function limparMetasConcluidas() {
-  if (confirm('Remover metas concluídas?')) { metas = metas.filter(m => !m.atingida); salvarMetas(); }
+  if (confirm('Remover todas as metas concluídas?')) { 
+    metas = metas.filter(m => !m.atingida); 
+    salvarMetas();
+    alert('✅ Metas concluídas removidas!');
+  }
 }
 
 function exportarBackup() {
@@ -1785,6 +1736,12 @@ function importarBackup(event) {
         if (dados.metas) metas = dados.metas;
         if (dados.cardsMetas) cardsMetas = dados.cardsMetas;
         if (dados.cardsTarefas) cardsTarefas = dados.cardsTarefas;
+        
+        // Atualizar variáveis globais expostas
+        window.tarefas = tarefas;
+        window.metas = metas;
+        window.cardsMetas = cardsMetas;
+        window.cardsTarefas = cardsTarefas;
         
         salvarCardsMetas();
         salvarCardsTarefas();
