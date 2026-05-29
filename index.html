@@ -707,26 +707,9 @@
 
   let currentUser = null;
 
-  // Forçar todas as funções do app no window
-  window.tarefas = [];
-  window.metas = [];
-  window.cardsMetas = [
-    { id: "meta_pessoal", nome: "Pessoal" },
-    { id: "meta_jw", nome: "JW" },
-    { id: "meta_at", nome: "At Inovvate" },
-    { id: "meta_waw", nome: "WAW" }
-  ];
-  window.cardsTarefas = [
-    { id: "tarefa_pessoal", nome: "Pessoal" },
-    { id: "tarefa_jw", nome: "JW" },
-    { id: "tarefa_at", nome: "At Inovvate" },
-    { id: "tarefa_waw", nome: "WAW" }
-  ];
-
   // Função para salvar no Firebase
   async function salvarTudoNoFirebase() {
     if (!currentUser) return false;
-    console.log("💾 Salvando dados no Firebase...");
     try {
       await setDoc(doc(db, "usuarios", currentUser.uid), {
         tarefas: window.tarefas,
@@ -743,10 +726,9 @@
     }
   }
 
-  // Função para carregar do Firebase e FORÇAR atualização
-  async function carregarTudoDoFirebase() {
+  // Função para carregar do Firebase e atualizar interface
+  async function carregarDadosDoFirebase() {
     if (!currentUser) return false;
-    console.log("📥 Carregando dados do Firebase...");
     try {
       const docRef = doc(db, "usuarios", currentUser.uid);
       const docSnap = await getDoc(docRef);
@@ -760,33 +742,16 @@
         
         console.log(`✅ Dados carregados: ${window.tarefas.length} tarefas, ${window.metas.length} metas`);
         
-        // ATUALIZAR AS VARIÁVEIS LOCAIS TAMBÉM
-        if (typeof tarefas !== 'undefined') {
-          tarefas = window.tarefas;
-          metas = window.metas;
-          cardsMetas = window.cardsMetas;
-          cardsTarefas = window.cardsTarefas;
+        // ATUALIZAR INTERFACE GLOBALMENTE
+        if (typeof atualizarTudo === 'function') {
+          atualizarTudo();
+        } else {
+          // Fallback
+          location.reload();
         }
-        
-        // FORÇAR ATUALIZAÇÃO DA INTERFACE
-        console.log("🔄 Forçando atualização da interface...");
-        
-        // Atualizar selects
-        if (window.atualizarSelectCategorias) window.atualizarSelectCategorias();
-        
-        // Recriar os cards de metas
-        if (window.renderizarDashboardMetas) window.renderizarDashboardMetas();
-        
-        // Recriar os cards de tarefas
-        if (window.renderizarTarefas) window.renderizarTarefas();
-        
-        // Atualizar estatísticas
-        if (window.renderizarEstatisticas) window.renderizarEstatisticas();
-        
-        console.log("✅ Interface atualizada!");
         return true;
       } else {
-        console.log("📁 Nenhum dado encontrado, criando registro inicial...");
+        // Criar documento inicial
         await setDoc(docRef, {
           tarefas: [],
           metas: [],
@@ -802,6 +767,10 @@
     }
   }
 
+  // Expor funções globalmente
+  window.salvarTudoFirebase = salvarTudoNoFirebase;
+  window.carregarDadosFirebase = carregarDadosDoFirebase;
+
   // Evento quando usuário loga
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -812,8 +781,8 @@
       document.getElementById('mainApp').style.display = 'block';
       document.getElementById('userName').textContent = user.email;
       
-      // Carregar dados
-      await carregarTudoDoFirebase();
+      // Carregar dados e atualizar página
+      await carregarDadosDoFirebase();
       
     } else {
       console.log("👋 Usuário deslogado");
@@ -895,17 +864,6 @@
     syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
   };
 
-  // Substituir a função salvarTarefas original
-  window.salvarTarefas = function() {
-    if (typeof originalSalvarTarefas === 'function') originalSalvarTarefas();
-    salvarTudoNoFirebase();
-  };
-
-  window.salvarMetas = function() {
-    if (typeof originalSalvarMetas === 'function') originalSalvarMetas();
-    salvarTudoNoFirebase();
-  };
-
   window.mostrarLogin = function() {
     document.getElementById('loginForm').style.display = 'block';
     document.getElementById('registerForm').style.display = 'none';
@@ -938,6 +896,7 @@
     { id: "tarefa_waw", nome: "WAW" }
   ];
 
+  // Sincronizar com window
   window.tarefas = tarefas;
   window.metas = metas;
   window.cardsMetas = cardsMetas;
@@ -957,18 +916,15 @@
   let viewAtual = 'cards';
   let dataAtualCalendario = new Date();
 
-  // Guardar referências originais
-  const originalSalvarTarefas = function() {
-    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+  // FUNÇÃO PARA ATUALIZAR TUDO
+  function atualizarTudo() {
+    console.log("🔄 Atualizando toda a interface...");
+    atualizarSelectCategorias();
+    renderizarDashboardMetas();
     renderizarTarefas();
     renderizarEstatisticas();
-  };
-  
-  const originalSalvarMetas = function() {
-    localStorage.setItem('metas', JSON.stringify(metas));
-    renderizarDashboardMetas();
-    renderizarEstatisticas();
-  };
+  }
+  window.atualizarTudo = atualizarTudo;
 
   function escapeHtml(text) {
     if (!text) return '';
@@ -993,15 +949,33 @@
   }
   window.carregarTema = carregarTema;
 
+  function salvarTarefas() {
+    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    renderizarTarefas();
+    renderizarEstatisticas();
+    if (window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  window.salvarTarefas = salvarTarefas;
+
+  function salvarMetas() {
+    localStorage.setItem('metas', JSON.stringify(metas));
+    renderizarDashboardMetas();
+    renderizarEstatisticas();
+    if (window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  window.salvarMetas = salvarMetas;
+
   function salvarCardsMetas() {
     localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
     renderizarDashboardMetas();
+    if (window.salvarTudoFirebase) window.salvarTudoFirebase();
   }
 
   function salvarCardsTarefas() {
     localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
     atualizarSelectCategorias();
     renderizarTarefas();
+    if (window.salvarTudoFirebase) window.salvarTudoFirebase();
   }
 
   function atualizarSelectCategorias() {
@@ -1645,6 +1619,8 @@
   renderizarDashboardMetas();
   renderizarTarefas();
   renderizarEstatisticas();
+  
+  console.log("🚀 App FLUXO inicializado!");
 </script>
 </body>
 </html>
