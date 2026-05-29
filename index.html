@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -16,9 +15,7 @@
     padding: 24px;
     min-height: 100vh;
   }
-
   .container { max-width: 1600px; margin: 0 auto; }
-
   .header {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -28,7 +25,6 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
   }
-
   .header-content {
     display: flex;
     align-items: center;
@@ -36,7 +32,6 @@
     gap: 20px;
     flex-wrap: wrap;
   }
-
   .logo-img {
     width: 56px;
     height: 56px;
@@ -49,7 +44,6 @@
   }
   .logo-img:hover { transform: scale(1.05); }
   .logo-img img { width: 48px; height: 48px; object-fit: contain; }
-
   .logo-texto .logo-titulo {
     font-size: 32px;
     font-weight: 800;
@@ -65,7 +59,6 @@
     letter-spacing: 1px;
     color: white;
   }
-
   .user-info {
     position: absolute;
     top: 24px;
@@ -92,9 +85,7 @@
   .logout-btn:hover, .sync-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
   .sync-btn.syncing { animation: pulse 1s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
   .data-hoje { text-align: center; margin-top: 16px; font-size: 14px; opacity: 0.8; color: white; }
-
   .login-overlay {
     display: flex;
     position: fixed;
@@ -146,7 +137,6 @@
   .register-link { color: rgba(255,255,255,0.7); font-size: 14px; margin-top: 20px; display: block; cursor: pointer; }
   .register-link:hover { color: white; }
   .error-message { color: #FCA5A5; font-size: 12px; margin-bottom: 12px; display: block; }
-
   .top-bar {
     display: flex;
     justify-content: space-between;
@@ -171,7 +161,6 @@
   .view-btn i { margin-right: 8px; }
   .view-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: rgba(255,255,255,0.2); }
   .view-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.15); }
-
   .busca-global {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -194,7 +183,6 @@
     outline: none;
     height: 100%;
   }
-
   .dashboard-metas h2 {
     color: white;
     margin-bottom: 20px;
@@ -204,13 +192,11 @@
     flex-wrap: wrap;
     gap: 16px;
   }
-
   .metas-dashboard-grid, .blocos-tarefas {
     display: flex;
     flex-wrap: wrap;
     gap: 24px;
   }
-
   .meta-card, .bloco-tarefa {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -227,7 +213,6 @@
     box-shadow: 0 16px 48px rgba(102,126,234,0.15);
     border-color: rgba(102,126,234,0.3);
   }
-
   .meta-card-header, .bloco-header {
     padding: 20px 24px;
     font-weight: 700;
@@ -238,7 +223,6 @@
     font-size: 16px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
-
   .card-actions { display: flex; gap: 8px; align-items: center; }
   .card-actions button {
     background: rgba(255,255,255,0.15);
@@ -251,7 +235,6 @@
     transition: all 0.2s;
   }
   .card-actions button:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-
   .meta-progresso {
     background: rgba(255,255,255,0.2);
     padding: 4px 12px;
@@ -260,12 +243,9 @@
     font-weight: 500;
     color: white;
   }
-
   .meta-progresso-bar { height: 3px; background: rgba(255,255,255,0.1); }
   .meta-progresso-fill { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); transition: width 0.3s; }
-
   .meta-lista, .tarefa-lista { padding: 20px; max-height: 350px; overflow-y: auto; }
-
   .meta-item-dash {
     display: flex;
     align-items: flex-start;
@@ -284,7 +264,6 @@
   .meta-item-dash input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
   .meta-texto-dash { flex: 1; font-size: 14px; line-height: 1.4; color: white; word-break: break-word; }
   .meta-data-limite { font-size: 11px; opacity: 0.7; margin-top: 4px; color: rgba(255,255,255,0.7); display: inline-flex; align-items: center; gap: 4px; }
-
   .tarefa-item {
     display: flex;
     align-items: flex-start;
@@ -304,7 +283,6 @@
   .tarefa-conteudo { flex: 1; min-width: 0; }
   .tarefa-texto { font-size: 14px; line-height: 1.4; color: white; word-break: break-word; margin-bottom: 6px; }
   .tarefa-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
-
   .badge {
     display: inline-flex;
     align-items: center;
@@ -321,7 +299,6 @@
   .badge.p1 { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
   .badge.recorrente { background: rgba(102,126,234,0.2); color: #A5B4FC; border: 1px solid rgba(102,126,234,0.3); }
   .badge.atrasada { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); animation: pulse 2s infinite; }
-
   .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .item-actions button {
     background: transparent;
@@ -334,7 +311,6 @@
     transition: all 0.2s;
   }
   .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; }
-
   .meta-add-dash {
     padding: 20px;
     border-top: 1px solid rgba(255,255,255,0.08);
@@ -354,7 +330,6 @@
     outline: none;
   }
   .meta-add-dash input:focus { border-color: #667eea; background: rgba(255,255,255,0.12); }
-
   .card-adicionar {
     background: rgba(255,255,255,0.05);
     backdrop-filter: blur(24px);
@@ -370,7 +345,6 @@
   .card-adicionar:hover { background: rgba(255,255,255,0.1); transform: scale(1.02); }
   .card-adicionar-conteudo { text-align: center; padding: 40px 20px; color: white; }
   .card-adicionar-conteudo i { font-size: 48px; margin-bottom: 12px; opacity: 0.9; color: white; }
-
   .btn-glass {
     background: linear-gradient(135deg, #667eea, #764ba2);
     border: none;
@@ -385,7 +359,6 @@
     font-size: 14px;
   }
   .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.4); }
-
   .adicionar {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -408,7 +381,6 @@
   }
   .adicionar input:focus, .adicionar select:focus { border-color: #667eea; background: rgba(255,255,255,0.12); }
   .adicionar option { background: #1a1b26; color: white; }
-
   .filtros { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
   .filtro-btn {
     padding: 8px 20px;
@@ -424,7 +396,6 @@
   }
   .filtro-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: rgba(255,255,255,0.2); }
   .filtro-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.15); }
-
   .estatisticas {
     background: rgba(26,27,38,0.6);
     backdrop-filter: blur(24px);
@@ -460,7 +431,6 @@
     margin-top: 6px;
     color: rgba(255,255,255,0.8);
   }
-
   .grafico-barras {
     display: flex;
     align-items: flex-end;
@@ -481,11 +451,9 @@
   }
   .barra-valor { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 600; color: white; }
   .barra-label { position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); font-size: 11px; white-space: nowrap; color: rgba(255,255,255,0.7); }
-
   .backup-acoes { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
   .empty-state { text-align: center; padding: 40px 20px; opacity: 0.6; color: white; }
   .empty-state i { font-size: 48px; margin-bottom: 12px; }
-
   .modal-foco-overlay {
     display: none;
     position: fixed;
@@ -511,12 +479,10 @@
   }
   .progresso-foco { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 20px 0; overflow: hidden; }
   .progresso-foco-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); width: 0%; transition: width 0.3s; }
-
   .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   .calendario-dia-semana { text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 12px; color: white; }
   .calendario-dia { min-height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; cursor: pointer; transition: all 0.2s; color: white; }
   .calendario-dia.hoje { border: 1px solid #667eea; }
-
   @media (max-width: 768px) {
     body { padding: 16px; }
     .user-info { position: static; justify-content: center; margin-top: 16px; }
@@ -527,13 +493,11 @@
     .form-grid { grid-template-columns: 1fr 1fr; }
     .meta-card, .bloco-tarefa { min-width: 100%; }
   }
-
   [data-theme="dark"] body { background: linear-gradient(135deg, #1a1b2e, #2d1b3e); }
 </style>
 </head>
 <body>
 
-<!-- TELA DE LOGIN COM EMAIL -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-container">
     <div class="logo-img" style="margin: 0 auto 20px;">
@@ -541,7 +505,6 @@
     </div>
     <h2>FLUXO</h2>
     <p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p>
-    
     <div id="loginForm">
       <input type="email" id="loginEmail" placeholder="Email" autocomplete="off">
       <input type="password" id="loginPassword" placeholder="Senha">
@@ -549,7 +512,6 @@
       <button class="login-btn" onclick="fazerLogin()">Entrar</button>
       <a class="register-link" onclick="mostrarCadastro()">Não tem uma conta? Cadastre-se</a>
     </div>
-
     <div id="registerForm" style="display: none;">
       <input type="email" id="registerEmail" placeholder="Email" autocomplete="off">
       <input type="password" id="registerPassword" placeholder="Senha">
@@ -577,7 +539,6 @@
     </div>
     <div class="data-hoje" id="dataHoje"></div>
   </div>
-
   <div class="top-bar">
     <div class="view-toggle">
       <button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
@@ -588,19 +549,15 @@
       <input type="text" id="buscaGlobal" placeholder="Buscar metas e tarefas..." oninput="buscarGlobal()">
     </div>
   </div>
-
   <div id="cardsView">
     <div class="dashboard-metas">
       <h2>
         <span><i class="fas fa-trophy"></i> MINHAS METAS</span>
-        <div style="display: flex; gap: 12px;">
-          <button class="btn-glass" onclick="abrirModalNovaMeta()"><i class="fas fa-plus"></i> Nova Meta</button>
-          <button class="btn-glass" onclick="limparMetasConcluidas()"><i class="fas fa-trash-alt"></i> Limpar Concluídas</button>
-        </div>
+        <div style="display: flex; gap: 12px;"><button class="btn-glass" onclick="abrirModalNovaMeta()"><i class="fas fa-plus"></i> Nova Meta</button>
+        <button class="btn-glass" onclick="limparMetasConcluidas()"><i class="fas fa-trash-alt"></i> Limpar Concluídas</button></div>
       </h2>
       <div class="metas-dashboard-grid" id="dashboardMetasGrid"></div>
     </div>
-
     <div class="adicionar">
       <h3><i class="fas fa-plus-circle"></i> Nova Tarefa</h3>
       <div class="form-grid">
@@ -610,32 +567,19 @@
         <input type="time" id="nova-hora">
       </div>
       <div class="form-grid">
-        <select id="nova-prioridade">
-          <option value="p3">🟢 Baixa Prioridade</option>
-          <option value="p2">🟡 Média Prioridade</option>
-          <option value="p1">🔴 Alta Prioridade</option>
-        </select>
-        <select id="nova-recorrencia">
-          <option value="">Sem recorrência</option>
-          <option value="diaria">🔄 Diária</option>
-          <option value="dias_uteis">📅 Dias úteis</option>
-          <option value="semanal">📆 Semanal</option>
-          <option value="mensal">📅 Mensal</option>
-        </select>
+        <select id="nova-prioridade"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select>
+        <select id="nova-recorrencia"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select>
         <button class="btn-glass" onclick="adicionarTarefa()" style="grid-column: -1;"><i class="fas fa-save"></i> Adicionar</button>
       </div>
     </div>
-
     <div class="filtros">
       <button class="filtro-btn active" onclick="setFiltro('hoje', this)"><i class="fas fa-calendar-day"></i> Hoje</button>
       <button class="filtro-btn" onclick="setFiltro('semana', this)"><i class="fas fa-calendar-week"></i> Semana</button>
       <button class="filtro-btn" onclick="setFiltro('todas', this)"><i class="fas fa-list"></i> Todas</button>
       <button class="filtro-btn" onclick="setFiltro('concluidas', this)"><i class="fas fa-check-circle"></i> Concluídas</button>
     </div>
-
     <div class="blocos-tarefas" id="blocosTarefas"></div>
   </div>
-
   <div id="calendarioView" style="display: none;">
     <div class="adicionar">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
@@ -646,7 +590,6 @@
       <div class="calendario-grade" id="calendarioGrade"></div>
     </div>
   </div>
-
   <div class="estatisticas">
     <h3><i class="fas fa-chart-line"></i> Estatísticas</h3>
     <div class="stats-grid" id="statsGrid"></div>
@@ -706,1034 +649,157 @@
   const db = getFirestore(app);
 
   let currentUser = null;
-
-  // Dados globais
   window.tarefas = [];
   window.metas = [];
-  window.cardsMetas = [
-    { id: "meta_pessoal", nome: "Pessoal" },
-    { id: "meta_jw", nome: "JW" },
-    { id: "meta_at", nome: "At Inovvate" },
-    { id: "meta_waw", nome: "WAW" }
-  ];
-  window.cardsTarefas = [
-    { id: "tarefa_pessoal", nome: "Pessoal" },
-    { id: "tarefa_jw", nome: "JW" },
-    { id: "tarefa_at", nome: "At Inovvate" },
-    { id: "tarefa_waw", nome: "WAW" }
-  ];
 
-  // Função para forçar atualização da interface
-  function forcarAtualizacaoInterface() {
-    console.log("🔄 Forçando atualização da interface...");
-    console.log("📊 Dados atuais:", { 
-      tarefas: window.tarefas?.length || 0, 
-      metas: window.metas?.length || 0 
+  async function salvarTudoFirebase() {
+    if (!currentUser) return;
+    await setDoc(doc(db, "usuarios", currentUser.uid), {
+      tarefas: window.tarefas,
+      metas: window.metas,
+      ultimaAtualizacao: new Date().toISOString()
     });
-    
+    console.log("✅ Salvou:", window.tarefas.length, "tarefas");
+  }
+
+  async function carregarDadosFirebase() {
+    if (!currentUser) return;
+    const docRef = doc(db, "usuarios", currentUser.uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const dados = docSnap.data();
+      window.tarefas = dados.tarefas || [];
+      window.metas = dados.metas || [];
+      console.log("📥 Carregou:", window.tarefas.length, "tarefas do Firebase!");
+      atualizarInterface();
+    }
+  }
+
+  function atualizarInterface() {
     if (window.atualizarSelectCategorias) window.atualizarSelectCategorias();
     if (window.renderizarDashboardMetas) window.renderizarDashboardMetas();
     if (window.renderizarTarefas) window.renderizarTarefas();
     if (window.renderizarEstatisticas) window.renderizarEstatisticas();
-    
-    console.log("✅ Interface atualizada!");
   }
 
-  // Função para salvar no Firebase
-  async function salvarTudoNoFirebase() {
-    if (!currentUser) {
-      console.log("⚠️ Nenhum usuário logado para salvar");
-      return false;
-    }
-    
-    console.log("💾 Salvando dados no Firebase...");
-    console.log("📊 Dados a salvar:", { 
-      tarefas: window.tarefas?.length || 0, 
-      metas: window.metas?.length || 0 
-    });
-    
-    try {
-      await setDoc(doc(db, "usuarios", currentUser.uid), {
-        tarefas: window.tarefas || [],
-        metas: window.metas || [],
-        cardsMetas: window.cardsMetas || [],
-        cardsTarefas: window.cardsTarefas || [],
-        ultimaAtualizacao: new Date().toISOString()
-      });
-      console.log("✅ Dados salvos com sucesso no Firebase!");
-      return true;
-    } catch (error) {
-      console.error("❌ Erro ao salvar:", error);
-      return false;
-    }
-  }
-
-  // Função para carregar do Firebase - VERSÃO ROBUSTA
-  async function carregarDadosDoFirebase() {
-    if (!currentUser) {
-      console.log("⚠️ Nenhum usuário logado para carregar");
-      return false;
-    }
-    
-    console.log("📥 Carregando dados do Firebase para UID:", currentUser.uid);
-    
-    try {
-      const docRef = doc(db, "usuarios", currentUser.uid);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        const dados = docSnap.data();
-        console.log("📦 Dados brutos do Firebase:", JSON.stringify(dados, null, 2));
-        
-        // Tentar encontrar tarefas em diferentes estruturas
-        let tarefasEncontradas = false;
-        
-        // Verificar se existe campo 'tarefas'
-        if (dados.tarefas && Array.isArray(dados.tarefas)) {
-          window.tarefas = dados.tarefas;
-          console.log(`✅ Tarefas encontradas em 'tarefas': ${window.tarefas.length}`);
-          tarefasEncontradas = true;
-        }
-        
-        // Verificar se existe campo 'dados.tarefas'
-        if (!tarefasEncontradas && dados.dados && dados.dados.tarefas && Array.isArray(dados.dados.tarefas)) {
-          window.tarefas = dados.dados.tarefas;
-          console.log(`✅ Tarefas encontradas em 'dados.tarefas': ${window.tarefas.length}`);
-          tarefasEncontradas = true;
-        }
-        
-        // Se não encontrou, tentar encontrar qualquer array com objetos que tenham 'texto'
-        if (!tarefasEncontradas) {
-          for (let key in dados) {
-            if (Array.isArray(dados[key]) && dados[key].length > 0) {
-              if (dados[key][0] && (dados[key][0].texto || dados[key][0].titulo)) {
-                window.tarefas = dados[key];
-                console.log(`✅ Tarefas encontradas na chave '${key}': ${window.tarefas.length}`);
-                tarefasEncontradas = true;
-                break;
-              }
-            }
-          }
-        }
-        
-        if (!tarefasEncontradas) {
-          window.tarefas = [];
-          console.log("📁 Nenhuma tarefa encontrada na estrutura");
-        }
-        
-        // Carregar metas
-        if (dados.metas && Array.isArray(dados.metas)) {
-          window.metas = dados.metas;
-          console.log(`✅ Metas encontradas: ${window.metas.length}`);
-        } else {
-          window.metas = [];
-        }
-        
-        // Carregar cards
-        if (dados.cardsMetas) window.cardsMetas = dados.cardsMetas;
-        if (dados.cardsTarefas) window.cardsTarefas = dados.cardsTarefas;
-        
-        console.log(`✅ RESULTADO FINAL: ${window.tarefas.length} tarefas, ${window.metas.length} metas`);
-        
-        // Sincronizar com variáveis locais
-        if (typeof tarefas !== 'undefined') {
-          tarefas = window.tarefas;
-          metas = window.metas;
-          cardsMetas = window.cardsMetas;
-          cardsTarefas = window.cardsTarefas;
-        }
-        
-        // Forçar atualização da interface
-        forcarAtualizacaoInterface();
-        
-        return true;
-      } else {
-        console.log("📁 Nenhum documento encontrado para este usuário");
-        window.tarefas = [];
-        window.metas = [];
-        return true;
-      }
-    } catch (error) {
-      console.error("❌ Erro ao carregar:", error);
-      return false;
-    }
-  }
-
-  // Expor funções globalmente
-  window.salvarTudoFirebase = salvarTudoNoFirebase;
-  window.carregarDadosFirebase = carregarDadosDoFirebase;
-  window.forcarAtualizacaoInterface = forcarAtualizacaoInterface;
-
-  // Evento quando usuário loga
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
-      console.log("✅ Usuário logado:", user.email);
-      console.log("🆔 UID:", user.uid);
-      
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       document.getElementById('userName').textContent = user.email;
-      
-      // Carregar dados do Firebase
-      await carregarDadosDoFirebase();
-      
+      await carregarDadosFirebase();
     } else {
-      console.log("👋 Usuário deslogado");
-      currentUser = null;
       document.getElementById('loginOverlay').style.display = 'flex';
       document.getElementById('mainApp').style.display = 'none';
     }
   });
 
-  // Funções de login/cadastro
-  window.fazerLogin = async function() {
+  window.fazerLogin = async () => {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-    const errorDiv = document.getElementById('loginErrorMessage');
-    
-    if (!email || !password) {
-      errorDiv.textContent = 'Preencha todos os campos!';
-      return;
-    }
-    
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      errorDiv.textContent = 'Email ou senha inválidos!';
-    }
+    } catch(e) { document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!'; }
   };
-
-  window.fazerCadastro = async function() {
+  window.fazerCadastro = async () => {
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
     const confirm = document.getElementById('registerConfirm').value;
-    const errorDiv = document.getElementById('registerErrorMessage');
-    
-    if (!email || !password || !confirm) {
-      errorDiv.textContent = 'Preencha todos os campos!';
-      return;
-    }
-    
-    if (password !== confirm) {
-      errorDiv.textContent = 'As senhas não coincidem!';
-      return;
-    }
-    
-    if (password.length < 6) {
-      errorDiv.textContent = 'A senha deve ter no mínimo 6 caracteres!';
-      return;
-    }
-    
+    if (password !== confirm) { document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem!'; return; }
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert('✅ Conta criada com sucesso!');
-    } catch (error) {
-      if (error.code === 'auth/email-already-in-use') {
-        errorDiv.textContent = 'Email já cadastrado!';
-      } else {
-        errorDiv.textContent = 'Erro ao cadastrar: ' + error.message;
-      }
-    }
+      alert('✅ Conta criada!');
+    } catch(e) { document.getElementById('registerErrorMessage').textContent = e.message; }
   };
-
-  window.fazerLogout = async function() {
-    await signOut(auth);
-  };
-
-  window.sincronizarFirebase = async function() {
-    const syncBtn = document.getElementById('syncBtn');
-    syncBtn.classList.add('syncing');
-    syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Salvando...';
-    
-    const sucesso = await salvarTudoNoFirebase();
-    
-    if (sucesso) {
-      alert('✅ Dados salvos no Firebase!');
-    } else {
-      alert('❌ Erro ao salvar.');
-    }
-    
-    syncBtn.classList.remove('syncing');
-    syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
-  };
-
-  window.mostrarLogin = function() {
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('registerForm').style.display = 'none';
-  };
-
-  window.mostrarCadastro = function() {
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('registerForm').style.display = 'block';
-  };
-
+  window.fazerLogout = () => signOut(auth);
+  window.sincronizarFirebase = async () => { await salvarTudoFirebase(); alert('✅ Sincronizado!'); };
+  window.mostrarCadastro = () => { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; };
+  window.mostrarLogin = () => { document.getElementById('loginForm').style.display = 'block'; document.getElementById('registerForm').style.display = 'none'; };
   document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
   document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
 </script>
 
 <script>
-  // ========== DADOS DO APP ==========
   let tarefas = [];
   let metas = [];
-  let cardsMetas = [
-    { id: "meta_pessoal", nome: "Pessoal" },
-    { id: "meta_jw", nome: "JW" },
-    { id: "meta_at", nome: "At Inovvate" },
-    { id: "meta_waw", nome: "WAW" }
-  ];
-  let cardsTarefas = [
-    { id: "tarefa_pessoal", nome: "Pessoal" },
-    { id: "tarefa_jw", nome: "JW" },
-    { id: "tarefa_at", nome: "At Inovvate" },
-    { id: "tarefa_waw", nome: "WAW" }
-  ];
+  let cardsMetas = [{ id: "meta_pessoal", nome: "Pessoal" }, { id: "meta_jw", nome: "JW" }, { id: "meta_at", nome: "At Inovvate" }, { id: "meta_waw", nome: "WAW" }];
+  let cardsTarefas = [{ id: "tarefa_pessoal", nome: "Pessoal" }, { id: "tarefa_jw", nome: "JW" }, { id: "tarefa_at", nome: "At Inovvate" }, { id: "tarefa_waw", nome: "WAW" }];
+  window.tarefas = tarefas; window.metas = metas; window.cardsMetas = cardsMetas; window.cardsTarefas = cardsTarefas;
 
-  window.tarefas = tarefas;
-  window.metas = metas;
-  window.cardsMetas = cardsMetas;
-  window.cardsTarefas = cardsTarefas;
+  let filtroAtual = 'hoje', termoBusca = '', tarefaArrastando = null, metaArrastando = null, cardMetaArrastando = null, cardTarefaArrastando = null;
+  let pomodoroAtivo = false, pomodoroPausado = false, tempoRestante = 25 * 60, pomodoroInterval = null, tarefaFocoAtual = null;
+  let viewAtual = 'cards', dataAtualCalendario = new Date();
 
-  let filtroAtual = 'hoje';
-  let termoBusca = '';
-  let tarefaArrastando = null;
-  let metaArrastando = null;
-  let cardMetaArrastando = null;
-  let cardTarefaArrastando = null;
-  let pomodoroAtivo = false;
-  let pomodoroPausado = false;
-  let tempoRestante = 25 * 60;
-  let pomodoroInterval = null;
-  let tarefaFocoAtual = null;
-  let viewAtual = 'cards';
-  let dataAtualCalendario = new Date();
-
-  function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  function atualizarDataHoje() {
-    const hoje = new Date();
-    const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const dataEl = document.getElementById('dataHoje');
-    if (dataEl) dataEl.textContent = hoje.toLocaleDateString('pt-BR', opcoes);
-  }
-  window.atualizarDataHoje = atualizarDataHoje;
-
-  function carregarTema() {
-    const saved = localStorage.getItem('tema');
-    if (saved === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
-  }
-  window.carregarTema = carregarTema;
-
-  function salvarTarefas() {
-    localStorage.setItem('tarefas', JSON.stringify(tarefas));
-    renderizarTarefas();
-    renderizarEstatisticas();
-    if (window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  window.salvarTarefas = salvarTarefas;
-
-  function salvarMetas() {
-    localStorage.setItem('metas', JSON.stringify(metas));
-    renderizarDashboardMetas();
-    renderizarEstatisticas();
-    if (window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  window.salvarMetas = salvarMetas;
-
-  function salvarCardsMetas() {
-    localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
-    renderizarDashboardMetas();
-    if (window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-
-  function salvarCardsTarefas() {
-    localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
-    atualizarSelectCategorias();
-    renderizarTarefas();
-    if (window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-
-  function atualizarSelectCategorias() {
-    const select = document.getElementById('nova-bloco');
-    if (!select) return;
-    select.innerHTML = '';
-    cardsTarefas.forEach(card => {
-      const option = document.createElement('option');
-      option.value = card.nome;
-      option.textContent = card.nome;
-      select.appendChild(option);
-    });
-  }
-  window.atualizarSelectCategorias = atualizarSelectCategorias;
-
-  function adicionarCardMeta() {
-    const nome = prompt('🏆 Nome do novo card:', 'Nova Categoria');
-    if (!nome || nome.trim() === '') return;
-    cardsMetas.push({ id: 'meta_' + Date.now(), nome: nome.trim() });
-    salvarCardsMetas();
-    alert(`✅ Card "${nome}" criado!`);
-  }
-
-  function adicionarCardTarefa() {
-    const nome = prompt('📋 Nome do novo card:', 'Nova Lista');
-    if (!nome || nome.trim() === '') return;
-    cardsTarefas.push({ id: 'tarefa_' + Date.now(), nome: nome.trim() });
-    salvarCardsTarefas();
-    alert(`✅ Card "${nome}" criado!`);
-  }
-
-  function editarCardMeta(id) {
-    const card = cardsMetas.find(c => c.id === id);
-    if (!card) return;
-    const novoNome = prompt('Editar nome:', card.nome);
-    if (novoNome && novoNome.trim()) {
-      metas.forEach(m => { if (m.categoria === card.nome) m.categoria = novoNome.trim(); });
-      card.nome = novoNome.trim();
-    }
-    salvarCardsMetas();
-    salvarMetas();
-  }
-
-  function editarCardTarefa(id) {
-    const card = cardsTarefas.find(c => c.id === id);
-    if (!card) return;
-    const novoNome = prompt('Editar nome:', card.nome);
-    if (novoNome && novoNome.trim()) {
-      tarefas.forEach(t => { if (t.bloco === card.nome) t.bloco = novoNome.trim(); });
-      card.nome = novoNome.trim();
-    }
-    salvarCardsTarefas();
-    salvarTarefas();
-  }
-
-  function excluirCardMeta(id) {
-    const card = cardsMetas.find(c => c.id === id);
-    if (!card) return;
-    if (confirm(`Excluir "${card.nome}"? Metas serão movidas para "Pessoal".`)) {
-      const alvo = cardsMetas.find(c => c.nome === 'Pessoal') || cardsMetas[0];
-      metas.forEach(m => { if (m.categoria === card.nome) m.categoria = alvo.nome; });
-      cardsMetas = cardsMetas.filter(c => c.id !== id);
-      salvarCardsMetas();
-      salvarMetas();
-    }
-  }
-
-  function excluirCardTarefa(id) {
-    const card = cardsTarefas.find(c => c.id === id);
-    if (!card) return;
-    if (confirm(`Excluir "${card.nome}"? Tarefas serão movidas para "Pessoal".`)) {
-      const alvo = cardsTarefas.find(c => c.nome === 'Pessoal') || cardsTarefas[0];
-      tarefas.forEach(t => { if (t.bloco === card.nome) t.bloco = alvo.nome; });
-      cardsTarefas = cardsTarefas.filter(c => c.id !== id);
-      salvarCardsTarefas();
-      salvarTarefas();
-    }
-  }
-
-  function moverCardMeta(origemId, destinoId) {
-    const idxOrigem = cardsMetas.findIndex(c => c.id === origemId);
-    const idxDestino = cardsMetas.findIndex(c => c.id === destinoId);
-    if (idxOrigem === -1 || idxDestino === -1) return;
-    const [movido] = cardsMetas.splice(idxOrigem, 1);
-    cardsMetas.splice(idxDestino, 0, movido);
-    salvarCardsMetas();
-  }
-
-  function moverCardTarefa(origemId, destinoId) {
-    const idxOrigem = cardsTarefas.findIndex(c => c.id === origemId);
-    const idxDestino = cardsTarefas.findIndex(c => c.id === destinoId);
-    if (idxOrigem === -1 || idxDestino === -1) return;
-    const [movido] = cardsTarefas.splice(idxOrigem, 1);
-    cardsTarefas.splice(idxDestino, 0, movido);
-    salvarCardsTarefas();
-  }
-
-  function adicionarMeta(categoria, cardId) {
-    const input = document.getElementById(`input-meta-${cardId}`);
-    const texto = input?.value.trim();
-    if (!texto) return;
-    const dataInput = document.getElementById(`input-data-meta-${cardId}`);
-    metas.push({
-      id: Date.now(),
-      texto: texto,
-      categoria: categoria,
-      atingida: false,
-      dataLimite: dataInput?.value || ''
-    });
-    if (input) input.value = '';
-    if (dataInput) dataInput.value = '';
-    salvarMetas();
-  }
-  window.adicionarMeta = adicionarMeta;
-
-  function adicionarTarefa() {
-    const texto = document.getElementById('nova-tarefa').value.trim();
-    if (!texto) { alert('Digite uma tarefa!'); return; }
-    const data = document.getElementById('nova-data').value || new Date().toISOString().split('T')[0];
-    const bloco = document.getElementById('nova-bloco').value;
-    tarefas.push({
-      id: Date.now(),
-      texto: texto,
-      bloco: bloco,
-      data: data,
-      hora: document.getElementById('nova-hora').value,
-      prioridade: document.getElementById('nova-prioridade').value,
-      recorrencia: document.getElementById('nova-recorrencia').value,
-      concluida: false,
-      criada: new Date().toISOString(),
-      alertado: false,
-      ordem: tarefas.filter(t => t.bloco === bloco).length,
-      tempoGasto: 0
-    });
-    document.getElementById('nova-tarefa').value = '';
-    document.getElementById('nova-hora').value = '';
-    salvarTarefas();
-    alert('✅ Tarefa adicionada!');
-  }
-  window.adicionarTarefa = adicionarTarefa;
-
-  function toggleMeta(id) {
-    const meta = metas.find(m => m.id === id);
-    if (meta) { meta.atingida = !meta.atingida; salvarMetas(); }
-  }
-  window.toggleMeta = toggleMeta;
-
-  function toggleTarefa(id) {
-    const t = tarefas.find(t => t.id === id);
-    if (t) { t.concluida = !t.concluida; salvarTarefas(); }
-  }
-  window.toggleTarefa = toggleTarefa;
-
-  function excluirMeta(id) {
-    if (confirm('Excluir esta meta?')) {
-      metas = metas.filter(m => m.id !== id);
-      salvarMetas();
-    }
-  }
-  window.excluirMeta = excluirMeta;
-
-  function excluirTarefa(id) {
-    if (confirm('Excluir esta tarefa?')) {
-      tarefas = tarefas.filter(t => t.id !== id);
-      salvarTarefas();
-    }
-  }
-  window.excluirTarefa = excluirTarefa;
-
-  function editarMetaPrompt(id) {
-    const meta = metas.find(m => m.id === id);
-    if (!meta) return;
-    const novoTexto = prompt('Editar meta:', meta.texto);
-    if (novoTexto && novoTexto.trim()) meta.texto = novoTexto.trim();
-    const novaData = prompt('Data limite:', meta.dataLimite || '');
-    if (novaData !== null) meta.dataLimite = novaData;
-    salvarMetas();
-  }
-  window.editarMetaPrompt = editarMetaPrompt;
-
-  function editarTarefa(id) {
-    const t = tarefas.find(t => t.id === id);
-    if (!t) return;
-    const novoTexto = prompt('Editar tarefa:', t.texto);
-    if (novoTexto && novoTexto.trim()) t.texto = novoTexto.trim();
-    const novaData = prompt('Data:', t.data || '');
-    if (novaData && novaData.match(/^\d{4}-\d{2}-\d{2}$/)) t.data = novaData;
-    const novaPrioridade = prompt('Prioridade (p1/p2/p3):', t.prioridade);
-    if (novaPrioridade && ['p1','p2','p3'].includes(novaPrioridade)) t.prioridade = novaPrioridade;
-    salvarTarefas();
-  }
-  window.editarTarefa = editarTarefa;
-
-  function setFiltro(filtro, btn) {
-    filtroAtual = filtro;
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderizarTarefas();
-  }
-  window.setFiltro = setFiltro;
-
-  function buscarGlobal() {
-    termoBusca = document.getElementById('buscaGlobal').value.toLowerCase();
-    renderizarTarefas();
-  }
-  window.buscarGlobal = buscarGlobal;
-
-  function filtrarTarefas(lista) {
-    const hoje = new Date().toISOString().split('T')[0];
-    let filtradas = lista;
-    if (termoBusca) filtradas = filtradas.filter(t => t.texto.toLowerCase().includes(termoBusca));
-    if (filtroAtual === 'hoje') return filtradas.filter(t => t.data <= hoje && !t.concluida);
-    if (filtroAtual === 'concluidas') return filtradas.filter(t => t.concluida);
-    return filtradas.filter(t => !t.concluida);
-  }
-
-  function toggleView(view) {
-    viewAtual = view;
-    const cards = document.getElementById('cardsView');
-    const cal = document.getElementById('calendarioView');
-    const btns = document.querySelectorAll('.view-btn');
-    btns.forEach(btn => btn.classList.remove('active'));
-    if (view === 'cards') {
-      cards.style.display = 'block';
-      cal.style.display = 'none';
-      btns[0].classList.add('active');
-      renderizarTarefas();
-    } else {
-      cards.style.display = 'none';
-      cal.style.display = 'block';
-      btns[1].classList.add('active');
-      renderizarCalendario();
-    }
-  }
-  window.toggleView = toggleView;
-
-  function mudarMes(delta) {
-    dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + delta);
-    renderizarCalendario();
-  }
-  window.mudarMes = mudarMes;
-
-  function renderizarCalendario() {
-    const ano = dataAtualCalendario.getFullYear();
-    const mes = dataAtualCalendario.getMonth();
-    const primeiroDia = new Date(ano, mes, 1);
-    const ultimoDia = new Date(ano, mes + 1, 0);
-    const diasNoMes = ultimoDia.getDate();
-    const diaInicio = primeiroDia.getDay();
-    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`;
-    const diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-    let html = '';
-    diasSemana.forEach(d => { html += `<div class="calendario-dia-semana">${d}</div>`; });
-    let dia = 1;
-    const hoje = new Date().toISOString().split('T')[0];
-    for (let i = 0; i < 42; i++) {
-      if (i < diaInicio || dia > diasNoMes) {
-        html += `<div class="calendario-dia vazio"></div>`;
-      } else {
-        const dataStr = `${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
-        const tarefasDia = tarefas.filter(t => t.data === dataStr && !t.concluida);
-        const isHoje = dataStr === hoje;
-        html += `<div class="calendario-dia ${isHoje ? 'hoje' : ''}" onclick="selecionarDataCalendario('${dataStr}')">
-          <div style="font-weight: bold; margin-bottom: 5px;">${dia}</div>
-          <div style="font-size: 11px; max-height: 70px; overflow-y: auto;">`;
-        tarefasDia.slice(0, 4).forEach(t => {
-          html += `<div style="padding: 2px 4px; background: rgba(102,126,234,0.2); border-radius: 6px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onclick="event.stopPropagation(); abrirModoFocoComTarefa(${t.id})">${escapeHtml(t.texto.substring(0, 20))}${t.texto.length > 20 ? '...' : ''}</div>`;
-        });
-        if (tarefasDia.length > 4) html += `<div style="font-size: 10px; opacity: 0.7;">+${tarefasDia.length-4} mais</div>`;
-        html += `</div></div>`;
-        dia++;
-      }
-    }
-    document.getElementById('calendarioGrade').innerHTML = html;
-  }
-  window.renderizarCalendario = renderizarCalendario;
-
-  function selecionarDataCalendario(data) {
-    const tarefasDia = tarefas.filter(t => t.data === data && !t.concluida);
-    if (tarefasDia.length) {
-      alert(`📅 ${data}\n\n${tarefasDia.map((t,i)=>`${i+1}. ${t.texto}`).join('\n')}`);
-    } else {
-      alert(`📅 ${data}\nNenhuma tarefa pendente.`);
-    }
-  }
-  window.selecionarDataCalendario = selecionarDataCalendario;
-
-  function abrirModoFocoComTarefa(id) {
-    const t = tarefas.find(t => t.id === id);
-    if (!t) return;
-    tarefaFocoAtual = t;
-    document.getElementById('tarefaFocoTexto').textContent = t.texto;
-    tempoRestante = 25 * 60;
-    atualizarTimerDisplay();
-    document.getElementById('modalFocoOverlay').classList.add('show');
-    if (pomodoroInterval) clearInterval(pomodoroInterval);
-    pomodoroAtivo = false;
-    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
-    document.getElementById('btnPausarFoco').style.display = 'none';
-  }
-  window.abrirModoFocoComTarefa = abrirModoFocoComTarefa;
-
-  function abrirModoFoco() {
-    const pendentes = tarefas.filter(t => !t.concluida);
-    if (!pendentes.length) { alert('🎉 Nenhuma tarefa pendente!'); return; }
-    abrirModoFocoComTarefa(pendentes[0].id);
-  }
-  window.abrirModoFoco = abrirModoFoco;
-
-  function atualizarTimerDisplay() {
-    const min = Math.floor(tempoRestante / 60);
-    const seg = tempoRestante % 60;
-    document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;
-    const progresso = ((25*60 - tempoRestante) / (25*60)) * 100;
-    const bar = document.querySelector('#modalFocoOverlay .progresso-foco-bar');
-    if (bar) bar.style.width = `${progresso}%`;
-  }
-
-  function iniciarPomodoroFoco() {
-    if (pomodoroAtivo) return;
-    pomodoroAtivo = true;
-    pomodoroPausado = false;
-    if (pomodoroInterval) clearInterval(pomodoroInterval);
-    pomodoroInterval = setInterval(() => {
-      if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
-        tempoRestante--;
-        atualizarTimerDisplay();
-        if (tempoRestante <= 0) {
-          clearInterval(pomodoroInterval);
-          pomodoroAtivo = false;
-          if (tarefaFocoAtual) {
-            tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + (25 * 60);
-            salvarTarefas();
-          }
-          alert('🎉 Pomodoro concluído!');
-          tempoRestante = 25 * 60;
-          atualizarTimerDisplay();
-          document.getElementById('btnIniciarFoco').style.display = 'inline-block';
-          document.getElementById('btnPausarFoco').style.display = 'none';
-        }
-      }
-    }, 1000);
-    document.getElementById('btnIniciarFoco').style.display = 'none';
-    document.getElementById('btnPausarFoco').style.display = 'inline-block';
-  }
-  window.iniciarPomodoroFoco = iniciarPomodoroFoco;
-
-  function pausarPomodoroFoco() {
-    if (!pomodoroAtivo) return;
-    pomodoroPausado = !pomodoroPausado;
-    document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
-  }
-  window.pausarPomodoroFoco = pausarPomodoroFoco;
-
-  function resetarPomodoroFoco() {
-    if (pomodoroInterval) clearInterval(pomodoroInterval);
-    tempoRestante = 25 * 60;
-    atualizarTimerDisplay();
-    pomodoroAtivo = false;
-    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
-    document.getElementById('btnPausarFoco').style.display = 'none';
-  }
-  window.resetarPomodoroFoco = resetarPomodoroFoco;
-
-  function concluirTarefaFoco() {
-    if (!tarefaFocoAtual) return;
-    if (confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) {
-      toggleTarefa(tarefaFocoAtual.id);
-      fecharModoFoco();
-      setTimeout(() => {
-        const pendentes = tarefas.filter(t => !t.concluida);
-        if (pendentes.length) abrirModoFocoComTarefa(pendentes[0].id);
-      }, 300);
-    }
-  }
-  window.concluirTarefaFoco = concluirTarefaFoco;
-
-  function fecharModoFoco() {
-    if (pomodoroInterval) clearInterval(pomodoroInterval);
-    pomodoroAtivo = false;
-    document.getElementById('modalFocoOverlay').classList.remove('show');
-  }
-  window.fecharModoFoco = fecharModoFoco;
-
-  function renderizarDashboardMetas() {
-    const container = document.getElementById('dashboardMetasGrid');
-    if (!container) return;
-    container.innerHTML = '';
-    console.log("🎨 Renderizando metas...");
-    cardsMetas.forEach(card => {
-      const metasBloco = metas.filter(m => m.categoria === card.nome);
-      const total = metasBloco.length;
-      const atingidas = metasBloco.filter(m => m.atingida).length;
-      const percentual = total > 0 ? Math.round((atingidas/total)*100) : 0;
-      const div = document.createElement('div');
-      div.className = 'meta-card';
-      div.setAttribute('draggable', 'true');
-      div.dataset.cardId = card.id;
-      div.addEventListener('dragstart', (e) => { cardMetaArrastando = card.id; div.classList.add('dragging'); e.dataTransfer.setData('text/plain', card.id); });
-      div.addEventListener('dragend', () => div.classList.remove('dragging'));
-      div.addEventListener('dragover', (e) => { e.preventDefault(); div.classList.add('drag-over'); });
-      div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
-      div.addEventListener('drop', (e) => {
-        e.preventDefault();
-        div.classList.remove('drag-over');
-        if (cardMetaArrastando && cardMetaArrastando !== card.id) moverCardMeta(cardMetaArrastando, card.id);
-        cardMetaArrastando = null;
-      });
-      div.innerHTML = `
-        <div class="meta-card-header">
-          <span><i class="fas fa-tag"></i> ${escapeHtml(card.nome)}</span>
-          <div class="card-actions">
-            <span class="meta-progresso">${atingidas}/${total}</span>
-            <button onclick="event.stopPropagation(); editarCardMeta('${card.id}')"><i class="fas fa-edit"></i></button>
-            <button onclick="event.stopPropagation(); excluirCardMeta('${card.id}')"><i class="fas fa-trash-alt"></i></button>
-          </div>
-        </div>
-        <div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width: ${percentual}%"></div></div>
-        <div class="meta-lista" id="meta-lista-${card.id}"></div>
-        <div class="meta-add-dash">
-          <input type="text" id="input-meta-${card.id}" placeholder="Nova meta...">
-          <input type="date" id="input-data-meta-${card.id}">
-          <button class="btn-glass" style="padding: 8px 20px;" onclick="adicionarMeta('${card.nome}', '${card.id}')"><i class="fas fa-plus"></i></button>
-        </div>
-      `;
-      container.appendChild(div);
-      const lista = div.querySelector(`#meta-lista-${card.id}`);
-      if (metasBloco.length === 0) {
-        lista.innerHTML = `<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia por aqui</p><small>Adicione uma meta para começar</small></div>`;
-      } else {
-        metasBloco.forEach(meta => {
-          lista.innerHTML += `
-            <div class="meta-item-dash ${meta.atingida ? 'atingida' : ''}" draggable="true" data-meta-id="${meta.id}">
-              <input type="checkbox" ${meta.atingida ? 'checked' : ''} onchange="toggleMeta(${meta.id})">
-              <div style="flex:1"><div class="meta-texto-dash">${escapeHtml(meta.texto)}</div>${meta.dataLimite ? `<div class="meta-data-limite"><i class="fas fa-calendar-alt"></i> ${new Date(meta.dataLimite).toLocaleDateString('pt-BR')}</div>` : ''}</div>
-              <div class="item-actions">
-                <button onclick="editarMetaPrompt(${meta.id})"><i class="fas fa-edit"></i></button>
-                <button onclick="excluirMeta(${meta.id})"><i class="fas fa-trash-alt"></i></button>
-              </div>
-            </div>
-          `;
-        });
-      }
-    });
-    const addCard = document.createElement('div');
-    addCard.className = 'meta-card card-adicionar';
-    addCard.onclick = () => adicionarCardMeta();
-    addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;
-    container.appendChild(addCard);
-    document.querySelectorAll('.meta-item-dash').forEach(item => {
-      item.addEventListener('dragstart', (e) => { metaArrastando = parseInt(item.dataset.metaId); item.classList.add('dragging'); });
-      item.addEventListener('dragend', () => item.classList.remove('dragging'));
-    });
-  }
-  window.renderizarDashboardMetas = renderizarDashboardMetas;
-
-  function renderizarTarefas() {
-    if (viewAtual === 'calendario') return;
-    const container = document.getElementById('blocosTarefas');
-    if (!container) return;
-    container.innerHTML = '';
-    const hoje = new Date().toISOString().split('T')[0];
-    console.log("🎨 Renderizando tarefas... Total:", tarefas.length);
-    cardsTarefas.forEach(card => {
-      let tarefasBloco = filtrarTarefas(tarefas.filter(t => t.bloco === card.nome));
-      const ativas = tarefasBloco.filter(t => !t.concluida).length;
-      const total = tarefas.filter(t => t.bloco === card.nome).length;
-      const div = document.createElement('div');
-      div.className = 'bloco-tarefa';
-      div.setAttribute('draggable', 'true');
-      div.dataset.cardId = card.id;
-      div.addEventListener('dragstart', (e) => { cardTarefaArrastando = card.id; div.classList.add('dragging'); e.dataTransfer.setData('text/plain', card.id); });
-      div.addEventListener('dragend', () => div.classList.remove('dragging'));
-      div.addEventListener('dragover', (e) => { e.preventDefault(); div.classList.add('drag-over'); });
-      div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
-      div.addEventListener('drop', (e) => {
-        e.preventDefault();
-        div.classList.remove('drag-over');
-        if (cardTarefaArrastando && cardTarefaArrastando !== card.id) moverCardTarefa(cardTarefaArrastando, card.id);
-        cardTarefaArrastando = null;
-      });
-      let html = `<div class="bloco-header">
-        <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
-        <div class="card-actions">
-          <span>${ativas} ativas</span>
-          <button onclick="event.stopPropagation(); editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button>
-          <button onclick="event.stopPropagation(); excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>
-      <div class="tarefa-lista">`;
-      if (tarefasBloco.length === 0) {
-        html += `<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa para começar</small></div>`;
-      } else {
-        tarefasBloco.forEach(t => {
-          const atrasada = t.data && t.data < hoje && !t.concluida;
-          const recorrente = { diaria: '🔄 Diária', dias_uteis: '📅 Dias úteis', semanal: '📆 Semanal', mensal: '📅 Mensal' }[t.recorrencia] || '';
-          html += `<div class="tarefa-item ${t.concluida ? 'concluida' : ''}" draggable="true" data-tarefa-id="${t.id}">
-            <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
-            <div class="tarefa-conteudo">
-              <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
-              <div class="tarefa-meta">
-                ${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}
-                ${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}
-                ${recorrente ? `<span class="badge recorrente">${recorrente}</span>` : ''}
-              </div>
-            </div>
-            <div class="item-actions">
-              <button onclick="abrirModoFocoComTarefa(${t.id})" title="Pomodoro"><i class="fas fa-clock"></i></button>
-              <button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button>
-              <button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button>
-            </div>
-          </div>`;
-        });
-      }
-      html += `</div>`;
-      div.innerHTML = html;
-      container.appendChild(div);
-      div.querySelectorAll('.tarefa-item').forEach(item => {
-        item.addEventListener('dragstart', (e) => { tarefaArrastando = parseInt(item.dataset.tarefaId); item.classList.add('dragging'); });
-        item.addEventListener('dragend', () => item.classList.remove('dragging'));
-        item.addEventListener('dragover', (e) => e.preventDefault());
-        item.addEventListener('drop', (e) => {
-          e.preventDefault();
-          if (tarefaArrastando) {
-            const cardEl = e.target.closest('.bloco-tarefa');
-            if (cardEl) moverTarefa(tarefaArrastando, cardEl.querySelector('.bloco-header span').textContent.replace(/[^\w\s]/g, '').trim());
-            tarefaArrastando = null;
-          }
-        });
-      });
-    });
-    const addCard = document.createElement('div');
-    addCard.className = 'bloco-tarefa card-adicionar';
-    addCard.onclick = () => adicionarCardTarefa();
-    addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;
-    container.appendChild(addCard);
-  }
-  window.renderizarTarefas = renderizarTarefas;
-
-  function moverTarefa(tarefaId, novoBloco) {
-    const t = tarefas.find(t => t.id === tarefaId);
-    if (t && t.bloco !== novoBloco) { t.bloco = novoBloco; salvarTarefas(); }
-  }
-
-  function renderizarEstatisticas() {
-    const totalTarefas = tarefas.length;
-    const concluidas = tarefas.filter(t => t.concluida).length;
-    const metasAt = metas.filter(m => m.atingida).length;
-    const tempo = tarefas.reduce((acc, t) => acc + (t.tempoGasto || 0), 0);
-    const horas = Math.floor(tempo / 3600);
-    const minutos = Math.floor((tempo % 3600) / 60);
-    document.getElementById('statsGrid').innerHTML = `
-      <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Tarefas Concluídas</div></div>
-      <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${totalTarefas ? Math.round(concluidas/totalTarefas*100) : 0}%</div><div class="stat-label">Taxa de Conclusão</div></div>
-      <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${metas.length}</div><div class="stat-label">Metas Atingidas</div></div>
-      <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${minutos}m</div><div class="stat-label">Tempo Focado</div></div>
-    `;
-    const grafico = document.getElementById('graficoBarras');
-    if (grafico) {
-      grafico.innerHTML = '';
-      const max = Math.max(...cardsTarefas.map(c => tarefas.filter(t => t.bloco === c.nome && t.concluida).length), 1);
-      cardsTarefas.forEach(card => {
-        const concluidasCard = tarefas.filter(t => t.bloco === card.nome && t.concluida).length;
-        const altura = Math.max((concluidasCard / max) * 100, 5);
-        const barra = document.createElement('div');
-        barra.className = 'barra';
-        barra.style.height = altura + '%';
-        barra.innerHTML = `<div class="barra-valor">${concluidasCard}</div><div class="barra-label">${card.nome.substring(0,3)}</div>`;
-        grafico.appendChild(barra);
-      });
-    }
-  }
-  window.renderizarEstatisticas = renderizarEstatisticas;
-
-  function abrirModalNovaMeta() {
-    const cat = prompt('Categoria:', cardsMetas[0]?.nome);
-    if (cat && cardsMetas.some(c => c.nome === cat)) {
-      const texto = prompt('Meta:');
-      if (texto && texto.trim()) metas.push({ id: Date.now(), texto: texto.trim(), categoria: cat, atingida: false, dataLimite: '' });
-      salvarMetas();
-      alert('✅ Meta adicionada!');
-    }
-  }
-  window.abrirModalNovaMeta = abrirModalNovaMeta;
-
-  function limparMetasConcluidas() {
-    if (confirm('Remover todas as metas concluídas?')) { 
-      metas = metas.filter(m => !m.atingida); 
-      salvarMetas();
-      alert('✅ Metas concluídas removidas!');
-    }
-  }
-  window.limparMetasConcluidas = limparMetasConcluidas;
-
-  function exportarBackup() {
-    const dados = { tarefas, metas, cardsMetas, cardsTarefas };
-    const blob = new Blob([JSON.stringify(dados)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `fluxo-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    alert('✅ Backup exportado!');
-  }
-  window.exportarBackup = exportarBackup;
-
-  function importarBackup(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        const dados = JSON.parse(ev.target.result);
-        if (confirm(`📦 Importar backup?\n\nTarefas: ${dados.tarefas?.length || 0}\nMetas: ${dados.metas?.length || 0}\n\nIsso substituirá seus dados atuais.`)) {
-          if (dados.tarefas) tarefas = dados.tarefas;
-          if (dados.metas) metas = dados.metas;
-          if (dados.cardsMetas) cardsMetas = dados.cardsMetas;
-          if (dados.cardsTarefas) cardsTarefas = dados.cardsTarefas;
-          salvarCardsMetas();
-          salvarCardsTarefas();
-          salvarTarefas();
-          salvarMetas();
-          alert('✅ Backup importado com sucesso!');
-          atualizarSelectCategorias();
-          renderizarDashboardMetas();
-          renderizarTarefas();
-          renderizarEstatisticas();
-        }
-      } catch (err) {
-        alert('❌ Erro ao importar arquivo.');
-      }
-    };
-    reader.readAsText(file);
-    event.target.value = '';
-  }
-  window.importarBackup = importarBackup;
-
-  // ========== NOTIFICAÇÕES ==========
-  function pedirPermissaoNotificacoes() {
-    if ('Notification' in window) {
-      if (Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
-    }
-  }
-
-  function checarNotificacoes() {
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const agora = new Date();
-    const em10min = new Date(agora.getTime() + 10 * 60000);
-    const hora10min = em10min.getHours().toString().padStart(2, '0') + ':' + em10min.getMinutes().toString().padStart(2, '0');
-    const hoje = agora.toISOString().split('T')[0];
-
-    tarefas.forEach(t => {
-      if (!t.concluida && t.data === hoje && t.hora === hora10min && !t.alertado) {
-        new Notification('⏰ Tarefa em 10 minutos!', { body: t.texto, icon: '🎯' });
-        t.alertado = true;
-        salvarTarefas();
-      }
-    });
-  }
-
+  function escapeHtml(t){if(!t)return '';const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+  function atualizarDataHoje(){const h=new Date();document.getElementById('dataHoje').textContent=h.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+  function carregarTema(){if(localStorage.getItem('tema')==='dark')document.documentElement.setAttribute('data-theme','dark');}
+  
+  function salvarTarefas(){localStorage.setItem('tarefas',JSON.stringify(tarefas));renderizarTarefas();renderizarEstatisticas();if(window.salvarTudoFirebase)window.salvarTudoFirebase();}
+  function salvarMetas(){localStorage.setItem('metas',JSON.stringify(metas));renderizarDashboardMetas();renderizarEstatisticas();if(window.salvarTudoFirebase)window.salvarTudoFirebase();}
+  function salvarCardsMetas(){localStorage.setItem('cardsMetas',JSON.stringify(cardsMetas));renderizarDashboardMetas();}
+  function salvarCardsTarefas(){localStorage.setItem('cardsTarefas',JSON.stringify(cardsTarefas));atualizarSelectCategorias();renderizarTarefas();}
+  function atualizarSelectCategorias(){const s=document.getElementById('nova-bloco');if(!s)return;s.innerHTML='';cardsTarefas.forEach(c=>{const o=document.createElement('option');o.value=c.nome;o.textContent=c.nome;s.appendChild(o);});}
+  
+  function adicionarCardMeta(){const n=prompt('🏆 Nome do novo card:');if(n&&n.trim()){cardsMetas.push({id:'meta_'+Date.now(),nome:n.trim()});salvarCardsMetas();alert(`✅ Card "${n}" criado!`);}}
+  function adicionarCardTarefa(){const n=prompt('📋 Nome do novo card:');if(n&&n.trim()){cardsTarefas.push({id:'tarefa_'+Date.now(),nome:n.trim()});salvarCardsTarefas();alert(`✅ Card "${n}" criado!`);}}
+  function editarCardMeta(id){const c=cardsMetas.find(c=>c.id===id);if(!c)return;const n=prompt('Editar nome:',c.nome);if(n&&n.trim()){metas.forEach(m=>{if(m.categoria===c.nome)m.categoria=n.trim();});c.nome=n.trim();salvarCardsMetas();salvarMetas();}}
+  function editarCardTarefa(id){const c=cardsTarefas.find(c=>c.id===id);if(!c)return;const n=prompt('Editar nome:',c.nome);if(n&&n.trim()){tarefas.forEach(t=>{if(t.bloco===c.nome)t.bloco=n.trim();});c.nome=n.trim();salvarCardsTarefas();salvarTarefas();}}
+  function excluirCardMeta(id){const c=cardsMetas.find(c=>c.id===id);if(!c)return;if(confirm(`Excluir "${c.nome}"?`)){const alvo=cardsMetas.find(c=>c.nome==='Pessoal')||cardsMetas[0];metas.forEach(m=>{if(m.categoria===c.nome)m.categoria=alvo.nome;});cardsMetas=cardsMetas.filter(c=>c.id!==id);salvarCardsMetas();salvarMetas();}}
+  function excluirCardTarefa(id){const c=cardsTarefas.find(c=>c.id===id);if(!c)return;if(confirm(`Excluir "${c.nome}"?`)){const alvo=cardsTarefas.find(c=>c.nome==='Pessoal')||cardsTarefas[0];tarefas.forEach(t=>{if(t.bloco===c.nome)t.bloco=alvo.nome;});cardsTarefas=cardsTarefas.filter(c=>c.id!==id);salvarCardsTarefas();salvarTarefas();}}
+  function moverCardMeta(o,d){const io=cardsMetas.findIndex(c=>c.id===o),id=cardsMetas.findIndex(c=>c.id===d);if(io===-1||id===-1)return;const[m]=cardsMetas.splice(io,1);cardsMetas.splice(id,0,m);salvarCardsMetas();}
+  function moverCardTarefa(o,d){const io=cardsTarefas.findIndex(c=>c.id===o),id=cardsTarefas.findIndex(c=>c.id===d);if(io===-1||id===-1)return;const[m]=cardsTarefas.splice(io,1);cardsTarefas.splice(id,0,m);salvarCardsTarefas();}
+  
+  function adicionarMeta(cat,cardId){const inp=document.getElementById(`input-meta-${cardId}`),txt=inp?.value.trim();if(!txt)return;const dInp=document.getElementById(`input-data-meta-${cardId}`);metas.push({id:Date.now(),texto:txt,categoria:cat,atingida:false,dataLimite:dInp?.value||''});inp.value='';if(dInp)dInp.value='';salvarMetas();}
+  function adicionarTarefa(){const texto=document.getElementById('nova-tarefa').value.trim();if(!texto){alert('Digite uma tarefa!');return;}const data=document.getElementById('nova-data').value||new Date().toISOString().split('T')[0];const bloco=document.getElementById('nova-bloco').value;tarefas.push({id:Date.now(),texto:texto,bloco:bloco,data:data,hora:document.getElementById('nova-hora').value,prioridade:document.getElementById('nova-prioridade').value,recorrencia:document.getElementById('nova-recorrencia').value,concluida:false,criada:new Date().toISOString(),alertado:false,ordem:tarefas.filter(t=>t.bloco===bloco).length,tempoGasto:0});document.getElementById('nova-tarefa').value='';document.getElementById('nova-hora').value='';salvarTarefas();alert('✅ Tarefa adicionada!');}
+  function toggleMeta(id){const m=metas.find(m=>m.id===id);if(m){m.atingida=!m.atingida;salvarMetas();}}
+  function toggleTarefa(id){const t=tarefas.find(t=>t.id===id);if(t){t.concluida=!t.concluida;salvarTarefas();}}
+  function excluirMeta(id){if(confirm('Excluir meta?')){metas=metas.filter(m=>m.id!==id);salvarMetas();}}
+  function excluirTarefa(id){if(confirm('Excluir tarefa?')){tarefas=tarefas.filter(t=>t.id!==id);salvarTarefas();}}
+  function editarMetaPrompt(id){const m=metas.find(m=>m.id===id);if(!m)return;const nt=prompt('Editar meta:',m.texto);if(nt&&nt.trim())m.texto=nt.trim();const nd=prompt('Data limite:',m.dataLimite||'');if(nd!==null)m.dataLimite=nd;salvarMetas();}
+  function editarTarefa(id){const t=tarefas.find(t=>t.id===id);if(!t)return;const nt=prompt('Editar tarefa:',t.texto);if(nt&&nt.trim())t.texto=nt.trim();const nd=prompt('Data:',t.data||'');if(nd&&nd.match(/^\d{4}-\d{2}-\d{2}$/))t.data=nd;const np=prompt('Prioridade (p1/p2/p3):',t.prioridade);if(np&&['p1','p2','p3'].includes(np))t.prioridade=np;salvarTarefas();}
+  
+  function setFiltro(f,btn){filtroAtual=f;document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderizarTarefas();}
+  function buscarGlobal(){termoBusca=document.getElementById('buscaGlobal').value.toLowerCase();renderizarTarefas();}
+  function filtrarTarefas(lista){const hoje=new Date().toISOString().split('T')[0];let f=lista;if(termoBusca)f=f.filter(t=>t.texto.toLowerCase().includes(termoBusca));if(filtroAtual==='hoje')return f.filter(t=>t.data<=hoje&&!t.concluida);if(filtroAtual==='concluidas')return f.filter(t=>t.concluida);return f.filter(t=>!t.concluida);}
+  
+  function toggleView(view){viewAtual=view;const cards=document.getElementById('cardsView'),cal=document.getElementById('calendarioView'),btns=document.querySelectorAll('.view-btn');btns.forEach(b=>b.classList.remove('active'));if(view==='cards'){cards.style.display='block';cal.style.display='none';btns[0].classList.add('active');renderizarTarefas();}else{cards.style.display='none';cal.style.display='block';btns[1].classList.add('active');renderizarCalendario();}}
+  function mudarMes(d){dataAtualCalendario.setMonth(dataAtualCalendario.getMonth()+d);renderizarCalendario();}
+  function renderizarCalendario(){const ano=dataAtualCalendario.getFullYear(),mes=dataAtualCalendario.getMonth();const pd=new Date(ano,mes,1),ud=new Date(ano,mes+1,0);const diasNoMes=ud.getDate(),diaInicio=pd.getDay();const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];document.getElementById('calendarioMes').textContent=`${meses[mes]} ${ano}`;const ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];let html='';ds.forEach(d=>{html+=`<div class="calendario-dia-semana">${d}</div>`;});let dia=1;const hoje=new Date().toISOString().split('T')[0];for(let i=0;i<42;i++){if(i<diaInicio||dia>diasNoMes){html+=`<div class="calendario-dia vazio"></div>`;}else{const dataStr=`${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;const tarefasDia=tarefas.filter(t=>t.data===dataStr&&!t.concluida);const isHoje=dataStr===hoje;html+=`<div class="calendario-dia ${isHoje?'hoje':''}" onclick="selecionarDataCalendario('${dataStr}')"><div style="font-weight:bold;margin-bottom:5px;">${dia}</div><div style="font-size:11px;max-height:70px;overflow-y:auto;">`;tarefasDia.slice(0,4).forEach(t=>{html+=`<div style="padding:2px 4px;background:rgba(102,126,234,0.2);border-radius:6px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="event.stopPropagation(); abrirModoFocoComTarefa(${t.id})">${escapeHtml(t.texto.substring(0,20))}${t.texto.length>20?'...':''}</div>`;});if(tarefasDia.length>4)html+=`<div style="font-size:10px;opacity:0.7;">+${tarefasDia.length-4} mais</div>`;html+=`</div></div>`;dia++;}}document.getElementById('calendarioGrade').innerHTML=html;}
+  function selecionarDataCalendario(data){const td=tarefas.filter(t=>t.data===data&&!t.concluida);if(td.length){alert(`📅 ${data}\n\n${td.map((t,i)=>`${i+1}. ${t.texto}`).join('\n')}`);}else{alert(`📅 ${data}\nNenhuma tarefa pendente.`);}}
+  
+  function abrirModoFocoComTarefa(id){const t=tarefas.find(t=>t.id===id);if(!t)return;tarefaFocoAtual=t;document.getElementById('tarefaFocoTexto').textContent=t.texto;tempoRestante=25*60;atualizarTimerDisplay();document.getElementById('modalFocoOverlay').classList.add('show');if(pomodoroInterval)clearInterval(pomodoroInterval);pomodoroAtivo=false;document.getElementById('btnIniciarFoco').style.display='inline-block';document.getElementById('btnPausarFoco').style.display='none';}
+  function abrirModoFoco(){const p=tarefas.filter(t=>!t.concluida);if(!p.length){alert('🎉 Nenhuma tarefa pendente!');return;}abrirModoFocoComTarefa(p[0].id);}
+  function atualizarTimerDisplay(){const min=Math.floor(tempoRestante/60),seg=tempoRestante%60;document.getElementById('timerFocoGrande').textContent=`${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;const p=((25*60-tempoRestante)/(25*60))*100;const bar=document.querySelector('#modalFocoOverlay .progresso-foco-bar');if(bar)bar.style.width=`${p}%`;}
+  function iniciarPomodoroFoco(){if(pomodoroAtivo)return;pomodoroAtivo=true;pomodoroPausado=false;if(pomodoroInterval)clearInterval(pomodoroInterval);pomodoroInterval=setInterval(()=>{if(!pomodoroPausado&&pomodoroAtivo&&tempoRestante>0){tempoRestante--;atualizarTimerDisplay();if(tempoRestante<=0){clearInterval(pomodoroInterval);pomodoroAtivo=false;if(tarefaFocoAtual){tarefaFocoAtual.tempoGasto=(tarefaFocoAtual.tempoGasto||0)+(25*60);salvarTarefas();}alert('🎉 Pomodoro concluído!');tempoRestante=25*60;atualizarTimerDisplay();document.getElementById('btnIniciarFoco').style.display='inline-block';document.getElementById('btnPausarFoco').style.display='none';}}},1000);document.getElementById('btnIniciarFoco').style.display='none';document.getElementById('btnPausarFoco').style.display='inline-block';}
+  function pausarPomodoroFoco(){if(!pomodoroAtivo)return;pomodoroPausado=!pomodoroPausado;document.getElementById('btnPausarFoco').innerHTML=pomodoroPausado?'<i class="fas fa-play"></i> Retomar':'<i class="fas fa-pause"></i> Pausar';}
+  function resetarPomodoroFoco(){if(pomodoroInterval)clearInterval(pomodoroInterval);tempoRestante=25*60;atualizarTimerDisplay();pomodoroAtivo=false;document.getElementById('btnIniciarFoco').style.display='inline-block';document.getElementById('btnPausarFoco').style.display='none';}
+  function concluirTarefaFoco(){if(!tarefaFocoAtual)return;if(confirm(`Concluir "${tarefaFocoAtual.texto}"?`)){toggleTarefa(tarefaFocoAtual.id);fecharModoFoco();setTimeout(()=>{const p=tarefas.filter(t=>!t.concluida);if(p.length)abrirModoFocoComTarefa(p[0].id);},300);}}
+  function fecharModoFoco(){if(pomodoroInterval)clearInterval(pomodoroInterval);pomodoroAtivo=false;document.getElementById('modalFocoOverlay').classList.remove('show');}
+  
+  function renderizarDashboardMetas(){const c=document.getElementById('dashboardMetasGrid');if(!c)return;c.innerHTML='';cardsMetas.forEach(card=>{const mb=metas.filter(m=>m.categoria===card.nome);const total=mb.length,atingidas=mb.filter(m=>m.atingida).length,percentual=total>0?Math.round((atingidas/total)*100):0;const div=document.createElement('div');div.className='meta-card';div.setAttribute('draggable','true');div.dataset.cardId=card.id;div.addEventListener('dragstart',(e)=>{cardMetaArrastando=card.id;div.classList.add('dragging');e.dataTransfer.setData('text/plain',card.id);});div.addEventListener('dragend',()=>div.classList.remove('dragging'));div.addEventListener('dragover',(e)=>{e.preventDefault();div.classList.add('drag-over');});div.addEventListener('dragleave',()=>div.classList.remove('drag-over'));div.addEventListener('drop',(e)=>{e.preventDefault();div.classList.remove('drag-over');if(cardMetaArrastando&&cardMetaArrastando!==card.id)moverCardMeta(cardMetaArrastando,card.id);cardMetaArrastando=null;});div.innerHTML=`<div class="meta-card-header"><span><i class="fas fa-tag"></i> ${escapeHtml(card.nome)}</span><div class="card-actions"><span class="meta-progresso">${atingidas}/${total}</span><button onclick="event.stopPropagation(); editarCardMeta('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="event.stopPropagation(); excluirCardMeta('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div><div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width:${percentual}%"></div></div><div class="meta-lista" id="meta-lista-${card.id}"></div><div class="meta-add-dash"><input type="text" id="input-meta-${card.id}" placeholder="Nova meta..."><input type="date" id="input-data-meta-${card.id}"><button class="btn-glass" style="padding:8px 20px;" onclick="adicionarMeta('${card.nome}','${card.id}')"><i class="fas fa-plus"></i></button></div>`;c.appendChild(div);const lista=div.querySelector(`#meta-lista-${card.id}`);if(mb.length===0){lista.innerHTML=`<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia por aqui</p><small>Adicione uma meta para começar</small></div>`;}else{mb.forEach(meta=>{lista.innerHTML+=`<div class="meta-item-dash ${meta.atingida?'atingida':''}" draggable="true" data-meta-id="${meta.id}"><input type="checkbox" ${meta.atingida?'checked':''} onchange="toggleMeta(${meta.id})"><div style="flex:1"><div class="meta-texto-dash">${escapeHtml(meta.texto)}</div>${meta.dataLimite?`<div class="meta-data-limite"><i class="fas fa-calendar-alt"></i> ${new Date(meta.dataLimite).toLocaleDateString('pt-BR')}</div>`:''}</div><div class="item-actions"><button onclick="editarMetaPrompt(${meta.id})"><i class="fas fa-edit"></i></button><button onclick="excluirMeta(${meta.id})"><i class="fas fa-trash-alt"></i></button></div></div>`;});}});const addCard=document.createElement('div');addCard.className='meta-card card-adicionar';addCard.onclick=()=>adicionarCardMeta();addCard.innerHTML=`<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;c.appendChild(addCard);document.querySelectorAll('.meta-item-dash').forEach(item=>{item.addEventListener('dragstart',(e)=>{metaArrastando=parseInt(item.dataset.metaId);item.classList.add('dragging');});item.addEventListener('dragend',()=>item.classList.remove('dragging'));});}
+  
+  function renderizarTarefas(){if(viewAtual==='calendario')return;const container=document.getElementById('blocosTarefas');if(!container)return;container.innerHTML='';const hoje=new Date().toISOString().split('T')[0];cardsTarefas.forEach(card=>{let tb=filtrarTarefas(tarefas.filter(t=>t.bloco===card.nome));const ativas=tb.filter(t=>!t.concluida).length,total=tarefas.filter(t=>t.bloco===card.nome).length;const div=document.createElement('div');div.className='bloco-tarefa';div.setAttribute('draggable','true');div.dataset.cardId=card.id;div.addEventListener('dragstart',(e)=>{cardTarefaArrastando=card.id;div.classList.add('dragging');e.dataTransfer.setData('text/plain',card.id);});div.addEventListener('dragend',()=>div.classList.remove('dragging'));div.addEventListener('dragover',(e)=>{e.preventDefault();div.classList.add('drag-over');});div.addEventListener('dragleave',()=>div.classList.remove('drag-over'));div.addEventListener('drop',(e)=>{e.preventDefault();div.classList.remove('drag-over');if(cardTarefaArrastando&&cardTarefaArrastando!==card.id)moverCardTarefa(cardTarefaArrastando,card.id);cardTarefaArrastando=null;});let html=`<div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div class="card-actions"><span>${ativas} ativas</span><button onclick="event.stopPropagation(); editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="event.stopPropagation(); excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div><div class="tarefa-lista">`;if(tb.length===0){html+=`<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa para começar</small></div>`;}else{tb.forEach(t=>{const atrasada=t.data&&t.data<hoje&&!t.concluida;const rec={diaria:'🔄 Diária',dias_uteis:'📅 Dias úteis',semanal:'📆 Semanal',mensal:'📅 Mensal'}[t.recorrencia]||'';html+=`<div class="tarefa-item ${t.concluida?'concluida':''}" draggable="true" data-tarefa-id="${t.id}"><input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})"><div class="tarefa-conteudo"><div class="tarefa-texto">${escapeHtml(t.texto)}</div><div class="tarefa-meta">${t.data?`<span class="badge ${atrasada?'atrasada':''}">${atrasada?'<i class="fas fa-triangle-exclamation"></i> ':'<i class="fas fa-calendar"></i> '}${t.data}</span>`:''}${t.prioridade==='p1'?'<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>':''}${rec?`<span class="badge recorrente">${rec}</span>`:''}</div></div><div class="item-actions"><button onclick="abrirModoFocoComTarefa(${t.id})" title="Pomodoro"><i class="fas fa-clock"></i></button><button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button><button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button></div></div>`;});}html+=`</div>`;div.innerHTML=html;container.appendChild(div);div.querySelectorAll('.tarefa-item').forEach(item=>{item.addEventListener('dragstart',(e)=>{tarefaArrastando=parseInt(item.dataset.tarefaId);item.classList.add('dragging');});item.addEventListener('dragend',()=>item.classList.remove('dragging'));item.addEventListener('dragover',(e)=>e.preventDefault());item.addEventListener('drop',(e)=>{e.preventDefault();if(tarefaArrastando){const cardEl=e.target.closest('.bloco-tarefa');if(cardEl)moverTarefa(tarefaArrastando,cardEl.querySelector('.bloco-header span').textContent.replace(/[^\w\s]/g,'').trim());tarefaArrastando=null;}});});});const addCard=document.createElement('div');addCard.className='bloco-tarefa card-adicionar';addCard.onclick=()=>adicionarCardTarefa();addCard.innerHTML=`<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;container.appendChild(addCard);}
+  function moverTarefa(id,nb){const t=tarefas.find(t=>t.id===id);if(t&&t.bloco!==nb){t.bloco=nb;salvarTarefas();}}
+  
+  function renderizarEstatisticas(){const tt=tarefas.length,concluidas=tarefas.filter(t=>t.concluida).length,metasAt=metas.filter(m=>m.atingida).length,tempo=tarefas.reduce((a,t)=>a+(t.tempoGasto||0),0),horas=Math.floor(tempo/3600),min=Math.floor((tempo%3600)/60);document.getElementById('statsGrid').innerHTML=`<div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Tarefas Concluídas</div></div><div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${tt?Math.round(concluidas/tt*100):0}%</div><div class="stat-label">Taxa de Conclusão</div></div><div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${metas.length}</div><div class="stat-label">Metas Atingidas</div></div><div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${min}m</div><div class="stat-label">Tempo Focado</div></div>`;const grafico=document.getElementById('graficoBarras');if(grafico){grafico.innerHTML='';const max=Math.max(...cardsTarefas.map(c=>tarefas.filter(t=>t.bloco===c.nome&&t.concluida).length),1);cardsTarefas.forEach(card=>{const cCard=tarefas.filter(t=>t.bloco===card.nome&&t.concluida).length;const altura=Math.max((cCard/max)*100,5);const barra=document.createElement('div');barra.className='barra';barra.style.height=altura+'%';barra.innerHTML=`<div class="barra-valor">${cCard}</div><div class="barra-label">${card.nome.substring(0,3)}</div>`;grafico.appendChild(barra);});}}
+  function abrirModalNovaMeta(){const cat=prompt('Categoria:',cardsMetas[0]?.nome);if(cat&&cardsMetas.some(c=>c.nome===cat)){const texto=prompt('Meta:');if(texto&&texto.trim()){metas.push({id:Date.now(),texto:texto.trim(),categoria:cat,atingida:false,dataLimite:''});salvarMetas();alert('✅ Meta adicionada!');}}}
+  function limparMetasConcluidas(){if(confirm('Remover metas concluídas?')){metas=metas.filter(m=>!m.atingida);salvarMetas();alert('✅ Metas concluídas removidas!');}}
+  function exportarBackup(){const dados={tarefas,metas,cardsMetas,cardsTarefas};const blob=new Blob([JSON.stringify(dados)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`fluxo-backup-${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(a.href);alert('✅ Backup exportado!');}
+  function importarBackup(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const dados=JSON.parse(ev.target.result);if(confirm(`Importar backup?\n\nTarefas: ${dados.tarefas?.length||0}\nMetas: ${dados.metas?.length||0}`)){if(dados.tarefas)tarefas=dados.tarefas;if(dados.metas)metas=dados.metas;if(dados.cardsMetas)cardsMetas=dados.cardsMetas;if(dados.cardsTarefas)cardsTarefas=dados.cardsTarefas;salvarCardsMetas();salvarCardsTarefas();salvarTarefas();salvarMetas();alert('✅ Backup importado!');atualizarSelectCategorias();renderizarDashboardMetas();renderizarTarefas();renderizarEstatisticas();}}catch(err){alert('❌ Erro ao importar.');}};reader.readAsText(file);e.target.value='';}
+  
+  function pedirPermissaoNotificacoes(){if('Notification' in window && Notification.permission === 'default')Notification.requestPermission();}
+  function checarNotificacoes(){if(!('Notification' in window) || Notification.permission !== 'granted')return;const agora=new Date();const em10min=new Date(agora.getTime()+10*60000);const hora10min=em10min.getHours().toString().padStart(2,'0')+':'+em10min.getMinutes().toString().padStart(2,'0');const hoje=agora.toISOString().split('T')[0];tarefas.forEach(t=>{if(!t.concluida && t.data===hoje && t.hora===hora10min && !t.alertado){new Notification('⏰ Tarefa em 10 minutos!',{body:t.texto,icon:'🎯'});t.alertado=true;salvarTarefas();}});}
+  
   pedirPermissaoNotificacoes();
-  setInterval(checarNotificacoes, 60000);
-
-  // ========== INICIALIZAÇÃO ==========
+  setInterval(checarNotificacoes,60000);
   atualizarSelectCategorias();
   carregarTema();
   atualizarDataHoje();
   renderizarDashboardMetas();
   renderizarTarefas();
   renderizarEstatisticas();
-  
   console.log("🚀 App FLUXO inicializado!");
-  console.log("🔔 Sistema de notificações ativo!");
 </script>
 </body>
 </html>
