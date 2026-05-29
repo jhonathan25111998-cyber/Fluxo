@@ -7,11 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: 'Poppins', system-ui, -apple-system, sans-serif;
@@ -21,10 +17,7 @@
     min-height: 100vh;
   }
 
-  .container {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
+  .container { max-width: 1600px; margin: 0 auto; }
 
   .header {
     background: rgba(26, 27, 38, 0.6);
@@ -85,16 +78,7 @@
     border-radius: 40px;
     backdrop-filter: blur(10px);
   }
-  .user-info span {
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  .user-info img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-  }
+  .user-info span { color: white; font-size: 14px; font-weight: 500; }
   .logout-btn, .sync-btn {
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -105,26 +89,13 @@
     font-size: 12px;
     transition: all 0.3s;
   }
-  .logout-btn:hover, .sync-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-  }
-  .sync-btn.syncing {
-    animation: pulse 1s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
+  .logout-btn:hover, .sync-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
+  .sync-btn.syncing { animation: pulse 1s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-  .data-hoje {
-    text-align: center;
-    margin-top: 16px;
-    font-size: 14px;
-    opacity: 0.8;
-    color: white;
-  }
+  .data-hoje { text-align: center; margin-top: 16px; font-size: 14px; opacity: 0.8; color: white; }
 
+  /* Tela de Login com Email */
   .login-overlay {
     display: flex;
     position: fixed;
@@ -146,35 +117,36 @@
     width: 90%;
     max-width: 450px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: fadeInUp 0.4s ease;
     text-align: center;
   }
-  .login-container h2 {
+  .login-container h2 { color: white; margin-bottom: 30px; font-size: 28px; }
+  .login-container input {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     color: white;
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 28px;
+    font-size: 14px;
+    outline: none;
   }
-  .google-btn {
-    background: white;
-    color: #333;
+  .login-container input:focus { border-color: #667eea; background: rgba(255, 255, 255, 0.12); }
+  .login-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
     border: none;
-    padding: 12px 24px;
+    padding: 12px;
     border-radius: 40px;
+    color: white;
     cursor: pointer;
     font-weight: 600;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
     width: 100%;
-    transition: all 0.3s;
+    margin-top: 10px;
   }
-  .google-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  }
+  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(102,126,234,0.4); }
+  .register-link { color: rgba(255,255,255,0.7); font-size: 14px; margin-top: 20px; display: block; cursor: pointer; }
+  .register-link:hover { color: white; }
+  .error-message { color: #FCA5A5; font-size: 12px; margin-bottom: 12px; display: block; }
 
   .top-bar {
     display: flex;
@@ -184,10 +156,7 @@
     gap: 16px;
     margin-bottom: 24px;
   }
-  .view-toggle {
-    display: flex;
-    gap: 12px;
-  }
+  .view-toggle { display: flex; gap: 12px; }
   .view-btn {
     padding: 10px 24px;
     background: rgba(26, 27, 38, 0.6);
@@ -201,11 +170,8 @@
     font-size: 14px;
   }
   .view-btn i { margin-right: 8px; }
-  .view-btn.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-  .view-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.15); }
+  .view-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: rgba(255,255,255,0.2); }
+  .view-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.15); }
 
   .busca-global {
     background: rgba(26, 27, 38, 0.6);
@@ -218,11 +184,7 @@
     align-items: center;
     height: 44px;
   }
-  .busca-global i {
-    color: rgba(255, 255, 255, 0.6);
-    margin-left: 16px;
-    font-size: 14px;
-  }
+  .busca-global i { color: rgba(255,255,255,0.6); margin-left: 16px; font-size: 14px; }
   .busca-global input {
     flex: 1;
     padding: 10px 16px 10px 12px;
@@ -263,8 +225,8 @@
   }
   .meta-card:hover, .bloco-tarefa:hover {
     transform: translateY(-6px);
-    box-shadow: 0 16px 48px rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 16px 48px rgba(102,126,234,0.15);
+    border-color: rgba(102,126,234,0.3);
   }
 
   .meta-card-header, .bloco-header {
@@ -278,13 +240,9 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
 
-  .card-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
+  .card-actions { display: flex; gap: 8px; align-items: center; }
   .card-actions button {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255,255,255,0.15);
     border: none;
     width: 32px;
     height: 32px;
@@ -293,10 +251,10 @@
     color: white;
     transition: all 0.2s;
   }
-  .card-actions button:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
+  .card-actions button:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
 
   .meta-progresso {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255,255,255,0.2);
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
@@ -304,33 +262,14 @@
     color: white;
   }
 
-  .meta-progresso-bar {
-    height: 3px;
-    background: rgba(255, 255, 255, 0.1);
-  }
-  .meta-progresso-fill {
-    height: 100%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    transition: width 0.3s;
-  }
+  .meta-progresso-bar { height: 3px; background: rgba(255,255,255,0.1); }
+  .meta-progresso-fill { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); transition: width 0.3s; }
 
-  .meta-lista, .tarefa-lista {
-    padding: 20px;
-    max-height: 350px;
-    overflow-y: auto;
-  }
+  .meta-lista, .tarefa-lista { padding: 20px; max-height: 350px; overflow-y: auto; }
 
-  .meta-lista::-webkit-scrollbar, .tarefa-lista::-webkit-scrollbar {
-    width: 6px;
-  }
-  .meta-lista::-webkit-scrollbar-track, .tarefa-lista::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-  }
-  .meta-lista::-webkit-scrollbar-thumb, .tarefa-lista::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.3);
-    border-radius: 10px;
-  }
+  .meta-lista::-webkit-scrollbar, .tarefa-lista::-webkit-scrollbar { width: 6px; }
+  .meta-lista::-webkit-scrollbar-track, .tarefa-lista::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+  .meta-lista::-webkit-scrollbar-thumb, .tarefa-lista::-webkit-scrollbar-thumb { background: rgba(102,126,234,0.3); border-radius: 10px; }
 
   .meta-item-dash, .tarefa-item {
     display: flex;
@@ -338,61 +277,24 @@
     gap: 12px;
     padding: 14px;
     margin-bottom: 10px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255,255,255,0.05);
     border-radius: 14px;
     cursor: grab;
     transition: all 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.05);
     color: white;
   }
-  .meta-item-dash:hover, .tarefa-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateX(4px);
-  }
-  .meta-item-dash.atingida, .tarefa-item.concluida {
-    opacity: 0.5;
-    text-decoration: line-through;
-  }
-  .meta-item-dash input, .tarefa-item input {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    accent-color: #667eea;
-  }
-  .meta-texto-dash, .tarefa-texto {
-    flex: 1;
-    font-size: 15px;
-    line-height: 1.5;
-    color: white;
-  }
+  .meta-item-dash:hover, .tarefa-item:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
+  .meta-item-dash.atingida, .tarefa-item.concluida { opacity: 0.5; text-decoration: line-through; }
+  .meta-item-dash input, .tarefa-item input { width: 20px; height: 20px; cursor: pointer; accent-color: #667eea; }
+  .meta-texto-dash, .tarefa-texto { flex: 1; font-size: 15px; line-height: 1.5; color: white; }
 
-  .badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .badge.p1 {
-    background: rgba(239, 68, 68, 0.2);
-    color: #FCA5A5;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
-  .badge.recorrente {
-    background: rgba(102, 126, 234, 0.2);
-    color: #A5B4FC;
-    border: 1px solid rgba(102, 126, 234, 0.3);
-  }
-  .badge.atrasada {
-    background: rgba(239, 68, 68, 0.2);
-    color: #FCA5A5;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    animation: pulse 2s infinite;
-  }
+  .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge.p1 { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
+  .badge.recorrente { background: rgba(102,126,234,0.2); color: #A5B4FC; border: 1px solid rgba(102,126,234,0.3); }
+  .badge.atrasada { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); animation: pulse 2s infinite; }
 
-  .item-actions {
-    display: flex;
-    gap: 6px;
-  }
+  .item-actions { display: flex; gap: 6px; }
   .item-actions button {
     background: transparent;
     border: none;
@@ -400,13 +302,13 @@
     height: 32px;
     border-radius: 10px;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255,255,255,0.6);
   }
-  .item-actions button:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+  .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; }
 
   .meta-add-dash {
     padding: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255,255,255,0.08);
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
@@ -415,25 +317,19 @@
     flex: 1;
     min-width: 150px;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
     font-size: 14px;
     color: white;
     outline: none;
   }
-  .meta-add-dash input:focus {
-    border-color: #667eea;
-    background: rgba(255, 255, 255, 0.12);
-  }
-  .meta-add-dash input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-  }
+  .meta-add-dash input:focus { border-color: #667eea; background: rgba(255,255,255,0.12); }
 
   .card-adicionar {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255,255,255,0.05);
     backdrop-filter: blur(24px);
-    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border: 2px dashed rgba(255,255,255,0.2);
     border-radius: 20px;
     min-width: 200px;
     display: flex;
@@ -442,26 +338,9 @@
     cursor: pointer;
     transition: all 0.3s;
   }
-  .card-adicionar:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.02);
-  }
-  .card-adicionar-conteudo {
-    text-align: center;
-    padding: 40px 20px;
-    color: white;
-  }
-  .card-adicionar-conteudo i {
-    font-size: 48px;
-    margin-bottom: 12px;
-    opacity: 0.9;
-    color: white;
-  }
-  .card-adicionar-conteudo p {
-    color: white;
-    font-weight: 500;
-    font-size: 14px;
-  }
+  .card-adicionar:hover { background: rgba(255,255,255,0.1); transform: scale(1.02); }
+  .card-adicionar-conteudo { text-align: center; padding: 40px 20px; color: white; }
+  .card-adicionar-conteudo i { font-size: 48px; margin-bottom: 12px; opacity: 0.9; color: white; }
 
   .btn-glass {
     background: linear-gradient(135deg, #667eea, #764ba2);
@@ -472,14 +351,11 @@
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 16px rgba(102,126,234,0.3);
     height: 44px;
     font-size: 14px;
   }
-  .btn-glass:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-  }
+  .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.4); }
 
   .adicionar {
     background: rgba(26, 27, 38, 0.6);
@@ -489,46 +365,27 @@
     margin-bottom: 24px;
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
-  .adicionar h3 {
-    color: white;
-    margin-bottom: 20px;
-  }
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-    margin-bottom: 12px;
-  }
+  .adicionar h3 { color: white; margin-bottom: 20px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px; }
   .adicionar input, .adicionar select {
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
     font-size: 14px;
     color: white;
     outline: none;
     height: 44px;
   }
-  .adicionar input:focus, .adicionar select:focus {
-    border-color: #667eea;
-    background: rgba(255, 255, 255, 0.12);
-  }
-  .adicionar option {
-    background: #1a1b26;
-    color: white;
-  }
+  .adicionar input:focus, .adicionar select:focus { border-color: #667eea; background: rgba(255,255,255,0.12); }
+  .adicionar option { background: #1a1b26; color: white; }
 
-  .filtros {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-  }
+  .filtros { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
   .filtro-btn {
     padding: 8px 20px;
-    background: rgba(26, 27, 38, 0.6);
+    background: rgba(26,27,38,0.6);
     backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 40px;
     color: white;
     cursor: pointer;
@@ -536,39 +393,27 @@
     font-size: 14px;
     height: 40px;
   }
-  .filtro-btn.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-  .filtro-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.15); }
+  .filtro-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: rgba(255,255,255,0.2); }
+  .filtro-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.15); }
 
   .estatisticas {
-    background: rgba(26, 27, 38, 0.6);
+    background: rgba(26,27,38,0.6);
     backdrop-filter: blur(24px);
     border-radius: 24px;
     padding: 24px;
     margin-top: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255,255,255,0.08);
   }
-  .estatisticas h3 {
-    color: white;
-    margin-bottom: 16px;
-  }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-top: 20px;
-  }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
   .stat-card {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255,255,255,0.05);
     border-radius: 20px;
     padding: 20px;
     text-align: center;
     transition: all 0.3s;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.05);
   }
-  .stat-card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.08); }
+  .stat-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.08); }
   .stat-card i { font-size: 32px; margin-bottom: 12px; color: #667eea; }
   .stat-numero {
     font-size: 36px;
@@ -584,7 +429,7 @@
     letter-spacing: 1px;
     opacity: 0.8;
     margin-top: 6px;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255,255,255,0.8);
   }
 
   .grafico-barras {
@@ -594,7 +439,7 @@
     height: 160px;
     margin-top: 24px;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255,255,255,0.03);
     border-radius: 16px;
   }
   .barra {
@@ -605,38 +450,12 @@
     transition: height 0.3s;
     min-width: 40px;
   }
-  .barra-valor {
-    position: absolute;
-    top: -24px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    font-weight: 600;
-    color: white;
-  }
-  .barra-label {
-    position: absolute;
-    bottom: -28px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 11px;
-    white-space: nowrap;
-    color: rgba(255, 255, 255, 0.7);
-  }
+  .barra-valor { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 600; color: white; }
+  .barra-label { position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); font-size: 11px; white-space: nowrap; color: rgba(255,255,255,0.7); }
 
-  .backup-acoes {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 32px;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    opacity: 0.6;
-    color: white;
-  }
+  .backup-acoes { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
+  .empty-state { text-align: center; padding: 40px 20px; opacity: 0.6; color: white; }
+  .empty-state i { font-size: 48px; margin-bottom: 12px; }
 
   .modal-foco-overlay {
     display: none;
@@ -652,53 +471,22 @@
   }
   .modal-foco-overlay.show { display: flex; }
   .modal-foco-conteudo {
-    background: rgba(26, 27, 38, 0.95);
+    background: rgba(26,27,38,0.95);
     backdrop-filter: blur(24px);
     padding: 40px;
     border-radius: 32px;
     max-width: 600px;
     width: 90%;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255,255,255,0.1);
   }
-  .progresso-foco {
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    margin: 20px 0;
-    overflow: hidden;
-  }
-  .progresso-foco-bar {
-    height: 100%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    width: 0%;
-    transition: width 0.3s;
-  }
+  .progresso-foco { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 20px 0; overflow: hidden; }
+  .progresso-foco-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); width: 0%; transition: width 0.3s; }
 
-  .calendario-grade {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-  }
-  .calendario-dia-semana {
-    text-align: center;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    color: white;
-  }
-  .calendario-dia {
-    min-height: 100px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: white;
-  }
-  .calendario-dia.hoje {
-    border: 1px solid #667eea;
-  }
+  .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .calendario-dia-semana { text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 12px; color: white; }
+  .calendario-dia { min-height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; cursor: pointer; transition: all 0.2s; color: white; }
+  .calendario-dia.hoje { border: 1px solid #667eea; }
 
   @media (max-width: 768px) {
     body { padding: 16px; }
@@ -711,12 +499,11 @@
     .meta-card, .bloco-tarefa { min-width: 100%; }
   }
 
-  [data-theme="dark"] body {
-    background: linear-gradient(135deg, #1a1b2e, #2d1b3e);
-  }
+  [data-theme="dark"] body { background: linear-gradient(135deg, #1a1b2e, #2d1b3e); }
 </style>
 </head>
 <body>
+<!-- Tela de Login com Email -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-container">
     <div class="logo-img" style="margin: 0 auto 20px;">
@@ -724,16 +511,29 @@
     </div>
     <h2>FLUXO</h2>
     <p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p>
-    <button class="google-btn" id="googleLoginBtn">
-      <i class="fab fa-google"></i> Entrar com Google
-    </button>
+    
+    <div id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" autocomplete="off">
+      <input type="password" id="loginPassword" placeholder="Senha">
+      <div id="loginErrorMessage" class="error-message"></div>
+      <button class="login-btn" onclick="fazerLoginEmail()">Entrar</button>
+      <a class="register-link" onclick="mostrarCadastro()">Não tem uma conta? Cadastre-se</a>
+    </div>
+
+    <div id="registerForm" style="display: none;">
+      <input type="email" id="registerEmail" placeholder="Email" autocomplete="off">
+      <input type="password" id="registerPassword" placeholder="Senha">
+      <input type="password" id="registerConfirm" placeholder="Confirmar Senha">
+      <div id="registerErrorMessage" class="error-message"></div>
+      <button class="login-btn" onclick="fazerCadastro()">Cadastrar</button>
+      <a class="register-link" onclick="mostrarLogin()">Já tenho uma conta</a>
+    </div>
   </div>
 </div>
 
 <div class="container" id="mainApp" style="display: none;">
   <div class="header">
     <div class="user-info">
-      <img id="userAvatar" src="" style="display: none;">
       <span id="userName"></span>
       <button class="sync-btn" id="syncBtn"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button>
       <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
@@ -858,7 +658,7 @@
 
 <script type="module">
   import { initializeApp } from "firebase/app";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
   import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
   const firebaseConfig = {
@@ -873,68 +673,134 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
   const db = getFirestore(app);
 
-  // Expor funções globalmente
-  window.fazerLogin = async () => {
+  // Variáveis globais do app
+  window.tarefas = [];
+  window.metas = [];
+  window.cardsMetas = [
+    { id: "meta_pessoal", nome: "Pessoal" },
+    { id: "meta_jw", nome: "JW" },
+    { id: "meta_at", nome: "At Inovvate" },
+    { id: "meta_waw", nome: "WAW" }
+  ];
+  window.cardsTarefas = [
+    { id: "tarefa_pessoal", nome: "Pessoal" },
+    { id: "tarefa_jw", nome: "JW" },
+    { id: "tarefa_at", nome: "At Inovvate" },
+    { id: "tarefa_waw", nome: "WAW" }
+  ];
+
+  let currentUser = null;
+
+  // Funções de autenticação
+  window.mostrarLogin = function() {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loginErrorMessage').textContent = '';
+  };
+
+  window.mostrarCadastro = function() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+    document.getElementById('registerErrorMessage').textContent = '';
+  };
+
+  window.fazerLoginEmail = async function() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorDiv = document.getElementById('loginErrorMessage');
+    
+    if (!email || !password) {
+      errorDiv.textContent = 'Preencha todos os campos!';
+      return;
+    }
+    
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log("Usuário logado:", user);
-      
-      // Carregar dados do Firestore
-      const docRef = doc(db, "usuarios", user.uid);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        const dados = docSnap.data();
-        window.tarefas = dados.tarefas || [];
-        window.metas = dados.metas || [];
-        window.cardsMetas = dados.cardsMetas || window.cardsMetas;
-        window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
-      }
-      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      currentUser = userCredential.user;
+      await carregarDadosUsuario(currentUser.uid);
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
-      document.getElementById('userName').textContent = user.displayName || user.email;
-      if (user.photoURL) {
-        document.getElementById('userAvatar').src = user.photoURL;
-        document.getElementById('userAvatar').style.display = 'inline-block';
-      }
-      
-      // Recarregar interface
-      atualizarSelectCategorias();
-      carregarTema();
-      atualizarDataHoje();
-      renderizarDashboardMetas();
-      renderizarTarefas();
-      renderizarEstatisticas();
-      
+      document.getElementById('userName').textContent = currentUser.email;
     } catch (error) {
-      console.error("Erro no login:", error);
-      alert("Erro ao fazer login: " + error.message);
+      console.error('Erro no login:', error);
+      if (error.code === 'auth/user-not-found') {
+        errorDiv.textContent = 'Usuário não encontrado. Cadastre-se primeiro.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorDiv.textContent = 'Senha incorreta.';
+      } else {
+        errorDiv.textContent = 'Erro ao fazer login: ' + error.message;
+      }
     }
   };
 
-  window.fazerLogout = async () => {
+  window.fazerCadastro = async function() {
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirm = document.getElementById('registerConfirm').value;
+    const errorDiv = document.getElementById('registerErrorMessage');
+    
+    if (!email || !password || !confirm) {
+      errorDiv.textContent = 'Preencha todos os campos!';
+      return;
+    }
+    
+    if (password !== confirm) {
+      errorDiv.textContent = 'As senhas não coincidem!';
+      return;
+    }
+    
+    if (password.length < 6) {
+      errorDiv.textContent = 'A senha deve ter no mínimo 6 caracteres!';
+      return;
+    }
+    
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      currentUser = userCredential.user;
+      
+      // Criar dados iniciais
+      await setDoc(doc(db, "usuarios", currentUser.uid), {
+        tarefas: [],
+        metas: [],
+        cardsMetas: window.cardsMetas,
+        cardsTarefas: window.cardsTarefas,
+        criado: new Date().toISOString()
+      });
+      
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      document.getElementById('userName').textContent = currentUser.email;
+      
+      alert('✅ Conta criada com sucesso!');
+    } catch (error) {
+      console.error('Erro no cadastro:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        errorDiv.textContent = 'Email já cadastrado! Faça login.';
+      } else {
+        errorDiv.textContent = 'Erro ao cadastrar: ' + error.message;
+      }
+    }
+  };
+
+  window.fazerLogout = async function() {
     await signOut(auth);
+    currentUser = null;
     document.getElementById('loginOverlay').style.display = 'flex';
     document.getElementById('mainApp').style.display = 'none';
   };
 
-  window.salvarDadosFirebase = async () => {
-    if (!auth.currentUser) return false;
+  window.salvarDadosFirebase = async function() {
+    if (!currentUser) return false;
     try {
-      const docRef = doc(db, "usuarios", auth.currentUser.uid);
-      await setDoc(docRef, {
+      await setDoc(doc(db, "usuarios", currentUser.uid), {
         tarefas: window.tarefas || [],
         metas: window.metas || [],
         cardsMetas: window.cardsMetas || [],
         cardsTarefas: window.cardsTarefas || [],
         ultimaAtualizacao: new Date().toISOString()
       });
-      console.log("Dados salvos");
       return true;
     } catch (error) {
       console.error("Erro ao salvar:", error);
@@ -942,7 +808,7 @@
     }
   };
 
-  window.sincronizarFirebase = async () => {
+  window.sincronizarFirebase = async function() {
     const syncBtn = document.getElementById('syncBtn');
     syncBtn.classList.add('syncing');
     syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sincronizando...';
@@ -959,14 +825,38 @@
     syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
   };
 
-  onAuthStateChanged(auth, (user) => {
+  async function carregarDadosUsuario(uid) {
+    const docRef = doc(db, "usuarios", uid);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const dados = docSnap.data();
+      window.tarefas = dados.tarefas || [];
+      window.metas = dados.metas || [];
+      window.cardsMetas = dados.cardsMetas || window.cardsMetas;
+      window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
+    }
+    
+    // Atualizar interface
+    if (window.atualizarSelectCategorias) window.atualizarSelectCategorias();
+    if (window.carregarTema) window.carregarTema();
+    if (window.atualizarDataHoje) window.atualizarDataHoje();
+    if (window.renderizarDashboardMetas) window.renderizarDashboardMetas();
+    if (window.renderizarTarefas) window.renderizarTarefas();
+    if (window.renderizarEstatisticas) window.renderizarEstatisticas();
+  }
+
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
-      console.log("Usuário autenticado:", user.uid);
+      currentUser = user;
+      await carregarDadosUsuario(user.uid);
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      document.getElementById('userName').textContent = user.email;
     }
   });
 
   // Event listeners
-  document.getElementById('googleLoginBtn').onclick = () => window.fazerLogin();
   document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
   document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
 </script>
@@ -1014,12 +904,15 @@
     return div.innerHTML;
   }
 
+  window.escapeHtml = escapeHtml;
+
   function atualizarDataHoje() {
     const hoje = new Date();
     const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const dataEl = document.getElementById('dataHoje');
     if (dataEl) dataEl.textContent = hoje.toLocaleDateString('pt-BR', opcoes);
   }
+  window.atualizarDataHoje = atualizarDataHoje;
 
   function carregarTema() {
     const saved = localStorage.getItem('tema');
@@ -1027,6 +920,7 @@
       document.documentElement.setAttribute('data-theme', 'dark');
     }
   }
+  window.carregarTema = carregarTema;
 
   function salvarTarefas() {
     localStorage.setItem('tarefas', JSON.stringify(tarefas));
@@ -1034,6 +928,7 @@
     renderizarEstatisticas();
     if (window.salvarDadosFirebase) window.salvarDadosFirebase();
   }
+  window.salvarTarefas = salvarTarefas;
 
   function salvarMetas() {
     localStorage.setItem('metas', JSON.stringify(metas));
@@ -1041,6 +936,7 @@
     renderizarEstatisticas();
     if (window.salvarDadosFirebase) window.salvarDadosFirebase();
   }
+  window.salvarMetas = salvarMetas;
 
   function salvarCardsMetas() {
     localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
@@ -1066,6 +962,7 @@
       select.appendChild(option);
     });
   }
+  window.atualizarSelectCategorias = atualizarSelectCategorias;
 
   function adicionarCardMeta() {
     const nome = prompt('🏆 Nome do novo card:', 'Nova Categoria');
@@ -1165,6 +1062,7 @@
     if (dataInput) dataInput.value = '';
     salvarMetas();
   }
+  window.adicionarMeta = adicionarMeta;
 
   function adicionarTarefa() {
     const texto = document.getElementById('nova-tarefa').value.trim();
@@ -1190,16 +1088,19 @@
     salvarTarefas();
     alert('✅ Tarefa adicionada!');
   }
+  window.adicionarTarefa = adicionarTarefa;
 
   function toggleMeta(id) {
     const meta = metas.find(m => m.id === id);
     if (meta) { meta.atingida = !meta.atingida; salvarMetas(); }
   }
+  window.toggleMeta = toggleMeta;
 
   function toggleTarefa(id) {
     const t = tarefas.find(t => t.id === id);
     if (t) { t.concluida = !t.concluida; salvarTarefas(); }
   }
+  window.toggleTarefa = toggleTarefa;
 
   function excluirMeta(id) {
     if (confirm('Excluir esta meta?')) {
@@ -1207,6 +1108,7 @@
       salvarMetas();
     }
   }
+  window.excluirMeta = excluirMeta;
 
   function excluirTarefa(id) {
     if (confirm('Excluir esta tarefa?')) {
@@ -1214,6 +1116,7 @@
       salvarTarefas();
     }
   }
+  window.excluirTarefa = excluirTarefa;
 
   function editarMetaPrompt(id) {
     const meta = metas.find(m => m.id === id);
@@ -1224,6 +1127,7 @@
     if (novaData !== null) meta.dataLimite = novaData;
     salvarMetas();
   }
+  window.editarMetaPrompt = editarMetaPrompt;
 
   function editarTarefa(id) {
     const t = tarefas.find(t => t.id === id);
@@ -1236,6 +1140,7 @@
     if (novaPrioridade && ['p1','p2','p3'].includes(novaPrioridade)) t.prioridade = novaPrioridade;
     salvarTarefas();
   }
+  window.editarTarefa = editarTarefa;
 
   function setFiltro(filtro, btn) {
     filtroAtual = filtro;
@@ -1243,11 +1148,13 @@
     btn.classList.add('active');
     renderizarTarefas();
   }
+  window.setFiltro = setFiltro;
 
   function buscarGlobal() {
     termoBusca = document.getElementById('buscaGlobal').value.toLowerCase();
     renderizarTarefas();
   }
+  window.buscarGlobal = buscarGlobal;
 
   function filtrarTarefas(lista) {
     const hoje = new Date().toISOString().split('T')[0];
@@ -1276,11 +1183,13 @@
       renderizarCalendario();
     }
   }
+  window.toggleView = toggleView;
 
   function mudarMes(delta) {
     dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + delta);
     renderizarCalendario();
   }
+  window.mudarMes = mudarMes;
 
   function renderizarCalendario() {
     const ano = dataAtualCalendario.getFullYear();
@@ -1316,6 +1225,7 @@
     }
     document.getElementById('calendarioGrade').innerHTML = html;
   }
+  window.renderizarCalendario = renderizarCalendario;
 
   function selecionarDataCalendario(data) {
     const tarefasDia = tarefas.filter(t => t.data === data && !t.concluida);
@@ -1325,6 +1235,7 @@
       alert(`📅 ${data}\nNenhuma tarefa pendente.`);
     }
   }
+  window.selecionarDataCalendario = selecionarDataCalendario;
 
   function abrirModoFocoComTarefa(id) {
     const t = tarefas.find(t => t.id === id);
@@ -1339,12 +1250,14 @@
     document.getElementById('btnIniciarFoco').style.display = 'inline-block';
     document.getElementById('btnPausarFoco').style.display = 'none';
   }
+  window.abrirModoFocoComTarefa = abrirModoFocoComTarefa;
 
   function abrirModoFoco() {
     const pendentes = tarefas.filter(t => !t.concluida);
     if (!pendentes.length) { alert('🎉 Nenhuma tarefa pendente!'); return; }
     abrirModoFocoComTarefa(pendentes[0].id);
   }
+  window.abrirModoFoco = abrirModoFoco;
 
   function atualizarTimerDisplay() {
     const min = Math.floor(tempoRestante / 60);
@@ -1382,12 +1295,14 @@
     document.getElementById('btnIniciarFoco').style.display = 'none';
     document.getElementById('btnPausarFoco').style.display = 'inline-block';
   }
+  window.iniciarPomodoroFoco = iniciarPomodoroFoco;
 
   function pausarPomodoroFoco() {
     if (!pomodoroAtivo) return;
     pomodoroPausado = !pomodoroPausado;
     document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
   }
+  window.pausarPomodoroFoco = pausarPomodoroFoco;
 
   function resetarPomodoroFoco() {
     if (pomodoroInterval) clearInterval(pomodoroInterval);
@@ -1397,6 +1312,7 @@
     document.getElementById('btnIniciarFoco').style.display = 'inline-block';
     document.getElementById('btnPausarFoco').style.display = 'none';
   }
+  window.resetarPomodoroFoco = resetarPomodoroFoco;
 
   function concluirTarefaFoco() {
     if (!tarefaFocoAtual) return;
@@ -1409,12 +1325,14 @@
       }, 300);
     }
   }
+  window.concluirTarefaFoco = concluirTarefaFoco;
 
   function fecharModoFoco() {
     if (pomodoroInterval) clearInterval(pomodoroInterval);
     pomodoroAtivo = false;
     document.getElementById('modalFocoOverlay').classList.remove('show');
   }
+  window.fecharModoFoco = fecharModoFoco;
 
   function renderizarDashboardMetas() {
     const container = document.getElementById('dashboardMetasGrid');
@@ -1485,6 +1403,7 @@
       item.addEventListener('dragend', () => item.classList.remove('dragging'));
     });
   }
+  window.renderizarDashboardMetas = renderizarDashboardMetas;
 
   function renderizarTarefas() {
     if (viewAtual === 'calendario') return;
@@ -1566,6 +1485,7 @@
     addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;
     container.appendChild(addCard);
   }
+  window.renderizarTarefas = renderizarTarefas;
 
   function moverTarefa(tarefaId, novoBloco) {
     const t = tarefas.find(t => t.id === tarefaId);
@@ -1600,6 +1520,7 @@
       });
     }
   }
+  window.renderizarEstatisticas = renderizarEstatisticas;
 
   function abrirModalNovaMeta() {
     const cat = prompt('Categoria:', cardsMetas[0]?.nome);
@@ -1610,6 +1531,7 @@
       alert('✅ Meta adicionada!');
     }
   }
+  window.abrirModalNovaMeta = abrirModalNovaMeta;
 
   function limparMetasConcluidas() {
     if (confirm('Remover todas as metas concluídas?')) { 
@@ -1618,6 +1540,7 @@
       alert('✅ Metas concluídas removidas!');
     }
   }
+  window.limparMetasConcluidas = limparMetasConcluidas;
 
   function exportarBackup() {
     const dados = { tarefas, metas, cardsMetas, cardsTarefas };
@@ -1629,6 +1552,7 @@
     URL.revokeObjectURL(a.href);
     alert('✅ Backup exportado!');
   }
+  window.exportarBackup = exportarBackup;
 
   function importarBackup(event) {
     const file = event.target.files[0];
@@ -1659,6 +1583,15 @@
     reader.readAsText(file);
     event.target.value = '';
   }
+  window.importarBackup = importarBackup;
+
+  // Inicialização
+  atualizarSelectCategorias();
+  carregarTema();
+  atualizarDataHoje();
+  renderizarDashboardMetas();
+  renderizarTarefas();
+  renderizarEstatisticas();
 </script>
 </body>
 </html>
