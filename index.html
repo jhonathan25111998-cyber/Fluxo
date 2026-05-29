@@ -10,7 +10,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     background-attachment: fixed;
     padding: 24px;
@@ -95,7 +95,6 @@
 
   .data-hoje { text-align: center; margin-top: 16px; font-size: 14px; opacity: 0.8; color: white; }
 
-  /* Tela de Login com Email */
   .login-overlay {
     display: flex;
     position: fixed;
@@ -267,42 +266,72 @@
 
   .meta-lista, .tarefa-lista { padding: 20px; max-height: 350px; overflow-y: auto; }
 
-  .meta-lista::-webkit-scrollbar, .tarefa-lista::-webkit-scrollbar { width: 6px; }
-  .meta-lista::-webkit-scrollbar-track, .tarefa-lista::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
-  .meta-lista::-webkit-scrollbar-thumb, .tarefa-lista::-webkit-scrollbar-thumb { background: rgba(102,126,234,0.3); border-radius: 10px; }
-
-  .meta-item-dash, .tarefa-item {
+  .meta-item-dash {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 14px;
     margin-bottom: 10px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 14px;
     cursor: grab;
     transition: all 0.2s;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     color: white;
   }
-  .meta-item-dash:hover, .tarefa-item:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
-  .meta-item-dash.atingida, .tarefa-item.concluida { opacity: 0.5; text-decoration: line-through; }
-  .meta-item-dash input, .tarefa-item input { width: 20px; height: 20px; cursor: pointer; accent-color: #667eea; }
-  .meta-texto-dash, .tarefa-texto { flex: 1; font-size: 15px; line-height: 1.5; color: white; }
+  .meta-item-dash:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
+  .meta-item-dash.atingida { opacity: 0.5; text-decoration: line-through; }
+  .meta-item-dash input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
+  .meta-texto-dash { flex: 1; font-size: 14px; line-height: 1.4; color: white; word-break: break-word; }
+  .meta-data-limite { font-size: 11px; opacity: 0.7; margin-top: 4px; color: rgba(255,255,255,0.7); display: inline-flex; align-items: center; gap: 4px; }
 
-  .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .tarefa-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    cursor: grab;
+    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: white;
+  }
+  .tarefa-item:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
+  .tarefa-item.concluida { opacity: 0.5; text-decoration: line-through; }
+  .tarefa-item input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
+  .tarefa-conteudo { flex: 1; min-width: 0; }
+  .tarefa-texto { font-size: 14px; line-height: 1.4; color: white; word-break: break-word; margin-bottom: 6px; }
+  .tarefa-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  .badge i { font-size: 9px; }
   .badge.p1 { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
   .badge.recorrente { background: rgba(102,126,234,0.2); color: #A5B4FC; border: 1px solid rgba(102,126,234,0.3); }
   .badge.atrasada { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); animation: pulse 2s infinite; }
 
-  .item-actions { display: flex; gap: 6px; }
+  .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .item-actions button {
     background: transparent;
     border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     cursor: pointer;
     color: rgba(255,255,255,0.6);
+    transition: all 0.2s;
   }
   .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; }
 
@@ -503,7 +532,8 @@
 </style>
 </head>
 <body>
-<!-- Tela de Login com Email -->
+
+<!-- TELA DE LOGIN COM EMAIL -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-container">
     <div class="logo-img" style="margin: 0 auto 20px;">
@@ -675,7 +705,6 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Variáveis globais do app
   window.tarefas = [];
   window.metas = [];
   window.cardsMetas = [
@@ -693,7 +722,6 @@
 
   let currentUser = null;
 
-  // Funções de autenticação
   window.mostrarLogin = function() {
     document.getElementById('loginForm').style.display = 'block';
     document.getElementById('registerForm').style.display = 'none';
@@ -760,7 +788,6 @@
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       currentUser = userCredential.user;
       
-      // Criar dados iniciais
       await setDoc(doc(db, "usuarios", currentUser.uid), {
         tarefas: [],
         metas: [],
@@ -778,6 +805,8 @@
       console.error('Erro no cadastro:', error);
       if (error.code === 'auth/email-already-in-use') {
         errorDiv.textContent = 'Email já cadastrado! Faça login.';
+      } else if (error.code === 'auth/operation-not-allowed') {
+        errorDiv.textContent = 'Login com email/senha não está ativado. Contate o administrador.';
       } else {
         errorDiv.textContent = 'Erro ao cadastrar: ' + error.message;
       }
@@ -810,6 +839,7 @@
 
   window.sincronizarFirebase = async function() {
     const syncBtn = document.getElementById('syncBtn');
+    if (!syncBtn) return;
     syncBtn.classList.add('syncing');
     syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sincronizando...';
     
@@ -837,7 +867,6 @@
       window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
     }
     
-    // Atualizar interface
     if (window.atualizarSelectCategorias) window.atualizarSelectCategorias();
     if (window.carregarTema) window.carregarTema();
     if (window.atualizarDataHoje) window.atualizarDataHoje();
@@ -856,9 +885,12 @@
     }
   });
 
-  // Event listeners
-  document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
-  document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
+  if (document.getElementById('logoutBtn')) {
+    document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
+  }
+  if (document.getElementById('syncBtn')) {
+    document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
+  }
 </script>
 
 <script>
@@ -903,8 +935,6 @@
     div.textContent = text;
     return div.innerHTML;
   }
-
-  window.escapeHtml = escapeHtml;
 
   function atualizarDataHoje() {
     const hoje = new Date();
@@ -1585,7 +1615,6 @@
   }
   window.importarBackup = importarBackup;
 
-  // Inicialização
   atualizarSelectCategorias();
   carregarTema();
   atualizarDataHoje();
