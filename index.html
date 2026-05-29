@@ -707,7 +707,21 @@
 
   let currentUser = null;
 
-  // Função para salvar no Firebase
+  window.tarefas = [];
+  window.metas = [];
+  window.cardsMetas = [
+    { id: "meta_pessoal", nome: "Pessoal" },
+    { id: "meta_jw", nome: "JW" },
+    { id: "meta_at", nome: "At Inovvate" },
+    { id: "meta_waw", nome: "WAW" }
+  ];
+  window.cardsTarefas = [
+    { id: "tarefa_pessoal", nome: "Pessoal" },
+    { id: "tarefa_jw", nome: "JW" },
+    { id: "tarefa_at", nome: "At Inovvate" },
+    { id: "tarefa_waw", nome: "WAW" }
+  ];
+
   async function salvarTudoNoFirebase() {
     if (!currentUser) return false;
     try {
@@ -726,7 +740,6 @@
     }
   }
 
-  // Função para carregar do Firebase e atualizar interface
   async function carregarDadosDoFirebase() {
     if (!currentUser) return false;
     try {
@@ -742,16 +755,11 @@
         
         console.log(`✅ Dados carregados: ${window.tarefas.length} tarefas, ${window.metas.length} metas`);
         
-        // ATUALIZAR INTERFACE GLOBALMENTE
         if (typeof atualizarTudo === 'function') {
           atualizarTudo();
-        } else {
-          // Fallback
-          location.reload();
         }
         return true;
       } else {
-        // Criar documento inicial
         await setDoc(docRef, {
           tarefas: [],
           metas: [],
@@ -767,11 +775,9 @@
     }
   }
 
-  // Expor funções globalmente
   window.salvarTudoFirebase = salvarTudoNoFirebase;
   window.carregarDadosFirebase = carregarDadosDoFirebase;
 
-  // Evento quando usuário loga
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
@@ -781,7 +787,6 @@
       document.getElementById('mainApp').style.display = 'block';
       document.getElementById('userName').textContent = user.email;
       
-      // Carregar dados e atualizar página
       await carregarDadosDoFirebase();
       
     } else {
@@ -792,7 +797,6 @@
     }
   });
 
-  // Funções de login/cadastro
   window.fazerLogin = async function() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -874,7 +878,6 @@
     document.getElementById('registerForm').style.display = 'block';
   };
 
-  // Botões
   document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
   document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
 </script>
@@ -896,7 +899,6 @@
     { id: "tarefa_waw", nome: "WAW" }
   ];
 
-  // Sincronizar com window
   window.tarefas = tarefas;
   window.metas = metas;
   window.cardsMetas = cardsMetas;
@@ -916,7 +918,6 @@
   let viewAtual = 'cards';
   let dataAtualCalendario = new Date();
 
-  // FUNÇÃO PARA ATUALIZAR TUDO
   function atualizarTudo() {
     console.log("🔄 Atualizando toda a interface...");
     atualizarSelectCategorias();
@@ -1612,7 +1613,78 @@
   }
   window.importarBackup = importarBackup;
 
-  // Inicialização
+  // ========== NOTIFICAÇÕES ==========
+  function pedirPermissaoNotificacoes() {
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            console.log('✅ Notificações permitidas!');
+            new Notification('FLUXO', {
+              body: 'Você receberá lembretes das suas tarefas 10 minutos antes!',
+              icon: '🎯'
+            });
+          }
+        });
+      } else if (Notification.permission === 'granted') {
+        console.log('✅ Notificações já estão ativadas');
+      } else {
+        console.log('❌ Notificações bloqueadas pelo usuário');
+      }
+    }
+  }
+
+  function checarNotificacoes() {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const agora = new Date();
+    const em10min = new Date(agora.getTime() + 10 * 60000);
+    const hora10min = em10min.getHours().toString().padStart(2, '0') + ':' + em10min.getMinutes().toString().padStart(2, '0');
+    const hoje = agora.toISOString().split('T')[0];
+
+    let notificacaoEnviada = false;
+
+    tarefas.forEach(t => {
+      // Verificar tarefas que vencem em 10 minutos
+      if (!t.concluida && t.data === hoje && t.hora && t.hora === hora10min && !t.alertado) {
+        new Notification('⏰ Tarefa em 10 minutos!', {
+          body: `"${t.texto}" - ${t.data} às ${t.hora}`,
+          icon: '🎯',
+          silent: false
+        });
+        t.alertado = true;
+        notificacaoEnviada = true;
+        salvarTarefas();
+      }
+      
+      // Verificar tarefas atrasadas (opcional - uma vez por dia)
+      if (!t.concluida && t.data && t.data < hoje && !t.alertadoAtraso) {
+        new Notification('⚠️ Tarefa atrasada!', {
+          body: `"${t.texto}" estava marcada para ${t.data}`,
+          icon: '⚠️',
+          silent: false
+        });
+        t.alertadoAtraso = true;
+        notificacaoEnviada = true;
+        salvarTarefas();
+      }
+    });
+    
+    if (notificacaoEnviada) {
+      console.log('🔔 Notificação enviada!');
+    }
+  }
+
+  // ========== INICIALIZAÇÃO DAS NOTIFICAÇÕES ==========
+  pedirPermissaoNotificacoes();
+  
+  // Verificar notificações a cada minuto
+  setInterval(checarNotificacoes, 60000);
+  
+  // Verificar imediatamente ao carregar
+  setTimeout(checarNotificacoes, 5000);
+
+  // ========== INICIALIZAÇÃO DO APP ==========
   atualizarSelectCategorias();
   carregarTema();
   atualizarDataHoje();
@@ -1621,6 +1693,7 @@
   renderizarEstatisticas();
   
   console.log("🚀 App FLUXO inicializado!");
+  console.log("🔔 Sistema de notificações ativo!");
 </script>
 </body>
 </html>
