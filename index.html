@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fluxo - Organize. Execute. Flua.</title>
+<title>FLUXO - Organize. Execute. Flua.</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://apis.google.com/js/api.js"></script>
 <style>
-  /* FLUXO: Reset e Base Premium */
   * {
     margin: 0;
     padding: 0;
@@ -92,7 +92,12 @@
     font-size: 14px;
     font-weight: 500;
   }
-  .logout-btn {
+  .user-info img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+  }
+  .logout-btn, .sync-btn {
     background: rgba(255, 255, 255, 0.2);
     border: none;
     padding: 6px 12px;
@@ -102,9 +107,16 @@
     font-size: 12px;
     transition: all 0.3s;
   }
-  .logout-btn:hover {
+  .logout-btn:hover, .sync-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
+  }
+  .sync-btn.syncing {
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 
   .data-hoje {
@@ -115,7 +127,7 @@
     color: white;
   }
 
-  /* FLUXO: Login Modal */
+  /* FLUXO: Login com Google Modal */
   .login-overlay {
     display: flex;
     position: fixed;
@@ -138,6 +150,7 @@
     max-width: 450px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     animation: fadeInUp 0.4s ease;
+    text-align: center;
   }
   .login-container h2 {
     color: white;
@@ -145,56 +158,28 @@
     margin-bottom: 30px;
     font-size: 28px;
   }
-  .login-container input {
-    width: 100%;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: white;
-    font-size: 14px;
-    font-family: 'Poppins', sans-serif;
-    outline: none;
-    transition: all 0.2s;
-  }
-  .login-container input:focus {
-    border-color: #667eea;
-    background: rgba(255, 255, 255, 0.12);
-  }
-  .login-container input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-  }
-  .login-buttons {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-  }
-  .login-btn {
-    flex: 1;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+  .google-btn {
+    background: white;
+    color: #333;
     border: none;
-    padding: 12px;
+    padding: 12px 24px;
     border-radius: 40px;
-    color: white;
     cursor: pointer;
     font-weight: 600;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
     transition: all 0.3s;
   }
-  .login-btn:hover {
+  .google-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   }
-  .register-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  .error-message {
-    color: #FCA5A5;
-    font-size: 12px;
-    margin-top: -8px;
-    margin-bottom: 12px;
-    display: block;
+  .google-btn i {
+    font-size: 20px;
   }
 
   /* FLUXO: Top Bar com Busca e Visualização */
@@ -230,7 +215,7 @@
   }
   .view-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.15); }
 
-  /* FLUXO: Busca Compacta - Ajustada para 44px altura */
+  /* FLUXO: Busca Compacta */
   .busca-global {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -451,10 +436,6 @@
     border: 1px solid rgba(239, 68, 68, 0.3);
     animation: pulse 2s infinite;
   }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
 
   .item-actions {
     display: flex;
@@ -501,7 +482,7 @@
     color: rgba(255, 255, 255, 0.4);
   }
 
-  /* FLUXO: Card Adicionar - Texto Branco Garantido */
+  /* FLUXO: Card Adicionar */
   .card-adicionar {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(24px);
@@ -840,7 +821,7 @@
 </style>
 </head>
 <body>
-<!-- FLUXO: Tela de Login -->
+<!-- FLUXO: Tela de Login com Google -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-container">
     <div style="text-align: center; margin-bottom: 20px;">
@@ -848,35 +829,24 @@
         <img src="logo.png" alt="Fluxo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'">
       </div>
       <h2>FLUXO</h2>
-      <p style="color: rgba(255,255,255,0.7); font-size: 14px;">Organize. Execute. Flua.</p>
+      <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 30px;">Organize. Execute. Flua.</p>
     </div>
-    <div id="loginForm">
-      <input type="text" id="loginUsername" placeholder="Usuário" autocomplete="off">
-      <input type="password" id="loginPassword" placeholder="Senha" onkeypress="if(event.key==='Enter') fazerLogin()">
-      <div id="loginError" class="error-message"></div>
-      <div class="login-buttons">
-        <button class="login-btn" onclick="fazerLogin()">Entrar</button>
-        <button class="login-btn register-btn" onclick="mostrarRegistro()">Criar Conta</button>
-      </div>
-    </div>
-    <div id="registerForm" style="display: none;">
-      <input type="text" id="registerUsername" placeholder="Usuário" autocomplete="off">
-      <input type="password" id="registerPassword" placeholder="Senha">
-      <input type="password" id="registerConfirm" placeholder="Confirmar Senha">
-      <div id="registerError" class="error-message"></div>
-      <div class="login-buttons">
-        <button class="login-btn" onclick="fazerRegistro()">Registrar</button>
-        <button class="login-btn register-btn" onclick="mostrarLogin()">Voltar</button>
-      </div>
-    </div>
+    <button class="google-btn" onclick="loginComGoogle()">
+      <i class="fab fa-google"></i> Entrar com Google
+    </button>
+    <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 20px;">
+      Seus dados serão salvos na sua conta do Google Drive
+    </p>
   </div>
 </div>
 
 <div class="container" id="mainApp" style="display: none;">
   <div class="header">
-    <div class="user-info">
-      <span><i class="fas fa-user-circle"></i> <span id="currentUser"></span></span>
-      <button class="logout-btn" onclick="fazerLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    <div class="user-info" id="userInfo">
+      <img id="userAvatar" src="" alt="Avatar" style="display: none;">
+      <span id="userName"></span>
+      <button class="sync-btn" onclick="sincronizarComGoogle()" id="syncBtn"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button>
+      <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>
     <div class="header-content">
       <div class="logo-img">
@@ -989,15 +959,34 @@
 </div>
 
 <script>
-// ========== SISTEMA DE AUTENTICAÇÃO ==========
-let usuarios = [];
-let usuarioAtual = null;
+// ========== CONFIGURAÇÃO DO GOOGLE DRIVE ==========
+const CLIENT_ID = '171476045237-h2a8irvpmp50mhe5ddjuc00bc3rtralr.apps.googleusercontent.com';
+const API_KEY = ''; // Não precisa para Drive API com OAuth
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+const FILE_NAME = 'fluxo_dados.json';
+
+let tokenClient = null;
+let gapiInited = false;
+let gisInited = false;
+let accessToken = null;
+let userGoogle = null;
+
+// ========== DADOS DO APP ==========
 let tarefas = [];
 let metas = [];
-let cardsMetas = [];
-let cardsTarefas = [];
+let cardsMetas = [
+  { id: "meta_pessoal", nome: "Pessoal" },
+  { id: "meta_jw", nome: "JW" },
+  { id: "meta_at", nome: "At Inovvate" },
+  { id: "meta_waw", nome: "WAW" }
+];
+let cardsTarefas = [
+  { id: "tarefa_pessoal", nome: "Pessoal" },
+  { id: "tarefa_jw", nome: "JW" },
+  { id: "tarefa_at", nome: "At Inovvate" },
+  { id: "tarefa_waw", nome: "WAW" }
+];
 
-// Variáveis de estado
 let filtroAtual = 'hoje';
 let termoBusca = '';
 let tarefaArrastando = null;
@@ -1012,7 +1001,165 @@ let tarefaFocoAtual = null;
 let viewAtual = 'cards';
 let dataAtualCalendario = new Date();
 
-// ========== FUNÇÕES AUXILIARES ==========
+// ========== FUNÇÕES GOOGLE DRIVE ==========
+function carregarBibliotecas() {
+  // Carregar GAPI
+  gapi.load('client', iniciarGAPI);
+  
+  // Carregar Token Client
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if (resp.error) {
+        console.error('Erro no token:', resp);
+        return;
+      }
+      accessToken = resp.access_token;
+      carregarDadosDoDrive();
+    },
+  });
+}
+
+function iniciarGAPI() {
+  gapi.client.init({}).then(() => {
+    gapiInited = true;
+  });
+}
+
+function loginComGoogle() {
+  if (tokenClient) {
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  } else {
+    alert('Erro ao carregar bibliotecas. Recarregue a página.');
+  }
+}
+
+async function carregarDadosDoDrive() {
+  try {
+    const response = await fetch('https://www.googleapis.com/drive/v3/files?q=name="' + FILE_NAME + '"', {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
+    const data = await response.json();
+    
+    if (data.files && data.files.length > 0) {
+      const fileId = data.files[0].id;
+      const fileResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: { 'Authorization': 'Bearer ' + accessToken }
+      });
+      const dados = await fileResponse.json();
+      
+      tarefas = dados.tarefas || [];
+      metas = dados.metas || [];
+      cardsMetas = dados.cardsMetas || cardsMetas;
+      cardsTarefas = dados.cardsTarefas || cardsTarefas;
+      
+      alert('✅ Dados carregados do Google Drive!');
+    } else {
+      alert('📁 Nenhum dado encontrado no Drive. Vamos criar um novo arquivo ao sincronizar.');
+    }
+    
+    // Buscar informações do usuário
+    const userResponse = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
+    userGoogle = await userResponse.json();
+    
+    document.getElementById('userName').textContent = userGoogle.name;
+    if (userGoogle.picture) {
+      document.getElementById('userAvatar').src = userGoogle.picture;
+      document.getElementById('userAvatar').style.display = 'inline-block';
+    }
+    
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    
+    atualizarSelectCategorias();
+    carregarTema();
+    atualizarDataHoje();
+    renderizarDashboardMetas();
+    renderizarTarefas();
+    renderizarEstatisticas();
+    
+  } catch (error) {
+    console.error('Erro ao carregar dados:', error);
+    alert('❌ Erro ao carregar dados do Drive. Tente novamente.');
+  }
+}
+
+async function sincronizarComGoogle() {
+  if (!accessToken) {
+    alert('Faça login novamente');
+    return;
+  }
+  
+  const syncBtn = document.getElementById('syncBtn');
+  syncBtn.classList.add('syncing');
+  syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sincronizando...';
+  
+  try {
+    const dados = {
+      tarefas: tarefas,
+      metas: metas,
+      cardsMetas: cardsMetas,
+      cardsTarefas: cardsTarefas,
+      ultimaSincronizacao: new Date().toISOString()
+    };
+    
+    // Verificar se arquivo já existe
+    const searchResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=name="' + FILE_NAME + '"', {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
+    const searchData = await searchResponse.json();
+    
+    let fileId = null;
+    if (searchData.files && searchData.files.length > 0) {
+      fileId = searchData.files[0].id;
+      // Atualizar arquivo existente
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': 'Bearer ' + accessToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dados)
+      });
+    } else {
+      // Criar novo arquivo
+      const metadata = {
+        name: FILE_NAME,
+        mimeType: 'application/json'
+      };
+      
+      const formData = new FormData();
+      formData.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      formData.append('file', new Blob([JSON.stringify(dados)], { type: 'application/json' }));
+      
+      await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + accessToken },
+        body: formData
+      });
+    }
+    
+    alert('✅ Dados sincronizados com o Google Drive!');
+  } catch (error) {
+    console.error('Erro ao sincronizar:', error);
+    alert('❌ Erro ao sincronizar. Tente novamente.');
+  } finally {
+    syncBtn.classList.remove('syncing');
+    syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
+  }
+}
+
+function logout() {
+  accessToken = null;
+  userGoogle = null;
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+}
+
+// ========== FUNÇÕES DO APP (mantidas do original) ==========
 function escapeHtml(text) {
   if (!text) return '';
   const div = document.createElement('div');
@@ -1046,210 +1193,29 @@ function toggleTema() {
   }
 }
 
-// ========== FUNÇÕES DE SALVAMENTO ==========
-function salvarDadosUsuario() {
-  if (!usuarioAtual) return;
-  const dados = { tarefas, metas, cardsMetas, cardsTarefas };
-  localStorage.setItem(`fluxo_dados_${usuarioAtual.id}`, JSON.stringify(dados));
-}
-
 function salvarTarefas() {
   localStorage.setItem('tarefas', JSON.stringify(tarefas));
-  salvarDadosUsuario();
   renderizarTarefas();
   renderizarEstatisticas();
 }
 
 function salvarMetas() {
   localStorage.setItem('metas', JSON.stringify(metas));
-  salvarDadosUsuario();
   renderizarDashboardMetas();
   renderizarEstatisticas();
 }
 
 function salvarCardsMetas() {
-  salvarDadosUsuario();
+  localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
   renderizarDashboardMetas();
 }
 
 function salvarCardsTarefas() {
-  salvarDadosUsuario();
+  localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
   atualizarSelectCategorias();
   renderizarTarefas();
 }
 
-// ========== AUTENTICAÇÃO ==========
-function carregarUsuarios() {
-  const saved = localStorage.getItem('fluxo_usuarios');
-  if (saved) {
-    usuarios = JSON.parse(saved);
-  } else {
-    usuarios = [{ id: '1', username: 'demo', password: 'demo123' }];
-    localStorage.setItem('fluxo_usuarios', JSON.stringify(usuarios));
-  }
-}
-
-function fazerLogin() {
-  const username = document.getElementById('loginUsername').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const errorDiv = document.getElementById('loginError');
-  
-  if (!username || !password) {
-    errorDiv.textContent = 'Preencha todos os campos!';
-    return;
-  }
-  
-  const usuario = usuarios.find(u => u.username === username && u.password === password);
-  
-  if (!usuario) {
-    errorDiv.textContent = 'Usuário ou senha inválidos!';
-    return;
-  }
-  
-  usuarioAtual = usuario;
-  localStorage.setItem('fluxo_usuario_atual', JSON.stringify({ id: usuario.id, username: usuario.username }));
-  
-  document.getElementById('loginOverlay').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-  document.getElementById('currentUser').textContent = usuario.username;
-  
-  carregarDadosUsuario();
-}
-
-function fazerRegistro() {
-  const username = document.getElementById('registerUsername').value.trim();
-  const password = document.getElementById('registerPassword').value;
-  const confirm = document.getElementById('registerConfirm').value;
-  const errorDiv = document.getElementById('registerError');
-  
-  if (!username || !password) {
-    errorDiv.textContent = 'Preencha todos os campos!';
-    return;
-  }
-  
-  if (password !== confirm) {
-    errorDiv.textContent = 'As senhas não coincidem!';
-    return;
-  }
-  
-  if (password.length < 4) {
-    errorDiv.textContent = 'A senha deve ter no mínimo 4 caracteres!';
-    return;
-  }
-  
-  if (usuarios.some(u => u.username === username)) {
-    errorDiv.textContent = 'Usuário já existe!';
-    return;
-  }
-  
-  const novoUsuario = { id: Date.now().toString(), username, password };
-  usuarios.push(novoUsuario);
-  localStorage.setItem('fluxo_usuarios', JSON.stringify(usuarios));
-  
-  const dadosIniciais = {
-    tarefas: [],
-    metas: [],
-    cardsMetas: [
-      { id: "meta_pessoal", nome: "Pessoal" },
-      { id: "meta_jw", nome: "JW" },
-      { id: "meta_at", nome: "At Inovvate" },
-      { id: "meta_waw", nome: "WAW" }
-    ],
-    cardsTarefas: [
-      { id: "tarefa_pessoal", nome: "Pessoal" },
-      { id: "tarefa_jw", nome: "JW" },
-      { id: "tarefa_at", nome: "At Inovvate" },
-      { id: "tarefa_waw", nome: "WAW" }
-    ]
-  };
-  localStorage.setItem(`fluxo_dados_${novoUsuario.id}`, JSON.stringify(dadosIniciais));
-  
-  alert('Conta criada com sucesso! Faça login.');
-  mostrarLogin();
-}
-
-function mostrarRegistro() {
-  document.getElementById('loginForm').style.display = 'none';
-  document.getElementById('registerForm').style.display = 'block';
-}
-
-function mostrarLogin() {
-  document.getElementById('loginForm').style.display = 'block';
-  document.getElementById('registerForm').style.display = 'none';
-}
-
-function fazerLogout() {
-  usuarioAtual = null;
-  localStorage.removeItem('fluxo_usuario_atual');
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('mainApp').style.display = 'none';
-}
-
-function verificarSessao() {
-  const savedUser = localStorage.getItem('fluxo_usuario_atual');
-  if (savedUser) {
-    const user = JSON.parse(savedUser);
-    const usuarioExistente = usuarios.find(u => u.id === user.id);
-    if (usuarioExistente) {
-      usuarioAtual = usuarioExistente;
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      document.getElementById('currentUser').textContent = usuarioExistente.username;
-      carregarDadosUsuario();
-      return true;
-    }
-  }
-  return false;
-}
-
-function carregarDadosUsuario() {
-  if (!usuarioAtual) return;
-  
-  const dadosKey = `fluxo_dados_${usuarioAtual.id}`;
-  const saved = localStorage.getItem(dadosKey);
-  
-  if (saved) {
-    const dados = JSON.parse(saved);
-    tarefas = dados.tarefas || [];
-    metas = dados.metas || [];
-    cardsMetas = dados.cardsMetas || [
-      { id: "meta_pessoal", nome: "Pessoal" },
-      { id: "meta_jw", nome: "JW" },
-      { id: "meta_at", nome: "At Inovvate" },
-      { id: "meta_waw", nome: "WAW" }
-    ];
-    cardsTarefas = dados.cardsTarefas || [
-      { id: "tarefa_pessoal", nome: "Pessoal" },
-      { id: "tarefa_jw", nome: "JW" },
-      { id: "tarefa_at", nome: "At Inovvate" },
-      { id: "tarefa_waw", nome: "WAW" }
-    ];
-  } else {
-    tarefas = [];
-    metas = [];
-    cardsMetas = [
-      { id: "meta_pessoal", nome: "Pessoal" },
-      { id: "meta_jw", nome: "JW" },
-      { id: "meta_at", nome: "At Inovvate" },
-      { id: "meta_waw", nome: "WAW" }
-    ];
-    cardsTarefas = [
-      { id: "tarefa_pessoal", nome: "Pessoal" },
-      { id: "tarefa_jw", nome: "JW" },
-      { id: "tarefa_at", nome: "At Inovvate" },
-      { id: "tarefa_waw", nome: "WAW" }
-    ];
-  }
-  
-  atualizarSelectCategorias();
-  carregarTema();
-  atualizarDataHoje();
-  renderizarDashboardMetas();
-  renderizarTarefas();
-  renderizarEstatisticas();
-}
-
-// ========== FUNÇÕES DE UI ==========
 function atualizarSelectCategorias() {
   const select = document.getElementById('nova-bloco');
   if (!select) return;
@@ -1827,10 +1793,7 @@ function importarBackup(event) {
     try {
       const dados = JSON.parse(ev.target.result);
       
-      const totalTarefas = dados.tarefas ? dados.tarefas.length : 0;
-      const totalMetas = dados.metas ? dados.metas.length : 0;
-      
-      if (confirm(`📦 Importar backup?\n\nTarefas: ${totalTarefas}\nMetas: ${totalMetas}\n\nIsso substituirá seus dados atuais.`)) {
+      if (confirm(`📦 Importar backup?\n\nTarefas: ${dados.tarefas?.length || 0}\nMetas: ${dados.metas?.length || 0}\n\nIsso substituirá seus dados atuais.`)) {
         
         if (dados.tarefas) tarefas = dados.tarefas;
         if (dados.metas) metas = dados.metas;
@@ -1859,11 +1822,7 @@ function importarBackup(event) {
 }
 
 // Inicialização
-carregarUsuarios();
-if (!verificarSessao()) {
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('mainApp').style.display = 'none';
-}
+carregarBibliotecas();
 </script>
 </body>
 </html>
