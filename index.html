@@ -649,38 +649,108 @@
   const db = getFirestore(app);
 
   let currentUser = null;
-  window.tarefas = [];
-  window.metas = [];
+
+  // CARREGA LOCAL STORAGE PRIMEIRO
+  window.tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
+  window.metas = JSON.parse(localStorage.getItem('metas') || '[]');
+  window.cardsMetas = JSON.parse(localStorage.getItem('cardsMetas') || 'null') || [
+    { id: "meta_pessoal", nome: "Pessoal" },
+    { id: "meta_jw", nome: "JW" },
+    { id: "meta_at", nome: "At Inovvate" },
+    { id: "meta_waw", nome: "WAW" }
+  ];
+  window.cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas') || 'null') || [
+    { id: "tarefa_pessoal", nome: "Pessoal" },
+    { id: "tarefa_jw", nome: "JW" },
+    { id: "tarefa_at", nome: "At Inovvate" },
+    { id: "tarefa_waw", nome: "WAW" }
+  ];
 
   async function salvarTudoFirebase() {
     if (!currentUser) return;
-    await setDoc(doc(db, "usuarios", currentUser.uid), {
-      tarefas: window.tarefas,
-      metas: window.metas,
-      ultimaAtualizacao: new Date().toISOString()
-    });
-    console.log("✅ Salvou:", window.tarefas.length, "tarefas");
+    try {
+      await setDoc(doc(db, "usuarios", currentUser.uid), {
+        tarefas: window.tarefas,
+        metas: window.metas,
+        cardsMetas: window.cardsMetas,
+        cardsTarefas: window.cardsTarefas,
+        ultimaAtualizacao: new Date().toISOString()
+      });
+      console.log("✅ Firebase salvo:", window.tarefas.length, "tarefas");
+    } catch (err) {
+      console.error("❌ Erro ao salvar Firebase:", err);
+    }
   }
+  window.salvarTudoFirebase = salvarTudoFirebase;
 
   async function carregarDadosFirebase() {
     if (!currentUser) return;
-    const docRef = doc(db, "usuarios", currentUser.uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const dados = docSnap.data();
-      window.tarefas = dados.tarefas || [];
-      window.metas = dados.metas || [];
-      console.log("📥 Carregou:", window.tarefas.length, "tarefas do Firebase!");
-      atualizarInterface();
+    try {
+      const docRef = doc(db, "usuarios", currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const dados = docSnap.data();
+        window.tarefas = dados.tarefas || [];
+        window.metas = dados.metas || [];
+        window.cardsMetas = dados.cardsMetas || window.cardsMetas;
+        window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
+        
+        localStorage.setItem('tarefas', JSON.stringify(window.tarefas));
+        localStorage.setItem('metas', JSON.stringify(window.metas));
+        localStorage.setItem('cardsMetas', JSON.stringify(window.cardsMetas));
+        localStorage.setItem('cardsTarefas', JSON.stringify(window.cardsTarefas));
+        
+        console.log("📥 Dados carregados do Firebase:", window.tarefas.length, "tarefas");
+      } else {
+        console.log("⚠️ Nenhum dado encontrado no Firebase");
+      }
+      if (window.recarregarSistema) window.recarregarSistema();
+    } catch (err) {
+      console.error("❌ Erro ao carregar Firebase:", err);
     }
   }
 
-  function atualizarInterface() {
-    if (window.atualizarSelectCategorias) window.atualizarSelectCategorias();
-    if (window.renderizarDashboardMetas) window.renderizarDashboardMetas();
-    if (window.renderizarTarefas) window.renderizarTarefas();
-    if (window.renderizarEstatisticas) window.renderizarEstatisticas();
-  }
+  window.fazerLogin = async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!';
+    }
+  };
+
+  window.fazerCadastro = async () => {
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirm = document.getElementById('registerConfirm').value;
+    if (password !== confirm) {
+      document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem!';
+      return;
+    }
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert('✅ Conta criada!');
+    } catch (e) {
+      document.getElementById('registerErrorMessage').textContent = e.message;
+    }
+  };
+
+  window.fazerLogout = () => signOut(auth);
+  window.sincronizarFirebase = async () => {
+    await salvarTudoFirebase();
+    alert('✅ Sincronizado!');
+  };
+  window.mostrarCadastro = () => {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+  };
+  window.mostrarLogin = () => {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+  };
+  document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
+  document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -690,42 +760,26 @@
       document.getElementById('userName').textContent = user.email;
       await carregarDadosFirebase();
     } else {
+      currentUser = null;
       document.getElementById('loginOverlay').style.display = 'flex';
       document.getElementById('mainApp').style.display = 'none';
     }
   });
-
-  window.fazerLogin = async () => {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch(e) { document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!'; }
-  };
-  window.fazerCadastro = async () => {
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value;
-    const confirm = document.getElementById('registerConfirm').value;
-    if (password !== confirm) { document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem!'; return; }
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert('✅ Conta criada!');
-    } catch(e) { document.getElementById('registerErrorMessage').textContent = e.message; }
-  };
-  window.fazerLogout = () => signOut(auth);
-  window.sincronizarFirebase = async () => { await salvarTudoFirebase(); alert('✅ Sincronizado!'); };
-  window.mostrarCadastro = () => { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; };
-  window.mostrarLogin = () => { document.getElementById('loginForm').style.display = 'block'; document.getElementById('registerForm').style.display = 'none'; };
-  document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
-  document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
 </script>
 
 <script>
-  let tarefas = [];
-  let metas = [];
-  let cardsMetas = [{ id: "meta_pessoal", nome: "Pessoal" }, { id: "meta_jw", nome: "JW" }, { id: "meta_at", nome: "At Inovvate" }, { id: "meta_waw", nome: "WAW" }];
-  let cardsTarefas = [{ id: "tarefa_pessoal", nome: "Pessoal" }, { id: "tarefa_jw", nome: "JW" }, { id: "tarefa_at", nome: "At Inovvate" }, { id: "tarefa_waw", nome: "WAW" }];
-  window.tarefas = tarefas; window.metas = metas; window.cardsMetas = cardsMetas; window.cardsTarefas = cardsTarefas;
+  // =====================================
+  // USA SEMPRE OS ARRAYS GLOBAIS
+  // =====================================
+  let tarefas = window.tarefas;
+  let metas = window.metas;
+  let cardsMetas = window.cardsMetas;
+  let cardsTarefas = window.cardsTarefas;
+
+  window.tarefas = tarefas;
+  window.metas = metas;
+  window.cardsMetas = cardsMetas;
+  window.cardsTarefas = cardsTarefas;
 
   let filtroAtual = 'hoje', termoBusca = '', tarefaArrastando = null, metaArrastando = null, cardMetaArrastando = null, cardTarefaArrastando = null;
   let pomodoroAtivo = false, pomodoroPausado = false, tempoRestante = 25 * 60, pomodoroInterval = null, tarefaFocoAtual = null;
@@ -735,11 +789,39 @@
   function atualizarDataHoje(){const h=new Date();document.getElementById('dataHoje').textContent=h.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
   function carregarTema(){if(localStorage.getItem('tema')==='dark')document.documentElement.setAttribute('data-theme','dark');}
   
-  function salvarTarefas(){localStorage.setItem('tarefas',JSON.stringify(tarefas));renderizarTarefas();renderizarEstatisticas();if(window.salvarTudoFirebase)window.salvarTudoFirebase();}
-  function salvarMetas(){localStorage.setItem('metas',JSON.stringify(metas));renderizarDashboardMetas();renderizarEstatisticas();if(window.salvarTudoFirebase)window.salvarTudoFirebase();}
-  function salvarCardsMetas(){localStorage.setItem('cardsMetas',JSON.stringify(cardsMetas));renderizarDashboardMetas();}
-  function salvarCardsTarefas(){localStorage.setItem('cardsTarefas',JSON.stringify(cardsTarefas));atualizarSelectCategorias();renderizarTarefas();}
-  function atualizarSelectCategorias(){const s=document.getElementById('nova-bloco');if(!s)return;s.innerHTML='';cardsTarefas.forEach(c=>{const o=document.createElement('option');o.value=c.nome;o.textContent=c.nome;s.appendChild(o);});}
+  function salvarTarefas(){
+    window.tarefas = tarefas;
+    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    renderizarTarefas();
+    renderizarEstatisticas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function salvarMetas(){
+    window.metas = metas;
+    localStorage.setItem('metas', JSON.stringify(metas));
+    renderizarDashboardMetas();
+    renderizarEstatisticas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function salvarCardsMetas(){
+    localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
+    renderizarDashboardMetas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function salvarCardsTarefas(){
+    localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
+    atualizarSelectCategorias();
+    renderizarTarefas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function atualizarSelectCategorias(){
+    const s=document.getElementById('nova-bloco');if(!s)return;s.innerHTML='';
+    cardsTarefas.forEach(c=>{const o=document.createElement('option');o.value=c.nome;o.textContent=c.nome;s.appendChild(o);});
+  }
   
   function adicionarCardMeta(){const n=prompt('🏆 Nome do novo card:');if(n&&n.trim()){cardsMetas.push({id:'meta_'+Date.now(),nome:n.trim()});salvarCardsMetas();alert(`✅ Card "${n}" criado!`);}}
   function adicionarCardTarefa(){const n=prompt('📋 Nome do novo card:');if(n&&n.trim()){cardsTarefas.push({id:'tarefa_'+Date.now(),nome:n.trim()});salvarCardsTarefas();alert(`✅ Card "${n}" criado!`);}}
@@ -790,6 +872,17 @@
   
   function pedirPermissaoNotificacoes(){if('Notification' in window && Notification.permission === 'default')Notification.requestPermission();}
   function checarNotificacoes(){if(!('Notification' in window) || Notification.permission !== 'granted')return;const agora=new Date();const em10min=new Date(agora.getTime()+10*60000);const hora10min=em10min.getHours().toString().padStart(2,'0')+':'+em10min.getMinutes().toString().padStart(2,'0');const hoje=agora.toISOString().split('T')[0];tarefas.forEach(t=>{if(!t.concluida && t.data===hoje && t.hora===hora10min && !t.alertado){new Notification('⏰ Tarefa em 10 minutos!',{body:t.texto,icon:'🎯'});t.alertado=true;salvarTarefas();}});}
+  
+  window.recarregarSistema = function(){
+    tarefas = window.tarefas;
+    metas = window.metas;
+    cardsMetas = window.cardsMetas;
+    cardsTarefas = window.cardsTarefas;
+    atualizarSelectCategorias();
+    renderizarDashboardMetas();
+    renderizarTarefas();
+    renderizarEstatisticas();
+  };
   
   pedirPermissaoNotificacoes();
   setInterval(checarNotificacoes,60000);
