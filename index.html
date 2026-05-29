@@ -705,6 +705,9 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  let currentUser = null;
+
+  // ========== FUNÇÕES DE INTERFACE (declaradas antes) ==========
   window.tarefas = [];
   window.metas = [];
   window.cardsMetas = [
@@ -720,20 +723,64 @@
     { id: "tarefa_waw", nome: "WAW" }
   ];
 
-  let currentUser = null;
+  // ========== CARREGAR DADOS DO FIREBASE AUTOMATICAMENTE ==========
+  async function carregarDadosDoFirebase(uid) {
+    console.log("📥 Carregando dados do Firebase para UID:", uid);
+    try {
+      const docRef = doc(db, "usuarios", uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const dados = docSnap.data();
+        window.tarefas = dados.tarefas || [];
+        window.metas = dados.metas || [];
+        window.cardsMetas = dados.cardsMetas || window.cardsMetas;
+        window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
+        
+        console.log(`✅ Dados carregados: ${window.tarefas.length} tarefas, ${window.metas.length} metas`);
+        
+        // Atualizar a interface
+        if (window.atualizarSelectCategorias) window.atualizarSelectCategorias();
+        if (window.renderizarDashboardMetas) window.renderizarDashboardMetas();
+        if (window.renderizarTarefas) window.renderizarTarefas();
+        if (window.renderizarEstatisticas) window.renderizarEstatisticas();
+      } else {
+        console.log("📁 Nenhum dado encontrado. Criando dados iniciais...");
+        await setDoc(docRef, {
+          tarefas: [],
+          metas: [],
+          cardsMetas: window.cardsMetas,
+          cardsTarefas: window.cardsTarefas,
+          criado: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error("❌ Erro ao carregar dados:", error);
+    }
+  }
 
-  window.mostrarLogin = function() {
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('registerForm').style.display = 'none';
-    document.getElementById('loginErrorMessage').textContent = '';
-  };
+  // ========== AUTH STATE CHANGE - CARREGA DADOS AUTOMATICAMENTE ==========
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      console.log("✅ Usuário logado:", user.email);
+      
+      // Mostrar interface
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      document.getElementById('userName').textContent = user.email;
+      
+      // CARREGAR DADOS AUTOMATICAMENTE
+      await carregarDadosDoFirebase(user.uid);
+      
+    } else {
+      console.log("👋 Nenhum usuário logado");
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+    }
+  });
 
-  window.mostrarCadastro = function() {
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('registerForm').style.display = 'block';
-    document.getElementById('registerErrorMessage').textContent = '';
-  };
-
+  // ========== FUNÇÃO DE LOGIN ==========
   window.fazerLoginEmail = async function() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -747,22 +794,22 @@
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       currentUser = userCredential.user;
-      await carregarDadosUsuario(currentUser.uid);
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      document.getElementById('userName').textContent = currentUser.email;
+      // Os dados serão carregados pelo onAuthStateChanged
     } catch (error) {
       console.error('Erro no login:', error);
       if (error.code === 'auth/user-not-found') {
         errorDiv.textContent = 'Usuário não encontrado. Cadastre-se primeiro.';
       } else if (error.code === 'auth/wrong-password') {
         errorDiv.textContent = 'Senha incorreta.';
+      } else if (error.code === 'auth/invalid-credential') {
+        errorDiv.textContent = 'Email ou senha inválidos.';
       } else {
         errorDiv.textContent = 'Erro ao fazer login: ' + error.message;
       }
     }
   };
 
+  // ========== FUNÇÃO DE CADASTRO ==========
   window.fazerCadastro = async function() {
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
@@ -788,6 +835,7 @@
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       currentUser = userCredential.user;
       
+      // Criar dados iniciais
       await setDoc(doc(db, "usuarios", currentUser.uid), {
         tarefas: [],
         metas: [],
@@ -795,10 +843,6 @@
         cardsTarefas: window.cardsTarefas,
         criado: new Date().toISOString()
       });
-      
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      document.getElementById('userName').textContent = currentUser.email;
       
       alert('✅ Conta criada com sucesso!');
     } catch (error) {
@@ -813,13 +857,7 @@
     }
   };
 
-  window.fazerLogout = async function() {
-    await signOut(auth);
-    currentUser = null;
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('mainApp').style.display = 'none';
-  };
-
+  // ========== SALVAR DADOS NO FIREBASE ==========
   window.salvarDadosFirebase = async function() {
     if (!currentUser) return false;
     try {
@@ -830,13 +868,15 @@
         cardsTarefas: window.cardsTarefas || [],
         ultimaAtualizacao: new Date().toISOString()
       });
+      console.log("✅ Dados salvos no Firebase");
       return true;
     } catch (error) {
-      console.error("Erro ao salvar:", error);
+      console.error("❌ Erro ao salvar:", error);
       return false;
     }
   };
 
+  // ========== SINCRONIZAR MANUAL ==========
   window.sincronizarFirebase = async function() {
     const syncBtn = document.getElementById('syncBtn');
     if (!syncBtn) return;
@@ -846,7 +886,7 @@
     const sucesso = await window.salvarDadosFirebase();
     
     if (sucesso) {
-      alert('✅ Dados sincronizados com sucesso!');
+      alert('✅ Dados salvos no Firebase!');
     } else {
       alert('❌ Erro ao sincronizar.');
     }
@@ -855,42 +895,37 @@
     syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
   };
 
-  async function carregarDadosUsuario(uid) {
-    const docRef = doc(db, "usuarios", uid);
-    const docSnap = await getDoc(docRef);
-    
-    if (docSnap.exists()) {
-      const dados = docSnap.data();
-      window.tarefas = dados.tarefas || [];
-      window.metas = dados.metas || [];
-      window.cardsMetas = dados.cardsMetas || window.cardsMetas;
-      window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
-    }
-    
-    if (window.atualizarSelectCategorias) window.atualizarSelectCategorias();
-    if (window.carregarTema) window.carregarTema();
-    if (window.atualizarDataHoje) window.atualizarDataHoje();
+  // ========== LOGOUT ==========
+  window.fazerLogout = async function() {
+    await signOut(auth);
+    currentUser = null;
+    // Limpar dados locais
+    window.tarefas = [];
+    window.metas = [];
     if (window.renderizarDashboardMetas) window.renderizarDashboardMetas();
     if (window.renderizarTarefas) window.renderizarTarefas();
     if (window.renderizarEstatisticas) window.renderizarEstatisticas();
-  }
+  };
 
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      currentUser = user;
-      await carregarDadosUsuario(user.uid);
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      document.getElementById('userName').textContent = user.email;
-    }
-  });
-
+  // ========== EVENT LISTENERS ==========
   if (document.getElementById('logoutBtn')) {
     document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
   }
   if (document.getElementById('syncBtn')) {
     document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
   }
+
+  window.mostrarLogin = function() {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loginErrorMessage').textContent = '';
+  };
+
+  window.mostrarCadastro = function() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+    document.getElementById('registerErrorMessage').textContent = '';
+  };
 </script>
 
 <script>
@@ -1615,6 +1650,7 @@
   }
   window.importarBackup = importarBackup;
 
+  // Inicialização
   atualizarSelectCategorias();
   carregarTema();
   atualizarDataHoje();
