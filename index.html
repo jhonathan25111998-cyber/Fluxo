@@ -768,7 +768,7 @@
     }
   }
 
-  // Função para carregar do Firebase
+  // Função para carregar do Firebase - VERSÃO ROBUSTA
   async function carregarDadosDoFirebase() {
     if (!currentUser) {
       console.log("⚠️ Nenhum usuário logado para carregar");
@@ -783,14 +783,57 @@
       
       if (docSnap.exists()) {
         const dados = docSnap.data();
-        console.log("📦 Dados brutos do Firebase:", dados);
+        console.log("📦 Dados brutos do Firebase:", JSON.stringify(dados, null, 2));
         
-        window.tarefas = dados.tarefas || [];
-        window.metas = dados.metas || [];
-        window.cardsMetas = dados.cardsMetas || window.cardsMetas;
-        window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
+        // Tentar encontrar tarefas em diferentes estruturas
+        let tarefasEncontradas = false;
         
-        console.log(`✅ Dados carregados: ${window.tarefas.length} tarefas, ${window.metas.length} metas`);
+        // Verificar se existe campo 'tarefas'
+        if (dados.tarefas && Array.isArray(dados.tarefas)) {
+          window.tarefas = dados.tarefas;
+          console.log(`✅ Tarefas encontradas em 'tarefas': ${window.tarefas.length}`);
+          tarefasEncontradas = true;
+        }
+        
+        // Verificar se existe campo 'dados.tarefas'
+        if (!tarefasEncontradas && dados.dados && dados.dados.tarefas && Array.isArray(dados.dados.tarefas)) {
+          window.tarefas = dados.dados.tarefas;
+          console.log(`✅ Tarefas encontradas em 'dados.tarefas': ${window.tarefas.length}`);
+          tarefasEncontradas = true;
+        }
+        
+        // Se não encontrou, tentar encontrar qualquer array com objetos que tenham 'texto'
+        if (!tarefasEncontradas) {
+          for (let key in dados) {
+            if (Array.isArray(dados[key]) && dados[key].length > 0) {
+              if (dados[key][0] && (dados[key][0].texto || dados[key][0].titulo)) {
+                window.tarefas = dados[key];
+                console.log(`✅ Tarefas encontradas na chave '${key}': ${window.tarefas.length}`);
+                tarefasEncontradas = true;
+                break;
+              }
+            }
+          }
+        }
+        
+        if (!tarefasEncontradas) {
+          window.tarefas = [];
+          console.log("📁 Nenhuma tarefa encontrada na estrutura");
+        }
+        
+        // Carregar metas
+        if (dados.metas && Array.isArray(dados.metas)) {
+          window.metas = dados.metas;
+          console.log(`✅ Metas encontradas: ${window.metas.length}`);
+        } else {
+          window.metas = [];
+        }
+        
+        // Carregar cards
+        if (dados.cardsMetas) window.cardsMetas = dados.cardsMetas;
+        if (dados.cardsTarefas) window.cardsTarefas = dados.cardsTarefas;
+        
+        console.log(`✅ RESULTADO FINAL: ${window.tarefas.length} tarefas, ${window.metas.length} metas`);
         
         // Sincronizar com variáveis locais
         if (typeof tarefas !== 'undefined') {
@@ -805,14 +848,9 @@
         
         return true;
       } else {
-        console.log("📁 Nenhum dado encontrado. Criando registro inicial...");
-        await setDoc(docRef, {
-          tarefas: [],
-          metas: [],
-          cardsMetas: window.cardsMetas,
-          cardsTarefas: window.cardsTarefas,
-          criado: new Date().toISOString()
-        });
+        console.log("📁 Nenhum documento encontrado para este usuário");
+        window.tarefas = [];
+        window.metas = [];
         return true;
       }
     } catch (error) {
@@ -1483,7 +1521,7 @@
     if (!container) return;
     container.innerHTML = '';
     const hoje = new Date().toISOString().split('T')[0];
-    console.log("🎨 Renderizando tarefas...", tarefas.length);
+    console.log("🎨 Renderizando tarefas... Total:", tarefas.length);
     cardsTarefas.forEach(card => {
       let tarefasBloco = filtrarTarefas(tarefas.filter(t => t.bloco === card.nome));
       const ativas = tarefasBloco.filter(t => !t.concluida).length;
@@ -1662,59 +1700,31 @@
   function pedirPermissaoNotificacoes() {
     if ('Notification' in window) {
       if (Notification.permission === 'default') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            console.log('✅ Notificações permitidas!');
-            new Notification('FLUXO', {
-              body: 'Você receberá lembretes das suas tarefas 10 minutos antes!',
-              icon: '🎯'
-            });
-          }
-        });
-      } else if (Notification.permission === 'granted') {
-        console.log('✅ Notificações já estão ativadas');
-      } else {
-        console.log('❌ Notificações bloqueadas pelo usuário');
+        Notification.requestPermission();
       }
     }
   }
 
   function checarNotificacoes() {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-
     const agora = new Date();
     const em10min = new Date(agora.getTime() + 10 * 60000);
     const hora10min = em10min.getHours().toString().padStart(2, '0') + ':' + em10min.getMinutes().toString().padStart(2, '0');
     const hoje = agora.toISOString().split('T')[0];
 
     tarefas.forEach(t => {
-      if (!t.concluida && t.data === hoje && t.hora && t.hora === hora10min && !t.alertado) {
-        new Notification('⏰ Tarefa em 10 minutos!', {
-          body: `"${t.texto}" - ${t.data} às ${t.hora}`,
-          icon: '🎯',
-          silent: false
-        });
+      if (!t.concluida && t.data === hoje && t.hora === hora10min && !t.alertado) {
+        new Notification('⏰ Tarefa em 10 minutos!', { body: t.texto, icon: '🎯' });
         t.alertado = true;
-        salvarTarefas();
-      }
-      
-      if (!t.concluida && t.data && t.data < hoje && !t.alertadoAtraso) {
-        new Notification('⚠️ Tarefa atrasada!', {
-          body: `"${t.texto}" estava marcada para ${t.data}`,
-          icon: '⚠️',
-          silent: false
-        });
-        t.alertadoAtraso = true;
         salvarTarefas();
       }
     });
   }
 
-  // ========== INICIALIZAÇÃO ==========
   pedirPermissaoNotificacoes();
   setInterval(checarNotificacoes, 60000);
-  setTimeout(checarNotificacoes, 5000);
 
+  // ========== INICIALIZAÇÃO ==========
   atualizarSelectCategorias();
   carregarTema();
   atualizarDataHoje();
