@@ -6,123 +6,6 @@
 <title>FLUXO - Organize. Execute. Flua.</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  
-  const firebaseConfig = {
-    apiKey: "AIzaSyDWUCRDmwf5_332izdNMCRsrjTG5z4Ho9g",
-    authDomain: "fluxo-app-c71ec.firebaseapp.com",
-    projectId: "fluxo-app-c71ec",
-    storageBucket: "fluxo-app-c71ec.firebasestorage.app",
-    messagingSenderId: "942507349330",
-    appId: "1:942507349330:web:6ce004396cf55ec5ca568b",
-    measurementId: "G-SVRN7MRG3L"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
-  const db = getFirestore(app);
-
-  // Expor funções globalmente
-  window.auth = auth;
-  window.signInWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log("Usuário logado:", user);
-      
-      // Carregar dados do Firestore
-      const docRef = doc(db, "usuarios", user.uid);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        const dados = docSnap.data();
-        window.tarefas = dados.tarefas || [];
-        window.metas = dados.metas || [];
-        window.cardsMetas = dados.cardsMetas || window.cardsMetas;
-        window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
-      } else {
-        window.tarefas = [];
-        window.metas = [];
-      }
-      
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      document.getElementById('userName').textContent = user.displayName || user.email;
-      if (user.photoURL) {
-        document.getElementById('userAvatar').src = user.photoURL;
-        document.getElementById('userAvatar').style.display = 'inline-block';
-      }
-      
-      // Recarregar interface
-      atualizarSelectCategorias();
-      carregarTema();
-      atualizarDataHoje();
-      renderizarDashboardMetas();
-      renderizarTarefas();
-      renderizarEstatisticas();
-      
-    } catch (error) {
-      console.error("Erro no login:", error);
-      document.getElementById('statusMsg').textContent = 'Erro no login: ' + error.message;
-    }
-  };
-  
-  window.fazerLogout = async () => {
-    await signOut(auth);
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('userName').textContent = '';
-    document.getElementById('userAvatar').style.display = 'none';
-  };
-  
-  window.salvarDadosFirebase = async () => {
-    if (!auth.currentUser) return;
-    try {
-      const docRef = doc(db, "usuarios", auth.currentUser.uid);
-      await setDoc(docRef, {
-        tarefas: window.tarefas,
-        metas: window.metas,
-        cardsMetas: window.cardsMetas,
-        cardsTarefas: window.cardsTarefas,
-        ultimaAtualizacao: new Date().toISOString()
-      });
-      console.log("Dados salvos no Firebase");
-      return true;
-    } catch (error) {
-      console.error("Erro ao salvar:", error);
-      return false;
-    }
-  };
-  
-  window.sincronizarFirebase = async () => {
-    const syncBtn = document.getElementById('syncBtn');
-    syncBtn.classList.add('syncing');
-    syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sincronizando...';
-    
-    const sucesso = await window.salvarDadosFirebase();
-    
-    if (sucesso) {
-      alert('✅ Dados sincronizados com sucesso!');
-    } else {
-      alert('❌ Erro ao sincronizar. Tente novamente.');
-    }
-    
-    syncBtn.classList.remove('syncing');
-    syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
-  };
-  
-  // Verificar estado de autenticação
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log("Usuário autenticado:", user.uid);
-    }
-  });
-</script>
 <style>
   * {
     margin: 0;
@@ -169,7 +52,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s;
   }
   .logo-img:hover { transform: scale(1.05); }
   .logo-img img { width: 48px; height: 48px; object-fit: contain; }
@@ -292,9 +175,6 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   }
-  .google-btn i {
-    font-size: 20px;
-  }
 
   .top-bar {
     display: flex;
@@ -317,9 +197,8 @@
     color: white;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s;
     font-size: 14px;
-    font-family: 'Poppins', sans-serif;
   }
   .view-btn i { margin-right: 8px; }
   .view-btn.active {
@@ -351,12 +230,8 @@
     border: none;
     color: white;
     font-size: 14px;
-    font-family: 'Poppins', sans-serif;
     outline: none;
     height: 100%;
-  }
-  .busca-global input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
   }
 
   .dashboard-metas h2 {
@@ -380,7 +255,7 @@
     backdrop-filter: blur(24px);
     border-radius: 20px;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s;
     flex: 1;
     min-width: 320px;
     cursor: grab;
@@ -390,14 +265,6 @@
     transform: translateY(-6px);
     box-shadow: 0 16px 48px rgba(102, 126, 234, 0.15);
     border-color: rgba(102, 126, 234, 0.3);
-  }
-  .meta-card.dragging, .bloco-tarefa.dragging {
-    opacity: 0.5;
-    cursor: grabbing;
-  }
-  .meta-card.drag-over, .bloco-tarefa.drag-over {
-    outline: 2px solid #667eea;
-    outline-offset: 2px;
   }
 
   .meta-card-header, .bloco-header {
@@ -415,9 +282,6 @@
     display: flex;
     gap: 8px;
     align-items: center;
-  }
-  .card-actions span {
-    color: white;
   }
   .card-actions button {
     background: rgba(255, 255, 255, 0.15);
@@ -467,9 +331,6 @@
     background: rgba(102, 126, 234, 0.3);
     border-radius: 10px;
   }
-  .meta-lista::-webkit-scrollbar-thumb:hover, .tarefa-lista::-webkit-scrollbar-thumb:hover {
-    background: rgba(102, 126, 234, 0.5);
-  }
 
   .meta-item-dash, .tarefa-item {
     display: flex;
@@ -487,7 +348,6 @@
   .meta-item-dash:hover, .tarefa-item:hover {
     background: rgba(255, 255, 255, 0.08);
     transform: translateX(4px);
-    border-color: rgba(102, 126, 234, 0.2);
   }
   .meta-item-dash.atingida, .tarefa-item.concluida {
     opacity: 0.5;
@@ -505,25 +365,12 @@
     line-height: 1.5;
     color: white;
   }
-  .meta-data-limite {
-    font-size: 12px;
-    opacity: 0.7;
-    margin-top: 4px;
-    color: rgba(255, 255, 255, 0.8);
-  }
-  .tarefa-meta {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
 
   .badge {
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
-    font-family: 'Poppins', sans-serif;
   }
   .badge.p1 {
     background: rgba(239, 68, 68, 0.2);
@@ -554,9 +401,8 @@
     border-radius: 10px;
     cursor: pointer;
     color: rgba(255, 255, 255, 0.6);
-    transition: all 0.2s;
   }
-  .item-actions button:hover { background: rgba(255, 255, 255, 0.1); color: white; transform: scale(1.05); }
+  .item-actions button:hover { background: rgba(255, 255, 255, 0.1); color: white; }
 
   .meta-add-dash {
     padding: 20px;
@@ -573,10 +419,8 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     font-size: 14px;
-    font-family: 'Poppins', sans-serif;
     color: white;
     outline: none;
-    transition: all 0.2s;
   }
   .meta-add-dash input:focus {
     border-color: #667eea;
@@ -596,12 +440,11 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s;
   }
   .card-adicionar:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: scale(1.02);
-    border-color: rgba(255, 255, 255, 0.4);
   }
   .card-adicionar-conteudo {
     text-align: center;
@@ -628,8 +471,7 @@
     color: white;
     cursor: pointer;
     font-weight: 600;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s;
     box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
     height: 44px;
     font-size: 14px;
@@ -663,10 +505,8 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     font-size: 14px;
-    font-family: 'Poppins', sans-serif;
     color: white;
     outline: none;
-    transition: all 0.2s;
     height: 44px;
   }
   .adicionar input:focus, .adicionar select:focus {
@@ -676,9 +516,6 @@
   .adicionar option {
     background: #1a1b26;
     color: white;
-  }
-  .adicionar input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
   }
 
   .filtros {
@@ -696,11 +533,9 @@
     color: white;
     cursor: pointer;
     transition: all 0.3s;
-    font-family: 'Poppins', sans-serif;
     font-size: 14px;
     height: 40px;
   }
-  .filtro-btn i { margin-right: 6px; }
   .filtro-btn.active {
     background: linear-gradient(135deg, #667eea, #764ba2);
     border-color: rgba(255, 255, 255, 0.2);
@@ -802,18 +637,6 @@
     opacity: 0.6;
     color: white;
   }
-  .empty-state i {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-  .empty-state p {
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .empty-state small {
-    font-size: 13px;
-    opacity: 0.8;
-  }
 
   .modal-foco-overlay {
     display: none;
@@ -837,11 +660,6 @@
     width: 90%;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: fadeInUp 0.4s ease;
-  }
-  .modal-foco-conteudo h2 {
-    color: white;
-    margin: 20px 0;
   }
   .progresso-foco {
     height: 6px;
@@ -855,10 +673,6 @@
     background: linear-gradient(135deg, #667eea, #764ba2);
     width: 0%;
     transition: width 0.3s;
-  }
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   .calendario-grade {
@@ -882,10 +696,6 @@
     transition: all 0.2s;
     color: white;
   }
-  .calendario-dia:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.02);
-  }
   .calendario-dia.hoje {
     border: 1px solid #667eea;
   }
@@ -898,52 +708,38 @@
     .view-toggle { justify-content: center; }
     .busca-global { width: 100%; }
     .form-grid { grid-template-columns: 1fr 1fr; }
-    .btn-glass { width: 100%; }
     .meta-card, .bloco-tarefa { min-width: 100%; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
   }
 
   [data-theme="dark"] body {
     background: linear-gradient(135deg, #1a1b2e, #2d1b3e);
   }
-  [data-theme="dark"] .meta-card, [data-theme="dark"] .bloco-tarefa {
-    background: rgba(20, 20, 30, 0.8);
-  }
-  [data-theme="dark"] .login-container {
-    background: rgba(20, 20, 30, 0.95);
-  }
 </style>
 </head>
 <body>
-<!-- FLUXO: Tela de Login com Google -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-container">
-    <div style="text-align: center; margin-bottom: 20px;">
-      <div class="logo-img" style="margin: 0 auto 20px;">
-        <img src="logo.png" alt="Fluxo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'">
-      </div>
-      <h2>FLUXO</h2>
-      <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 30px;">Organize. Execute. Flua.</p>
+    <div class="logo-img" style="margin: 0 auto 20px;">
+      <img src="logo.png" alt="Fluxo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'">
     </div>
-    <button class="google-btn" onclick="window.signInWithGoogle()">
+    <h2>FLUXO</h2>
+    <p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p>
+    <button class="google-btn" id="googleLoginBtn">
       <i class="fab fa-google"></i> Entrar com Google
     </button>
-    <p id="statusMsg" style="color: #ff9800; font-size: 12px; margin-top: 20px;"></p>
   </div>
 </div>
 
 <div class="container" id="mainApp" style="display: none;">
   <div class="header">
-    <div class="user-info" id="userInfo">
-      <img id="userAvatar" src="" alt="Avatar" style="display: none;">
+    <div class="user-info">
+      <img id="userAvatar" src="" style="display: none;">
       <span id="userName"></span>
-      <button class="sync-btn" onclick="window.sincronizarFirebase()" id="syncBtn"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button>
-      <button class="logout-btn" onclick="window.fazerLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+      <button class="sync-btn" id="syncBtn"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button>
+      <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>
     <div class="header-content">
-      <div class="logo-img">
-        <img src="logo.png" alt="Fluxo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'">
-      </div>
+      <div class="logo-img"><img src="logo.png" alt="Fluxo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div>
       <div class="logo-texto">
         <div class="logo-titulo">FLUXO</div>
         <div class="logo-subtitulo">Organize. Execute. Flua.</div>
@@ -1050,719 +846,819 @@
   </div>
 </div>
 
-<script>
-// ========== DADOS DO APP ==========
-let tarefas = [];
-let metas = [];
-let cardsMetas = [
-  { id: "meta_pessoal", nome: "Pessoal" },
-  { id: "meta_jw", nome: "JW" },
-  { id: "meta_at", nome: "At Inovvate" },
-  { id: "meta_waw", nome: "WAW" }
-];
-let cardsTarefas = [
-  { id: "tarefa_pessoal", nome: "Pessoal" },
-  { id: "tarefa_jw", nome: "JW" },
-  { id: "tarefa_at", nome: "At Inovvate" },
-  { id: "tarefa_waw", nome: "WAW" }
-];
-
-// Expor para o Firebase script
-window.tarefas = tarefas;
-window.metas = metas;
-window.cardsMetas = cardsMetas;
-window.cardsTarefas = cardsTarefas;
-
-let filtroAtual = 'hoje';
-let termoBusca = '';
-let tarefaArrastando = null;
-let metaArrastando = null;
-let cardMetaArrastando = null;
-let cardTarefaArrastando = null;
-let pomodoroAtivo = false;
-let pomodoroPausado = false;
-let tempoRestante = 25 * 60;
-let pomodoroInterval = null;
-let tarefaFocoAtual = null;
-let viewAtual = 'cards';
-let dataAtualCalendario = new Date();
-
-// ========== FUNÇÕES DO APP ==========
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function atualizarDataHoje() {
-  const hoje = new Date();
-  const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dataEl = document.getElementById('dataHoje');
-  if (dataEl) dataEl.textContent = hoje.toLocaleDateString('pt-BR', opcoes);
-}
-
-function carregarTema() {
-  const saved = localStorage.getItem('tema');
-  if (saved === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
-}
-
-function salvarTarefas() {
-  localStorage.setItem('tarefas', JSON.stringify(tarefas));
-  renderizarTarefas();
-  renderizarEstatisticas();
-  // Salvar no Firebase se estiver logado
-  if (window.salvarDadosFirebase) window.salvarDadosFirebase();
-}
-
-function salvarMetas() {
-  localStorage.setItem('metas', JSON.stringify(metas));
-  renderizarDashboardMetas();
-  renderizarEstatisticas();
-  if (window.salvarDadosFirebase) window.salvarDadosFirebase();
-}
-
-function salvarCardsMetas() {
-  localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
-  renderizarDashboardMetas();
-  if (window.salvarDadosFirebase) window.salvarDadosFirebase();
-}
-
-function salvarCardsTarefas() {
-  localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
-  atualizarSelectCategorias();
-  renderizarTarefas();
-  if (window.salvarDadosFirebase) window.salvarDadosFirebase();
-}
-
-function atualizarSelectCategorias() {
-  const select = document.getElementById('nova-bloco');
-  if (!select) return;
-  select.innerHTML = '';
-  cardsTarefas.forEach(card => {
-    const option = document.createElement('option');
-    option.value = card.nome;
-    option.textContent = card.nome;
-    select.appendChild(option);
-  });
-}
-
-function adicionarCardMeta() {
-  const nome = prompt('🏆 Nome do novo card:', 'Nova Categoria');
-  if (!nome || nome.trim() === '') return;
-  cardsMetas.push({ id: 'meta_' + Date.now(), nome: nome.trim() });
-  salvarCardsMetas();
-  alert(`✅ Card "${nome}" criado!`);
-}
-
-function adicionarCardTarefa() {
-  const nome = prompt('📋 Nome do novo card:', 'Nova Lista');
-  if (!nome || nome.trim() === '') return;
-  cardsTarefas.push({ id: 'tarefa_' + Date.now(), nome: nome.trim() });
-  salvarCardsTarefas();
-  alert(`✅ Card "${nome}" criado!`);
-}
-
-function editarCardMeta(id) {
-  const card = cardsMetas.find(c => c.id === id);
-  if (!card) return;
-  const novoNome = prompt('Editar nome:', card.nome);
-  if (novoNome && novoNome.trim()) {
-    metas.forEach(m => { if (m.categoria === card.nome) m.categoria = novoNome.trim(); });
-    card.nome = novoNome.trim();
-  }
-  salvarCardsMetas();
-  salvarMetas();
-  alert(`✅ Card "${card.nome}" atualizado!`);
-}
-
-function editarCardTarefa(id) {
-  const card = cardsTarefas.find(c => c.id === id);
-  if (!card) return;
-  const novoNome = prompt('Editar nome:', card.nome);
-  if (novoNome && novoNome.trim()) {
-    tarefas.forEach(t => { if (t.bloco === card.nome) t.bloco = novoNome.trim(); });
-    card.nome = novoNome.trim();
-  }
-  salvarCardsTarefas();
-  salvarTarefas();
-  alert(`✅ Card "${card.nome}" atualizado!`);
-}
-
-function excluirCardMeta(id) {
-  const card = cardsMetas.find(c => c.id === id);
-  if (!card) return;
-  if (confirm(`Excluir "${card.nome}"? Metas serão movidas para "Pessoal".`)) {
-    const alvo = cardsMetas.find(c => c.nome === 'Pessoal') || cardsMetas[0];
-    metas.forEach(m => { if (m.categoria === card.nome) m.categoria = alvo.nome; });
-    cardsMetas = cardsMetas.filter(c => c.id !== id);
-    salvarCardsMetas();
-    salvarMetas();
-    alert(`🗑️ Card "${card.nome}" excluído!`);
-  }
-}
-
-function excluirCardTarefa(id) {
-  const card = cardsTarefas.find(c => c.id === id);
-  if (!card) return;
-  if (confirm(`Excluir "${card.nome}"? Tarefas serão movidas para "Pessoal".`)) {
-    const alvo = cardsTarefas.find(c => c.nome === 'Pessoal') || cardsTarefas[0];
-    tarefas.forEach(t => { if (t.bloco === card.nome) t.bloco = alvo.nome; });
-    cardsTarefas = cardsTarefas.filter(c => c.id !== id);
-    salvarCardsTarefas();
-    salvarTarefas();
-    alert(`🗑️ Card "${card.nome}" excluído!`);
-  }
-}
-
-function moverCardMeta(origemId, destinoId) {
-  const idxOrigem = cardsMetas.findIndex(c => c.id === origemId);
-  const idxDestino = cardsMetas.findIndex(c => c.id === destinoId);
-  if (idxOrigem === -1 || idxDestino === -1) return;
-  const [movido] = cardsMetas.splice(idxOrigem, 1);
-  cardsMetas.splice(idxDestino, 0, movido);
-  salvarCardsMetas();
-}
-
-function moverCardTarefa(origemId, destinoId) {
-  const idxOrigem = cardsTarefas.findIndex(c => c.id === origemId);
-  const idxDestino = cardsTarefas.findIndex(c => c.id === destinoId);
-  if (idxOrigem === -1 || idxDestino === -1) return;
-  const [movido] = cardsTarefas.splice(idxOrigem, 1);
-  cardsTarefas.splice(idxDestino, 0, movido);
-  salvarCardsTarefas();
-}
-
-function adicionarMeta(categoria, cardId) {
-  const input = document.getElementById(`input-meta-${cardId}`);
-  const texto = input?.value.trim();
-  if (!texto) return;
-  const dataInput = document.getElementById(`input-data-meta-${cardId}`);
-  metas.push({
-    id: Date.now(),
-    texto: texto,
-    categoria: categoria,
-    atingida: false,
-    dataLimite: dataInput?.value || ''
-  });
-  if (input) input.value = '';
-  if (dataInput) dataInput.value = '';
-  salvarMetas();
-  alert('✅ Meta adicionada!');
-}
-
-function adicionarTarefa() {
-  const texto = document.getElementById('nova-tarefa').value.trim();
-  if (!texto) { alert('Digite uma tarefa!'); return; }
-  const data = document.getElementById('nova-data').value || new Date().toISOString().split('T')[0];
-  const bloco = document.getElementById('nova-bloco').value;
-  tarefas.push({
-    id: Date.now(),
-    texto: texto,
-    bloco: bloco,
-    data: data,
-    hora: document.getElementById('nova-hora').value,
-    prioridade: document.getElementById('nova-prioridade').value,
-    recorrencia: document.getElementById('nova-recorrencia').value,
-    concluida: false,
-    criada: new Date().toISOString(),
-    alertado: false,
-    ordem: tarefas.filter(t => t.bloco === bloco).length,
-    tempoGasto: 0
-  });
-  document.getElementById('nova-tarefa').value = '';
-  document.getElementById('nova-hora').value = '';
-  salvarTarefas();
-  alert('✅ Tarefa adicionada!');
-}
-
-function toggleMeta(id) {
-  const meta = metas.find(m => m.id === id);
-  if (meta) { meta.atingida = !meta.atingida; salvarMetas(); }
-}
-
-function toggleTarefa(id) {
-  const t = tarefas.find(t => t.id === id);
-  if (t) { t.concluida = !t.concluida; salvarTarefas(); }
-}
-
-function excluirMeta(id) {
-  if (confirm('Excluir esta meta?')) {
-    metas = metas.filter(m => m.id !== id);
-    salvarMetas();
-    alert('🗑️ Meta excluída!');
-  }
-}
-
-function excluirTarefa(id) {
-  if (confirm('Excluir esta tarefa?')) {
-    tarefas = tarefas.filter(t => t.id !== id);
-    salvarTarefas();
-    alert('🗑️ Tarefa excluída!');
-  }
-}
-
-function editarMetaPrompt(id) {
-  const meta = metas.find(m => m.id === id);
-  if (!meta) return;
-  const novoTexto = prompt('Editar meta:', meta.texto);
-  if (novoTexto && novoTexto.trim()) meta.texto = novoTexto.trim();
-  const novaData = prompt('Data limite:', meta.dataLimite || '');
-  if (novaData !== null) meta.dataLimite = novaData;
-  salvarMetas();
-  alert('✅ Meta atualizada!');
-}
-
-function editarTarefa(id) {
-  const t = tarefas.find(t => t.id === id);
-  if (!t) return;
-  const novoTexto = prompt('Editar tarefa:', t.texto);
-  if (novoTexto && novoTexto.trim()) t.texto = novoTexto.trim();
-  const novaData = prompt('Data:', t.data || '');
-  if (novaData && novaData.match(/^\d{4}-\d{2}-\d{2}$/)) t.data = novaData;
-  const novaPrioridade = prompt('Prioridade (p1/p2/p3):', t.prioridade);
-  if (novaPrioridade && ['p1','p2','p3'].includes(novaPrioridade)) t.prioridade = novaPrioridade;
-  salvarTarefas();
-  alert('✅ Tarefa atualizada!');
-}
-
-function setFiltro(filtro, btn) {
-  filtroAtual = filtro;
-  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderizarTarefas();
-}
-
-function buscarGlobal() {
-  termoBusca = document.getElementById('buscaGlobal').value.toLowerCase();
-  renderizarTarefas();
-}
-
-function filtrarTarefas(lista) {
-  const hoje = new Date().toISOString().split('T')[0];
-  let filtradas = lista;
-  if (termoBusca) filtradas = filtradas.filter(t => t.texto.toLowerCase().includes(termoBusca));
-  if (filtroAtual === 'hoje') return filtradas.filter(t => t.data <= hoje && !t.concluida);
-  if (filtroAtual === 'concluidas') return filtradas.filter(t => t.concluida);
-  return filtradas.filter(t => !t.concluida);
-}
-
-function toggleView(view) {
-  viewAtual = view;
-  const cards = document.getElementById('cardsView');
-  const cal = document.getElementById('calendarioView');
-  const btns = document.querySelectorAll('.view-btn');
-  btns.forEach(btn => btn.classList.remove('active'));
-  if (view === 'cards') {
-    cards.style.display = 'block';
-    cal.style.display = 'none';
-    btns[0].classList.add('active');
-    renderizarTarefas();
-  } else {
-    cards.style.display = 'none';
-    cal.style.display = 'block';
-    btns[1].classList.add('active');
-    renderizarCalendario();
-  }
-}
-
-function mudarMes(delta) {
-  dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + delta);
-  renderizarCalendario();
-}
-
-function renderizarCalendario() {
-  const ano = dataAtualCalendario.getFullYear();
-  const mes = dataAtualCalendario.getMonth();
-  const primeiroDia = new Date(ano, mes, 1);
-  const ultimoDia = new Date(ano, mes + 1, 0);
-  const diasNoMes = ultimoDia.getDate();
-  const diaInicio = primeiroDia.getDay();
-  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`;
-  const diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  let html = '';
-  diasSemana.forEach(d => { html += `<div class="calendario-dia-semana">${d}</div>`; });
-  let dia = 1;
-  const hoje = new Date().toISOString().split('T')[0];
-  for (let i = 0; i < 42; i++) {
-    if (i < diaInicio || dia > diasNoMes) {
-      html += `<div class="calendario-dia vazio"></div>`;
-    } else {
-      const dataStr = `${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
-      const tarefasDia = tarefas.filter(t => t.data === dataStr && !t.concluida);
-      const isHoje = dataStr === hoje;
-      html += `<div class="calendario-dia ${isHoje ? 'hoje' : ''}" onclick="selecionarDataCalendario('${dataStr}')">
-        <div style="font-weight: bold; margin-bottom: 5px;">${dia}</div>
-        <div style="font-size: 11px; max-height: 70px; overflow-y: auto;">`;
-      tarefasDia.slice(0, 4).forEach(t => {
-        html += `<div style="padding: 2px 4px; background: rgba(102,126,234,0.2); border-radius: 6px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onclick="event.stopPropagation(); abrirModoFocoComTarefa(${t.id})">${escapeHtml(t.texto.substring(0, 20))}${t.texto.length > 20 ? '...' : ''}</div>`;
-      });
-      if (tarefasDia.length > 4) html += `<div style="font-size: 10px; opacity: 0.7;">+${tarefasDia.length-4} mais</div>`;
-      html += `</div></div>`;
-      dia++;
+<script type="importmap">
+  {
+    "imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
     }
   }
-  document.getElementById('calendarioGrade').innerHTML = html;
-}
+</script>
 
-function selecionarDataCalendario(data) {
-  const tarefasDia = tarefas.filter(t => t.data === data && !t.concluida);
-  if (tarefasDia.length) {
-    alert(`📅 ${data}\n\n${tarefasDia.map((t,i)=>`${i+1}. ${t.texto}`).join('\n')}`);
-  } else {
-    alert(`📅 ${data}\nNenhuma tarefa pendente.`);
-  }
-}
+<script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
+  import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
-function abrirModoFocoComTarefa(id) {
-  const t = tarefas.find(t => t.id === id);
-  if (!t) return;
-  tarefaFocoAtual = t;
-  document.getElementById('tarefaFocoTexto').textContent = t.texto;
-  tempoRestante = 25 * 60;
-  atualizarTimerDisplay();
-  document.getElementById('modalFocoOverlay').classList.add('show');
-  if (pomodoroInterval) clearInterval(pomodoroInterval);
-  pomodoroAtivo = false;
-  document.getElementById('btnIniciarFoco').style.display = 'inline-block';
-  document.getElementById('btnPausarFoco').style.display = 'none';
-}
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWUCRDmwf5_332izdNMCRsrjTG5z4Ho9g",
+    authDomain: "fluxo-app-c71ec.firebaseapp.com",
+    projectId: "fluxo-app-c71ec",
+    storageBucket: "fluxo-app-c71ec.firebasestorage.app",
+    messagingSenderId: "942507349330",
+    appId: "1:942507349330:web:6ce004396cf55ec5ca568b",
+    measurementId: "G-SVRN7MRG3L"
+  };
 
-function abrirModoFoco() {
-  const pendentes = tarefas.filter(t => !t.concluida);
-  if (!pendentes.length) { alert('🎉 Nenhuma tarefa pendente!'); return; }
-  abrirModoFocoComTarefa(pendentes[0].id);
-}
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  const db = getFirestore(app);
 
-function atualizarTimerDisplay() {
-  const min = Math.floor(tempoRestante / 60);
-  const seg = tempoRestante % 60;
-  document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;
-  const progresso = ((25*60 - tempoRestante) / (25*60)) * 100;
-  const bar = document.querySelector('#modalFocoOverlay .progresso-foco-bar');
-  if (bar) bar.style.width = `${progresso}%`;
-}
-
-function iniciarPomodoroFoco() {
-  if (pomodoroAtivo) return;
-  pomodoroAtivo = true;
-  pomodoroPausado = false;
-  if (pomodoroInterval) clearInterval(pomodoroInterval);
-  pomodoroInterval = setInterval(() => {
-    if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
-      tempoRestante--;
-      atualizarTimerDisplay();
-      if (tempoRestante <= 0) {
-        clearInterval(pomodoroInterval);
-        pomodoroAtivo = false;
-        if (tarefaFocoAtual) {
-          tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + (25 * 60);
-          salvarTarefas();
-        }
-        alert('🎉 Pomodoro concluído!');
-        tempoRestante = 25 * 60;
-        atualizarTimerDisplay();
-        document.getElementById('btnIniciarFoco').style.display = 'inline-block';
-        document.getElementById('btnPausarFoco').style.display = 'none';
-      }
-    }
-  }, 1000);
-  document.getElementById('btnIniciarFoco').style.display = 'none';
-  document.getElementById('btnPausarFoco').style.display = 'inline-block';
-}
-
-function pausarPomodoroFoco() {
-  if (!pomodoroAtivo) return;
-  pomodoroPausado = !pomodoroPausado;
-  document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
-}
-
-function resetarPomodoroFoco() {
-  if (pomodoroInterval) clearInterval(pomodoroInterval);
-  tempoRestante = 25 * 60;
-  atualizarTimerDisplay();
-  pomodoroAtivo = false;
-  document.getElementById('btnIniciarFoco').style.display = 'inline-block';
-  document.getElementById('btnPausarFoco').style.display = 'none';
-}
-
-function concluirTarefaFoco() {
-  if (!tarefaFocoAtual) return;
-  if (confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) {
-    toggleTarefa(tarefaFocoAtual.id);
-    fecharModoFoco();
-    setTimeout(() => {
-      const pendentes = tarefas.filter(t => !t.concluida);
-      if (pendentes.length) abrirModoFocoComTarefa(pendentes[0].id);
-    }, 300);
-  }
-}
-
-function fecharModoFoco() {
-  if (pomodoroInterval) clearInterval(pomodoroInterval);
-  pomodoroAtivo = false;
-  document.getElementById('modalFocoOverlay').classList.remove('show');
-}
-
-function renderizarDashboardMetas() {
-  const container = document.getElementById('dashboardMetasGrid');
-  if (!container) return;
-  container.innerHTML = '';
-  cardsMetas.forEach(card => {
-    const metasBloco = metas.filter(m => m.categoria === card.nome);
-    const total = metasBloco.length;
-    const atingidas = metasBloco.filter(m => m.atingida).length;
-    const percentual = total > 0 ? Math.round((atingidas/total)*100) : 0;
-    const div = document.createElement('div');
-    div.className = 'meta-card';
-    div.setAttribute('draggable', 'true');
-    div.dataset.cardId = card.id;
-    div.addEventListener('dragstart', (e) => { cardMetaArrastando = card.id; div.classList.add('dragging'); e.dataTransfer.setData('text/plain', card.id); });
-    div.addEventListener('dragend', () => div.classList.remove('dragging'));
-    div.addEventListener('dragover', (e) => { e.preventDefault(); div.classList.add('drag-over'); });
-    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
-    div.addEventListener('drop', (e) => {
-      e.preventDefault();
-      div.classList.remove('drag-over');
-      if (cardMetaArrastando && cardMetaArrastando !== card.id) moverCardMeta(cardMetaArrastando, card.id);
-      cardMetaArrastando = null;
-    });
-    div.innerHTML = `
-      <div class="meta-card-header">
-        <span><i class="fas fa-tag"></i> ${escapeHtml(card.nome)}</span>
-        <div class="card-actions">
-          <span class="meta-progresso">${atingidas}/${total}</span>
-          <button onclick="event.stopPropagation(); editarCardMeta('${card.id}')"><i class="fas fa-edit"></i></button>
-          <button onclick="event.stopPropagation(); excluirCardMeta('${card.id}')"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>
-      <div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width: ${percentual}%"></div></div>
-      <div class="meta-lista" id="meta-lista-${card.id}"></div>
-      <div class="meta-add-dash">
-        <input type="text" id="input-meta-${card.id}" placeholder="Nova meta...">
-        <input type="date" id="input-data-meta-${card.id}">
-        <button class="btn-glass" style="padding: 8px 20px;" onclick="adicionarMeta('${card.nome}', '${card.id}')"><i class="fas fa-plus"></i></button>
-      </div>
-    `;
-    container.appendChild(div);
-    const lista = div.querySelector(`#meta-lista-${card.id}`);
-    if (metasBloco.length === 0) {
-      lista.innerHTML = `<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia por aqui</p><small>Adicione uma meta para começar</small></div>`;
-    } else {
-      metasBloco.forEach(meta => {
-        lista.innerHTML += `
-          <div class="meta-item-dash ${meta.atingida ? 'atingida' : ''}" draggable="true" data-meta-id="${meta.id}">
-            <input type="checkbox" ${meta.atingida ? 'checked' : ''} onchange="toggleMeta(${meta.id})">
-            <div style="flex:1"><div class="meta-texto-dash">${escapeHtml(meta.texto)}</div>${meta.dataLimite ? `<div class="meta-data-limite"><i class="fas fa-calendar-alt"></i> ${new Date(meta.dataLimite).toLocaleDateString('pt-BR')}</div>` : ''}</div>
-            <div class="item-actions">
-              <button onclick="editarMetaPrompt(${meta.id})"><i class="fas fa-edit"></i></button>
-              <button onclick="excluirMeta(${meta.id})"><i class="fas fa-trash-alt"></i></button>
-            </div>
-          </div>
-        `;
-      });
-    }
-  });
-  const addCard = document.createElement('div');
-  addCard.className = 'meta-card card-adicionar';
-  addCard.onclick = () => adicionarCardMeta();
-  addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;
-  container.appendChild(addCard);
-  document.querySelectorAll('.meta-item-dash').forEach(item => {
-    item.addEventListener('dragstart', (e) => { metaArrastando = parseInt(item.dataset.metaId); item.classList.add('dragging'); });
-    item.addEventListener('dragend', () => item.classList.remove('dragging'));
-  });
-}
-
-function renderizarTarefas() {
-  if (viewAtual === 'calendario') return;
-  const container = document.getElementById('blocosTarefas');
-  if (!container) return;
-  container.innerHTML = '';
-  const hoje = new Date().toISOString().split('T')[0];
-  cardsTarefas.forEach(card => {
-    let tarefasBloco = filtrarTarefas(tarefas.filter(t => t.bloco === card.nome));
-    const ativas = tarefasBloco.filter(t => !t.concluida).length;
-    const total = tarefas.filter(t => t.bloco === card.nome).length;
-    const div = document.createElement('div');
-    div.className = 'bloco-tarefa';
-    div.setAttribute('draggable', 'true');
-    div.dataset.cardId = card.id;
-    div.addEventListener('dragstart', (e) => { cardTarefaArrastando = card.id; div.classList.add('dragging'); e.dataTransfer.setData('text/plain', card.id); });
-    div.addEventListener('dragend', () => div.classList.remove('dragging'));
-    div.addEventListener('dragover', (e) => { e.preventDefault(); div.classList.add('drag-over'); });
-    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
-    div.addEventListener('drop', (e) => {
-      e.preventDefault();
-      div.classList.remove('drag-over');
-      if (cardTarefaArrastando && cardTarefaArrastando !== card.id) moverCardTarefa(cardTarefaArrastando, card.id);
-      cardTarefaArrastando = null;
-    });
-    let html = `<div class="bloco-header">
-      <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
-      <div class="card-actions">
-        <span>${ativas} ativas</span>
-        <button onclick="event.stopPropagation(); editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button>
-        <button onclick="event.stopPropagation(); excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
-      </div>
-    </div>
-    <div class="tarefa-lista">`;
-    if (tarefasBloco.length === 0) {
-      html += `<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa para começar</small></div>`;
-    } else {
-      tarefasBloco.forEach(t => {
-        const atrasada = t.data && t.data < hoje && !t.concluida;
-        const recorrente = { diaria: '🔄 Diária', dias_uteis: '📅 Dias úteis', semanal: '📆 Semanal', mensal: '📅 Mensal' }[t.recorrencia] || '';
-        html += `<div class="tarefa-item ${t.concluida ? 'concluida' : ''}" draggable="true" data-tarefa-id="${t.id}">
-          <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
-          <div class="tarefa-conteudo">
-            <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
-            <div class="tarefa-meta">
-              ${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}
-              ${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}
-              ${recorrente ? `<span class="badge recorrente">${recorrente}</span>` : ''}
-            </div>
-          </div>
-          <div class="item-actions">
-            <button onclick="abrirModoFocoComTarefa(${t.id})" title="Pomodoro"><i class="fas fa-clock"></i></button>
-            <button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button>
-            <button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button>
-          </div>
-        </div>`;
-      });
-    }
-    html += `</div>`;
-    div.innerHTML = html;
-    container.appendChild(div);
-    div.querySelectorAll('.tarefa-item').forEach(item => {
-      item.addEventListener('dragstart', (e) => { tarefaArrastando = parseInt(item.dataset.tarefaId); item.classList.add('dragging'); });
-      item.addEventListener('dragend', () => item.classList.remove('dragging'));
-      item.addEventListener('dragover', (e) => e.preventDefault());
-      item.addEventListener('drop', (e) => {
-        e.preventDefault();
-        if (tarefaArrastando) {
-          const cardEl = e.target.closest('.bloco-tarefa');
-          if (cardEl) moverTarefa(tarefaArrastando, cardEl.querySelector('.bloco-header span').textContent.replace(/[^\w\s]/g, '').trim());
-          tarefaArrastando = null;
-        }
-      });
-    });
-  });
-  const addCard = document.createElement('div');
-  addCard.className = 'bloco-tarefa card-adicionar';
-  addCard.onclick = () => adicionarCardTarefa();
-  addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;
-  container.appendChild(addCard);
-}
-
-function moverTarefa(tarefaId, novoBloco) {
-  const t = tarefas.find(t => t.id === tarefaId);
-  if (t && t.bloco !== novoBloco) { t.bloco = novoBloco; salvarTarefas(); }
-}
-
-function renderizarEstatisticas() {
-  const totalTarefas = tarefas.length;
-  const concluidas = tarefas.filter(t => t.concluida).length;
-  const metasAt = metas.filter(m => m.atingida).length;
-  const tempo = tarefas.reduce((acc, t) => acc + (t.tempoGasto || 0), 0);
-  const horas = Math.floor(tempo / 3600);
-  const minutos = Math.floor((tempo % 3600) / 60);
-  document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Tarefas Concluídas</div></div>
-    <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${totalTarefas ? Math.round(concluidas/totalTarefas*100) : 0}%</div><div class="stat-label">Taxa de Conclusão</div></div>
-    <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${metas.length}</div><div class="stat-label">Metas Atingidas</div></div>
-    <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${minutos}m</div><div class="stat-label">Tempo Focado</div></div>
-  `;
-  const grafico = document.getElementById('graficoBarras');
-  if (grafico) {
-    grafico.innerHTML = '';
-    const max = Math.max(...cardsTarefas.map(c => tarefas.filter(t => t.bloco === c.nome && t.concluida).length), 1);
-    cardsTarefas.forEach(card => {
-      const concluidasCard = tarefas.filter(t => t.bloco === card.nome && t.concluida).length;
-      const altura = Math.max((concluidasCard / max) * 100, 5);
-      const barra = document.createElement('div');
-      barra.className = 'barra';
-      barra.style.height = altura + '%';
-      barra.innerHTML = `<div class="barra-valor">${concluidasCard}</div><div class="barra-label">${card.nome.substring(0,3)}</div>`;
-      grafico.appendChild(barra);
-    });
-  }
-}
-
-function abrirModalNovaMeta() {
-  const cat = prompt('Categoria:', cardsMetas[0]?.nome);
-  if (cat && cardsMetas.some(c => c.nome === cat)) {
-    const texto = prompt('Meta:');
-    if (texto && texto.trim()) metas.push({ id: Date.now(), texto: texto.trim(), categoria: cat, atingida: false, dataLimite: '' });
-    salvarMetas();
-    alert('✅ Meta adicionada!');
-  }
-}
-
-function limparMetasConcluidas() {
-  if (confirm('Remover todas as metas concluídas?')) { 
-    metas = metas.filter(m => !m.atingida); 
-    salvarMetas();
-    alert('✅ Metas concluídas removidas!');
-  }
-}
-
-function exportarBackup() {
-  const dados = { tarefas, metas, cardsMetas, cardsTarefas };
-  const blob = new Blob([JSON.stringify(dados)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `fluxo-backup-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  alert('✅ Backup exportado!');
-}
-
-function importarBackup(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = ev => {
+  // Expor funções globalmente
+  window.fazerLogin = async () => {
     try {
-      const dados = JSON.parse(ev.target.result);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log("Usuário logado:", user);
       
-      if (confirm(`📦 Importar backup?\n\nTarefas: ${dados.tarefas?.length || 0}\nMetas: ${dados.metas?.length || 0}\n\nIsso substituirá seus dados atuais.`)) {
-        
-        if (dados.tarefas) tarefas = dados.tarefas;
-        if (dados.metas) metas = dados.metas;
-        if (dados.cardsMetas) cardsMetas = dados.cardsMetas;
-        if (dados.cardsTarefas) cardsTarefas = dados.cardsTarefas;
-        
-        // Atualizar variáveis globais expostas
-        window.tarefas = tarefas;
-        window.metas = metas;
-        window.cardsMetas = cardsMetas;
-        window.cardsTarefas = cardsTarefas;
-        
-        salvarCardsMetas();
-        salvarCardsTarefas();
-        salvarTarefas();
-        salvarMetas();
-        
-        alert('✅ Backup importado com sucesso!');
-        
-        atualizarSelectCategorias();
-        renderizarDashboardMetas();
-        renderizarTarefas();
-        renderizarEstatisticas();
+      // Carregar dados do Firestore
+      const docRef = doc(db, "usuarios", user.uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const dados = docSnap.data();
+        window.tarefas = dados.tarefas || [];
+        window.metas = dados.metas || [];
+        window.cardsMetas = dados.cardsMetas || window.cardsMetas;
+        window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
       }
-    } catch (err) {
-      console.error('Erro:', err);
-      alert('❌ Erro ao importar arquivo. Verifique se é um JSON válido.');
+      
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      document.getElementById('userName').textContent = user.displayName || user.email;
+      if (user.photoURL) {
+        document.getElementById('userAvatar').src = user.photoURL;
+        document.getElementById('userAvatar').style.display = 'inline-block';
+      }
+      
+      // Recarregar interface
+      atualizarSelectCategorias();
+      carregarTema();
+      atualizarDataHoje();
+      renderizarDashboardMetas();
+      renderizarTarefas();
+      renderizarEstatisticas();
+      
+    } catch (error) {
+      console.error("Erro no login:", error);
+      alert("Erro ao fazer login: " + error.message);
     }
   };
-  reader.readAsText(file);
-  event.target.value = '';
-}
+
+  window.fazerLogout = async () => {
+    await signOut(auth);
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('mainApp').style.display = 'none';
+  };
+
+  window.salvarDadosFirebase = async () => {
+    if (!auth.currentUser) return false;
+    try {
+      const docRef = doc(db, "usuarios", auth.currentUser.uid);
+      await setDoc(docRef, {
+        tarefas: window.tarefas || [],
+        metas: window.metas || [],
+        cardsMetas: window.cardsMetas || [],
+        cardsTarefas: window.cardsTarefas || [],
+        ultimaAtualizacao: new Date().toISOString()
+      });
+      console.log("Dados salvos");
+      return true;
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      return false;
+    }
+  };
+
+  window.sincronizarFirebase = async () => {
+    const syncBtn = document.getElementById('syncBtn');
+    syncBtn.classList.add('syncing');
+    syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sincronizando...';
+    
+    const sucesso = await window.salvarDadosFirebase();
+    
+    if (sucesso) {
+      alert('✅ Dados sincronizados com sucesso!');
+    } else {
+      alert('❌ Erro ao sincronizar.');
+    }
+    
+    syncBtn.classList.remove('syncing');
+    syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar';
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Usuário autenticado:", user.uid);
+    }
+  });
+
+  // Event listeners
+  document.getElementById('googleLoginBtn').onclick = () => window.fazerLogin();
+  document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
+  document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
+</script>
+
+<script>
+  // ========== DADOS DO APP ==========
+  let tarefas = [];
+  let metas = [];
+  let cardsMetas = [
+    { id: "meta_pessoal", nome: "Pessoal" },
+    { id: "meta_jw", nome: "JW" },
+    { id: "meta_at", nome: "At Inovvate" },
+    { id: "meta_waw", nome: "WAW" }
+  ];
+  let cardsTarefas = [
+    { id: "tarefa_pessoal", nome: "Pessoal" },
+    { id: "tarefa_jw", nome: "JW" },
+    { id: "tarefa_at", nome: "At Inovvate" },
+    { id: "tarefa_waw", nome: "WAW" }
+  ];
+
+  window.tarefas = tarefas;
+  window.metas = metas;
+  window.cardsMetas = cardsMetas;
+  window.cardsTarefas = cardsTarefas;
+
+  let filtroAtual = 'hoje';
+  let termoBusca = '';
+  let tarefaArrastando = null;
+  let metaArrastando = null;
+  let cardMetaArrastando = null;
+  let cardTarefaArrastando = null;
+  let pomodoroAtivo = false;
+  let pomodoroPausado = false;
+  let tempoRestante = 25 * 60;
+  let pomodoroInterval = null;
+  let tarefaFocoAtual = null;
+  let viewAtual = 'cards';
+  let dataAtualCalendario = new Date();
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function atualizarDataHoje() {
+    const hoje = new Date();
+    const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dataEl = document.getElementById('dataHoje');
+    if (dataEl) dataEl.textContent = hoje.toLocaleDateString('pt-BR', opcoes);
+  }
+
+  function carregarTema() {
+    const saved = localStorage.getItem('tema');
+    if (saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  }
+
+  function salvarTarefas() {
+    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    renderizarTarefas();
+    renderizarEstatisticas();
+    if (window.salvarDadosFirebase) window.salvarDadosFirebase();
+  }
+
+  function salvarMetas() {
+    localStorage.setItem('metas', JSON.stringify(metas));
+    renderizarDashboardMetas();
+    renderizarEstatisticas();
+    if (window.salvarDadosFirebase) window.salvarDadosFirebase();
+  }
+
+  function salvarCardsMetas() {
+    localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
+    renderizarDashboardMetas();
+    if (window.salvarDadosFirebase) window.salvarDadosFirebase();
+  }
+
+  function salvarCardsTarefas() {
+    localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
+    atualizarSelectCategorias();
+    renderizarTarefas();
+    if (window.salvarDadosFirebase) window.salvarDadosFirebase();
+  }
+
+  function atualizarSelectCategorias() {
+    const select = document.getElementById('nova-bloco');
+    if (!select) return;
+    select.innerHTML = '';
+    cardsTarefas.forEach(card => {
+      const option = document.createElement('option');
+      option.value = card.nome;
+      option.textContent = card.nome;
+      select.appendChild(option);
+    });
+  }
+
+  function adicionarCardMeta() {
+    const nome = prompt('🏆 Nome do novo card:', 'Nova Categoria');
+    if (!nome || nome.trim() === '') return;
+    cardsMetas.push({ id: 'meta_' + Date.now(), nome: nome.trim() });
+    salvarCardsMetas();
+    alert(`✅ Card "${nome}" criado!`);
+  }
+
+  function adicionarCardTarefa() {
+    const nome = prompt('📋 Nome do novo card:', 'Nova Lista');
+    if (!nome || nome.trim() === '') return;
+    cardsTarefas.push({ id: 'tarefa_' + Date.now(), nome: nome.trim() });
+    salvarCardsTarefas();
+    alert(`✅ Card "${nome}" criado!`);
+  }
+
+  function editarCardMeta(id) {
+    const card = cardsMetas.find(c => c.id === id);
+    if (!card) return;
+    const novoNome = prompt('Editar nome:', card.nome);
+    if (novoNome && novoNome.trim()) {
+      metas.forEach(m => { if (m.categoria === card.nome) m.categoria = novoNome.trim(); });
+      card.nome = novoNome.trim();
+    }
+    salvarCardsMetas();
+    salvarMetas();
+  }
+
+  function editarCardTarefa(id) {
+    const card = cardsTarefas.find(c => c.id === id);
+    if (!card) return;
+    const novoNome = prompt('Editar nome:', card.nome);
+    if (novoNome && novoNome.trim()) {
+      tarefas.forEach(t => { if (t.bloco === card.nome) t.bloco = novoNome.trim(); });
+      card.nome = novoNome.trim();
+    }
+    salvarCardsTarefas();
+    salvarTarefas();
+  }
+
+  function excluirCardMeta(id) {
+    const card = cardsMetas.find(c => c.id === id);
+    if (!card) return;
+    if (confirm(`Excluir "${card.nome}"? Metas serão movidas para "Pessoal".`)) {
+      const alvo = cardsMetas.find(c => c.nome === 'Pessoal') || cardsMetas[0];
+      metas.forEach(m => { if (m.categoria === card.nome) m.categoria = alvo.nome; });
+      cardsMetas = cardsMetas.filter(c => c.id !== id);
+      salvarCardsMetas();
+      salvarMetas();
+    }
+  }
+
+  function excluirCardTarefa(id) {
+    const card = cardsTarefas.find(c => c.id === id);
+    if (!card) return;
+    if (confirm(`Excluir "${card.nome}"? Tarefas serão movidas para "Pessoal".`)) {
+      const alvo = cardsTarefas.find(c => c.nome === 'Pessoal') || cardsTarefas[0];
+      tarefas.forEach(t => { if (t.bloco === card.nome) t.bloco = alvo.nome; });
+      cardsTarefas = cardsTarefas.filter(c => c.id !== id);
+      salvarCardsTarefas();
+      salvarTarefas();
+    }
+  }
+
+  function moverCardMeta(origemId, destinoId) {
+    const idxOrigem = cardsMetas.findIndex(c => c.id === origemId);
+    const idxDestino = cardsMetas.findIndex(c => c.id === destinoId);
+    if (idxOrigem === -1 || idxDestino === -1) return;
+    const [movido] = cardsMetas.splice(idxOrigem, 1);
+    cardsMetas.splice(idxDestino, 0, movido);
+    salvarCardsMetas();
+  }
+
+  function moverCardTarefa(origemId, destinoId) {
+    const idxOrigem = cardsTarefas.findIndex(c => c.id === origemId);
+    const idxDestino = cardsTarefas.findIndex(c => c.id === destinoId);
+    if (idxOrigem === -1 || idxDestino === -1) return;
+    const [movido] = cardsTarefas.splice(idxOrigem, 1);
+    cardsTarefas.splice(idxDestino, 0, movido);
+    salvarCardsTarefas();
+  }
+
+  function adicionarMeta(categoria, cardId) {
+    const input = document.getElementById(`input-meta-${cardId}`);
+    const texto = input?.value.trim();
+    if (!texto) return;
+    const dataInput = document.getElementById(`input-data-meta-${cardId}`);
+    metas.push({
+      id: Date.now(),
+      texto: texto,
+      categoria: categoria,
+      atingida: false,
+      dataLimite: dataInput?.value || ''
+    });
+    if (input) input.value = '';
+    if (dataInput) dataInput.value = '';
+    salvarMetas();
+  }
+
+  function adicionarTarefa() {
+    const texto = document.getElementById('nova-tarefa').value.trim();
+    if (!texto) { alert('Digite uma tarefa!'); return; }
+    const data = document.getElementById('nova-data').value || new Date().toISOString().split('T')[0];
+    const bloco = document.getElementById('nova-bloco').value;
+    tarefas.push({
+      id: Date.now(),
+      texto: texto,
+      bloco: bloco,
+      data: data,
+      hora: document.getElementById('nova-hora').value,
+      prioridade: document.getElementById('nova-prioridade').value,
+      recorrencia: document.getElementById('nova-recorrencia').value,
+      concluida: false,
+      criada: new Date().toISOString(),
+      alertado: false,
+      ordem: tarefas.filter(t => t.bloco === bloco).length,
+      tempoGasto: 0
+    });
+    document.getElementById('nova-tarefa').value = '';
+    document.getElementById('nova-hora').value = '';
+    salvarTarefas();
+    alert('✅ Tarefa adicionada!');
+  }
+
+  function toggleMeta(id) {
+    const meta = metas.find(m => m.id === id);
+    if (meta) { meta.atingida = !meta.atingida; salvarMetas(); }
+  }
+
+  function toggleTarefa(id) {
+    const t = tarefas.find(t => t.id === id);
+    if (t) { t.concluida = !t.concluida; salvarTarefas(); }
+  }
+
+  function excluirMeta(id) {
+    if (confirm('Excluir esta meta?')) {
+      metas = metas.filter(m => m.id !== id);
+      salvarMetas();
+    }
+  }
+
+  function excluirTarefa(id) {
+    if (confirm('Excluir esta tarefa?')) {
+      tarefas = tarefas.filter(t => t.id !== id);
+      salvarTarefas();
+    }
+  }
+
+  function editarMetaPrompt(id) {
+    const meta = metas.find(m => m.id === id);
+    if (!meta) return;
+    const novoTexto = prompt('Editar meta:', meta.texto);
+    if (novoTexto && novoTexto.trim()) meta.texto = novoTexto.trim();
+    const novaData = prompt('Data limite:', meta.dataLimite || '');
+    if (novaData !== null) meta.dataLimite = novaData;
+    salvarMetas();
+  }
+
+  function editarTarefa(id) {
+    const t = tarefas.find(t => t.id === id);
+    if (!t) return;
+    const novoTexto = prompt('Editar tarefa:', t.texto);
+    if (novoTexto && novoTexto.trim()) t.texto = novoTexto.trim();
+    const novaData = prompt('Data:', t.data || '');
+    if (novaData && novaData.match(/^\d{4}-\d{2}-\d{2}$/)) t.data = novaData;
+    const novaPrioridade = prompt('Prioridade (p1/p2/p3):', t.prioridade);
+    if (novaPrioridade && ['p1','p2','p3'].includes(novaPrioridade)) t.prioridade = novaPrioridade;
+    salvarTarefas();
+  }
+
+  function setFiltro(filtro, btn) {
+    filtroAtual = filtro;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderizarTarefas();
+  }
+
+  function buscarGlobal() {
+    termoBusca = document.getElementById('buscaGlobal').value.toLowerCase();
+    renderizarTarefas();
+  }
+
+  function filtrarTarefas(lista) {
+    const hoje = new Date().toISOString().split('T')[0];
+    let filtradas = lista;
+    if (termoBusca) filtradas = filtradas.filter(t => t.texto.toLowerCase().includes(termoBusca));
+    if (filtroAtual === 'hoje') return filtradas.filter(t => t.data <= hoje && !t.concluida);
+    if (filtroAtual === 'concluidas') return filtradas.filter(t => t.concluida);
+    return filtradas.filter(t => !t.concluida);
+  }
+
+  function toggleView(view) {
+    viewAtual = view;
+    const cards = document.getElementById('cardsView');
+    const cal = document.getElementById('calendarioView');
+    const btns = document.querySelectorAll('.view-btn');
+    btns.forEach(btn => btn.classList.remove('active'));
+    if (view === 'cards') {
+      cards.style.display = 'block';
+      cal.style.display = 'none';
+      btns[0].classList.add('active');
+      renderizarTarefas();
+    } else {
+      cards.style.display = 'none';
+      cal.style.display = 'block';
+      btns[1].classList.add('active');
+      renderizarCalendario();
+    }
+  }
+
+  function mudarMes(delta) {
+    dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + delta);
+    renderizarCalendario();
+  }
+
+  function renderizarCalendario() {
+    const ano = dataAtualCalendario.getFullYear();
+    const mes = dataAtualCalendario.getMonth();
+    const primeiroDia = new Date(ano, mes, 1);
+    const ultimoDia = new Date(ano, mes + 1, 0);
+    const diasNoMes = ultimoDia.getDate();
+    const diaInicio = primeiroDia.getDay();
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`;
+    const diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    let html = '';
+    diasSemana.forEach(d => { html += `<div class="calendario-dia-semana">${d}</div>`; });
+    let dia = 1;
+    const hoje = new Date().toISOString().split('T')[0];
+    for (let i = 0; i < 42; i++) {
+      if (i < diaInicio || dia > diasNoMes) {
+        html += `<div class="calendario-dia vazio"></div>`;
+      } else {
+        const dataStr = `${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+        const tarefasDia = tarefas.filter(t => t.data === dataStr && !t.concluida);
+        const isHoje = dataStr === hoje;
+        html += `<div class="calendario-dia ${isHoje ? 'hoje' : ''}" onclick="selecionarDataCalendario('${dataStr}')">
+          <div style="font-weight: bold; margin-bottom: 5px;">${dia}</div>
+          <div style="font-size: 11px; max-height: 70px; overflow-y: auto;">`;
+        tarefasDia.slice(0, 4).forEach(t => {
+          html += `<div style="padding: 2px 4px; background: rgba(102,126,234,0.2); border-radius: 6px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onclick="event.stopPropagation(); abrirModoFocoComTarefa(${t.id})">${escapeHtml(t.texto.substring(0, 20))}${t.texto.length > 20 ? '...' : ''}</div>`;
+        });
+        if (tarefasDia.length > 4) html += `<div style="font-size: 10px; opacity: 0.7;">+${tarefasDia.length-4} mais</div>`;
+        html += `</div></div>`;
+        dia++;
+      }
+    }
+    document.getElementById('calendarioGrade').innerHTML = html;
+  }
+
+  function selecionarDataCalendario(data) {
+    const tarefasDia = tarefas.filter(t => t.data === data && !t.concluida);
+    if (tarefasDia.length) {
+      alert(`📅 ${data}\n\n${tarefasDia.map((t,i)=>`${i+1}. ${t.texto}`).join('\n')}`);
+    } else {
+      alert(`📅 ${data}\nNenhuma tarefa pendente.`);
+    }
+  }
+
+  function abrirModoFocoComTarefa(id) {
+    const t = tarefas.find(t => t.id === id);
+    if (!t) return;
+    tarefaFocoAtual = t;
+    document.getElementById('tarefaFocoTexto').textContent = t.texto;
+    tempoRestante = 25 * 60;
+    atualizarTimerDisplay();
+    document.getElementById('modalFocoOverlay').classList.add('show');
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroAtivo = false;
+    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+    document.getElementById('btnPausarFoco').style.display = 'none';
+  }
+
+  function abrirModoFoco() {
+    const pendentes = tarefas.filter(t => !t.concluida);
+    if (!pendentes.length) { alert('🎉 Nenhuma tarefa pendente!'); return; }
+    abrirModoFocoComTarefa(pendentes[0].id);
+  }
+
+  function atualizarTimerDisplay() {
+    const min = Math.floor(tempoRestante / 60);
+    const seg = tempoRestante % 60;
+    document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;
+    const progresso = ((25*60 - tempoRestante) / (25*60)) * 100;
+    const bar = document.querySelector('#modalFocoOverlay .progresso-foco-bar');
+    if (bar) bar.style.width = `${progresso}%`;
+  }
+
+  function iniciarPomodoroFoco() {
+    if (pomodoroAtivo) return;
+    pomodoroAtivo = true;
+    pomodoroPausado = false;
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroInterval = setInterval(() => {
+      if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+        tempoRestante--;
+        atualizarTimerDisplay();
+        if (tempoRestante <= 0) {
+          clearInterval(pomodoroInterval);
+          pomodoroAtivo = false;
+          if (tarefaFocoAtual) {
+            tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + (25 * 60);
+            salvarTarefas();
+          }
+          alert('🎉 Pomodoro concluído!');
+          tempoRestante = 25 * 60;
+          atualizarTimerDisplay();
+          document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+          document.getElementById('btnPausarFoco').style.display = 'none';
+        }
+      }
+    }, 1000);
+    document.getElementById('btnIniciarFoco').style.display = 'none';
+    document.getElementById('btnPausarFoco').style.display = 'inline-block';
+  }
+
+  function pausarPomodoroFoco() {
+    if (!pomodoroAtivo) return;
+    pomodoroPausado = !pomodoroPausado;
+    document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
+  }
+
+  function resetarPomodoroFoco() {
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    tempoRestante = 25 * 60;
+    atualizarTimerDisplay();
+    pomodoroAtivo = false;
+    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+    document.getElementById('btnPausarFoco').style.display = 'none';
+  }
+
+  function concluirTarefaFoco() {
+    if (!tarefaFocoAtual) return;
+    if (confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) {
+      toggleTarefa(tarefaFocoAtual.id);
+      fecharModoFoco();
+      setTimeout(() => {
+        const pendentes = tarefas.filter(t => !t.concluida);
+        if (pendentes.length) abrirModoFocoComTarefa(pendentes[0].id);
+      }, 300);
+    }
+  }
+
+  function fecharModoFoco() {
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroAtivo = false;
+    document.getElementById('modalFocoOverlay').classList.remove('show');
+  }
+
+  function renderizarDashboardMetas() {
+    const container = document.getElementById('dashboardMetasGrid');
+    if (!container) return;
+    container.innerHTML = '';
+    cardsMetas.forEach(card => {
+      const metasBloco = metas.filter(m => m.categoria === card.nome);
+      const total = metasBloco.length;
+      const atingidas = metasBloco.filter(m => m.atingida).length;
+      const percentual = total > 0 ? Math.round((atingidas/total)*100) : 0;
+      const div = document.createElement('div');
+      div.className = 'meta-card';
+      div.setAttribute('draggable', 'true');
+      div.dataset.cardId = card.id;
+      div.addEventListener('dragstart', (e) => { cardMetaArrastando = card.id; div.classList.add('dragging'); e.dataTransfer.setData('text/plain', card.id); });
+      div.addEventListener('dragend', () => div.classList.remove('dragging'));
+      div.addEventListener('dragover', (e) => { e.preventDefault(); div.classList.add('drag-over'); });
+      div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+      div.addEventListener('drop', (e) => {
+        e.preventDefault();
+        div.classList.remove('drag-over');
+        if (cardMetaArrastando && cardMetaArrastando !== card.id) moverCardMeta(cardMetaArrastando, card.id);
+        cardMetaArrastando = null;
+      });
+      div.innerHTML = `
+        <div class="meta-card-header">
+          <span><i class="fas fa-tag"></i> ${escapeHtml(card.nome)}</span>
+          <div class="card-actions">
+            <span class="meta-progresso">${atingidas}/${total}</span>
+            <button onclick="event.stopPropagation(); editarCardMeta('${card.id}')"><i class="fas fa-edit"></i></button>
+            <button onclick="event.stopPropagation(); excluirCardMeta('${card.id}')"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+        <div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width: ${percentual}%"></div></div>
+        <div class="meta-lista" id="meta-lista-${card.id}"></div>
+        <div class="meta-add-dash">
+          <input type="text" id="input-meta-${card.id}" placeholder="Nova meta...">
+          <input type="date" id="input-data-meta-${card.id}">
+          <button class="btn-glass" style="padding: 8px 20px;" onclick="adicionarMeta('${card.nome}', '${card.id}')"><i class="fas fa-plus"></i></button>
+        </div>
+      `;
+      container.appendChild(div);
+      const lista = div.querySelector(`#meta-lista-${card.id}`);
+      if (metasBloco.length === 0) {
+        lista.innerHTML = `<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia por aqui</p><small>Adicione uma meta para começar</small></div>`;
+      } else {
+        metasBloco.forEach(meta => {
+          lista.innerHTML += `
+            <div class="meta-item-dash ${meta.atingida ? 'atingida' : ''}" draggable="true" data-meta-id="${meta.id}">
+              <input type="checkbox" ${meta.atingida ? 'checked' : ''} onchange="toggleMeta(${meta.id})">
+              <div style="flex:1"><div class="meta-texto-dash">${escapeHtml(meta.texto)}</div>${meta.dataLimite ? `<div class="meta-data-limite"><i class="fas fa-calendar-alt"></i> ${new Date(meta.dataLimite).toLocaleDateString('pt-BR')}</div>` : ''}</div>
+              <div class="item-actions">
+                <button onclick="editarMetaPrompt(${meta.id})"><i class="fas fa-edit"></i></button>
+                <button onclick="excluirMeta(${meta.id})"><i class="fas fa-trash-alt"></i></button>
+              </div>
+            </div>
+          `;
+        });
+      }
+    });
+    const addCard = document.createElement('div');
+    addCard.className = 'meta-card card-adicionar';
+    addCard.onclick = () => adicionarCardMeta();
+    addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;
+    container.appendChild(addCard);
+    document.querySelectorAll('.meta-item-dash').forEach(item => {
+      item.addEventListener('dragstart', (e) => { metaArrastando = parseInt(item.dataset.metaId); item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    });
+  }
+
+  function renderizarTarefas() {
+    if (viewAtual === 'calendario') return;
+    const container = document.getElementById('blocosTarefas');
+    if (!container) return;
+    container.innerHTML = '';
+    const hoje = new Date().toISOString().split('T')[0];
+    cardsTarefas.forEach(card => {
+      let tarefasBloco = filtrarTarefas(tarefas.filter(t => t.bloco === card.nome));
+      const ativas = tarefasBloco.filter(t => !t.concluida).length;
+      const total = tarefas.filter(t => t.bloco === card.nome).length;
+      const div = document.createElement('div');
+      div.className = 'bloco-tarefa';
+      div.setAttribute('draggable', 'true');
+      div.dataset.cardId = card.id;
+      div.addEventListener('dragstart', (e) => { cardTarefaArrastando = card.id; div.classList.add('dragging'); e.dataTransfer.setData('text/plain', card.id); });
+      div.addEventListener('dragend', () => div.classList.remove('dragging'));
+      div.addEventListener('dragover', (e) => { e.preventDefault(); div.classList.add('drag-over'); });
+      div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+      div.addEventListener('drop', (e) => {
+        e.preventDefault();
+        div.classList.remove('drag-over');
+        if (cardTarefaArrastando && cardTarefaArrastando !== card.id) moverCardTarefa(cardTarefaArrastando, card.id);
+        cardTarefaArrastando = null;
+      });
+      let html = `<div class="bloco-header">
+        <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
+        <div class="card-actions">
+          <span>${ativas} ativas</span>
+          <button onclick="event.stopPropagation(); editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button>
+          <button onclick="event.stopPropagation(); excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+      <div class="tarefa-lista">`;
+      if (tarefasBloco.length === 0) {
+        html += `<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa para começar</small></div>`;
+      } else {
+        tarefasBloco.forEach(t => {
+          const atrasada = t.data && t.data < hoje && !t.concluida;
+          const recorrente = { diaria: '🔄 Diária', dias_uteis: '📅 Dias úteis', semanal: '📆 Semanal', mensal: '📅 Mensal' }[t.recorrencia] || '';
+          html += `<div class="tarefa-item ${t.concluida ? 'concluida' : ''}" draggable="true" data-tarefa-id="${t.id}">
+            <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
+            <div class="tarefa-conteudo">
+              <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
+              <div class="tarefa-meta">
+                ${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}
+                ${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}
+                ${recorrente ? `<span class="badge recorrente">${recorrente}</span>` : ''}
+              </div>
+            </div>
+            <div class="item-actions">
+              <button onclick="abrirModoFocoComTarefa(${t.id})" title="Pomodoro"><i class="fas fa-clock"></i></button>
+              <button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button>
+              <button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>`;
+        });
+      }
+      html += `</div>`;
+      div.innerHTML = html;
+      container.appendChild(div);
+      div.querySelectorAll('.tarefa-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => { tarefaArrastando = parseInt(item.dataset.tarefaId); item.classList.add('dragging'); });
+        item.addEventListener('dragend', () => item.classList.remove('dragging'));
+        item.addEventListener('dragover', (e) => e.preventDefault());
+        item.addEventListener('drop', (e) => {
+          e.preventDefault();
+          if (tarefaArrastando) {
+            const cardEl = e.target.closest('.bloco-tarefa');
+            if (cardEl) moverTarefa(tarefaArrastando, cardEl.querySelector('.bloco-header span').textContent.replace(/[^\w\s]/g, '').trim());
+            tarefaArrastando = null;
+          }
+        });
+      });
+    });
+    const addCard = document.createElement('div');
+    addCard.className = 'bloco-tarefa card-adicionar';
+    addCard.onclick = () => adicionarCardTarefa();
+    addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;
+    container.appendChild(addCard);
+  }
+
+  function moverTarefa(tarefaId, novoBloco) {
+    const t = tarefas.find(t => t.id === tarefaId);
+    if (t && t.bloco !== novoBloco) { t.bloco = novoBloco; salvarTarefas(); }
+  }
+
+  function renderizarEstatisticas() {
+    const totalTarefas = tarefas.length;
+    const concluidas = tarefas.filter(t => t.concluida).length;
+    const metasAt = metas.filter(m => m.atingida).length;
+    const tempo = tarefas.reduce((acc, t) => acc + (t.tempoGasto || 0), 0);
+    const horas = Math.floor(tempo / 3600);
+    const minutos = Math.floor((tempo % 3600) / 60);
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Tarefas Concluídas</div></div>
+      <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${totalTarefas ? Math.round(concluidas/totalTarefas*100) : 0}%</div><div class="stat-label">Taxa de Conclusão</div></div>
+      <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${metas.length}</div><div class="stat-label">Metas Atingidas</div></div>
+      <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${minutos}m</div><div class="stat-label">Tempo Focado</div></div>
+    `;
+    const grafico = document.getElementById('graficoBarras');
+    if (grafico) {
+      grafico.innerHTML = '';
+      const max = Math.max(...cardsTarefas.map(c => tarefas.filter(t => t.bloco === c.nome && t.concluida).length), 1);
+      cardsTarefas.forEach(card => {
+        const concluidasCard = tarefas.filter(t => t.bloco === card.nome && t.concluida).length;
+        const altura = Math.max((concluidasCard / max) * 100, 5);
+        const barra = document.createElement('div');
+        barra.className = 'barra';
+        barra.style.height = altura + '%';
+        barra.innerHTML = `<div class="barra-valor">${concluidasCard}</div><div class="barra-label">${card.nome.substring(0,3)}</div>`;
+        grafico.appendChild(barra);
+      });
+    }
+  }
+
+  function abrirModalNovaMeta() {
+    const cat = prompt('Categoria:', cardsMetas[0]?.nome);
+    if (cat && cardsMetas.some(c => c.nome === cat)) {
+      const texto = prompt('Meta:');
+      if (texto && texto.trim()) metas.push({ id: Date.now(), texto: texto.trim(), categoria: cat, atingida: false, dataLimite: '' });
+      salvarMetas();
+      alert('✅ Meta adicionada!');
+    }
+  }
+
+  function limparMetasConcluidas() {
+    if (confirm('Remover todas as metas concluídas?')) { 
+      metas = metas.filter(m => !m.atingida); 
+      salvarMetas();
+      alert('✅ Metas concluídas removidas!');
+    }
+  }
+
+  function exportarBackup() {
+    const dados = { tarefas, metas, cardsMetas, cardsTarefas };
+    const blob = new Blob([JSON.stringify(dados)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `fluxo-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    alert('✅ Backup exportado!');
+  }
+
+  function importarBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const dados = JSON.parse(ev.target.result);
+        if (confirm(`📦 Importar backup?\n\nTarefas: ${dados.tarefas?.length || 0}\nMetas: ${dados.metas?.length || 0}\n\nIsso substituirá seus dados atuais.`)) {
+          if (dados.tarefas) tarefas = dados.tarefas;
+          if (dados.metas) metas = dados.metas;
+          if (dados.cardsMetas) cardsMetas = dados.cardsMetas;
+          if (dados.cardsTarefas) cardsTarefas = dados.cardsTarefas;
+          salvarCardsMetas();
+          salvarCardsTarefas();
+          salvarTarefas();
+          salvarMetas();
+          alert('✅ Backup importado com sucesso!');
+          atualizarSelectCategorias();
+          renderizarDashboardMetas();
+          renderizarTarefas();
+          renderizarEstatisticas();
+        }
+      } catch (err) {
+        alert('❌ Erro ao importar arquivo.');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
 </script>
 </body>
 </html>
