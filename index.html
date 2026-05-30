@@ -454,6 +454,25 @@
   .backup-acoes { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
   .empty-state { text-align: center; padding: 40px 20px; opacity: 0.6; color: white; }
   .empty-state i { font-size: 48px; margin-bottom: 12px; }
+
+  /* Modo Foco - Silencia Notificações */
+  .foco-ativo .notificacao-silenciada {
+    display: none;
+  }
+  .foco-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    z-index: 999;
+    border: 3px solid rgba(102,126,234,0.5);
+    box-shadow: inset 0 0 50px rgba(102,126,234,0.2);
+    transition: all 0.3s;
+  }
+
   .modal-foco-overlay {
     display: none;
     position: fixed;
@@ -479,6 +498,20 @@
   }
   .progresso-foco { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 20px 0; overflow: hidden; }
   .progresso-foco-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); width: 0%; transition: width 0.3s; }
+  .indicador-foco {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #4caf50;
+    margin-right: 8px;
+    animation: piscar 1s infinite;
+  }
+  @keyframes piscar {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
   .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   .calendario-dia-semana { text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 12px; color: white; }
   .calendario-dia { min-height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; cursor: pointer; transition: all 0.2s; color: white; }
@@ -605,17 +638,24 @@
 <div class="modal-foco-overlay" id="modalFocoOverlay">
   <div class="modal-foco-conteudo">
     <i class="fas fa-brain" style="font-size: 48px; color: #667eea;"></i>
-    <h2>Modo Foco</h2>
+    <h2>🎯 Modo Foco</h2>
     <div class="tarefa-foco-grande" id="tarefaFocoTexto" style="font-size: 24px; margin: 20px 0; font-weight: bold; color: white;">Nenhuma tarefa</div>
     <div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div>
     <div class="timer-foco-grande" id="timerFocoGrande" style="font-size: 64px; font-weight: bold; margin: 20px 0; color: #667eea;">25:00</div>
     <div class="controles-foco" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-      <button class="btn-glass" onclick="iniciarPomodoroFoco()" id="btnIniciarFoco"><i class="fas fa-play"></i> Iniciar</button>
+      <button class="btn-glass" onclick="iniciarPomodoroFocoMelhorado()" id="btnIniciarFoco"><i class="fas fa-play"></i> Iniciar</button>
       <button class="btn-glass" onclick="pausarPomodoroFoco()" id="btnPausarFoco" style="display:none"><i class="fas fa-pause"></i> Pausar</button>
       <button class="btn-glass" onclick="resetarPomodoroFoco()"><i class="fas fa-redo-alt"></i> Resetar</button>
       <button class="btn-glass" onclick="concluirTarefaFoco()" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-check"></i> Concluir</button>
     </div>
-    <button class="btn-glass" onclick="fecharModoFoco()" style="margin-top: 20px; background: rgba(255,255,255,0.1);"><i class="fas fa-times"></i> Sair</button>
+    <div class="musica-controle" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+      <button class="btn-musica" onclick="toggleMusica()" id="btnMusica" style="background: #17a2b8; color: white; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;"><i class="fas fa-music"></i> Música LoFi</button>
+      <div style="margin-top: 10px;"><input type="range" id="volumeControle" min="0" max="100" value="30" onchange="ajustarVolume(this.value)" style="width: 150px;"><span style="font-size:12px; margin-left:8px;">Volume</span></div>
+    </div>
+    <div class="dica-foco" style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
+      <i class="fas fa-bell-slash"></i> Notificações silenciadas durante o foco
+    </div>
+    <button class="btn-glass" onclick="fecharModoFocoMelhorado()" style="margin-top: 20px; background: rgba(255,255,255,0.1);"><i class="fas fa-times"></i> Sair</button>
   </div>
 </div>
 
@@ -650,7 +690,6 @@
 
   let currentUser = null;
 
-  // CARREGA LOCAL STORAGE PRIMEIRO
   window.tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
   window.metas = JSON.parse(localStorage.getItem('metas') || '[]');
   window.cardsMetas = JSON.parse(localStorage.getItem('cardsMetas') || 'null') || [
@@ -676,10 +715,8 @@
         cardsTarefas: window.cardsTarefas,
         ultimaAtualizacao: new Date().toISOString()
       });
-      console.log("✅ Firebase salvo:", window.tarefas.length, "tarefas");
-    } catch (err) {
-      console.error("❌ Erro ao salvar Firebase:", err);
-    }
+      console.log("✅ Firebase salvo");
+    } catch (err) { console.error(err); }
   }
   window.salvarTudoFirebase = salvarTudoFirebase;
 
@@ -694,20 +731,11 @@
         window.metas = dados.metas || [];
         window.cardsMetas = dados.cardsMetas || window.cardsMetas;
         window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
-        
         localStorage.setItem('tarefas', JSON.stringify(window.tarefas));
         localStorage.setItem('metas', JSON.stringify(window.metas));
-        localStorage.setItem('cardsMetas', JSON.stringify(window.cardsMetas));
-        localStorage.setItem('cardsTarefas', JSON.stringify(window.cardsTarefas));
-        
-        console.log("📥 Dados carregados do Firebase:", window.tarefas.length, "tarefas");
-      } else {
-        console.log("⚠️ Nenhum dado encontrado no Firebase");
+        if (window.recarregarSistema) window.recarregarSistema();
       }
-      if (window.recarregarSistema) window.recarregarSistema();
-    } catch (err) {
-      console.error("❌ Erro ao carregar Firebase:", err);
-    }
+    } catch (err) { console.error(err); }
   }
 
   window.fazerLogin = async () => {
@@ -715,40 +743,22 @@
     const password = document.getElementById('loginPassword').value;
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (e) {
-      document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!';
-    }
+    } catch(e) { document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!'; }
   };
-
   window.fazerCadastro = async () => {
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
     const confirm = document.getElementById('registerConfirm').value;
-    if (password !== confirm) {
-      document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem!';
-      return;
-    }
+    if (password !== confirm) { document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem!'; return; }
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       alert('✅ Conta criada!');
-    } catch (e) {
-      document.getElementById('registerErrorMessage').textContent = e.message;
-    }
+    } catch(e) { document.getElementById('registerErrorMessage').textContent = e.message; }
   };
-
   window.fazerLogout = () => signOut(auth);
-  window.sincronizarFirebase = async () => {
-    await salvarTudoFirebase();
-    alert('✅ Sincronizado!');
-  };
-  window.mostrarCadastro = () => {
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('registerForm').style.display = 'block';
-  };
-  window.mostrarLogin = () => {
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('registerForm').style.display = 'none';
-  };
+  window.sincronizarFirebase = async () => { await salvarTudoFirebase(); alert('✅ Sincronizado!'); };
+  window.mostrarCadastro = () => { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; };
+  window.mostrarLogin = () => { document.getElementById('loginForm').style.display = 'block'; document.getElementById('registerForm').style.display = 'none'; };
   document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
   document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
 
@@ -768,60 +778,230 @@
 </script>
 
 <script>
-  // =====================================
-  // USA SEMPRE OS ARRAYS GLOBAIS
-  // =====================================
+  // ========== VARIÁVEIS GLOBAIS ==========
   let tarefas = window.tarefas;
   let metas = window.metas;
   let cardsMetas = window.cardsMetas;
   let cardsTarefas = window.cardsTarefas;
-
-  window.tarefas = tarefas;
-  window.metas = metas;
-  window.cardsMetas = cardsMetas;
-  window.cardsTarefas = cardsTarefas;
+  window.tarefas = tarefas; window.metas = metas; window.cardsMetas = cardsMetas; window.cardsTarefas = cardsTarefas;
 
   let filtroAtual = 'hoje', termoBusca = '', tarefaArrastando = null, metaArrastando = null, cardMetaArrastando = null, cardTarefaArrastando = null;
   let pomodoroAtivo = false, pomodoroPausado = false, tempoRestante = 25 * 60, pomodoroInterval = null, tarefaFocoAtual = null;
   let viewAtual = 'cards', dataAtualCalendario = new Date();
+  let notificacoesAtivas = true;
 
+  // ========== ÁUDIO LOFI ==========
+  let audioContext = null;
+  let lofiLoopActive = false;
+  let currentVolume = 0.3;
+  let currentOscillators = [];
+
+  function criarAudioLoFi() {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const masterGain = audioContext.createGain();
+      masterGain.gain.value = currentVolume;
+      masterGain.connect(audioContext.destination);
+      currentOscillators.forEach(osc => { try { osc.stop(); } catch(e) {} });
+      currentOscillators = [];
+      function tocarNota(freq, inicio, dur, vol = 0.1) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.value = 0;
+        gain.gain.setValueAtTime(0, inicio);
+        gain.gain.linearRampToValueAtTime(vol, inicio + 0.05);
+        gain.gain.linearRampToValueAtTime(0, inicio + dur - 0.1);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(inicio);
+        osc.stop(inicio + dur);
+        currentOscillators.push(osc);
+      }
+      let startTime = audioContext.currentTime;
+      let loopTimeout;
+      let isLooping = true;
+      const tocarLoop = () => {
+        if (!isLooping) return;
+        const agora = audioContext.currentTime;
+        const loopStart = Math.max(agora, startTime);
+        tocarNota(261.63, loopStart, 3, 0.08);
+        tocarNota(329.63, loopStart + 0.3, 2.7, 0.06);
+        tocarNota(392, loopStart + 0.6, 2.4, 0.06);
+        tocarNota(220, loopStart + 3.5, 3, 0.08);
+        tocarNota(261.63, loopStart + 3.8, 2.7, 0.06);
+        tocarNota(329.63, loopStart + 4.1, 2.4, 0.06);
+        tocarNota(349.23, loopStart + 7, 3, 0.08);
+        tocarNota(440, loopStart + 7.3, 2.7, 0.06);
+        startTime = loopStart + 10;
+        if (isLooping) loopTimeout = setTimeout(tocarLoop, 10000);
+      };
+      return { masterGain, tocarLoop, getLoopTimeout: () => loopTimeout, setLoopTimeout: (t) => loopTimeout = t, isLooping: () => isLooping, setLooping: (val) => isLooping = val };
+    }
+    return null;
+  }
+  let lofiAudio = null;
+
+  function iniciarMusicaLoFi() {
+    if (!lofiAudio) lofiAudio = criarAudioLoFi();
+    if (lofiAudio && !lofiLoopActive) {
+      if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+      lofiLoopActive = true;
+      lofiAudio.setLooping(true);
+      lofiAudio.tocarLoop();
+      document.getElementById('btnMusica') && (document.getElementById('btnMusica').innerHTML = '<i class="fas fa-stop"></i> Parar LoFi');
+    }
+  }
+  function pararMusicaLoFi() {
+    if (lofiAudio && lofiLoopActive) {
+      lofiLoopActive = false;
+      lofiAudio.setLooping(false);
+      if (lofiAudio.getLoopTimeout()) clearTimeout(lofiAudio.getLoopTimeout());
+      document.getElementById('btnMusica') && (document.getElementById('btnMusica').innerHTML = '<i class="fas fa-music"></i> Música LoFi');
+    }
+  }
+  function toggleMusica() { lofiLoopActive ? pararMusicaLoFi() : iniciarMusicaLoFi(); }
+  function ajustarVolume(valor) { currentVolume = valor / 100; if (lofiAudio && lofiAudio.masterGain) lofiAudio.masterGain.gain.value = currentVolume; }
+
+  // ========== FUNÇÕES DE NOTIFICAÇÃO COM SILENCIAMENTO NO FOCO ==========
+  function pedirPermissaoNotificacoes() {
+    if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+  }
+  
+  function mostrarNotificacao(titulo, corpo, icone = '🎯') {
+    if (notificacoesAtivas && Notification.permission === 'granted') {
+      new Notification(titulo, { body: corpo, icon: icone });
+    }
+  }
+  
+  function checarNotificacoes() {
+    if (!notificacoesAtivas) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const agora = new Date();
+    const em10min = new Date(agora.getTime() + 10 * 60000);
+    const hora10min = em10min.getHours().toString().padStart(2, '0') + ':' + em10min.getMinutes().toString().padStart(2, '0');
+    const hoje = agora.toISOString().split('T')[0];
+    tarefas.forEach(t => {
+      if (!t.concluida && t.data === hoje && t.hora === hora10min && !t.alertado) {
+        mostrarNotificacao('⏰ Tarefa em 10 minutos!', t.texto, '🎯');
+        t.alertado = true;
+        salvarTarefas();
+      }
+    });
+  }
+
+  // ========== MODO FOCO MELHORADO COM SILENCIAMENTO ==========
+  function iniciarPomodoroFocoMelhorado() {
+    if (pomodoroAtivo) return;
+    
+    // Silenciar notificações
+    notificacoesAtivas = false;
+    console.log("🔇 Notificações silenciadas durante o modo foco");
+    
+    // Adicionar overlay visual de foco
+    const overlay = document.createElement('div');
+    overlay.id = 'focus-overlay';
+    overlay.className = 'foco-overlay';
+    document.body.appendChild(overlay);
+    
+    // Indicador visual
+    document.body.classList.add('foco-ativo');
+    
+    // Iniciar música LoFi (opcional, descomente se quiser)
+    // iniciarMusicaLoFi();
+    
+    // Iniciar o timer
+    pomodoroAtivo = true;
+    pomodoroPausado = false;
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    
+    pomodoroInterval = setInterval(() => {
+      if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+        tempoRestante--;
+        atualizarTimerDisplay();
+        if (tempoRestante <= 0) {
+          clearInterval(pomodoroInterval);
+          pomodoroAtivo = false;
+          if (tarefaFocoAtual) {
+            tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + (25 * 60);
+            salvarTarefas();
+          }
+          // Reativar notificações
+          notificacoesAtivas = true;
+          console.log("🔔 Notificações reativadas!");
+          // Remover overlay
+          const ov = document.getElementById('focus-overlay');
+          if (ov) ov.remove();
+          document.body.classList.remove('foco-ativo');
+          // Parar música
+          pararMusicaLoFi();
+          alert('🎉 Pomodoro concluído! Faça uma pausa de 5 minutos.');
+          tempoRestante = 25 * 60;
+          atualizarTimerDisplay();
+          document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+          document.getElementById('btnPausarFoco').style.display = 'none';
+        }
+      }
+    }, 1000);
+    
+    document.getElementById('btnIniciarFoco').style.display = 'none';
+    document.getElementById('btnPausarFoco').style.display = 'inline-block';
+    document.getElementById('timerFocoGrande').classList.add('ativo');
+  }
+  
+  function pausarPomodoroFoco() {
+    if (!pomodoroAtivo) return;
+    pomodoroPausado = !pomodoroPausado;
+    document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
+    document.getElementById('timerFocoGrande').classList.toggle('ativo', !pomodoroPausado);
+  }
+  
+  function resetarPomodoroFoco() {
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    tempoRestante = 25 * 60;
+    atualizarTimerDisplay();
+    pomodoroAtivo = false;
+    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+    document.getElementById('btnPausarFoco').style.display = 'none';
+  }
+  
+  function concluirTarefaFoco() {
+    if (!tarefaFocoAtual) return;
+    if (confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) {
+      toggleTarefa(tarefaFocoAtual.id);
+      fecharModoFocoMelhorado();
+      setTimeout(() => {
+        const pendentes = tarefas.filter(t => !t.concluida);
+        if (pendentes.length) abrirModoFocoComTarefa(pendentes[0].id);
+      }, 300);
+    }
+  }
+  
+  function fecharModoFocoMelhorado() {
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroAtivo = false;
+    // Reativar notificações
+    notificacoesAtivas = true;
+    console.log("🔔 Notificações reativadas!");
+    // Remover overlay
+    const ov = document.getElementById('focus-overlay');
+    if (ov) ov.remove();
+    document.body.classList.remove('foco-ativo');
+    // Parar música
+    pararMusicaLoFi();
+    document.getElementById('modalFocoOverlay').classList.remove('show');
+  }
+
+  // ========== FUNÇÕES DE APOIO (já existentes) ==========
   function escapeHtml(t){if(!t)return '';const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
   function atualizarDataHoje(){const h=new Date();document.getElementById('dataHoje').textContent=h.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
   function carregarTema(){if(localStorage.getItem('tema')==='dark')document.documentElement.setAttribute('data-theme','dark');}
-  
-  function salvarTarefas(){
-    window.tarefas = tarefas;
-    localStorage.setItem('tarefas', JSON.stringify(tarefas));
-    renderizarTarefas();
-    renderizarEstatisticas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
-  function salvarMetas(){
-    window.metas = metas;
-    localStorage.setItem('metas', JSON.stringify(metas));
-    renderizarDashboardMetas();
-    renderizarEstatisticas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
-  function salvarCardsMetas(){
-    localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
-    renderizarDashboardMetas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
-  function salvarCardsTarefas(){
-    localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
-    atualizarSelectCategorias();
-    renderizarTarefas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
-  function atualizarSelectCategorias(){
-    const s=document.getElementById('nova-bloco');if(!s)return;s.innerHTML='';
-    cardsTarefas.forEach(c=>{const o=document.createElement('option');o.value=c.nome;o.textContent=c.nome;s.appendChild(o);});
-  }
+  function salvarTarefas(){window.tarefas = tarefas;localStorage.setItem('tarefas', JSON.stringify(tarefas));renderizarTarefas();renderizarEstatisticas();if(window.salvarTudoFirebase) window.salvarTudoFirebase();}
+  function salvarMetas(){window.metas = metas;localStorage.setItem('metas', JSON.stringify(metas));renderizarDashboardMetas();renderizarEstatisticas();if(window.salvarTudoFirebase) window.salvarTudoFirebase();}
+  function salvarCardsMetas(){localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));renderizarDashboardMetas();if(window.salvarTudoFirebase) window.salvarTudoFirebase();}
+  function salvarCardsTarefas(){localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));atualizarSelectCategorias();renderizarTarefas();if(window.salvarTudoFirebase) window.salvarTudoFirebase();}
+  function atualizarSelectCategorias(){const s=document.getElementById('nova-bloco');if(!s)return;s.innerHTML='';cardsTarefas.forEach(c=>{const o=document.createElement('option');o.value=c.nome;o.textContent=c.nome;s.appendChild(o);});}
   
   function adicionarCardMeta(){const n=prompt('🏆 Nome do novo card:');if(n&&n.trim()){cardsMetas.push({id:'meta_'+Date.now(),nome:n.trim()});salvarCardsMetas();alert(`✅ Card "${n}" criado!`);}}
   function adicionarCardTarefa(){const n=prompt('📋 Nome do novo card:');if(n&&n.trim()){cardsTarefas.push({id:'tarefa_'+Date.now(),nome:n.trim()});salvarCardsTarefas();alert(`✅ Card "${n}" criado!`);}}
@@ -850,14 +1030,9 @@
   function renderizarCalendario(){const ano=dataAtualCalendario.getFullYear(),mes=dataAtualCalendario.getMonth();const pd=new Date(ano,mes,1),ud=new Date(ano,mes+1,0);const diasNoMes=ud.getDate(),diaInicio=pd.getDay();const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];document.getElementById('calendarioMes').textContent=`${meses[mes]} ${ano}`;const ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];let html='';ds.forEach(d=>{html+=`<div class="calendario-dia-semana">${d}</div>`;});let dia=1;const hoje=new Date().toISOString().split('T')[0];for(let i=0;i<42;i++){if(i<diaInicio||dia>diasNoMes){html+=`<div class="calendario-dia vazio"></div>`;}else{const dataStr=`${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;const tarefasDia=tarefas.filter(t=>t.data===dataStr&&!t.concluida);const isHoje=dataStr===hoje;html+=`<div class="calendario-dia ${isHoje?'hoje':''}" onclick="selecionarDataCalendario('${dataStr}')"><div style="font-weight:bold;margin-bottom:5px;">${dia}</div><div style="font-size:11px;max-height:70px;overflow-y:auto;">`;tarefasDia.slice(0,4).forEach(t=>{html+=`<div style="padding:2px 4px;background:rgba(102,126,234,0.2);border-radius:6px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="event.stopPropagation(); abrirModoFocoComTarefa(${t.id})">${escapeHtml(t.texto.substring(0,20))}${t.texto.length>20?'...':''}</div>`;});if(tarefasDia.length>4)html+=`<div style="font-size:10px;opacity:0.7;">+${tarefasDia.length-4} mais</div>`;html+=`</div></div>`;dia++;}}document.getElementById('calendarioGrade').innerHTML=html;}
   function selecionarDataCalendario(data){const td=tarefas.filter(t=>t.data===data&&!t.concluida);if(td.length){alert(`📅 ${data}\n\n${td.map((t,i)=>`${i+1}. ${t.texto}`).join('\n')}`);}else{alert(`📅 ${data}\nNenhuma tarefa pendente.`);}}
   
-  function abrirModoFocoComTarefa(id){const t=tarefas.find(t=>t.id===id);if(!t)return;tarefaFocoAtual=t;document.getElementById('tarefaFocoTexto').textContent=t.texto;tempoRestante=25*60;atualizarTimerDisplay();document.getElementById('modalFocoOverlay').classList.add('show');if(pomodoroInterval)clearInterval(pomodoroInterval);pomodoroAtivo=false;document.getElementById('btnIniciarFoco').style.display='inline-block';document.getElementById('btnPausarFoco').style.display='none';}
+  function abrirModoFocoComTarefa(id){const t=tarefas.find(t=>t.id===id);if(!t)return;tarefaFocoAtual=t;document.getElementById('tarefaFocoTexto').textContent=t.texto;tempoRestante=25*60;atualizarTimerDisplay();document.getElementById('modalFocoOverlay').classList.add('show');if(pomodoroInterval)clearInterval(pomodoroInterval);pomodoroAtivo=false;notificacoesAtivas=true;document.getElementById('btnIniciarFoco').style.display='inline-block';document.getElementById('btnPausarFoco').style.display='none';}
   function abrirModoFoco(){const p=tarefas.filter(t=>!t.concluida);if(!p.length){alert('🎉 Nenhuma tarefa pendente!');return;}abrirModoFocoComTarefa(p[0].id);}
   function atualizarTimerDisplay(){const min=Math.floor(tempoRestante/60),seg=tempoRestante%60;document.getElementById('timerFocoGrande').textContent=`${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;const p=((25*60-tempoRestante)/(25*60))*100;const bar=document.querySelector('#modalFocoOverlay .progresso-foco-bar');if(bar)bar.style.width=`${p}%`;}
-  function iniciarPomodoroFoco(){if(pomodoroAtivo)return;pomodoroAtivo=true;pomodoroPausado=false;if(pomodoroInterval)clearInterval(pomodoroInterval);pomodoroInterval=setInterval(()=>{if(!pomodoroPausado&&pomodoroAtivo&&tempoRestante>0){tempoRestante--;atualizarTimerDisplay();if(tempoRestante<=0){clearInterval(pomodoroInterval);pomodoroAtivo=false;if(tarefaFocoAtual){tarefaFocoAtual.tempoGasto=(tarefaFocoAtual.tempoGasto||0)+(25*60);salvarTarefas();}alert('🎉 Pomodoro concluído!');tempoRestante=25*60;atualizarTimerDisplay();document.getElementById('btnIniciarFoco').style.display='inline-block';document.getElementById('btnPausarFoco').style.display='none';}}},1000);document.getElementById('btnIniciarFoco').style.display='none';document.getElementById('btnPausarFoco').style.display='inline-block';}
-  function pausarPomodoroFoco(){if(!pomodoroAtivo)return;pomodoroPausado=!pomodoroPausado;document.getElementById('btnPausarFoco').innerHTML=pomodoroPausado?'<i class="fas fa-play"></i> Retomar':'<i class="fas fa-pause"></i> Pausar';}
-  function resetarPomodoroFoco(){if(pomodoroInterval)clearInterval(pomodoroInterval);tempoRestante=25*60;atualizarTimerDisplay();pomodoroAtivo=false;document.getElementById('btnIniciarFoco').style.display='inline-block';document.getElementById('btnPausarFoco').style.display='none';}
-  function concluirTarefaFoco(){if(!tarefaFocoAtual)return;if(confirm(`Concluir "${tarefaFocoAtual.texto}"?`)){toggleTarefa(tarefaFocoAtual.id);fecharModoFoco();setTimeout(()=>{const p=tarefas.filter(t=>!t.concluida);if(p.length)abrirModoFocoComTarefa(p[0].id);},300);}}
-  function fecharModoFoco(){if(pomodoroInterval)clearInterval(pomodoroInterval);pomodoroAtivo=false;document.getElementById('modalFocoOverlay').classList.remove('show');}
   
   function renderizarDashboardMetas(){const c=document.getElementById('dashboardMetasGrid');if(!c)return;c.innerHTML='';cardsMetas.forEach(card=>{const mb=metas.filter(m=>m.categoria===card.nome);const total=mb.length,atingidas=mb.filter(m=>m.atingida).length,percentual=total>0?Math.round((atingidas/total)*100):0;const div=document.createElement('div');div.className='meta-card';div.setAttribute('draggable','true');div.dataset.cardId=card.id;div.addEventListener('dragstart',(e)=>{cardMetaArrastando=card.id;div.classList.add('dragging');e.dataTransfer.setData('text/plain',card.id);});div.addEventListener('dragend',()=>div.classList.remove('dragging'));div.addEventListener('dragover',(e)=>{e.preventDefault();div.classList.add('drag-over');});div.addEventListener('dragleave',()=>div.classList.remove('drag-over'));div.addEventListener('drop',(e)=>{e.preventDefault();div.classList.remove('drag-over');if(cardMetaArrastando&&cardMetaArrastando!==card.id)moverCardMeta(cardMetaArrastando,card.id);cardMetaArrastando=null;});div.innerHTML=`<div class="meta-card-header"><span><i class="fas fa-tag"></i> ${escapeHtml(card.nome)}</span><div class="card-actions"><span class="meta-progresso">${atingidas}/${total}</span><button onclick="event.stopPropagation(); editarCardMeta('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="event.stopPropagation(); excluirCardMeta('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div><div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width:${percentual}%"></div></div><div class="meta-lista" id="meta-lista-${card.id}"></div><div class="meta-add-dash"><input type="text" id="input-meta-${card.id}" placeholder="Nova meta..."><input type="date" id="input-data-meta-${card.id}"><button class="btn-glass" style="padding:8px 20px;" onclick="adicionarMeta('${card.nome}','${card.id}')"><i class="fas fa-plus"></i></button></div>`;c.appendChild(div);const lista=div.querySelector(`#meta-lista-${card.id}`);if(mb.length===0){lista.innerHTML=`<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia por aqui</p><small>Adicione uma meta para começar</small></div>`;}else{mb.forEach(meta=>{lista.innerHTML+=`<div class="meta-item-dash ${meta.atingida?'atingida':''}" draggable="true" data-meta-id="${meta.id}"><input type="checkbox" ${meta.atingida?'checked':''} onchange="toggleMeta(${meta.id})"><div style="flex:1"><div class="meta-texto-dash">${escapeHtml(meta.texto)}</div>${meta.dataLimite?`<div class="meta-data-limite"><i class="fas fa-calendar-alt"></i> ${new Date(meta.dataLimite).toLocaleDateString('pt-BR')}</div>`:''}</div><div class="item-actions"><button onclick="editarMetaPrompt(${meta.id})"><i class="fas fa-edit"></i></button><button onclick="excluirMeta(${meta.id})"><i class="fas fa-trash-alt"></i></button></div></div>`;});}});const addCard=document.createElement('div');addCard.className='meta-card card-adicionar';addCard.onclick=()=>adicionarCardMeta();addCard.innerHTML=`<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Card</p></div>`;c.appendChild(addCard);document.querySelectorAll('.meta-item-dash').forEach(item=>{item.addEventListener('dragstart',(e)=>{metaArrastando=parseInt(item.dataset.metaId);item.classList.add('dragging');});item.addEventListener('dragend',()=>item.classList.remove('dragging'));});}
   
@@ -869,9 +1044,6 @@
   function limparMetasConcluidas(){if(confirm('Remover metas concluídas?')){metas=metas.filter(m=>!m.atingida);salvarMetas();alert('✅ Metas concluídas removidas!');}}
   function exportarBackup(){const dados={tarefas,metas,cardsMetas,cardsTarefas};const blob=new Blob([JSON.stringify(dados)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`fluxo-backup-${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(a.href);alert('✅ Backup exportado!');}
   function importarBackup(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const dados=JSON.parse(ev.target.result);if(confirm(`Importar backup?\n\nTarefas: ${dados.tarefas?.length||0}\nMetas: ${dados.metas?.length||0}`)){if(dados.tarefas)tarefas=dados.tarefas;if(dados.metas)metas=dados.metas;if(dados.cardsMetas)cardsMetas=dados.cardsMetas;if(dados.cardsTarefas)cardsTarefas=dados.cardsTarefas;salvarCardsMetas();salvarCardsTarefas();salvarTarefas();salvarMetas();alert('✅ Backup importado!');atualizarSelectCategorias();renderizarDashboardMetas();renderizarTarefas();renderizarEstatisticas();}}catch(err){alert('❌ Erro ao importar.');}};reader.readAsText(file);e.target.value='';}
-  
-  function pedirPermissaoNotificacoes(){if('Notification' in window && Notification.permission === 'default')Notification.requestPermission();}
-  function checarNotificacoes(){if(!('Notification' in window) || Notification.permission !== 'granted')return;const agora=new Date();const em10min=new Date(agora.getTime()+10*60000);const hora10min=em10min.getHours().toString().padStart(2,'0')+':'+em10min.getMinutes().toString().padStart(2,'0');const hoje=agora.toISOString().split('T')[0];tarefas.forEach(t=>{if(!t.concluida && t.data===hoje && t.hora===hora10min && !t.alertado){new Notification('⏰ Tarefa em 10 minutos!',{body:t.texto,icon:'🎯'});t.alertado=true;salvarTarefas();}});}
   
   window.recarregarSistema = function(){
     tarefas = window.tarefas;
@@ -885,7 +1057,7 @@
   };
   
   pedirPermissaoNotificacoes();
-  setInterval(checarNotificacoes,60000);
+  setInterval(checarNotificacoes, 60000);
   atualizarSelectCategorias();
   carregarTema();
   atualizarDataHoje();
