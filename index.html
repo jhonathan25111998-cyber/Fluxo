@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FLUXO - Organize. Execute. Flua.</title>
+<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -455,10 +456,7 @@
   .empty-state { text-align: center; padding: 40px 20px; opacity: 0.6; color: white; }
   .empty-state i { font-size: 48px; margin-bottom: 12px; }
 
-  /* Modo Foco - Silencia Notificações */
-  .foco-ativo .notificacao-silenciada {
-    display: none;
-  }
+  .foco-ativo .notificacao-silenciada { display: none; }
   .foco-overlay {
     position: fixed;
     top: 0;
@@ -470,9 +468,7 @@
     z-index: 999;
     border: 3px solid rgba(102,126,234,0.5);
     box-shadow: inset 0 0 50px rgba(102,126,234,0.2);
-    transition: all 0.3s;
   }
-
   .modal-foco-overlay {
     display: none;
     position: fixed;
@@ -498,20 +494,6 @@
   }
   .progresso-foco { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 20px 0; overflow: hidden; }
   .progresso-foco-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); width: 0%; transition: width 0.3s; }
-  .indicador-foco {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #4caf50;
-    margin-right: 8px;
-    animation: piscar 1s infinite;
-  }
-  @keyframes piscar {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
   .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   .calendario-dia-semana { text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 12px; color: white; }
   .calendario-dia { min-height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; cursor: pointer; transition: all 0.2s; color: white; }
@@ -864,7 +846,7 @@
   function toggleMusica() { lofiLoopActive ? pararMusicaLoFi() : iniciarMusicaLoFi(); }
   function ajustarVolume(valor) { currentVolume = valor / 100; if (lofiAudio && lofiAudio.masterGain) lofiAudio.masterGain.gain.value = currentVolume; }
 
-  // ========== FUNÇÕES DE NOTIFICAÇÃO COM SILENCIAMENTO NO FOCO ==========
+  // ========== NOTIFICAÇÕES ==========
   function pedirPermissaoNotificacoes() {
     if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
   }
@@ -891,31 +873,19 @@
     });
   }
 
-  // ========== MODO FOCO MELHORADO COM SILENCIAMENTO ==========
+  // ========== MODO FOCO ==========
   function iniciarPomodoroFocoMelhorado() {
     if (pomodoroAtivo) return;
-    
-    // Silenciar notificações
     notificacoesAtivas = false;
     console.log("🔇 Notificações silenciadas durante o modo foco");
-    
-    // Adicionar overlay visual de foco
     const overlay = document.createElement('div');
     overlay.id = 'focus-overlay';
     overlay.className = 'foco-overlay';
     document.body.appendChild(overlay);
-    
-    // Indicador visual
     document.body.classList.add('foco-ativo');
-    
-    // Iniciar música LoFi (opcional, descomente se quiser)
-    // iniciarMusicaLoFi();
-    
-    // Iniciar o timer
     pomodoroAtivo = true;
     pomodoroPausado = false;
     if (pomodoroInterval) clearInterval(pomodoroInterval);
-    
     pomodoroInterval = setInterval(() => {
       if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
         tempoRestante--;
@@ -927,14 +897,11 @@
             tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + (25 * 60);
             salvarTarefas();
           }
-          // Reativar notificações
           notificacoesAtivas = true;
           console.log("🔔 Notificações reativadas!");
-          // Remover overlay
           const ov = document.getElementById('focus-overlay');
           if (ov) ov.remove();
           document.body.classList.remove('foco-ativo');
-          // Parar música
           pararMusicaLoFi();
           alert('🎉 Pomodoro concluído! Faça uma pausa de 5 minutos.');
           tempoRestante = 25 * 60;
@@ -944,7 +911,6 @@
         }
       }
     }, 1000);
-    
     document.getElementById('btnIniciarFoco').style.display = 'none';
     document.getElementById('btnPausarFoco').style.display = 'inline-block';
     document.getElementById('timerFocoGrande').classList.add('ativo');
@@ -981,14 +947,11 @@
   function fecharModoFocoMelhorado() {
     if (pomodoroInterval) clearInterval(pomodoroInterval);
     pomodoroAtivo = false;
-    // Reativar notificações
     notificacoesAtivas = true;
     console.log("🔔 Notificações reativadas!");
-    // Remover overlay
     const ov = document.getElementById('focus-overlay');
     if (ov) ov.remove();
     document.body.classList.remove('foco-ativo');
-    // Parar música
     pararMusicaLoFi();
     document.getElementById('modalFocoOverlay').classList.remove('show');
   }
