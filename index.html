@@ -672,6 +672,7 @@
 
   let currentUser = null;
 
+  // CARREGAR DO LOCALSTORAGE PRIMEIRO
   window.tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
   window.metas = JSON.parse(localStorage.getItem('metas') || '[]');
   window.cardsMetas = JSON.parse(localStorage.getItem('cardsMetas') || 'null') || [
@@ -687,6 +688,7 @@
     { id: "tarefa_waw", nome: "WAW" }
   ];
 
+  // ========== SALVAR NO FIREBASE (INCLUINDO CARDS) ==========
   async function salvarTudoFirebase() {
     if (!currentUser) return;
     try {
@@ -697,11 +699,19 @@
         cardsTarefas: window.cardsTarefas,
         ultimaAtualizacao: new Date().toISOString()
       });
-      console.log("✅ Firebase salvo");
-    } catch (err) { console.error(err); }
+      console.log("✅ Firebase salvo:", {
+        tarefas: window.tarefas.length,
+        metas: window.metas.length,
+        cardsMetas: window.cardsMetas.length,
+        cardsTarefas: window.cardsTarefas.length
+      });
+    } catch (err) { 
+      console.error("❌ Erro ao salvar Firebase:", err); 
+    }
   }
   window.salvarTudoFirebase = salvarTudoFirebase;
 
+  // ========== CARREGAR DO FIREBASE (INCLUINDO CARDS) ==========
   async function carregarDadosFirebase() {
     if (!currentUser) return;
     try {
@@ -713,11 +723,34 @@
         window.metas = dados.metas || [];
         window.cardsMetas = dados.cardsMetas || window.cardsMetas;
         window.cardsTarefas = dados.cardsTarefas || window.cardsTarefas;
+        
         localStorage.setItem('tarefas', JSON.stringify(window.tarefas));
         localStorage.setItem('metas', JSON.stringify(window.metas));
+        localStorage.setItem('cardsMetas', JSON.stringify(window.cardsMetas));
+        localStorage.setItem('cardsTarefas', JSON.stringify(window.cardsTarefas));
+        
+        console.log("📥 Dados carregados:", {
+          tarefas: window.tarefas.length,
+          metas: window.metas.length,
+          cardsMetas: window.cardsMetas.length,
+          cardsTarefas: window.cardsTarefas.length
+        });
+        
         if (window.recarregarSistema) window.recarregarSistema();
+      } else {
+        console.log("⚠️ Nenhum documento encontrado");
+        // Criar documento inicial
+        await setDoc(docRef, {
+          tarefas: window.tarefas,
+          metas: window.metas,
+          cardsMetas: window.cardsMetas,
+          cardsTarefas: window.cardsTarefas,
+          criado: new Date().toISOString()
+        });
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error("❌ Erro ao carregar:", err); 
+    }
   }
 
   window.fazerLogin = async () => {
@@ -741,6 +774,7 @@
   window.sincronizarFirebase = async () => { await salvarTudoFirebase(); alert('✅ Sincronizado!'); };
   window.mostrarCadastro = () => { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; };
   window.mostrarLogin = () => { document.getElementById('loginForm').style.display = 'block'; document.getElementById('registerForm').style.display = 'none'; };
+  
   document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
   document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
 
@@ -956,14 +990,42 @@
     document.getElementById('modalFocoOverlay').classList.remove('show');
   }
 
-  // ========== FUNÇÕES DE APOIO (já existentes) ==========
+  // ========== FUNÇÕES DE APOIO ==========
   function escapeHtml(t){if(!t)return '';const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
   function atualizarDataHoje(){const h=new Date();document.getElementById('dataHoje').textContent=h.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
   function carregarTema(){if(localStorage.getItem('tema')==='dark')document.documentElement.setAttribute('data-theme','dark');}
-  function salvarTarefas(){window.tarefas = tarefas;localStorage.setItem('tarefas', JSON.stringify(tarefas));renderizarTarefas();renderizarEstatisticas();if(window.salvarTudoFirebase) window.salvarTudoFirebase();}
-  function salvarMetas(){window.metas = metas;localStorage.setItem('metas', JSON.stringify(metas));renderizarDashboardMetas();renderizarEstatisticas();if(window.salvarTudoFirebase) window.salvarTudoFirebase();}
-  function salvarCardsMetas(){localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));renderizarDashboardMetas();if(window.salvarTudoFirebase) window.salvarTudoFirebase();}
-  function salvarCardsTarefas(){localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));atualizarSelectCategorias();renderizarTarefas();if(window.salvarTudoFirebase) window.salvarTudoFirebase();}
+  
+  function salvarTarefas(){
+    window.tarefas = tarefas;
+    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    renderizarTarefas();
+    renderizarEstatisticas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function salvarMetas(){
+    window.metas = metas;
+    localStorage.setItem('metas', JSON.stringify(metas));
+    renderizarDashboardMetas();
+    renderizarEstatisticas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function salvarCardsMetas(){
+    window.cardsMetas = cardsMetas;
+    localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
+    renderizarDashboardMetas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function salvarCardsTarefas(){
+    window.cardsTarefas = cardsTarefas;
+    localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
+    atualizarSelectCategorias();
+    renderizarTarefas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
   function atualizarSelectCategorias(){const s=document.getElementById('nova-bloco');if(!s)return;s.innerHTML='';cardsTarefas.forEach(c=>{const o=document.createElement('option');o.value=c.nome;o.textContent=c.nome;s.appendChild(o);});}
   
   function adicionarCardMeta(){const n=prompt('🏆 Nome do novo card:');if(n&&n.trim()){cardsMetas.push({id:'meta_'+Date.now(),nome:n.trim()});salvarCardsMetas();alert(`✅ Card "${n}" criado!`);}}
