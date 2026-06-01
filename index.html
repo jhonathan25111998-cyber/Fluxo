@@ -1077,15 +1077,15 @@
   
   function atualizarSelectCategorias(){const s=document.getElementById('nova-bloco');if(!s)return;s.innerHTML='';cardsTarefas.forEach(c=>{const o=document.createElement('option');o.value=c.nome;o.textContent=c.nome;s.appendChild(o);});}
   
-  function adicionarCardMeta(){const n=prompt('🏆 Nome do novo espaço de trabalho (Metas):');if(n&&n.trim()){cardsMetas.push({id:'meta_'+Date.now(),nome:n.trim()});salvarCardsMetas();alert(`✅ Card "${n}" criado!`);}}
-  function adicionarCardTarefa(){const n=prompt('📋 Nome do novo espaço de trabalho (Tarefas):');if(n&&n.trim()){cardsTarefas.push({id:'tarefa_'+Date.now(),nome:n.trim()});salvarCardsTarefas();alert(`✅ Card "${n}" criado!`);}}
+  function adicionarCardMeta(){const n=prompt('🏆 Nome do novo espaço de trabalho (Metas):');if(n&&n.trim()){cardsMetas.push({id:'meta_'+Date.now(),nome:n.trim()});salvarCardsMetas();alert(`✅ Espaço "${n}" criado com sucesso!`);renderizarDashboardMetas();}}
+  function adicionarCardTarefa(){const n=prompt('📋 Nome do novo espaço de trabalho:');if(n&&n.trim()){cardsTarefas.push({id:'tarefa_'+Date.now(),nome:n.trim()});salvarCardsTarefas();alert(`✅ Espaço "${n}" criado com sucesso!`);}}
   function editarCardMeta(id){const c=cardsMetas.find(c=>c.id===id);if(!c)return;const n=prompt('Editar nome:',c.nome);if(n&&n.trim()){metas.forEach(m=>{if(m.categoria===c.nome)m.categoria=n.trim();});c.nome=n.trim();salvarCardsMetas();salvarMetas();}}
   function editarCardTarefa(id){const c=cardsTarefas.find(c=>c.id===id);if(!c)return;const n=prompt('Editar nome:',c.nome);if(n&&n.trim()){tarefas.forEach(t=>{if(t.bloco===c.nome)t.bloco=n.trim();});c.nome=n.trim();salvarCardsTarefas();salvarTarefas();}}
   
   function excluirCardMeta(id){
     const c = cardsMetas.find(c => c.id === id);
     if(!c) return;
-    if(confirm(`Excluir card "${c.nome}"? Metas serão movidas para "Pessoal".`)){
+    if(confirm(`Excluir "${c.nome}"? Metas serão movidas para "Pessoal".`)){
       const alvo = cardsMetas.find(c => c.nome === 'Pessoal') || cardsMetas[0];
       metas.forEach(m => { if(m.categoria === c.nome) m.categoria = alvo.nome; });
       cardsMetas = cardsMetas.filter(c => c.id !== id);
@@ -1100,7 +1100,7 @@
   function excluirCardTarefa(id){
     const c = cardsTarefas.find(c => c.id === id);
     if(!c) return;
-    if(confirm(`Excluir card "${c.nome}"? Tarefas serão movidas para "Pessoal".`)){
+    if(confirm(`Excluir "${c.nome}"? Tarefas serão movidas para "Pessoal".`)){
       const alvo = cardsTarefas.find(c => c.nome === 'Pessoal') || cardsTarefas[0];
       tarefas.forEach(t => { if(t.bloco === c.nome) t.bloco = alvo.nome; });
       cardsTarefas = cardsTarefas.filter(c => c.id !== id);
