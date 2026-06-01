@@ -2,51 +2,96 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<meta name="theme-color" content="#667eea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>FLUXO - Organize. Execute. Flua.</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent;
+  }
+  
   body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     background-attachment: fixed;
-    padding: 24px;
+    padding: 16px;
     min-height: 100vh;
   }
-  .container { max-width: 1600px; margin: 0 auto; }
+  
+  /* Responsividade base */
+  @media (min-width: 768px) {
+    body { padding: 24px; }
+  }
+  
+  @media (min-width: 1200px) {
+    body { padding: 32px; }
+  }
+  
+  .container { 
+    max-width: 1600px; 
+    margin: 0 auto; 
+    width: 100%;
+  }
+  
+  /* Header responsivo */
   .header {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
-    border-radius: 24px;
-    padding: 24px 32px;
-    margin-bottom: 24px;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
   }
+  
+  @media (min-width: 768px) {
+    .header { padding: 24px 32px; margin-bottom: 24px; border-radius: 24px; }
+  }
+  
   .header-content {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 12px;
     flex-wrap: wrap;
   }
+  
+  @media (min-width: 768px) {
+    .header-content { gap: 20px; }
+  }
+  
   .logo-img {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.3s;
   }
+  
+  @media (min-width: 768px) {
+    .logo-img { width: 56px; height: 56px; border-radius: 20px; }
+  }
+  
   .logo-img:hover { transform: scale(1.05); }
-  .logo-img img { width: 48px; height: 48px; object-fit: contain; }
+  .logo-img img { width: 40px; height: 40px; object-fit: contain; }
+  
+  @media (min-width: 768px) {
+    .logo-img img { width: 48px; height: 48px; }
+  }
+  
   .logo-texto .logo-titulo {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 800;
     letter-spacing: -1px;
     background: linear-gradient(135deg, #fff, #f0f0f0);
@@ -54,39 +99,93 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  
+  @media (min-width: 768px) {
+    .logo-texto .logo-titulo { font-size: 32px; }
+  }
+  
   .logo-texto .logo-subtitulo {
-    font-size: 12px;
+    font-size: 10px;
     opacity: 0.8;
     letter-spacing: 1px;
     color: white;
   }
+  
+  @media (min-width: 768px) {
+    .logo-texto .logo-subtitulo { font-size: 12px; }
+  }
+  
+  /* User info responsivo */
   .user-info {
-    position: absolute;
-    top: 24px;
-    right: 32px;
+    position: static;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    gap: 8px;
     background: rgba(255, 255, 255, 0.1);
-    padding: 8px 16px;
+    padding: 8px 12px;
     border-radius: 40px;
     backdrop-filter: blur(10px);
+    margin-top: 16px;
+    flex-wrap: wrap;
   }
-  .user-info span { color: white; font-size: 14px; font-weight: 500; }
+  
+  @media (min-width: 768px) {
+    .user-info {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      margin-top: 0;
+    }
+  }
+  
+  .user-info span { 
+    color: white; 
+    font-size: 12px; 
+    font-weight: 500;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  @media (min-width: 768px) {
+    .user-info span { font-size: 14px; max-width: 200px; }
+  }
+  
   .logout-btn, .sync-btn {
     background: rgba(255, 255, 255, 0.2);
     border: none;
-    padding: 6px 12px;
+    padding: 6px 10px;
     border-radius: 30px;
     color: white;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     transition: all 0.3s;
+    white-space: nowrap;
   }
+  
+  @media (min-width: 768px) {
+    .logout-btn, .sync-btn { padding: 6px 12px; font-size: 12px; }
+  }
+  
   .logout-btn:hover, .sync-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
   .sync-btn.syncing { animation: pulse 1s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-  .data-hoje { text-align: center; margin-top: 16px; font-size: 14px; opacity: 0.8; color: white; }
+  
+  .data-hoje { 
+    text-align: center; 
+    margin-top: 16px; 
+    font-size: 11px; 
+    opacity: 0.8; 
+    color: white;
+  }
+  
+  @media (min-width: 768px) {
+    .data-hoje { font-size: 14px; margin-top: 20px; }
+  }
+  
+  /* Login responsivo */
   .login-overlay {
     display: flex;
     position: fixed;
@@ -99,56 +198,542 @@
     z-index: 3000;
     align-items: center;
     justify-content: center;
+    padding: 16px;
   }
+  
   .login-container {
     background: rgba(26, 27, 38, 0.95);
     backdrop-filter: blur(24px);
-    border-radius: 32px;
-    padding: 40px;
-    width: 90%;
+    border-radius: 28px;
+    padding: 32px 24px;
+    width: 100%;
     max-width: 450px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
   }
-  .login-container h2 { color: white; margin-bottom: 30px; font-size: 28px; }
-  .login-container input {
-    width: 100%;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: white;
-    font-size: 14px;
-    outline: none;
+  
+  @media (min-width: 768px) {
+    .login-container { padding: 40px; border-radius: 32px; }
   }
-  .login-container input:focus { border-color: #667eea; background: rgba(255, 255, 255, 0.12); }
-  .login-btn {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border: none;
-    padding: 12px;
+  
+  .login-container h2 { color: white; margin-bottom: 24px; font-size: 24px; }
+  @media (min-width: 768px) {
+    .login-container h2 { margin-bottom: 30px; font-size: 28px; }
+  }
+  
+  /* Top bar responsivo */
+  .top-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  @media (min-width: 768px) {
+    .top-bar {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+  }
+  
+  .view-toggle { 
+    display: flex; 
+    gap: 8px; 
+    justify-content: center;
+  }
+  
+  @media (min-width: 768px) {
+    .view-toggle { gap: 12px; }
+  }
+  
+  .view-btn {
+    padding: 8px 16px;
+    background: rgba(26, 27, 38, 0.6);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 40px;
     color: white;
     cursor: pointer;
     font-weight: 600;
-    width: 100%;
-    margin-top: 10px;
+    transition: all 0.3s;
+    font-size: 12px;
+    flex: 1;
+    text-align: center;
   }
-  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(102,126,234,0.4); }
-  .register-link { color: rgba(255,255,255,0.7); font-size: 14px; margin-top: 20px; display: block; cursor: pointer; }
-  .register-link:hover { color: white; }
-  .error-message { color: #FCA5A5; font-size: 12px; margin-bottom: 12px; display: block; }
   
+  @media (min-width: 768px) {
+    .view-btn {
+      padding: 10px 24px;
+      font-size: 14px;
+      flex: initial;
+    }
+  }
+  
+  .view-btn i { margin-right: 6px; }
+  @media (min-width: 768px) {
+    .view-btn i { margin-right: 8px; }
+  }
+  
+  .busca-global {
+    background: rgba(26, 27, 38, 0.6);
+    backdrop-filter: blur(24px);
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    height: 40px;
+  }
+  
+  @media (min-width: 768px) {
+    .busca-global { width: auto; min-width: 260px; height: 44px; }
+  }
+  
+  .busca-global i { color: rgba(255,255,255,0.6); margin-left: 14px; font-size: 12px; }
+  @media (min-width: 768px) {
+    .busca-global i { margin-left: 16px; font-size: 14px; }
+  }
+  
+  .busca-global input {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 12px;
+    outline: none;
+    height: 100%;
+  }
+  
+  @media (min-width: 768px) {
+    .busca-global input { padding: 10px 16px 10px 12px; font-size: 14px; }
+  }
+  
+  /* Cards responsivos */
+  .metas-dashboard-grid, .blocos-tarefas {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  @media (min-width: 640px) {
+    .metas-dashboard-grid, .blocos-tarefas {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .metas-dashboard-grid, .blocos-tarefas {
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 24px;
+    }
+  }
+  
+  .meta-card, .bloco-tarefa {
+    background: rgba(26, 27, 38, 0.6);
+    backdrop-filter: blur(24px);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: all 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  @media (min-width: 768px) {
+    .meta-card, .bloco-tarefa { border-radius: 20px; }
+  }
+  
+  .meta-card-header, .bloco-header {
+    padding: 14px 18px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  @media (min-width: 768px) {
+    .meta-card-header, .bloco-header { padding: 20px 24px; font-size: 16px; }
+  }
+  
+  .meta-lista, .tarefa-lista { 
+    padding: 14px; 
+    max-height: 350px; 
+    overflow-y: auto;
+  }
+  
+  @media (min-width: 768px) {
+    .meta-lista, .tarefa-lista { padding: 20px; }
+  }
+  
+  /* Formulário responsivo */
+  .adicionar {
+    background: rgba(26, 27, 38, 0.6);
+    backdrop-filter: blur(24px);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  @media (min-width: 768px) {
+    .adicionar { padding: 24px; border-radius: 24px; margin-bottom: 24px; }
+  }
+  
+  .adicionar h3 { color: white; margin-bottom: 16px; font-size: 16px; }
+  @media (min-width: 768px) {
+    .adicionar h3 { margin-bottom: 20px; font-size: 18px; }
+  }
+  
+  .form-grid { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 10px; 
+    margin-bottom: 10px;
+  }
+  
+  @media (min-width: 640px) {
+    .form-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  }
+  
+  @media (min-width: 1024px) {
+    .form-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  
+  .adicionar input, .adicionar select {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    font-size: 12px;
+    color: white;
+    outline: none;
+    height: 40px;
+  }
+  
+  @media (min-width: 768px) {
+    .adicionar input, .adicionar select {
+      padding: 12px 16px;
+      font-size: 14px;
+      height: 44px;
+      border-radius: 12px;
+    }
+  }
+  
+  /* Filtros responsivos */
+  .filtros {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+  
+  @media (min-width: 768px) {
+    .filtros { gap: 12px; margin-bottom: 24px; justify-content: flex-start; }
+  }
+  
+  .filtro-btn {
+    padding: 6px 14px;
+    background: rgba(26,27,38,0.6);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 40px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 11px;
+    height: 34px;
+    white-space: nowrap;
+  }
+  
+  @media (min-width: 768px) {
+    .filtro-btn { padding: 8px 20px; font-size: 14px; height: 40px; }
+  }
+  
+  /* Estatísticas responsivas */
+  .estatisticas {
+    background: rgba(26,27,38,0.6);
+    backdrop-filter: blur(24px);
+    border-radius: 18px;
+    padding: 16px;
+    margin-top: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  
+  @media (min-width: 768px) {
+    .estatisticas { padding: 24px; border-radius: 24px; margin-top: 24px; }
+  }
+  
+  .estatisticas h3 { font-size: 16px; }
+  @media (min-width: 768px) {
+    .estatisticas h3 { font-size: 18px; }
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  @media (min-width: 640px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
+  }
+  
+  .stat-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 14px;
+    text-align: center;
+    transition: all 0.3s;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  @media (min-width: 768px) {
+    .stat-card { padding: 20px; border-radius: 20px; }
+  }
+  
+  .stat-card i { font-size: 24px; margin-bottom: 8px; }
+  @media (min-width: 768px) {
+    .stat-card i { font-size: 32px; margin-bottom: 12px; }
+  }
+  
+  .stat-numero { font-size: 28px; }
+  @media (min-width: 768px) {
+    .stat-numero { font-size: 36px; }
+  }
+  
+  .stat-label { font-size: 10px; }
+  @media (min-width: 768px) {
+    .stat-label { font-size: 12px; }
+  }
+  
+  .grafico-barras {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;
+    margin-top: 20px;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 14px;
+    overflow-x: auto;
+  }
+  
+  @media (min-width: 768px) {
+    .grafico-barras {
+      gap: 16px;
+      height: 160px;
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 16px;
+    }
+  }
+  
+  .barra {
+    flex: 1;
+    min-width: 30px;
+    background: linear-gradient(180deg, #667eea, #764ba2);
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    transition: height 0.3s;
+  }
+  
+  @media (min-width: 768px) {
+    .barra { min-width: 40px; border-radius: 12px 12px 0 0; }
+  }
+  
+  .barra-valor { 
+    position: absolute; 
+    top: -22px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    font-size: 10px; 
+    font-weight: 600; 
+    color: white;
+    white-space: nowrap;
+  }
+  
+  @media (min-width: 768px) {
+    .barra-valor { top: -24px; font-size: 12px; }
+  }
+  
+  .barra-label { 
+    position: absolute; 
+    bottom: -24px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    font-size: 9px; 
+    white-space: nowrap; 
+    color: rgba(255,255,255,0.7);
+  }
+  
+  @media (min-width: 768px) {
+    .barra-label { bottom: -28px; font-size: 11px; }
+  }
+  
+  /* Botões responsivos */
+  .btn-glass {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 40px;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.3);
+    height: 38px;
+    font-size: 12px;
+  }
+  
+  @media (min-width: 768px) {
+    .btn-glass {
+      padding: 10px 20px;
+      height: 44px;
+      font-size: 14px;
+    }
+  }
+  
+  .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.4); }
+  
+  /* Modal responsivo */
+  .modal-foco-conteudo {
+    background: rgba(26,27,38,0.95);
+    backdrop-filter: blur(24px);
+    padding: 24px;
+    border-radius: 24px;
+    max-width: 90%;
+    width: 400px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  @media (min-width: 768px) {
+    .modal-foco-conteudo { padding: 40px; border-radius: 32px; max-width: 600px; }
+  }
+  
+  .timer-foco-grande { font-size: 48px; }
+  @media (min-width: 768px) {
+    .timer-foco-grande { font-size: 64px; }
+  }
+  
+  .controles-foco { gap: 8px; }
+  @media (min-width: 768px) {
+    .controles-foco { gap: 12px; }
+  }
+  
+  /* Calendário responsivo */
+  .calendario-grade {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    overflow-x: auto;
+  }
+  
+  @media (min-width: 768px) {
+    .calendario-grade { gap: 8px; }
+  }
+  
+  .calendario-dia {
+    min-height: 70px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+    font-size: 11px;
+  }
+  
+  @media (min-width: 768px) {
+    .calendario-dia {
+      min-height: 100px;
+      border-radius: 12px;
+      padding: 8px;
+      font-size: 14px;
+    }
+  }
+  
+  /* Itens de tarefa responsivos */
+  .tarefa-item, .meta-item-dash {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    gap: 8px;
+  }
+  
+  @media (min-width: 768px) {
+    .tarefa-item, .meta-item-dash {
+      padding: 14px;
+      margin-bottom: 10px;
+      border-radius: 14px;
+      gap: 12px;
+    }
+  }
+  
+  .tarefa-texto { font-size: 12px; }
+  @media (min-width: 768px) {
+    .tarefa-texto { font-size: 14px; }
+  }
+  
+  .badge {
+    padding: 2px 8px;
+    font-size: 9px;
+  }
+  
+  @media (min-width: 768px) {
+    .badge { padding: 3px 10px; font-size: 10px; }
+  }
+  
+  /* Ajustes de touch para mobile */
+  button, .filtro-btn, .view-btn, .add-workspace-btn {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  
+  button:active, .filtro-btn:active, .view-btn:active {
+    transform: scale(0.96);
+  }
+  
+  /* Scroll suave */
+  .meta-lista, .tarefa-lista {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Inputs em mobile */
+  input, select, button {
+    font-size: 16px; /* Evita zoom automático no iOS */
+  }
+  
+  @media (min-width: 768px) {
+    input, select, button {
+      font-size: 14px;
+    }
+  }
+  
+  /* Password container */
   .password-container {
     position: relative;
     width: 100%;
     margin-bottom: 16px;
   }
+  
   .password-container input {
     width: 100%;
     padding: 14px 45px 14px 16px;
     margin-bottom: 0;
   }
+  
   .toggle-password {
     position: absolute;
     right: 14px;
@@ -161,219 +746,12 @@
     font-size: 18px;
     transition: color 0.3s;
   }
+  
   .toggle-password:hover {
     color: white;
   }
   
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .view-toggle { display: flex; gap: 12px; }
-  .view-btn {
-    padding: 10px 24px;
-    background: rgba(26, 27, 38, 0.6);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 40px;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-    font-size: 14px;
-  }
-  .view-btn i { margin-right: 8px; }
-  .view-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: rgba(255,255,255,0.2); }
-  .view-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.15); }
-  .busca-global {
-    background: rgba(26, 27, 38, 0.6);
-    backdrop-filter: blur(24px);
-    border-radius: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    width: auto;
-    min-width: 260px;
-    display: flex;
-    align-items: center;
-    height: 44px;
-  }
-  .busca-global i { color: rgba(255,255,255,0.6); margin-left: 16px; font-size: 14px; }
-  .busca-global input {
-    flex: 1;
-    padding: 10px 16px 10px 12px;
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 14px;
-    outline: none;
-    height: 100%;
-  }
-  .dashboard-metas h2 {
-    color: white;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  .metas-dashboard-grid, .blocos-tarefas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-  }
-  .meta-card, .bloco-tarefa {
-    background: rgba(26, 27, 38, 0.6);
-    backdrop-filter: blur(24px);
-    border-radius: 20px;
-    overflow: hidden;
-    transition: all 0.3s;
-    flex: 1;
-    min-width: 320px;
-    cursor: grab;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .meta-card:hover, .bloco-tarefa:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 48px rgba(102,126,234,0.15);
-    border-color: rgba(102,126,234,0.3);
-  }
-  .meta-card-header, .bloco-header {
-    padding: 20px 24px;
-    font-weight: 700;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-  .card-actions { display: flex; gap: 8px; align-items: center; }
-  .card-actions button {
-    background: rgba(255,255,255,0.15);
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    cursor: pointer;
-    color: white;
-    transition: all 0.2s;
-  }
-  .card-actions button:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-  .meta-progresso {
-    background: rgba(255,255,255,0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    color: white;
-  }
-  .meta-progresso-bar { height: 3px; background: rgba(255,255,255,0.1); }
-  .meta-progresso-fill { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); transition: width 0.3s; }
-  .meta-lista, .tarefa-lista { padding: 20px; max-height: 350px; overflow-y: auto; }
-  .meta-item-dash {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px;
-    margin-bottom: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 14px;
-    cursor: grab;
-    transition: all 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    color: white;
-  }
-  .meta-item-dash:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
-  .meta-item-dash.atingida { opacity: 0.5; text-decoration: line-through; }
-  .meta-item-dash input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
-  .meta-texto-dash { flex: 1; font-size: 14px; line-height: 1.4; color: white; word-break: break-word; }
-  .meta-data-limite { font-size: 11px; opacity: 0.7; margin-top: 4px; color: rgba(255,255,255,0.7); display: inline-flex; align-items: center; gap: 4px; }
-  .tarefa-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px;
-    margin-bottom: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 14px;
-    cursor: grab;
-    transition: all 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    color: white;
-  }
-  .tarefa-item:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
-  .tarefa-item.concluida { opacity: 0.5; text-decoration: line-through; }
-  .tarefa-item input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
-  .tarefa-conteudo { flex: 1; min-width: 0; }
-  .tarefa-texto { font-size: 14px; line-height: 1.4; color: white; word-break: break-word; margin-bottom: 6px; }
-  .tarefa-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-    white-space: nowrap;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-  }
-  .badge i { font-size: 9px; }
-  .badge.p1 { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
-  .badge.recorrente { background: rgba(102,126,234,0.2); color: #A5B4FC; border: 1px solid rgba(102,126,234,0.3); }
-  .badge.atrasada { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); animation: pulse 2s infinite; }
-  .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .item-actions button {
-    background: transparent;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    cursor: pointer;
-    color: rgba(255,255,255,0.6);
-    transition: all 0.2s;
-  }
-  .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; }
-  .meta-add-dash {
-    padding: 20px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .meta-add-dash input {
-    flex: 1;
-    min-width: 150px;
-    padding: 12px 16px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    font-size: 14px;
-    color: white;
-    outline: none;
-  }
-  .meta-add-dash input:focus { border-color: #667eea; background: rgba(255,255,255,0.12); }
-  .card-adicionar {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(24px);
-    border: 2px dashed rgba(255,255,255,0.2);
-    border-radius: 20px;
-    min-width: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .card-adicionar:hover { background: rgba(255,255,255,0.1); transform: scale(1.02); }
-  .card-adicionar-conteudo { text-align: center; padding: 40px 20px; color: white; }
-  .card-adicionar-conteudo i { font-size: 48px; margin-bottom: 12px; opacity: 0.9; color: white; }
-  
+  /* Botão workspace responsivo */
   .add-workspace-btn {
     display: inline-flex;
     align-items: center;
@@ -388,176 +766,32 @@
     transition: all 0.3s;
     margin-bottom: 16px;
   }
-  .add-workspace-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.02);
-  }
-  .add-workspace-btn i {
-    font-size: 12px;
+  
+  .card-adicionar-conteudo i { font-size: 32px; margin-bottom: 8px; }
+  @media (min-width: 768px) {
+    .card-adicionar-conteudo i { font-size: 48px; margin-bottom: 12px; }
   }
   
-  .btn-glass {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 40px;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-    box-shadow: 0 4px 16px rgba(102,126,234,0.3);
-    height: 44px;
-    font-size: 14px;
+  .card-adicionar-conteudo p { font-size: 12px; }
+  @media (min-width: 768px) {
+    .card-adicionar-conteudo p { font-size: 14px; }
   }
-  .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.4); }
-  .adicionar {
-    background: rgba(26, 27, 38, 0.6);
-    backdrop-filter: blur(24px);
-    border-radius: 24px;
-    padding: 24px;
-    margin-bottom: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+  
+  .empty-state i { font-size: 36px; margin-bottom: 8px; }
+  @media (min-width: 768px) {
+    .empty-state i { font-size: 48px; margin-bottom: 12px; }
   }
-  .adicionar h3 { color: white; margin-bottom: 20px; }
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px; }
-  .adicionar input, .adicionar select {
-    padding: 12px 16px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    font-size: 14px;
-    color: white;
-    outline: none;
-    height: 44px;
+  
+  .empty-state p { font-size: 12px; }
+  @media (min-width: 768px) {
+    .empty-state p { font-size: 14px; }
   }
-  .adicionar input:focus, .adicionar select:focus { border-color: #667eea; background: rgba(255,255,255,0.12); }
-  .adicionar option { background: #1a1b26; color: white; }
-  .filtros { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
-  .filtro-btn {
-    padding: 8px 20px;
-    background: rgba(26,27,38,0.6);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 40px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 14px;
-    height: 40px;
+  
+  .empty-state small { font-size: 10px; }
+  @media (min-width: 768px) {
+    .empty-state small { font-size: 12px; }
   }
-  .filtro-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: rgba(255,255,255,0.2); }
-  .filtro-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.15); }
-  .estatisticas {
-    background: rgba(26,27,38,0.6);
-    backdrop-filter: blur(24px);
-    border-radius: 24px;
-    padding: 24px;
-    margin-top: 24px;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
-  .stat-card {
-    background: rgba(255,255,255,0.05);
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    transition: all 0.3s;
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-  .stat-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.08); }
-  .stat-card i { font-size: 32px; margin-bottom: 12px; color: #667eea; }
-  .stat-numero {
-    font-size: 36px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .stat-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.8;
-    margin-top: 6px;
-    color: rgba(255,255,255,0.8);
-  }
-  .grafico-barras {
-    display: flex;
-    align-items: flex-end;
-    gap: 16px;
-    height: 160px;
-    margin-top: 24px;
-    padding: 16px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 16px;
-  }
-  .barra {
-    flex: 1;
-    background: linear-gradient(180deg, #667eea, #764ba2);
-    border-radius: 12px 12px 0 0;
-    position: relative;
-    transition: height 0.3s;
-    min-width: 40px;
-  }
-  .barra-valor { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 600; color: white; }
-  .barra-label { position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); font-size: 11px; white-space: nowrap; color: rgba(255,255,255,0.7); }
-  .backup-acoes { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
-  .empty-state { text-align: center; padding: 40px 20px; opacity: 0.6; color: white; }
-  .empty-state i { font-size: 48px; margin-bottom: 12px; }
-
-  .foco-ativo .notificacao-silenciada { display: none; }
-  .foco-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    pointer-events: none;
-    z-index: 999;
-    border: 3px solid rgba(102,126,234,0.5);
-    box-shadow: inset 0 0 50px rgba(102,126,234,0.2);
-  }
-  .modal-foco-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-foco-overlay.show { display: flex; }
-  .modal-foco-conteudo {
-    background: rgba(26,27,38,0.95);
-    backdrop-filter: blur(24px);
-    padding: 40px;
-    border-radius: 32px;
-    max-width: 600px;
-    width: 90%;
-    text-align: center;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .progresso-foco { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 20px 0; overflow: hidden; }
-  .progresso-foco-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); width: 0%; transition: width 0.3s; }
-  .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  .calendario-dia-semana { text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 12px; color: white; }
-  .calendario-dia { min-height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; cursor: pointer; transition: all 0.2s; color: white; }
-  .calendario-dia.hoje { border: 1px solid #667eea; }
-  @media (max-width: 768px) {
-    body { padding: 16px; }
-    .user-info { position: static; justify-content: center; margin-top: 16px; }
-    .logo-titulo { font-size: 24px; }
-    .top-bar { flex-direction: column; align-items: stretch; }
-    .view-toggle { justify-content: center; }
-    .busca-global { width: 100%; }
-    .form-grid { grid-template-columns: 1fr 1fr; }
-    .meta-card, .bloco-tarefa { min-width: 100%; }
-  }
+  
   [data-theme="dark"] body { background: linear-gradient(135deg, #1a1b2e, #2d1b3e); }
 </style>
 </head>
@@ -633,8 +867,10 @@
     <div class="dashboard-metas">
       <h2>
         <span><i class="fas fa-trophy"></i> MINHAS METAS</span>
-        <div style="display: flex; gap: 12px;"><button class="btn-glass" onclick="abrirModalNovaMeta()"><i class="fas fa-plus"></i> Nova Meta</button>
-        <button class="btn-glass" onclick="limparMetasConcluidas()"><i class="fas fa-trash-alt"></i> Limpar Concluídas</button></div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn-glass" onclick="abrirModalNovaMeta()"><i class="fas fa-plus"></i> Nova Meta</button>
+          <button class="btn-glass" onclick="limparMetasConcluidas()"><i class="fas fa-trash-alt"></i> Limpar</button>
+        </div>
       </h2>
       <div class="metas-dashboard-grid" id="dashboardMetasGrid"></div>
     </div>
@@ -647,7 +883,7 @@
         <input type="time" id="nova-hora">
       </div>
       <div class="form-grid">
-        <select id="nova-prioridade"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select>
+        <select id="nova-prioridade"><option value="p3">🟢 Baixa</option><option value="p2">🟡 Média</option><option value="p1">🔴 Alta</option></select>
         <select id="nova-recorrencia"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select>
         <button class="btn-glass" onclick="adicionarTarefa()" style="grid-column: -1;"><i class="fas fa-save"></i> Adicionar</button>
       </div>
@@ -660,16 +896,16 @@
     </div>
     <div style="display: flex; justify-content: flex-end;">
       <button class="add-workspace-btn" onclick="adicionarCardTarefa()">
-        <i class="fas fa-plus-circle"></i> Novo Espaço de Trabalho
+        <i class="fas fa-plus-circle"></i> Novo Espaço
       </button>
     </div>
     <div class="blocos-tarefas" id="blocosTarefas"></div>
   </div>
   <div id="calendarioView" style="display: none;">
     <div class="adicionar">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
         <button class="btn-glass" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button>
-        <span class="calendario-mes" id="calendarioMes" style="font-size: 24px; font-weight: bold; color: white;">Janeiro 2024</span>
+        <span class="calendario-mes" id="calendarioMes" style="font-size: 18px; font-weight: bold; color: white;">Janeiro 2024</span>
         <button class="btn-glass" onclick="mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button>
       </div>
       <div class="calendario-grade" id="calendarioGrade"></div>
@@ -679,7 +915,7 @@
     <h3><i class="fas fa-chart-line"></i> Estatísticas</h3>
     <div class="stats-grid" id="statsGrid"></div>
     <div class="grafico-barras" id="graficoBarras"></div>
-    <div class="backup-acoes">
+    <div class="backup-acoes" style="display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap;">
       <button class="btn-glass" onclick="exportarBackup()"><i class="fas fa-download"></i> Exportar</button>
       <input type="file" id="inputImportar" style="display:none" accept=".json" onchange="importarBackup(event)">
       <button class="btn-glass" onclick="document.getElementById('inputImportar').click()"><i class="fas fa-upload"></i> Importar</button>
@@ -689,25 +925,22 @@
 
 <div class="modal-foco-overlay" id="modalFocoOverlay">
   <div class="modal-foco-conteudo">
-    <i class="fas fa-brain" style="font-size: 48px; color: #667eea;"></i>
+    <i class="fas fa-brain" style="font-size: 36px; color: #667eea;"></i>
     <h2>🎯 Modo Foco</h2>
-    <div class="tarefa-foco-grande" id="tarefaFocoTexto" style="font-size: 24px; margin: 20px 0; font-weight: bold; color: white;">Nenhuma tarefa</div>
+    <div class="tarefa-foco-grande" id="tarefaFocoTexto" style="font-size: 18px; margin: 16px 0; font-weight: bold; color: white;">Nenhuma tarefa</div>
     <div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div>
-    <div class="timer-foco-grande" id="timerFocoGrande" style="font-size: 64px; font-weight: bold; margin: 20px 0; color: #667eea;">25:00</div>
-    <div class="controles-foco" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+    <div class="timer-foco-grande" id="timerFocoGrande" style="font-size: 48px; font-weight: bold; margin: 16px 0; color: #667eea;">25:00</div>
+    <div class="controles-foco" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
       <button class="btn-glass" onclick="iniciarPomodoroFocoMelhorado()" id="btnIniciarFoco"><i class="fas fa-play"></i> Iniciar</button>
       <button class="btn-glass" onclick="pausarPomodoroFoco()" id="btnPausarFoco" style="display:none"><i class="fas fa-pause"></i> Pausar</button>
       <button class="btn-glass" onclick="resetarPomodoroFoco()"><i class="fas fa-redo-alt"></i> Resetar</button>
       <button class="btn-glass" onclick="concluirTarefaFoco()" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-check"></i> Concluir</button>
     </div>
-    <div class="musica-controle" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-      <button class="btn-musica" onclick="toggleMusica()" id="btnMusica" style="background: #17a2b8; color: white; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;"><i class="fas fa-music"></i> Música LoFi</button>
-      <div style="margin-top: 10px;"><input type="range" id="volumeControle" min="0" max="100" value="30" onchange="ajustarVolume(this.value)" style="width: 150px;"><span style="font-size:12px; margin-left:8px;">Volume</span></div>
+    <div class="musica-controle" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+      <button class="btn-musica" onclick="toggleMusica()" id="btnMusica" style="background: #17a2b8; color: white; padding: 8px 16px; border: none; border-radius: 20px; cursor: pointer; font-size: 12px;"><i class="fas fa-music"></i> Música LoFi</button>
+      <div style="margin-top: 8px;"><input type="range" id="volumeControle" min="0" max="100" value="30" onchange="ajustarVolume(this.value)" style="width: 120px;"><span style="font-size:11px; margin-left:8px;">Volume</span></div>
     </div>
-    <div class="dica-foco" style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
-      <i class="fas fa-bell-slash"></i> Notificações silenciadas durante o foco
-    </div>
-    <button class="btn-glass" onclick="fecharModoFocoMelhorado()" style="margin-top: 20px; background: rgba(255,255,255,0.1);"><i class="fas fa-times"></i> Sair</button>
+    <button class="btn-glass" onclick="fecharModoFocoMelhorado()" style="margin-top: 16px; background: rgba(255,255,255,0.1);"><i class="fas fa-times"></i> Sair</button>
   </div>
 </div>
 
@@ -781,7 +1014,6 @@
         if (dados.cardsMetas && dados.cardsMetas.length > 0) localStorage.setItem('cardsMetas', JSON.stringify(dados.cardsMetas));
         if (dados.cardsTarefas && dados.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(dados.cardsTarefas));
         
-        // Recarregar a página para atualizar os dados
         if (window.recarregarSistema) window.recarregarSistema();
       }
     } catch (err) { console.error(err); }
@@ -849,7 +1081,6 @@
     window.cardsMetas = JSON.parse(localStorage.getItem('cardsMetas') || '[]');
     window.cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas') || '[]');
     
-    // Garantir que tenha pelo menos um card
     if(window.cardsTarefas.length === 0) {
       window.cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
       localStorage.setItem('cardsTarefas', JSON.stringify(window.cardsTarefas));
@@ -897,9 +1128,6 @@
       window.cardsTarefas.push(novoCard);
       salvarCardsTarefas();
       alert(`✅ Espaço "${nome}" criado com sucesso!`);
-      console.log('Cards após adicionar:', window.cardsTarefas);
-    } else {
-      alert('Por favor, digite um nome para o espaço de trabalho!');
     }
   }
   
@@ -928,6 +1156,28 @@
     });
   }
   
+  let filtroAtual = 'hoje';
+  
+  function filtrarTarefas(lista) {
+    const termo = document.getElementById('buscaGlobal')?.value.toLowerCase() || '';
+    let filtradas = lista;
+    if(termo) filtradas = filtradas.filter(t => t.texto.toLowerCase().includes(termo));
+    
+    if(filtroAtual === 'hoje') {
+      const hoje = new Date().toISOString().split('T')[0];
+      return filtradas.filter(t => t.data <= hoje && !t.concluida);
+    }
+    if(filtroAtual === 'concluidas') return filtradas.filter(t => t.concluida);
+    return filtradas.filter(t => !t.concluida);
+  }
+  
+  function escapeHtml(text) {
+    if(!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
   function renderizarTarefas() {
     const container = document.getElementById('blocosTarefas');
     if(!container) return;
@@ -942,7 +1192,7 @@
           <div class="empty-state">
             <i class="fas fa-folder-open"></i>
             <p>Nenhum espaço de trabalho</p>
-            <small>Clique em "Novo Espaço de Trabalho" para começar</small>
+            <small>Clique em "Novo Espaço" para começar</small>
           </div>
         </div>
       `;
@@ -965,14 +1215,13 @@
             <button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>
-        <div class="tarefa-lista" id="tarefa-lista-${card.id}">
+        <div class="tarefa-lista">
           ${renderizarListaTarefas(tarefasFiltradas, hoje)}
         </div>
       `;
       container.appendChild(div);
     });
     
-    // Botão para adicionar novo espaço
     const addCard = document.createElement('div');
     addCard.className = 'bloco-tarefa card-adicionar';
     addCard.onclick = () => adicionarCardTarefa();
@@ -987,7 +1236,7 @@
   
   function renderizarListaTarefas(tarefasList, hoje) {
     if(tarefasList.length === 0) {
-      return `<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa para começar</small></div>`;
+      return `<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa</small></div>`;
     }
     
     let html = '';
@@ -1016,19 +1265,6 @@
     return html;
   }
   
-  function filtrarTarefas(lista) {
-    const termo = document.getElementById('buscaGlobal')?.value.toLowerCase() || '';
-    let filtradas = lista;
-    if(termo) filtradas = filtradas.filter(t => t.texto.toLowerCase().includes(termo));
-    
-    if(filtroAtual === 'hoje') {
-      const hoje = new Date().toISOString().split('T')[0];
-      return filtradas.filter(t => t.data <= hoje && !t.concluida);
-    }
-    if(filtroAtual === 'concluidas') return filtradas.filter(t => t.concluida);
-    return filtradas.filter(t => !t.concluida);
-  }
-  
   function renderizarDashboardMetas() {
     const container = document.getElementById('dashboardMetasGrid');
     if(!container) return;
@@ -1054,7 +1290,7 @@
           </div>
         </div>
         <div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width:${percentual}%"></div></div>
-        <div class="meta-lista" id="meta-lista-${card.id}">
+        <div class="meta-lista">
           ${renderizarListaMetas(metasDoCard)}
         </div>
         <div class="meta-add-dash">
@@ -1075,7 +1311,7 @@
   
   function renderizarListaMetas(metasList) {
     if(metasList.length === 0) {
-      return `<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia por aqui</p><small>Adicione uma meta para começar</small></div>`;
+      return `<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia</p><small>Adicione uma meta</small></div>`;
     }
     
     let html = '';
@@ -1108,22 +1344,30 @@
     const statsGrid = document.getElementById('statsGrid');
     if(statsGrid) {
       statsGrid.innerHTML = `
-        <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Tarefas Concluídas</div></div>
-        <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${tt ? Math.round(concluidas / tt * 100) : 0}%</div><div class="stat-label">Taxa de Conclusão</div></div>
-        <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${window.metas.length}</div><div class="stat-label">Metas Atingidas</div></div>
-        <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${min}m</div><div class="stat-label">Tempo Focado</div></div>
+        <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Concluídas</div></div>
+        <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${tt ? Math.round(concluidas / tt * 100) : 0}%</div><div class="stat-label">Taxa</div></div>
+        <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${window.metas.length}</div><div class="stat-label">Metas</div></div>
+        <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${min}m</div><div class="stat-label">Foco</div></div>
       `;
+    }
+    
+    const grafico = document.getElementById('graficoBarras');
+    if(grafico && window.cardsTarefas.length > 0) {
+      grafico.innerHTML = '';
+      const max = Math.max(...window.cardsTarefas.map(c => window.tarefas.filter(t => t.bloco === c.nome && t.concluida).length), 1);
+      window.cardsTarefas.slice(0, 6).forEach(card => {
+        const cCard = window.tarefas.filter(t => t.bloco === card.nome && t.concluida).length;
+        const altura = Math.max((cCard / max) * 100, 5);
+        const barra = document.createElement('div');
+        barra.className = 'barra';
+        barra.style.height = altura + '%';
+        barra.innerHTML = `<div class="barra-valor">${cCard}</div><div class="barra-label">${card.nome.substring(0, 3)}</div>`;
+        grafico.appendChild(barra);
+      });
     }
   }
   
-  // Funções auxiliares
-  function escapeHtml(text) {
-    if(!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  
+  // Funções de ação
   function toggleTarefa(id) {
     const tarefa = window.tarefas.find(t => t.id === id);
     if(tarefa) {
@@ -1220,7 +1464,6 @@
     if(!card) return;
     const novoNome = prompt('Editar nome do espaço:', card.nome);
     if(novoNome && novoNome.trim()) {
-      // Atualizar nome em todas as tarefas
       window.tarefas.forEach(t => {
         if(t.bloco === card.nome) t.bloco = novoNome.trim();
       });
@@ -1233,7 +1476,7 @@
   function excluirCardTarefa(id) {
     const card = window.cardsTarefas.find(c => c.id === id);
     if(!card) return;
-    if(confirm(`Excluir "${card.nome}"? As tarefas serão movidas para "Pessoal".`)) {
+    if(confirm(`Excluir "${card.nome}"?`)) {
       const pessoal = window.cardsTarefas.find(c => c.nome === 'Pessoal') || window.cardsTarefas[0];
       window.tarefas.forEach(t => {
         if(t.bloco === card.nome) t.bloco = pessoal.nome;
@@ -1261,7 +1504,7 @@
   function excluirCardMeta(id) {
     const card = window.cardsMetas.find(c => c.id === id);
     if(!card) return;
-    if(confirm(`Excluir "${card.nome}"? As metas serão movidas para "Pessoal".`)) {
+    if(confirm(`Excluir "${card.nome}"?`)) {
       const pessoal = window.cardsMetas.find(c => c.nome === 'Pessoal') || window.cardsMetas[0];
       window.metas.forEach(m => {
         if(m.categoria === card.nome) m.categoria = pessoal.nome;
@@ -1298,11 +1541,6 @@
     }
   }
   
-  function abrirModoFocoComTarefa(id) {
-    alert('Modo foco em desenvolvimento...');
-  }
-  
-  let filtroAtual = 'hoje';
   function setFiltro(filtro, btn) {
     filtroAtual = filtro;
     document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
@@ -1330,11 +1568,66 @@
       calendarioView.style.display = 'block';
       btns[0].classList.remove('active');
       btns[1].classList.add('active');
+      renderizarCalendario();
+    }
+  }
+  
+  let dataAtualCalendario = new Date();
+  
+  function renderizarCalendario() {
+    const ano = dataAtualCalendario.getFullYear();
+    const mes = dataAtualCalendario.getMonth();
+    const primeiroDia = new Date(ano, mes, 1);
+    const ultimoDia = new Date(ano, mes + 1, 0);
+    const diasNoMes = ultimoDia.getDate();
+    const diaInicio = primeiroDia.getDay();
+    
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`;
+    
+    const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    let html = '';
+    diasSemana.forEach(d => {
+      html += `<div class="calendario-dia-semana">${d}</div>`;
+    });
+    
+    let dia = 1;
+    const hoje = new Date().toISOString().split('T')[0];
+    
+    for(let i = 0; i < 42; i++) {
+      if(i < diaInicio || dia > diasNoMes) {
+        html += `<div class="calendario-dia vazio"></div>`;
+      } else {
+        const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const tarefasDia = window.tarefas.filter(t => t.data === dataStr && !t.concluida);
+        const isHoje = dataStr === hoje;
+        html += `
+          <div class="calendario-dia ${isHoje ? 'hoje' : ''}" onclick="selecionarDataCalendario('${dataStr}')">
+            <div style="font-weight:bold;margin-bottom:5px;">${dia}</div>
+            <div style="font-size:10px;max-height:60px;overflow-y:auto;">
+              ${tarefasDia.slice(0, 3).map(t => `<div style="padding:2px 4px;background:rgba(102,126,234,0.2);border-radius:4px;margin:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(t.texto.substring(0, 15))}${t.texto.length > 15 ? '...' : ''}</div>`).join('')}
+              ${tarefasDia.length > 3 ? `<div style="font-size:9px;opacity:0.7;">+${tarefasDia.length - 3} mais</div>` : ''}
+            </div>
+          </div>
+        `;
+        dia++;
+      }
+    }
+    document.getElementById('calendarioGrade').innerHTML = html;
+  }
+  
+  function selecionarDataCalendario(data) {
+    const tarefasDia = window.tarefas.filter(t => t.data === data && !t.concluida);
+    if(tarefasDia.length) {
+      alert(`📅 ${data}\n\n${tarefasDia.map((t, i) => `${i + 1}. ${t.texto}`).join('\n')}`);
+    } else {
+      alert(`📅 ${data}\nNenhuma tarefa pendente.`);
     }
   }
   
   function mudarMes(delta) {
-    // Implementação do calendário
+    dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + delta);
+    renderizarCalendario();
   }
   
   function exportarBackup() {
@@ -1389,12 +1682,25 @@
     });
   }
   
+  function abrirModoFocoComTarefa(id) {
+    alert('🎯 Modo foco em desenvolvimento!\nEm breve você poderá focar em cada tarefa.');
+  }
+  
+  function iniciarPomodoroFocoMelhorado() {}
+  function pausarPomodoroFoco() {}
+  function resetarPomodoroFoco() {}
+  function concluirTarefaFoco() {}
+  function fecharModoFocoMelhorado() {}
+  function toggleMusica() {}
+  function ajustarVolume(valor) {}
+  
   window.recarregarSistema = function() {
     carregarDados();
     atualizarSelectCategorias();
     renderizarDashboardMetas();
     renderizarTarefas();
     renderizarEstatisticas();
+    renderizarCalendario();
   };
   
   // Inicialização
@@ -1403,9 +1709,10 @@
   renderizarDashboardMetas();
   renderizarTarefas();
   renderizarEstatisticas();
+  renderizarCalendario();
   atualizarDataHoje();
   
-  console.log('🚀 App inicializado com cards:', window.cardsTarefas);
+  console.log('🚀 App FLUXO inicializado - Layout responsivo ativado!');
 </script>
 </body>
 </html>
