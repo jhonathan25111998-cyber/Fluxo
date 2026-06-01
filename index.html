@@ -32,15 +32,15 @@
   }
   
   body.dark-theme .header,
-  body.dark-theme .meta-card,
   body.dark-theme .bloco-tarefa,
   body.dark-theme .adicionar,
-  body.dark-theme .estatisticas {
+  body.dark-theme .estatisticas,
+  body.dark-theme .metas-dashboard {
     background: rgba(10, 10, 20, 0.8);
   }
   
   body.dark-theme .tarefa-item,
-  body.dark-theme .meta-item-dash {
+  body.dark-theme .meta-item {
     background: rgba(255, 255, 255, 0.03);
   }
   
@@ -435,27 +435,251 @@
     .busca-global input { padding: 10px 16px 10px 12px; font-size: 14px; }
   }
   
-  .metas-dashboard-grid, .blocos-tarefas {
+  /* ========== NOVA SEÇÃO DE METAS ========== */
+  .metas-dashboard {
+    background: rgba(26, 27, 38, 0.6);
+    backdrop-filter: blur(24px);
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .metas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .metas-header h2 {
+    color: white;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .metas-header h2 i {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .metas-stats {
+    display: flex;
+    gap: 20px;
+    background: rgba(255,255,255,0.05);
+    padding: 12px 20px;
+    border-radius: 40px;
+  }
+  
+  .metas-stats span {
+    color: white;
+    font-size: 14px;
+  }
+  
+  .metas-stats strong {
+    color: #fbbf24;
+    font-size: 18px;
+  }
+  
+  .metas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .meta-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .meta-item:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(251, 191, 36, 0.3);
+  }
+  
+  .meta-item.atingida {
+    opacity: 0.6;
+  }
+  
+  .meta-item.atingida .meta-checkbox {
+    background: #10b981;
+    border-color: #10b981;
+  }
+  
+  .meta-item.atingida .meta-checkbox i {
+    display: block;
+  }
+  
+  .meta-checkbox {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(251, 191, 36, 0.5);
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  
+  .meta-checkbox i {
+    font-size: 14px;
+    color: white;
+    display: none;
+  }
+  
+  .meta-checkbox:hover {
+    border-color: #fbbf24;
+    transform: scale(1.05);
+  }
+  
+  .meta-content {
+    flex: 1;
+  }
+  
+  .meta-texto {
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  
+  .meta-categoria {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(251, 191, 36, 0.15);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: #fbbf24;
+    margin-top: 8px;
+  }
+  
+  .meta-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  
+  .meta-actions button {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.6);
+    transition: all 0.2s;
+  }
+  
+  .meta-actions button:hover {
+    background: rgba(255,255,255,0.2);
+    color: white;
+  }
+  
+  .add-meta-form {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .add-meta-form input {
+    flex: 2;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+  }
+  
+  .add-meta-form select {
+    flex: 1;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+  }
+  
+  .add-meta-form input:focus, .add-meta-form select:focus {
+    border-color: #fbbf24;
+    background: rgba(255,255,255,0.12);
+  }
+  
+  .add-meta-form button {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border: none;
+    border-radius: 12px;
+    color: #1a1a2e;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .add-meta-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(251,191,36,0.4);
+  }
+  
+  .empty-metas {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255,255,255,0.6);
+  }
+  
+  .empty-metas i {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  /* ========== TAREFAS (CARDS) ========== */
+  .blocos-tarefas {
     display: grid;
     grid-template-columns: 1fr;
     gap: 16px;
   }
   
   @media (min-width: 640px) {
-    .metas-dashboard-grid, .blocos-tarefas {
+    .blocos-tarefas {
       grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: 20px;
     }
   }
   
   @media (min-width: 1200px) {
-    .metas-dashboard-grid, .blocos-tarefas {
+    .blocos-tarefas {
       grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
       gap: 24px;
     }
   }
   
-  .meta-card, .bloco-tarefa {
+  .bloco-tarefa {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
     border-radius: 18px;
@@ -465,10 +689,10 @@
   }
   
   @media (min-width: 768px) {
-    .meta-card, .bloco-tarefa { border-radius: 20px; }
+    .bloco-tarefa { border-radius: 20px; }
   }
   
-  .meta-card-header, .bloco-header {
+  .bloco-header {
     padding: 14px 18px;
     font-weight: 700;
     color: white;
@@ -482,7 +706,7 @@
   }
   
   @media (min-width: 768px) {
-    .meta-card-header, .bloco-header { padding: 20px 24px; font-size: 16px; }
+    .bloco-header { padding: 20px 24px; font-size: 16px; }
   }
   
   .card-actions { display: flex; gap: 8px; align-items: center; }
@@ -498,31 +722,15 @@
   }
   .card-actions button:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
   
-  .meta-progresso {
-    background: rgba(255,255,255,0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    color: white;
-  }
-  
-  .meta-progresso-bar { height: 3px; background: rgba(255,255,255,0.1); }
-  .meta-progresso-fill { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); transition: width 0.3s; }
-  
-  .meta-lista, .tarefa-lista { 
+  .tarefa-lista { 
     padding: 14px; 
     max-height: 400px; 
     overflow-y: auto;
-    min-height: 100px;
+    min-height: 120px;
   }
   
   @media (min-width: 768px) {
-    .meta-lista, .tarefa-lista { padding: 20px; }
-  }
-  
-  .bloco-tarefa .tarefa-lista {
-    min-height: 120px;
+    .tarefa-lista { padding: 20px; }
   }
   
   .sort-controls {
@@ -678,7 +886,7 @@
     .estatisticas { padding: 24px; border-radius: 24px; margin-top: 24px; }
   }
   
-  .estatisticas h3 { font-size: 16px; }
+  .estatisticas h3 { font-size: 16px; color: white; margin-bottom: 16px; }
   @media (min-width: 768px) {
     .estatisticas h3 { font-size: 18px; }
   }
@@ -691,7 +899,7 @@
   }
   
   @media (min-width: 640px) {
-    .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
+    .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
   }
   
   .stat-card {
@@ -908,30 +1116,9 @@
     background: rgba(102, 126, 234, 0.1);
   }
   
-  .meta-item-dash {
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    transition: all 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: flex-start;
-  }
-  
-  @media (min-width: 768px) {
-    .tarefa-item, .meta-item-dash {
-      padding: 14px;
-      margin-bottom: 10px;
-      border-radius: 14px;
-      gap: 12px;
-    }
-  }
-  
-  .tarefa-item:hover, .meta-item-dash:hover { background: rgba(255,255,255,0.08); }
-  .tarefa-item.concluida, .meta-item-dash.atingida { opacity: 0.5; text-decoration: line-through; }
-  .tarefa-item input, .meta-item-dash input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
+  .tarefa-item:hover { background: rgba(255,255,255,0.08); }
+  .tarefa-item.concluida { opacity: 0.5; text-decoration: line-through; }
+  .tarefa-item input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
   
   .tarefa-conteudo { flex: 1; min-width: 0; }
   .tarefa-texto { font-size: 12px; line-height: 1.4; color: white; word-break: break-word; margin-bottom: 6px; }
@@ -976,44 +1163,6 @@
   }
   .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; }
   
-  .meta-add-dash {
-    padding: 20px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .meta-add-dash input {
-    flex: 1;
-    min-width: 150px;
-    padding: 12px 16px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    font-size: 14px;
-    color: white;
-    outline: none;
-  }
-  .meta-add-dash input:focus { border-color: #667eea; background: rgba(255,255,255,0.12); }
-  
-  .dashboard-metas h2 {
-    color: white;
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    font-size: 18px;
-  }
-  
-  @media (min-width: 768px) {
-    .dashboard-metas h2 { margin-bottom: 20px; font-size: 24px; gap: 16px; }
-  }
-  
-  .meta-texto-dash { flex: 1; font-size: 14px; line-height: 1.4; color: white; word-break: break-word; }
-  .meta-data-limite { font-size: 11px; opacity: 0.7; margin-top: 4px; color: rgba(255,255,255,0.7); display: inline-flex; align-items: center; gap: 4px; }
-  
   .calendario-grade {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -1056,7 +1205,7 @@
     .calendario-mes { font-size: 24px !important; }
   }
   
-  .modal-reagendar-overlay {
+  .modal-reagendar-overlay, .modal-editar-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -1070,11 +1219,11 @@
     justify-content: center;
   }
   
-  .modal-reagendar-overlay.show {
+  .modal-reagendar-overlay.show, .modal-editar-overlay.show {
     display: flex;
   }
   
-  .modal-reagendar-conteudo {
+  .modal-reagendar-conteudo, .modal-editar-conteudo {
     background: rgba(26, 27, 38, 0.95);
     backdrop-filter: blur(24px);
     border-radius: 24px;
@@ -1086,91 +1235,20 @@
   }
   
   @media (min-width: 768px) {
-    .modal-reagendar-conteudo {
+    .modal-reagendar-conteudo, .modal-editar-conteudo {
       padding: 30px;
       border-radius: 32px;
       width: 450px;
     }
   }
   
-  .modal-reagendar-conteudo h3 {
+  .modal-reagendar-conteudo h3, .modal-editar-conteudo h3 {
     color: white;
     margin-bottom: 20px;
     font-size: 18px;
   }
   
-  .modal-reagendar-conteudo input {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: white;
-    font-size: 14px;
-    outline: none;
-    margin-bottom: 20px;
-  }
-  
-  .modal-reagendar-conteudo input:focus {
-    border-color: #667eea;
-    background: rgba(255, 255, 255, 0.12);
-  }
-  
-  .modal-botoes {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-  }
-  
-  .modal-botoes button {
-    flex: 1;
-  }
-  
-  /* Modal de Edição Completa */
-  .modal-editar-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(20px);
-    z-index: 4000;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .modal-editar-overlay.show {
-    display: flex;
-  }
-  
-  .modal-editar-conteudo {
-    background: rgba(26, 27, 38, 0.95);
-    backdrop-filter: blur(24px);
-    border-radius: 24px;
-    padding: 20px;
-    max-width: 90%;
-    width: 500px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  @media (min-width: 768px) {
-    .modal-editar-conteudo {
-      padding: 30px;
-      border-radius: 32px;
-      width: 550px;
-    }
-  }
-  
-  .modal-editar-conteudo h3 {
-    color: white;
-    margin-bottom: 20px;
-    font-size: 18px;
-  }
-  
-  .modal-editar-conteudo input, 
+  .modal-reagendar-conteudo input, .modal-editar-conteudo input,
   .modal-editar-conteudo select {
     width: 100%;
     padding: 12px 16px;
@@ -1183,22 +1261,14 @@
     outline: none;
   }
   
-  .modal-editar-conteudo input:focus, 
-  .modal-editar-conteudo select:focus {
-    border-color: #667eea;
-    background: rgba(255, 255, 255, 0.12);
+  .modal-botoes {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
   }
   
-  .modal-editar-conteudo .form-group {
-    margin-bottom: 12px;
-    text-align: left;
-  }
-  
-  .modal-editar-conteudo .form-group label {
-    color: rgba(255,255,255,0.7);
-    font-size: 12px;
-    margin-bottom: 4px;
-    display: block;
+  .modal-botoes button {
+    flex: 1;
   }
   
   .modal-foco-overlay {
@@ -1277,7 +1347,7 @@
     transform: scale(0.96);
   }
   
-  .meta-lista, .tarefa-lista {
+  .tarefa-lista, .meta-lista {
     -webkit-overflow-scrolling: touch;
   }
   
@@ -1290,8 +1360,6 @@
       font-size: 14px;
     }
   }
-  
-  [data-theme="dark"] body { background: linear-gradient(135deg, #1a1b2e, #2d1b3e); }
 </style>
 </head>
 <body>
@@ -1360,6 +1428,7 @@
     </div>
     <div class="data-hoje" id="dataHoje"></div>
   </div>
+  
   <div class="top-bar">
     <div class="view-toggle">
       <button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
@@ -1367,21 +1436,38 @@
     </div>
     <div class="busca-global">
       <i class="fas fa-search"></i>
-      <input type="text" id="buscaGlobal" placeholder="Buscar metas e tarefas..." oninput="buscarGlobal()">
+      <input type="text" id="buscaGlobal" placeholder="Buscar tarefas..." oninput="buscarGlobal()">
     </div>
   </div>
+  
   <div id="cardsView">
-    <div class="dashboard-metas">
-      <h2>
-        <span><i class="fas fa-trophy"></i> MINHAS METAS</span>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn-glass" onclick="abrirModalNovaMeta()"><i class="fas fa-plus"></i> Nova Meta</button>
-          <button class="btn-glass" onclick="limparMetasConcluidas()"><i class="fas fa-trash-alt"></i> Limpar</button>
+    <!-- NOVA SEÇÃO DE METAS - DASHBOARD ÚNICA -->
+    <div class="metas-dashboard" id="metasDashboard">
+      <div class="metas-header">
+        <h2><i class="fas fa-trophy"></i> Minhas Metas</h2>
+        <div class="metas-stats" id="metasStats">
+          <span>🎯 <strong id="totalMetas">0</strong> total</span>
+          <span>✅ <strong id="concluidasMetas">0</strong> concluídas</span>
+          <span>📈 <strong id="progressoMetas">0</strong>%</span>
         </div>
-      </h2>
-      <div class="metas-dashboard-grid" id="dashboardMetasGrid"></div>
+      </div>
+      <div class="metas-grid" id="metasGrid"></div>
+      <div class="add-meta-form">
+        <input type="text" id="novaMetaTexto" placeholder="Nova meta... (ex: Fazer academia 5x na semana)">
+        <select id="novaMetaCategoria">
+          <option value="Saúde">💪 Saúde</option>
+          <option value="Desenvolvimento">📚 Desenvolvimento</option>
+          <option value="Financeiro">💰 Financeiro</option>
+          <option value="Espiritual">🙏 Espiritual</option>
+          <option value="Relacionamentos">💕 Relacionamentos</option>
+          <option value="Carreira">💼 Carreira</option>
+          <option value="Outros">✨ Outros</option>
+        </select>
+        <button onclick="adicionarMeta()"><i class="fas fa-plus"></i> Adicionar Meta</button>
+      </div>
     </div>
     
+    <!-- TAREFAS -->
     <div class="filtros">
       <button class="filtro-btn active" onclick="setFiltro('hoje', this)"><i class="fas fa-calendar-day"></i> Hoje</button>
       <button class="filtro-btn" onclick="setFiltro('semana', this)"><i class="fas fa-calendar-week"></i> Semana</button>
@@ -1391,7 +1477,7 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
       <button class="add-workspace-btn" onclick="adicionarCardTarefa()">
-        <i class="fas fa-plus-circle"></i> Novo Espaço
+        <i class="fas fa-plus-circle"></i> Novo Espaço de Trabalho
       </button>
       <div class="sort-controls">
         <button class="sort-btn" data-sort="data" onclick="ordenarTarefas('data')"><i class="fas fa-calendar"></i> Data</button>
@@ -1402,6 +1488,7 @@
     
     <div class="blocos-tarefas" id="blocosTarefas"></div>
   </div>
+  
   <div id="calendarioView" style="display: none;">
     <div class="adicionar">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
@@ -1412,6 +1499,7 @@
       <div class="calendario-grade" id="calendarioGrade"></div>
     </div>
   </div>
+  
   <div class="estatisticas">
     <h3><i class="fas fa-chart-line"></i> Estatísticas</h3>
     <div class="stats-grid" id="statsGrid"></div>
@@ -1424,12 +1512,11 @@
   </div>
 </div>
 
-<!-- Modal de Reagendamento -->
 <div class="modal-reagendar-overlay" id="modalReagendarOverlay">
   <div class="modal-reagendar-conteudo">
     <i class="fas fa-calendar-alt" style="font-size: 36px; color: #667eea; margin-bottom: 16px;"></i>
     <h3>Reagendar Tarefa</h3>
-    <input type="date" id="novaDataReagendar" class="nova-data-reagendar">
+    <input type="date" id="novaDataReagendar">
     <div class="modal-botoes">
       <button class="btn-glass" onclick="confirmarReagendamento()">Confirmar</button>
       <button class="btn-glass" onclick="fecharModalReagendar()" style="background: rgba(255,255,255,0.1);">Cancelar</button>
@@ -1437,7 +1524,6 @@
   </div>
 </div>
 
-<!-- Modal de Edição Completa -->
 <div class="modal-editar-overlay" id="modalEditarOverlay">
   <div class="modal-editar-conteudo">
     <i class="fas fa-edit" style="font-size: 36px; color: #667eea; margin-bottom: 16px;"></i>
@@ -1464,7 +1550,6 @@
   </div>
 </div>
 
-<!-- Modal Modo Foco -->
 <div class="modal-foco-overlay" id="modalFocoOverlay">
   <div class="modal-foco-conteudo">
     <i class="fas fa-brain" style="font-size: 48px; color: #667eea;"></i>
@@ -1521,6 +1606,7 @@
 
   let currentUser = null;
 
+  // Inicializar cards padrão se não existirem
   if (!localStorage.getItem('cardsTarefas') || JSON.parse(localStorage.getItem('cardsTarefas')).length === 0) {
     const defaultCards = [
       { id: "tarefa_pessoal_" + Date.now(), nome: "Pessoal" },
@@ -1529,7 +1615,6 @@
       { id: "tarefa_waw_" + Date.now(), nome: "WAW" }
     ];
     localStorage.setItem('cardsTarefas', JSON.stringify(defaultCards));
-    localStorage.setItem('cardsMetas', JSON.stringify(defaultCards.map(c => ({ ...c, id: c.id.replace('tarefa', 'meta') }))));
   }
 
   async function salvarTudoFirebase() {
@@ -1538,7 +1623,6 @@
       await setDoc(doc(db, "usuarios", currentUser.uid), {
         tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'),
         metas: JSON.parse(localStorage.getItem('metas') || '[]'),
-        cardsMetas: JSON.parse(localStorage.getItem('cardsMetas') || '[]'),
         cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'),
         ultimaAtualizacao: new Date().toISOString()
       });
@@ -1556,7 +1640,6 @@
         const dados = docSnap.data();
         if (dados.tarefas) localStorage.setItem('tarefas', JSON.stringify(dados.tarefas));
         if (dados.metas) localStorage.setItem('metas', JSON.stringify(dados.metas));
-        if (dados.cardsMetas && dados.cardsMetas.length > 0) localStorage.setItem('cardsMetas', JSON.stringify(dados.cardsMetas));
         if (dados.cardsTarefas && dados.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(dados.cardsTarefas));
         
         if (window.recarregarSistema) window.recarregarSistema();
@@ -1622,7 +1705,7 @@
 </script>
 
 <script>
-  // ========== TEMA ESCURO AUTOMÁTICO ==========
+  // ========== TEMA ESCURO ==========
   function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const hour = new Date().getHours();
@@ -1781,69 +1864,118 @@
     if(bar) bar.style.width = `${Math.min(100, Math.max(0, progresso))}%`;
   }
   
-  // ========== ORDENAÇÃO ==========
-  let ordenacaoAtual = 'manual';
+  // ========== METAS ==========
+  function carregarMetas() {
+    window.metas = JSON.parse(localStorage.getItem('metas') || '[]');
+    renderizarMetas();
+  }
   
-  function ordenarTarefas(tipo) {
-    ordenacaoAtual = tipo;
+  function salvarMetas() {
+    localStorage.setItem('metas', JSON.stringify(window.metas));
+    renderizarMetas();
+    renderizarEstatisticas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function adicionarMeta() {
+    const texto = document.getElementById('novaMetaTexto').value.trim();
+    const categoria = document.getElementById('novaMetaCategoria').value;
     
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-      btn.classList.remove('active');
+    if(!texto) {
+      alert('Digite uma meta!');
+      return;
+    }
+    
+    window.metas.push({
+      id: Date.now(),
+      texto: texto,
+      categoria: categoria,
+      atingida: false
     });
-    document.querySelector(`.sort-btn[data-sort="${tipo}"]`).classList.add('active');
     
-    if(tipo === 'data') {
-      window.tarefas.sort((a, b) => {
-        if(!a.data) return 1;
-        if(!b.data) return -1;
-        return a.data.localeCompare(b.data);
-      });
-    } else if(tipo === 'prioridade') {
-      const prioridadeOrder = { p1: 1, p2: 2, p3: 3 };
-      window.tarefas.sort((a, b) => {
-        return (prioridadeOrder[a.prioridade] || 3) - (prioridadeOrder[b.prioridade] || 3);
-      });
-    }
-    
-    salvarTarefas();
+    document.getElementById('novaMetaTexto').value = '';
+    salvarMetas();
+    alert('✅ Meta adicionada!');
   }
   
-  // ========== EDIÇÃO COMPLETA ==========
+  function toggleMeta(id) {
+    const meta = window.metas.find(m => m.id === id);
+    if(meta) {
+      meta.atingida = !meta.atingida;
+      salvarMetas();
+    }
+  }
+  
+  function excluirMeta(id) {
+    if(confirm('Excluir esta meta?')) {
+      window.metas = window.metas.filter(m => m.id !== id);
+      salvarMetas();
+    }
+  }
+  
+  function editarMeta(id) {
+    const meta = window.metas.find(m => m.id === id);
+    if(!meta) return;
+    const novoTexto = prompt('Editar meta:', meta.texto);
+    if(novoTexto && novoTexto.trim()) {
+      meta.texto = novoTexto.trim();
+      salvarMetas();
+    }
+  }
+  
+  function renderizarMetas() {
+    const container = document.getElementById('metasGrid');
+    if(!container) return;
+    
+    const total = window.metas.length;
+    const concluidas = window.metas.filter(m => m.atingida).length;
+    const progresso = total > 0 ? Math.round((concluidas / total) * 100) : 0;
+    
+    document.getElementById('totalMetas').textContent = total;
+    document.getElementById('concluidasMetas').textContent = concluidas;
+    document.getElementById('progressoMetas').textContent = progresso;
+    
+    if(total === 0) {
+      container.innerHTML = `
+        <div class="empty-metas">
+          <i class="fas fa-flag-checkered"></i>
+          <p>Nenhuma meta definida</p>
+          <small>Adicione suas metas acima para começar</small>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = '';
+    window.metas.forEach(meta => {
+      const div = document.createElement('div');
+      div.className = `meta-item ${meta.atingida ? 'atingida' : ''}`;
+      div.innerHTML = `
+        <div style="display: flex; gap: 15px; align-items: flex-start;">
+          <div class="meta-checkbox" onclick="toggleMeta(${meta.id})">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="meta-content">
+            <div class="meta-texto">${escapeHtml(meta.texto)}</div>
+            <div class="meta-categoria">
+              <i class="fas fa-tag"></i> ${escapeHtml(meta.categoria)}
+            </div>
+          </div>
+          <div class="meta-actions">
+            <button onclick="editarMeta(${meta.id})" title="Editar"><i class="fas fa-edit"></i></button>
+            <button onclick="excluirMeta(${meta.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+  
+  // ========== TAREFAS ==========
   let tarefaEditando = null;
-  
-  function editarTarefaCompleta(id) {
-    tarefaEditando = window.tarefas.find(t => t.id === id);
-    if(tarefaEditando) {
-      document.getElementById('editarTarefaTexto').value = tarefaEditando.texto || '';
-      document.getElementById('editarTarefaData').value = tarefaEditando.data || '';
-      document.getElementById('editarTarefaHora').value = tarefaEditando.hora || '';
-      document.getElementById('editarTarefaPrioridade').value = tarefaEditando.prioridade || 'p3';
-      document.getElementById('editarTarefaRecorrencia').value = tarefaEditando.recorrencia || '';
-      
-      document.getElementById('modalEditarOverlay').classList.add('show');
-    }
-  }
-  
-  function salvarEdicaoTarefa() {
-    if(tarefaEditando) {
-      tarefaEditando.texto = document.getElementById('editarTarefaTexto').value;
-      tarefaEditando.data = document.getElementById('editarTarefaData').value;
-      tarefaEditando.hora = document.getElementById('editarTarefaHora').value;
-      tarefaEditando.prioridade = document.getElementById('editarTarefaPrioridade').value;
-      tarefaEditando.recorrencia = document.getElementById('editarTarefaRecorrencia').value;
-      
-      salvarTarefas();
-      fecharModalEditar();
-      alert('✅ Tarefa editada com sucesso!');
-    }
-  }
-  
-  function fecharModalEditar() {
-    document.getElementById('modalEditarOverlay').classList.remove('show');
-    tarefaEditando = null;
-  }
-  
-  // ========== DRAG AND DROP ENTRE CARDS ==========
+  let tarefaReagendando = null;
+  let ordenacaoAtual = 'manual';
+  let filtroAtual = 'hoje';
   let tarefaArrastandoId = null;
   
   function iniciarDragTarefa(id) {
@@ -1867,51 +1999,66 @@
     }
   }
   
-  // ========== FUNÇÕES PRINCIPAIS ==========
-  let tarefaReagendando = null;
+  function ordenarTarefas(tipo) {
+    ordenacaoAtual = tipo;
+    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.sort-btn[data-sort="${tipo}"]`).classList.add('active');
+    
+    if(tipo === 'data') {
+      window.tarefas.sort((a, b) => {
+        if(!a.data) return 1;
+        if(!b.data) return -1;
+        return a.data.localeCompare(b.data);
+      });
+    } else if(tipo === 'prioridade') {
+      const prioridadeOrder = { p1: 1, p2: 2, p3: 3 };
+      window.tarefas.sort((a, b) => {
+        return (prioridadeOrder[a.prioridade] || 3) - (prioridadeOrder[b.prioridade] || 3);
+      });
+    }
+    salvarTarefas();
+  }
   
-  const avatar = document.getElementById('userAvatar');
-  const tooltip = document.getElementById('userTooltip');
+  function editarTarefaCompleta(id) {
+    tarefaEditando = window.tarefas.find(t => t.id === id);
+    if(tarefaEditando) {
+      document.getElementById('editarTarefaTexto').value = tarefaEditando.texto || '';
+      document.getElementById('editarTarefaData').value = tarefaEditando.data || '';
+      document.getElementById('editarTarefaHora').value = tarefaEditando.hora || '';
+      document.getElementById('editarTarefaPrioridade').value = tarefaEditando.prioridade || 'p3';
+      document.getElementById('editarTarefaRecorrencia').value = tarefaEditando.recorrencia || '';
+      document.getElementById('modalEditarOverlay').classList.add('show');
+    }
+  }
   
-  if(avatar && tooltip) {
-    avatar.addEventListener('mouseenter', () => {
-      tooltip.style.display = 'block';
-    });
-    avatar.addEventListener('mouseleave', () => {
-      tooltip.style.display = 'none';
-    });
-    avatar.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isVisible = tooltip.style.display === 'block';
-      tooltip.style.display = isVisible ? 'none' : 'block';
-      if(!isVisible) {
-        setTimeout(() => {
-          tooltip.style.display = 'none';
-        }, 3000);
-      }
-    });
-    document.addEventListener('click', (e) => {
-      if(!avatar.contains(e.target)) {
-        tooltip.style.display = 'none';
-      }
-    });
+  function salvarEdicaoTarefa() {
+    if(tarefaEditando) {
+      tarefaEditando.texto = document.getElementById('editarTarefaTexto').value;
+      tarefaEditando.data = document.getElementById('editarTarefaData').value;
+      tarefaEditando.hora = document.getElementById('editarTarefaHora').value;
+      tarefaEditando.prioridade = document.getElementById('editarTarefaPrioridade').value;
+      tarefaEditando.recorrencia = document.getElementById('editarTarefaRecorrencia').value;
+      salvarTarefas();
+      fecharModalEditar();
+      alert('✅ Tarefa editada com sucesso!');
+    }
+  }
+  
+  function fecharModalEditar() {
+    document.getElementById('modalEditarOverlay').classList.remove('show');
+    tarefaEditando = null;
   }
   
   function abrirModalReagendar(tarefaId) {
     tarefaReagendando = window.tarefas.find(t => t.id === tarefaId);
     if(tarefaReagendando) {
-      const inputData = document.getElementById('novaDataReagendar');
-      if(inputData) {
-        inputData.value = tarefaReagendando.data || new Date().toISOString().split('T')[0];
-      }
-      const modal = document.getElementById('modalReagendarOverlay');
-      if(modal) modal.classList.add('show');
+      document.getElementById('novaDataReagendar').value = tarefaReagendando.data || new Date().toISOString().split('T')[0];
+      document.getElementById('modalReagendarOverlay').classList.add('show');
     }
   }
   
   function fecharModalReagendar() {
-    const modal = document.getElementById('modalReagendarOverlay');
-    if(modal) modal.classList.remove('show');
+    document.getElementById('modalReagendarOverlay').classList.remove('show');
     tarefaReagendando = null;
   }
   
@@ -1928,80 +2075,13 @@
     }
   }
   
-  function mostrarFormAdicionar(cardNome) {
-    const formId = `form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`;
-    const form = document.getElementById(formId);
-    if(form) {
-      form.classList.toggle('show');
-    }
-  }
-  
-  function adicionarTarefaInline(cardNome) {
-    const formId = `form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`;
-    const inputTexto = document.getElementById(`texto-${formId}`);
-    const inputData = document.getElementById(`data-${formId}`);
-    const inputHora = document.getElementById(`hora-${formId}`);
-    const selectPrioridade = document.getElementById(`prioridade-${formId}`);
-    const selectRecorrencia = document.getElementById(`recorrencia-${formId}`);
-    
-    const texto = inputTexto?.value.trim();
-    if(!texto) {
-      alert('Digite uma tarefa!');
-      return;
-    }
-    
-    const data = inputData?.value || new Date().toISOString().split('T')[0];
-    const hora = inputHora?.value || '';
-    const prioridade = selectPrioridade?.value || 'p3';
-    const recorrencia = selectRecorrencia?.value || '';
-    
-    window.tarefas.push({
-      id: Date.now(),
-      texto: texto,
-      bloco: cardNome,
-      data: data,
-      hora: hora,
-      prioridade: prioridade,
-      recorrencia: recorrencia,
-      concluida: false,
-      criada: new Date().toISOString(),
-      alertado: false,
-      tempoGasto: 0,
-      ordem: window.tarefas.filter(t => t.bloco === cardNome).length
-    });
-    
-    inputTexto.value = '';
-    if(inputData) inputData.value = '';
-    if(inputHora) inputHora.value = '';
-    if(selectPrioridade) selectPrioridade.value = 'p3';
-    if(selectRecorrencia) selectRecorrencia.value = '';
-    
-    const form = document.getElementById(formId);
-    if(form) form.classList.remove('show');
-    
-    salvarTarefas();
-    alert('✅ Tarefa adicionada!');
-  }
-  
-  function cancelarAdicionar(cardNome) {
-    const formId = `form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`;
-    const form = document.getElementById(formId);
-    if(form) form.classList.remove('show');
-  }
-  
   function carregarDados() {
     window.tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
-    window.metas = JSON.parse(localStorage.getItem('metas') || '[]');
-    window.cardsMetas = JSON.parse(localStorage.getItem('cardsMetas') || '[]');
     window.cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas') || '[]');
     
     if(window.cardsTarefas.length === 0) {
       window.cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
       localStorage.setItem('cardsTarefas', JSON.stringify(window.cardsTarefas));
-    }
-    if(window.cardsMetas.length === 0) {
-      window.cardsMetas = [{ id: "default_meta_" + Date.now(), nome: "Minhas Metas" }];
-      localStorage.setItem('cardsMetas', JSON.stringify(window.cardsMetas));
     }
   }
   
@@ -2019,46 +2099,65 @@
     if(window.salvarTudoFirebase) window.salvarTudoFirebase();
   }
   
-  function salvarMetas() {
-    localStorage.setItem('metas', JSON.stringify(window.metas));
-    renderizarDashboardMetas();
-    renderizarEstatisticas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
-  function salvarCardsMetas() {
-    localStorage.setItem('cardsMetas', JSON.stringify(window.cardsMetas));
-    renderizarDashboardMetas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
   function adicionarCardTarefa() {
     const nome = prompt('📋 Nome do novo espaço de trabalho:');
     if(nome && nome.trim()) {
-      const novoCard = { 
-        id: 'tarefa_' + Date.now() + '_' + Math.random(), 
-        nome: nome.trim() 
-      };
+      const novoCard = { id: 'tarefa_' + Date.now() + '_' + Math.random(), nome: nome.trim() };
       window.cardsTarefas.push(novoCard);
       salvarCardsTarefas();
       alert(`✅ Espaço "${nome}" criado com sucesso!`);
     }
   }
   
-  function adicionarCardMeta() {
-    const nome = prompt('🏆 Nome do novo espaço de trabalho (Metas):');
-    if(nome && nome.trim()) {
-      const novoCard = { 
-        id: 'meta_' + Date.now() + '_' + Math.random(), 
-        nome: nome.trim() 
-      };
-      window.cardsMetas.push(novoCard);
-      salvarCardsMetas();
-      alert(`✅ Espaço "${nome}" criado com sucesso!`);
+  function editarCardTarefa(id) {
+    const card = window.cardsTarefas.find(c => c.id === id);
+    if(!card) return;
+    const novoNome = prompt('Editar nome do espaço:', card.nome);
+    if(novoNome && novoNome.trim()) {
+      window.tarefas.forEach(t => { if(t.bloco === card.nome) t.bloco = novoNome.trim(); });
+      card.nome = novoNome.trim();
+      salvarCardsTarefas();
+      salvarTarefas();
     }
   }
   
-  let filtroAtual = 'hoje';
+  function excluirCardTarefa(id) {
+    const card = window.cardsTarefas.find(c => c.id === id);
+    if(!card) return;
+    if(confirm(`Excluir "${card.nome}"? As tarefas serão movidas para "Pessoal".`)) {
+      const pessoal = window.cardsTarefas.find(c => c.nome === 'Pessoal') || window.cardsTarefas[0];
+      window.tarefas.forEach(t => { if(t.bloco === card.nome) t.bloco = pessoal.nome; });
+      window.cardsTarefas = window.cardsTarefas.filter(c => c.id !== id);
+      salvarCardsTarefas();
+      salvarTarefas();
+    }
+  }
+  
+  function toggleTarefa(id) {
+    const tarefa = window.tarefas.find(t => t.id === id);
+    if(tarefa) {
+      tarefa.concluida = !tarefa.concluida;
+      salvarTarefas();
+    }
+  }
+  
+  function excluirTarefa(id) {
+    if(confirm('Excluir tarefa?')) {
+      window.tarefas = window.tarefas.filter(t => t.id !== id);
+      salvarTarefas();
+    }
+  }
+  
+  function setFiltro(filtro, btn) {
+    filtroAtual = filtro;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderizarTarefas();
+  }
+  
+  function buscarGlobal() {
+    renderizarTarefas();
+  }
   
   function filtrarTarefas(lista) {
     const termo = document.getElementById('buscaGlobal')?.value.toLowerCase() || '';
@@ -2080,6 +2179,40 @@
     return div.innerHTML;
   }
   
+  function mostrarFormAdicionar(cardNome) {
+    const formId = `form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`;
+    const form = document.getElementById(formId);
+    if(form) form.classList.toggle('show');
+  }
+  
+  function adicionarTarefaInline(cardNome) {
+    const formId = `form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`;
+    const texto = document.getElementById(`texto-${formId}`)?.value.trim();
+    if(!texto) { alert('Digite uma tarefa!'); return; }
+    
+    const data = document.getElementById(`data-${formId}`)?.value || new Date().toISOString().split('T')[0];
+    const hora = document.getElementById(`hora-${formId}`)?.value || '';
+    const prioridade = document.getElementById(`prioridade-${formId}`)?.value || 'p3';
+    const recorrencia = document.getElementById(`recorrencia-${formId}`)?.value || '';
+    
+    window.tarefas.push({
+      id: Date.now(), texto: texto, bloco: cardNome, data: data, hora: hora,
+      prioridade: prioridade, recorrencia: recorrencia, concluida: false,
+      criada: new Date().toISOString(), alertado: false, tempoGasto: 0,
+      ordem: window.tarefas.filter(t => t.bloco === cardNome).length
+    });
+    
+    document.getElementById(`texto-${formId}`).value = '';
+    document.getElementById(formId).classList.remove('show');
+    salvarTarefas();
+    alert('✅ Tarefa adicionada!');
+  }
+  
+  function cancelarAdicionar(cardNome) {
+    const formId = `form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`;
+    document.getElementById(formId)?.classList.remove('show');
+  }
+  
   function renderizarTarefas() {
     const container = document.getElementById('blocosTarefas');
     if(!container) return;
@@ -2089,15 +2222,7 @@
     const cards = window.cardsTarefas || [];
     
     if(cards.length === 0) {
-      container.innerHTML = `
-        <div class="bloco-tarefa" style="min-width: 100%; text-align: center; padding: 40px;">
-          <div class="empty-state">
-            <i class="fas fa-folder-open"></i>
-            <p>Nenhum espaço de trabalho</p>
-            <small>Clique em "Novo Espaço" para começar</small>
-          </div>
-        </div>
-      `;
+      container.innerHTML = `<div class="bloco-tarefa" style="min-width:100%;text-align:center;padding:40px;"><div class="empty-state"><i class="fas fa-folder-open"></i><p>Nenhum espaço de trabalho</p><small>Clique em "Novo Espaço" para começar</small></div></div>`;
       return;
     }
     
@@ -2113,6 +2238,32 @@
       div.setAttribute('ondragover', 'permitirDrop(event)');
       div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome)}')`);
       
+      let tarefasHtml = '';
+      tarefasFiltradas.forEach(t => {
+        const atrasada = t.data && t.data < hoje && !t.concluida;
+        const rec = {diaria:'🔄 Diária', dias_uteis:'📅 Dias úteis', semanal:'📆 Semanal', mensal:'📅 Mensal'}[t.recorrencia] || '';
+        tarefasHtml += `
+          <div class="tarefa-item ${t.concluida ? 'concluida' : ''}" draggable="true" ondragstart="iniciarDragTarefa(${t.id})" ondragend="tarefaArrastandoId = null">
+            <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
+            <div class="tarefa-conteudo">
+              <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
+              <div class="tarefa-meta">
+                ${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}
+                ${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}
+                ${rec ? `<span class="badge recorrente">${rec}</span>` : ''}
+                ${t.tempoGasto ? `<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ''}
+              </div>
+            </div>
+            <div class="item-actions">
+              <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
+              <button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button>
+              <button onclick="editarTarefaCompleta(${t.id})" title="Editar"><i class="fas fa-edit"></i></button>
+              <button onclick="excluirTarefa(${t.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>
+        `;
+      });
+      
       div.innerHTML = `
         <div class="bloco-header">
           <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
@@ -2123,7 +2274,7 @@
           </div>
         </div>
         <div class="tarefa-lista">
-          ${renderizarListaTarefas(tarefasFiltradas, hoje)}
+          ${tarefasFiltradas.length === 0 ? '<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa</small></div>' : tarefasHtml}
           <button class="add-tarefa-btn" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')">
             <i class="fas fa-plus-circle"></i> Adicionar Tarefa
           </button>
@@ -2156,117 +2307,8 @@
     const addCard = document.createElement('div');
     addCard.className = 'bloco-tarefa card-adicionar';
     addCard.onclick = () => adicionarCardTarefa();
-    addCard.innerHTML = `
-      <div class="card-adicionar-conteudo">
-        <i class="fas fa-plus-circle"></i>
-        <p>Novo Espaço</p>
-      </div>
-    `;
-    container.appendChild(addCard);
-  }
-  
-  function renderizarListaTarefas(tarefasList, hoje) {
-    if(tarefasList.length === 0) {
-      return `<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Clique em "Adicionar Tarefa" para começar</small></div>`;
-    }
-    
-    let html = '';
-    tarefasList.forEach(t => {
-      const atrasada = t.data && t.data < hoje && !t.concluida;
-      const rec = {diaria:'🔄 Diária', dias_uteis:'📅 Dias úteis', semanal:'📆 Semanal', mensal:'📅 Mensal'}[t.recorrencia] || '';
-      html += `
-        <div class="tarefa-item ${t.concluida ? 'concluida' : ''}" 
-             draggable="true" 
-             ondragstart="iniciarDragTarefa(${t.id})"
-             ondragend="tarefaArrastandoId = null">
-          <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
-          <div class="tarefa-conteudo">
-            <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
-            <div class="tarefa-meta">
-              ${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}
-              ${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}
-              ${rec ? `<span class="badge recorrente">${rec}</span>` : ''}
-              ${t.tempoGasto ? `<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ''}
-            </div>
-          </div>
-          <div class="item-actions">
-            <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
-            <button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button>
-            <button onclick="editarTarefaCompleta(${t.id})" title="Editar"><i class="fas fa-edit"></i></button>
-            <button onclick="excluirTarefa(${t.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-          </div>
-        </div>
-      `;
-    });
-    return html;
-  }
-  
-  function renderizarDashboardMetas() {
-    const container = document.getElementById('dashboardMetasGrid');
-    if(!container) return;
-    container.innerHTML = '';
-    
-    const cards = window.cardsMetas || [];
-    
-    cards.forEach(card => {
-      const metasDoCard = window.metas.filter(m => m.categoria === card.nome);
-      const total = metasDoCard.length;
-      const atingidas = metasDoCard.filter(m => m.atingida).length;
-      const percentual = total > 0 ? Math.round((atingidas / total) * 100) : 0;
-      
-      const div = document.createElement('div');
-      div.className = 'meta-card';
-      div.innerHTML = `
-        <div class="meta-card-header">
-          <span><i class="fas fa-tag"></i> ${escapeHtml(card.nome)}</span>
-          <div class="card-actions">
-            <span class="meta-progresso">${atingidas}/${total}</span>
-            <button onclick="editarCardMeta('${card.id}')"><i class="fas fa-edit"></i></button>
-            <button onclick="excluirCardMeta('${card.id}')"><i class="fas fa-trash-alt"></i></button>
-          </div>
-        </div>
-        <div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width:${percentual}%"></div></div>
-        <div class="meta-lista">
-          ${renderizarListaMetas(metasDoCard)}
-        </div>
-        <div class="meta-add-dash">
-          <input type="text" id="input-meta-${card.id}" placeholder="Nova meta...">
-          <input type="date" id="input-data-meta-${card.id}">
-          <button class="btn-glass" onclick="adicionarMeta('${card.nome}','${card.id}')"><i class="fas fa-plus"></i> Adicionar</button>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-    
-    const addCard = document.createElement('div');
-    addCard.className = 'meta-card card-adicionar';
-    addCard.onclick = () => adicionarCardMeta();
     addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Espaço</p></div>`;
     container.appendChild(addCard);
-  }
-  
-  function renderizarListaMetas(metasList) {
-    if(metasList.length === 0) {
-      return `<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia</p><small>Adicione uma meta</small></div>`;
-    }
-    
-    let html = '';
-    metasList.forEach(meta => {
-      html += `
-        <div class="meta-item-dash ${meta.atingida ? 'atingida' : ''}">
-          <input type="checkbox" ${meta.atingida ? 'checked' : ''} onchange="toggleMeta(${meta.id})">
-          <div style="flex:1">
-            <div class="meta-texto-dash">${escapeHtml(meta.texto)}</div>
-            ${meta.dataLimite ? `<div class="meta-data-limite"><i class="fas fa-calendar-alt"></i> ${new Date(meta.dataLimite).toLocaleDateString('pt-BR')}</div>` : ''}
-          </div>
-          <div class="item-actions">
-            <button onclick="editarMetaPrompt(${meta.id})"><i class="fas fa-edit"></i></button>
-            <button onclick="excluirMeta(${meta.id})"><i class="fas fa-trash-alt"></i></button>
-          </div>
-        </div>
-      `;
-    });
-    return html;
   }
   
   function renderizarEstatisticas() {
@@ -2277,15 +2319,12 @@
     const horas = Math.floor(tempo / 3600);
     const min = Math.floor((tempo % 3600) / 60);
     
-    const statsGrid = document.getElementById('statsGrid');
-    if(statsGrid) {
-      statsGrid.innerHTML = `
-        <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Concluídas</div></div>
-        <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${tt ? Math.round(concluidas / tt * 100) : 0}%</div><div class="stat-label">Taxa</div></div>
-        <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${window.metas.length}</div><div class="stat-label">Metas</div></div>
-        <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${min}m</div><div class="stat-label">Foco</div></div>
-      `;
-    }
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Tarefas Concluídas</div></div>
+      <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${tt ? Math.round(concluidas / tt * 100) : 0}%</div><div class="stat-label">Taxa Tarefas</div></div>
+      <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${window.metas.length}</div><div class="stat-label">Metas</div></div>
+      <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${min}m</div><div class="stat-label">Tempo Focado</div></div>
+    `;
     
     const grafico = document.getElementById('graficoBarras');
     if(grafico && window.cardsTarefas.length > 0) {
@@ -2303,175 +2342,7 @@
     }
   }
   
-  function toggleTarefa(id) {
-    const tarefa = window.tarefas.find(t => t.id === id);
-    if(tarefa) {
-      tarefa.concluida = !tarefa.concluida;
-      salvarTarefas();
-    }
-  }
-  
-  function toggleMeta(id) {
-    const meta = window.metas.find(m => m.id === id);
-    if(meta) {
-      meta.atingida = !meta.atingida;
-      salvarMetas();
-    }
-  }
-  
-  function excluirTarefa(id) {
-    if(confirm('Excluir tarefa?')) {
-      window.tarefas = window.tarefas.filter(t => t.id !== id);
-      salvarTarefas();
-    }
-  }
-  
-  function excluirMeta(id) {
-    if(confirm('Excluir meta?')) {
-      window.metas = window.metas.filter(m => m.id !== id);
-      salvarMetas();
-    }
-  }
-  
-  function editarMetaPrompt(id) {
-    const meta = window.metas.find(m => m.id === id);
-    if(!meta) return;
-    const novoTexto = prompt('Editar meta:', meta.texto);
-    if(novoTexto && novoTexto.trim()) meta.texto = novoTexto.trim();
-    salvarMetas();
-  }
-  
-  function adicionarMeta(categoria, cardId) {
-    const input = document.getElementById(`input-meta-${cardId}`);
-    const texto = input?.value.trim();
-    if(!texto) return;
-    
-    const dataInput = document.getElementById(`input-data-meta-${cardId}`);
-    window.metas.push({
-      id: Date.now(),
-      texto: texto,
-      categoria: categoria,
-      atingida: false,
-      dataLimite: dataInput?.value || ''
-    });
-    input.value = '';
-    if(dataInput) dataInput.value = '';
-    salvarMetas();
-  }
-  
-  function editarCardTarefa(id) {
-    const card = window.cardsTarefas.find(c => c.id === id);
-    if(!card) return;
-    const novoNome = prompt('Editar nome do espaço:', card.nome);
-    if(novoNome && novoNome.trim()) {
-      window.tarefas.forEach(t => {
-        if(t.bloco === card.nome) t.bloco = novoNome.trim();
-      });
-      card.nome = novoNome.trim();
-      salvarCardsTarefas();
-      salvarTarefas();
-    }
-  }
-  
-  function excluirCardTarefa(id) {
-    const card = window.cardsTarefas.find(c => c.id === id);
-    if(!card) return;
-    if(confirm(`Excluir "${card.nome}"? As tarefas serão movidas para "Pessoal".`)) {
-      const pessoal = window.cardsTarefas.find(c => c.nome === 'Pessoal') || window.cardsTarefas[0];
-      window.tarefas.forEach(t => {
-        if(t.bloco === card.nome) t.bloco = pessoal.nome;
-      });
-      window.cardsTarefas = window.cardsTarefas.filter(c => c.id !== id);
-      salvarCardsTarefas();
-      salvarTarefas();
-    }
-  }
-  
-  function editarCardMeta(id) {
-    const card = window.cardsMetas.find(c => c.id === id);
-    if(!card) return;
-    const novoNome = prompt('Editar nome do espaço:', card.nome);
-    if(novoNome && novoNome.trim()) {
-      window.metas.forEach(m => {
-        if(m.categoria === card.nome) m.categoria = novoNome.trim();
-      });
-      card.nome = novoNome.trim();
-      salvarCardsMetas();
-      salvarMetas();
-    }
-  }
-  
-  function excluirCardMeta(id) {
-    const card = window.cardsMetas.find(c => c.id === id);
-    if(!card) return;
-    if(confirm(`Excluir "${card.nome}"? As metas serão movidas para "Pessoal".`)) {
-      const pessoal = window.cardsMetas.find(c => c.nome === 'Pessoal') || window.cardsMetas[0];
-      window.metas.forEach(m => {
-        if(m.categoria === card.nome) m.categoria = pessoal.nome;
-      });
-      window.cardsMetas = window.cardsMetas.filter(c => c.id !== id);
-      salvarCardsMetas();
-      salvarMetas();
-    }
-  }
-  
-  function abrirModalNovaMeta() {
-    const cat = prompt('Categoria:', window.cardsMetas[0]?.nome);
-    if(cat && window.cardsMetas.some(c => c.nome === cat)) {
-      const texto = prompt('Meta:');
-      if(texto && texto.trim()) {
-        window.metas.push({
-          id: Date.now(),
-          texto: texto.trim(),
-          categoria: cat,
-          atingida: false,
-          dataLimite: ''
-        });
-        salvarMetas();
-        alert('✅ Meta adicionada!');
-      }
-    }
-  }
-  
-  function limparMetasConcluidas() {
-    if(confirm('Remover metas concluídas?')) {
-      window.metas = window.metas.filter(m => !m.atingida);
-      salvarMetas();
-      alert('✅ Metas concluídas removidas!');
-    }
-  }
-  
-  function setFiltro(filtro, btn) {
-    filtroAtual = filtro;
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderizarTarefas();
-  }
-  
-  function buscarGlobal() {
-    renderizarTarefas();
-  }
-  
-  function toggleView(view) {
-    const cardsView = document.getElementById('cardsView');
-    const calendarioView = document.getElementById('calendarioView');
-    const btns = document.querySelectorAll('.view-btn');
-    
-    if(view === 'cards') {
-      cardsView.style.display = 'block';
-      calendarioView.style.display = 'none';
-      btns[0].classList.add('active');
-      btns[1].classList.remove('active');
-      renderizarTarefas();
-    } else {
-      cardsView.style.display = 'none';
-      calendarioView.style.display = 'block';
-      btns[0].classList.remove('active');
-      btns[1].classList.add('active');
-      renderizarCalendario();
-    }
-  }
-  
+  // ========== CALENDÁRIO ==========
   let dataAtualCalendario = new Date();
   
   function renderizarCalendario() {
@@ -2483,16 +2354,11 @@
     const diaInicio = primeiroDia.getDay();
     
     const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    const mesElement = document.getElementById('calendarioMes');
-    if(mesElement) {
-      mesElement.textContent = `${meses[mes]} ${ano}`;
-    }
+    document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`;
     
     const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     let html = '';
-    diasSemana.forEach(d => {
-      html += `<div class="calendario-dia-semana">${d}</div>`;
-    });
+    diasSemana.forEach(d => { html += `<div class="calendario-dia-semana">${d}</div>`; });
     
     let dia = 1;
     const hoje = new Date().toISOString().split('T')[0];
@@ -2516,10 +2382,7 @@
         dia++;
       }
     }
-    const calendarioGrade = document.getElementById('calendarioGrade');
-    if(calendarioGrade) {
-      calendarioGrade.innerHTML = html;
-    }
+    document.getElementById('calendarioGrade').innerHTML = html;
   }
   
   function selecionarDataCalendario(data) {
@@ -2540,7 +2403,6 @@
     const dados = {
       tarefas: window.tarefas,
       metas: window.metas,
-      cardsMetas: window.cardsMetas,
       cardsTarefas: window.cardsTarefas
     };
     const blob = new Blob([JSON.stringify(dados)], {type: 'application/json'});
@@ -2562,71 +2424,122 @@
         if(confirm(`Importar backup?`)) {
           if(dados.tarefas) window.tarefas = dados.tarefas;
           if(dados.metas) window.metas = dados.metas;
-          if(dados.cardsMetas) window.cardsMetas = dados.cardsMetas;
           if(dados.cardsTarefas) window.cardsTarefas = dados.cardsTarefas;
-          salvarCardsMetas();
           salvarCardsTarefas();
           salvarTarefas();
           salvarMetas();
           alert('✅ Backup importado!');
         }
-      } catch(err) {
-        alert('❌ Erro ao importar.');
-      }
+      } catch(err) { alert('❌ Erro ao importar.'); }
     };
     reader.readAsText(file);
     event.target.value = '';
   }
   
+  function toggleView(view) {
+    const cardsView = document.getElementById('cardsView');
+    const calendarioView = document.getElementById('calendarioView');
+    const btns = document.querySelectorAll('.view-btn');
+    
+    if(view === 'cards') {
+      cardsView.style.display = 'block';
+      calendarioView.style.display = 'none';
+      btns[0].classList.add('active');
+      btns[1].classList.remove('active');
+      renderizarTarefas();
+    } else {
+      cardsView.style.display = 'none';
+      calendarioView.style.display = 'block';
+      btns[0].classList.remove('active');
+      btns[1].classList.add('active');
+      renderizarCalendario();
+    }
+  }
+  
   function atualizarDataHoje() {
     const hoje = new Date();
-    const dataHojeElement = document.getElementById('dataHoje');
-    if(dataHojeElement) {
-      dataHojeElement.textContent = hoje.toLocaleDateString('pt-BR', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
+    document.getElementById('dataHoje').textContent = hoje.toLocaleDateString('pt-BR', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
   }
   
   let audioContext = null;
   let lofiLoopActive = false;
   let currentVolume = 0.3;
   
-  function toggleMusica() {
-    alert('🎵 Música LoFi em desenvolvimento!');
-  }
+  function toggleMusica() { alert('🎵 Música LoFi em desenvolvimento!'); }
+  function ajustarVolume(valor) { currentVolume = valor / 100; }
   
-  function ajustarVolume(valor) {
-    currentVolume = valor / 100;
+  const avatar = document.getElementById('userAvatar');
+  const tooltip = document.getElementById('userTooltip');
+  if(avatar && tooltip) {
+    avatar.addEventListener('mouseenter', () => { tooltip.style.display = 'block'; });
+    avatar.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    avatar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isVisible = tooltip.style.display === 'block';
+      tooltip.style.display = isVisible ? 'none' : 'block';
+      if(!isVisible) setTimeout(() => { tooltip.style.display = 'none'; }, 3000);
+    });
+    document.addEventListener('click', (e) => { if(!avatar.contains(e.target)) tooltip.style.display = 'none'; });
   }
   
   window.recarregarSistema = function() {
     carregarDados();
-    renderizarDashboardMetas();
+    carregarMetas();
     renderizarTarefas();
     renderizarEstatisticas();
     renderizarCalendario();
   };
   
+  // EXPOR FUNÇÕES GLOBAIS
   window.permitirDrop = permitirDrop;
   window.soltarTarefa = soltarTarefa;
   window.iniciarDragTarefa = iniciarDragTarefa;
+  window.ordenarTarefas = ordenarTarefas;
   window.editarTarefaCompleta = editarTarefaCompleta;
   window.salvarEdicaoTarefa = salvarEdicaoTarefa;
   window.fecharModalEditar = fecharModalEditar;
+  window.abrirModalReagendar = abrirModalReagendar;
+  window.fecharModalReagendar = fecharModalReagendar;
+  window.confirmarReagendamento = confirmarReagendamento;
+  window.adicionarMeta = adicionarMeta;
+  window.toggleMeta = toggleMeta;
+  window.excluirMeta = excluirMeta;
+  window.editarMeta = editarMeta;
+  window.mostrarFormAdicionar = mostrarFormAdicionar;
+  window.adicionarTarefaInline = adicionarTarefaInline;
+  window.cancelarAdicionar = cancelarAdicionar;
+  window.toggleTarefa = toggleTarefa;
+  window.excluirTarefa = excluirTarefa;
+  window.setFiltro = setFiltro;
+  window.buscarGlobal = buscarGlobal;
+  window.toggleView = toggleView;
+  window.mudarMes = mudarMes;
+  window.exportarBackup = exportarBackup;
+  window.importarBackup = importarBackup;
+  window.adicionarCardTarefa = adicionarCardTarefa;
+  window.editarCardTarefa = editarCardTarefa;
+  window.excluirCardTarefa = excluirCardTarefa;
+  window.abrirModoFocoComTarefa = abrirModoFocoComTarefa;
+  window.iniciarPomodoro = iniciarPomodoro;
+  window.pausarPomodoro = pausarPomodoro;
+  window.resetarPomodoro = resetarPomodoro;
+  window.concluirTarefaFoco = concluirTarefaFoco;
+  window.fecharModoFoco = fecharModoFoco;
+  window.toggleMusica = toggleMusica;
+  window.ajustarVolume = ajustarVolume;
   
+  // INICIALIZAÇÃO
   initTheme();
   carregarDados();
-  renderizarDashboardMetas();
+  carregarMetas();
   renderizarTarefas();
   renderizarEstatisticas();
   renderizarCalendario();
   atualizarDataHoje();
   
-  console.log('🚀 App FLUXO inicializado - Drag & Drop entre cards e edição completa funcionando!');
+  console.log('🚀 App FLUXO inicializado - Nova seção de Metas redesenhada!');
 </script>
 </body>
 </html>
