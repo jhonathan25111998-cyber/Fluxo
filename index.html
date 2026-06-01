@@ -741,45 +741,27 @@
   const db = getFirestore(app);
 
   let currentUser = null;
-  let isInitialLoad = true;
 
-  window.tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
-  window.metas = JSON.parse(localStorage.getItem('metas') || '[]');
-  
-  // Garantir que sempre tenha pelo menos um card
-  let savedCardsMetas = localStorage.getItem('cardsMetas');
-  let savedCardsTarefas = localStorage.getItem('cardsTarefas');
-  
-  if (savedCardsMetas) {
-    window.cardsMetas = JSON.parse(savedCardsMetas);
-  } else {
-    window.cardsMetas = [
-      { id: "meta_pessoal", nome: "Pessoal" },
-      { id: "meta_jw", nome: "JW" },
-      { id: "meta_at", nome: "At Inovvate" },
-      { id: "meta_waw", nome: "WAW" }
+  // Inicializar dados padrão se não existirem
+  if (!localStorage.getItem('cardsTarefas') || JSON.parse(localStorage.getItem('cardsTarefas')).length === 0) {
+    const defaultCards = [
+      { id: "tarefa_pessoal_" + Date.now(), nome: "Pessoal" },
+      { id: "tarefa_jw_" + Date.now(), nome: "JW" },
+      { id: "tarefa_at_" + Date.now(), nome: "At Inovvate" },
+      { id: "tarefa_waw_" + Date.now(), nome: "WAW" }
     ];
-  }
-  
-  if (savedCardsTarefas) {
-    window.cardsTarefas = JSON.parse(savedCardsTarefas);
-  } else {
-    window.cardsTarefas = [
-      { id: "tarefa_pessoal", nome: "Pessoal" },
-      { id: "tarefa_jw", nome: "JW" },
-      { id: "tarefa_at", nome: "At Inovvate" },
-      { id: "tarefa_waw", nome: "WAW" }
-    ];
+    localStorage.setItem('cardsTarefas', JSON.stringify(defaultCards));
+    localStorage.setItem('cardsMetas', JSON.stringify(defaultCards.map(c => ({ ...c, id: c.id.replace('tarefa', 'meta') }))));
   }
 
   async function salvarTudoFirebase() {
     if (!currentUser) return;
     try {
       await setDoc(doc(db, "usuarios", currentUser.uid), {
-        tarefas: window.tarefas,
-        metas: window.metas,
-        cardsMetas: window.cardsMetas,
-        cardsTarefas: window.cardsTarefas,
+        tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'),
+        metas: JSON.parse(localStorage.getItem('metas') || '[]'),
+        cardsMetas: JSON.parse(localStorage.getItem('cardsMetas') || '[]'),
+        cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'),
         ultimaAtualizacao: new Date().toISOString()
       });
       console.log("✅ Firebase salvo");
@@ -794,16 +776,12 @@
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const dados = docSnap.data();
-        window.tarefas = dados.tarefas || [];
-        window.metas = dados.metas || [];
-        if (dados.cardsMetas && dados.cardsMetas.length > 0) window.cardsMetas = dados.cardsMetas;
-        if (dados.cardsTarefas && dados.cardsTarefas.length > 0) window.cardsTarefas = dados.cardsTarefas;
+        if (dados.tarefas) localStorage.setItem('tarefas', JSON.stringify(dados.tarefas));
+        if (dados.metas) localStorage.setItem('metas', JSON.stringify(dados.metas));
+        if (dados.cardsMetas && dados.cardsMetas.length > 0) localStorage.setItem('cardsMetas', JSON.stringify(dados.cardsMetas));
+        if (dados.cardsTarefas && dados.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(dados.cardsTarefas));
         
-        localStorage.setItem('tarefas', JSON.stringify(window.tarefas));
-        localStorage.setItem('metas', JSON.stringify(window.metas));
-        localStorage.setItem('cardsMetas', JSON.stringify(window.cardsMetas));
-        localStorage.setItem('cardsTarefas', JSON.stringify(window.cardsTarefas));
-        
+        // Recarregar a página para atualizar os dados
         if (window.recarregarSistema) window.recarregarSistema();
       }
     } catch (err) { console.error(err); }
@@ -816,6 +794,7 @@
       await signInWithEmailAndPassword(auth, email, password);
     } catch(e) { document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!'; }
   };
+  
   window.fazerCadastro = async () => {
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
@@ -826,10 +805,12 @@
       alert('✅ Conta criada!');
     } catch(e) { document.getElementById('registerErrorMessage').textContent = e.message; }
   };
+  
   window.fazerLogout = () => signOut(auth);
   window.sincronizarFirebase = async () => { await salvarTudoFirebase(); alert('✅ Sincronizado!'); };
   window.mostrarCadastro = () => { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; };
   window.mostrarLogin = () => { document.getElementById('loginForm').style.display = 'block'; document.getElementById('registerForm').style.display = 'none'; };
+  
   document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
   document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase();
 
@@ -840,7 +821,6 @@
       document.getElementById('mainApp').style.display = 'block';
       document.getElementById('userName').textContent = user.email;
       await carregarDadosFirebase();
-      isInitialLoad = false;
     } else {
       currentUser = null;
       document.getElementById('loginOverlay').style.display = 'flex';
@@ -861,479 +841,509 @@
 </script>
 
 <script>
-  // ========== VARIÁVEIS GLOBAIS ==========
-  let tarefas = window.tarefas;
-  let metas = window.metas;
-  let cardsMetas = window.cardsMetas;
-  let cardsTarefas = window.cardsTarefas;
+  // ========== FUNÇÕES PRINCIPAIS ==========
   
-  // Sincronizar as referências
-  window.tarefas = tarefas; 
-  window.metas = metas; 
-  window.cardsMetas = cardsMetas; 
-  window.cardsTarefas = cardsTarefas;
-
-  let filtroAtual = 'hoje', termoBusca = '', tarefaArrastando = null, metaArrastando = null, cardMetaArrastando = null, cardTarefaArrastando = null;
-  let pomodoroAtivo = false, pomodoroPausado = false, tempoRestante = 25 * 60, pomodoroInterval = null, tarefaFocoAtual = null;
-  let viewAtual = 'cards', dataAtualCalendario = new Date();
-  let notificacoesAtivas = true;
-
-  // ========== ÁUDIO LOFI ==========
-  let audioContext = null;
-  let lofiLoopActive = false;
-  let currentVolume = 0.3;
-  let currentOscillators = [];
-
-  function criarAudioLoFi() {
-    if (!audioContext) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const masterGain = audioContext.createGain();
-      masterGain.gain.value = currentVolume;
-      masterGain.connect(audioContext.destination);
-      currentOscillators.forEach(osc => { try { osc.stop(); } catch(e) {} });
-      currentOscillators = [];
-      function tocarNota(freq, inicio, dur, vol = 0.1) {
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.value = 0;
-        gain.gain.setValueAtTime(0, inicio);
-        gain.gain.linearRampToValueAtTime(vol, inicio + 0.05);
-        gain.gain.linearRampToValueAtTime(0, inicio + dur - 0.1);
-        osc.connect(gain);
-        gain.connect(masterGain);
-        osc.start(inicio);
-        osc.stop(inicio + dur);
-        currentOscillators.push(osc);
-      }
-      let startTime = audioContext.currentTime;
-      let loopTimeout;
-      let isLooping = true;
-      const tocarLoop = () => {
-        if (!isLooping) return;
-        const agora = audioContext.currentTime;
-        const loopStart = Math.max(agora, startTime);
-        tocarNota(261.63, loopStart, 3, 0.08);
-        tocarNota(329.63, loopStart + 0.3, 2.7, 0.06);
-        tocarNota(392, loopStart + 0.6, 2.4, 0.06);
-        tocarNota(220, loopStart + 3.5, 3, 0.08);
-        tocarNota(261.63, loopStart + 3.8, 2.7, 0.06);
-        tocarNota(329.63, loopStart + 4.1, 2.4, 0.06);
-        tocarNota(349.23, loopStart + 7, 3, 0.08);
-        tocarNota(440, loopStart + 7.3, 2.7, 0.06);
-        startTime = loopStart + 10;
-        if (isLooping) loopTimeout = setTimeout(tocarLoop, 10000);
-      };
-      return { masterGain, tocarLoop, getLoopTimeout: () => loopTimeout, setLoopTimeout: (t) => loopTimeout = t, isLooping: () => isLooping, setLooping: (val) => isLooping = val };
+  function carregarDados() {
+    window.tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
+    window.metas = JSON.parse(localStorage.getItem('metas') || '[]');
+    window.cardsMetas = JSON.parse(localStorage.getItem('cardsMetas') || '[]');
+    window.cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas') || '[]');
+    
+    // Garantir que tenha pelo menos um card
+    if(window.cardsTarefas.length === 0) {
+      window.cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+      localStorage.setItem('cardsTarefas', JSON.stringify(window.cardsTarefas));
     }
-    return null;
-  }
-  let lofiAudio = null;
-
-  function iniciarMusicaLoFi() {
-    if (!lofiAudio) lofiAudio = criarAudioLoFi();
-    if (lofiAudio && !lofiLoopActive) {
-      if (audioContext && audioContext.state === 'suspended') audioContext.resume();
-      lofiLoopActive = true;
-      lofiAudio.setLooping(true);
-      lofiAudio.tocarLoop();
-      document.getElementById('btnMusica') && (document.getElementById('btnMusica').innerHTML = '<i class="fas fa-stop"></i> Parar LoFi');
-    }
-  }
-  function pararMusicaLoFi() {
-    if (lofiAudio && lofiLoopActive) {
-      lofiLoopActive = false;
-      lofiAudio.setLooping(false);
-      if (lofiAudio.getLoopTimeout()) clearTimeout(lofiAudio.getLoopTimeout());
-      document.getElementById('btnMusica') && (document.getElementById('btnMusica').innerHTML = '<i class="fas fa-music"></i> Música LoFi');
-    }
-  }
-  function toggleMusica() { lofiLoopActive ? pararMusicaLoFi() : iniciarMusicaLoFi(); }
-  function ajustarVolume(valor) { currentVolume = valor / 100; if (lofiAudio && lofiAudio.masterGain) lofiAudio.masterGain.gain.value = currentVolume; }
-
-  // ========== NOTIFICAÇÕES ==========
-  function pedirPermissaoNotificacoes() {
-    if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
-  }
-  
-  function mostrarNotificacao(titulo, corpo, icone = '🎯') {
-    if (notificacoesAtivas && Notification.permission === 'granted') {
-      new Notification(titulo, { body: corpo, icon: icone });
+    if(window.cardsMetas.length === 0) {
+      window.cardsMetas = [{ id: "default_meta_" + Date.now(), nome: "Minhas Metas" }];
+      localStorage.setItem('cardsMetas', JSON.stringify(window.cardsMetas));
     }
   }
   
-  function checarNotificacoes() {
-    if (!notificacoesAtivas) return;
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const agora = new Date();
-    const em10min = new Date(agora.getTime() + 10 * 60000);
-    const hora10min = em10min.getHours().toString().padStart(2, '0') + ':' + em10min.getMinutes().toString().padStart(2, '0');
-    const hoje = agora.toISOString().split('T')[0];
-    tarefas.forEach(t => {
-      if (!t.concluida && t.data === hoje && t.hora === hora10min && !t.alertado) {
-        mostrarNotificacao('⏰ Tarefa em 10 minutos!', t.texto, '🎯');
-        t.alertado = true;
-        salvarTarefas();
-      }
-    });
-  }
-
-  // ========== MODO FOCO ==========
-  function iniciarPomodoroFocoMelhorado() {
-    if (pomodoroAtivo) return;
-    notificacoesAtivas = false;
-    console.log("🔇 Notificações silenciadas durante o modo foco");
-    const overlay = document.createElement('div');
-    overlay.id = 'focus-overlay';
-    overlay.className = 'foco-overlay';
-    document.body.appendChild(overlay);
-    document.body.classList.add('foco-ativo');
-    pomodoroAtivo = true;
-    pomodoroPausado = false;
-    if (pomodoroInterval) clearInterval(pomodoroInterval);
-    pomodoroInterval = setInterval(() => {
-      if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
-        tempoRestante--;
-        atualizarTimerDisplay();
-        if (tempoRestante <= 0) {
-          clearInterval(pomodoroInterval);
-          pomodoroAtivo = false;
-          if (tarefaFocoAtual) {
-            tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + (25 * 60);
-            salvarTarefas();
-          }
-          notificacoesAtivas = true;
-          console.log("🔔 Notificações reativadas!");
-          const ov = document.getElementById('focus-overlay');
-          if (ov) ov.remove();
-          document.body.classList.remove('foco-ativo');
-          pararMusicaLoFi();
-          alert('🎉 Pomodoro concluído! Faça uma pausa de 5 minutos.');
-          tempoRestante = 25 * 60;
-          atualizarTimerDisplay();
-          document.getElementById('btnIniciarFoco').style.display = 'inline-block';
-          document.getElementById('btnPausarFoco').style.display = 'none';
-        }
-      }
-    }, 1000);
-    document.getElementById('btnIniciarFoco').style.display = 'none';
-    document.getElementById('btnPausarFoco').style.display = 'inline-block';
-    document.getElementById('timerFocoGrande').classList.add('ativo');
-  }
-  
-  function pausarPomodoroFoco() {
-    if (!pomodoroAtivo) return;
-    pomodoroPausado = !pomodoroPausado;
-    document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
-    document.getElementById('timerFocoGrande').classList.toggle('ativo', !pomodoroPausado);
-  }
-  
-  function resetarPomodoroFoco() {
-    if (pomodoroInterval) clearInterval(pomodoroInterval);
-    tempoRestante = 25 * 60;
-    atualizarTimerDisplay();
-    pomodoroAtivo = false;
-    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
-    document.getElementById('btnPausarFoco').style.display = 'none';
-  }
-  
-  function concluirTarefaFoco() {
-    if (!tarefaFocoAtual) return;
-    if (confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) {
-      toggleTarefa(tarefaFocoAtual.id);
-      fecharModoFocoMelhorado();
-      setTimeout(() => {
-        const pendentes = tarefas.filter(t => !t.concluida);
-        if (pendentes.length) abrirModoFocoComTarefa(pendentes[0].id);
-      }, 300);
-    }
-  }
-  
-  function fecharModoFocoMelhorado() {
-    if (pomodoroInterval) clearInterval(pomodoroInterval);
-    pomodoroAtivo = false;
-    notificacoesAtivas = true;
-    console.log("🔔 Notificações reativadas!");
-    const ov = document.getElementById('focus-overlay');
-    if (ov) ov.remove();
-    document.body.classList.remove('foco-ativo');
-    pararMusicaLoFi();
-    document.getElementById('modalFocoOverlay').classList.remove('show');
-  }
-
-  // ========== FUNÇÕES AUXILIARES ==========
-  function escapeHtml(t){if(!t)return '';const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
-  function atualizarDataHoje(){const h=new Date();document.getElementById('dataHoje').textContent=h.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
-  function carregarTema(){if(localStorage.getItem('tema')==='dark')document.documentElement.setAttribute('data-theme','dark');}
-  
-  function salvarTarefas(){
-    window.tarefas = tarefas;
-    localStorage.setItem('tarefas', JSON.stringify(tarefas));
-    renderizarTarefas();
-    renderizarEstatisticas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
-  function salvarMetas(){
-    window.metas = metas;
-    localStorage.setItem('metas', JSON.stringify(metas));
-    renderizarDashboardMetas();
-    renderizarEstatisticas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
-  function salvarCardsMetas(){
-    window.cardsMetas = cardsMetas;
-    localStorage.setItem('cardsMetas', JSON.stringify(cardsMetas));
-    renderizarDashboardMetas();
-    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
-  }
-  
-  function salvarCardsTarefas(){
-    window.cardsTarefas = cardsTarefas;
-    localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
+  function salvarCardsTarefas() {
+    localStorage.setItem('cardsTarefas', JSON.stringify(window.cardsTarefas));
     atualizarSelectCategorias();
     renderizarTarefas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function salvarTarefas() {
+    localStorage.setItem('tarefas', JSON.stringify(window.tarefas));
+    renderizarTarefas();
     renderizarEstatisticas();
     if(window.salvarTudoFirebase) window.salvarTudoFirebase();
   }
   
-  function atualizarSelectCategorias(){const s=document.getElementById('nova-bloco');if(!s)return;s.innerHTML='';cardsTarefas.forEach(c=>{const o=document.createElement('option');o.value=c.nome;o.textContent=c.nome;s.appendChild(o);});}
-  
-  function adicionarCardMeta(){
-    const n = prompt('🏆 Nome do novo espaço de trabalho (Metas):');
-    if(n && n.trim()){
-      const novoCard = { id: 'meta_' + Date.now(), nome: n.trim() };
-      cardsMetas.push(novoCard);
-      salvarCardsMetas();
-      alert(`✅ Espaço "${n}" criado com sucesso!`);
-    }
+  function salvarMetas() {
+    localStorage.setItem('metas', JSON.stringify(window.metas));
+    renderizarDashboardMetas();
+    renderizarEstatisticas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
   }
   
-  function adicionarCardTarefa(){
-    const n = prompt('📋 Nome do novo espaço de trabalho:');
-    if(n && n.trim()){
-      const novoCard = { id: 'tarefa_' + Date.now(), nome: n.trim() };
-      cardsTarefas.push(novoCard);
+  function salvarCardsMetas() {
+    localStorage.setItem('cardsMetas', JSON.stringify(window.cardsMetas));
+    renderizarDashboardMetas();
+    if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+  }
+  
+  function adicionarCardTarefa() {
+    const nome = prompt('📋 Nome do novo espaço de trabalho:');
+    if(nome && nome.trim()) {
+      const novoCard = { 
+        id: 'tarefa_' + Date.now() + '_' + Math.random(), 
+        nome: nome.trim() 
+      };
+      window.cardsTarefas.push(novoCard);
       salvarCardsTarefas();
-      alert(`✅ Espaço "${n}" criado com sucesso!`);
-      console.log('Cards após adicionar:', cardsTarefas);
+      alert(`✅ Espaço "${nome}" criado com sucesso!`);
+      console.log('Cards após adicionar:', window.cardsTarefas);
+    } else {
+      alert('Por favor, digite um nome para o espaço de trabalho!');
     }
   }
   
-  function editarCardMeta(id){const c=cardsMetas.find(c=>c.id===id);if(!c)return;const n=prompt('Editar nome:',c.nome);if(n&&n.trim()){metas.forEach(m=>{if(m.categoria===c.nome)m.categoria=n.trim();});c.nome=n.trim();salvarCardsMetas();salvarMetas();}}
-  function editarCardTarefa(id){const c=cardsTarefas.find(c=>c.id===id);if(!c)return;const n=prompt('Editar nome:',c.nome);if(n&&n.trim()){tarefas.forEach(t=>{if(t.bloco===c.nome)t.bloco=n.trim();});c.nome=n.trim();salvarCardsTarefas();salvarTarefas();}}
-  
-  function excluirCardMeta(id){
-    const c = cardsMetas.find(c => c.id === id);
-    if(!c) return;
-    if(confirm(`Excluir "${c.nome}"? Metas serão movidas para "Pessoal".`)){
-      const alvo = cardsMetas.find(c => c.nome === 'Pessoal') || cardsMetas[0];
-      metas.forEach(m => { if(m.categoria === c.nome) m.categoria = alvo.nome; });
-      cardsMetas = cardsMetas.filter(c => c.id !== id);
+  function adicionarCardMeta() {
+    const nome = prompt('🏆 Nome do novo espaço de trabalho (Metas):');
+    if(nome && nome.trim()) {
+      const novoCard = { 
+        id: 'meta_' + Date.now() + '_' + Math.random(), 
+        nome: nome.trim() 
+      };
+      window.cardsMetas.push(novoCard);
       salvarCardsMetas();
-      salvarMetas();
-      renderizarDashboardMetas();
-      renderizarTarefas();
+      alert(`✅ Espaço "${nome}" criado com sucesso!`);
     }
   }
   
-  function excluirCardTarefa(id){
-    const c = cardsTarefas.find(c => c.id === id);
-    if(!c) return;
-    if(confirm(`Excluir "${c.nome}"? Tarefas serão movidas para "Pessoal".`)){
-      const alvo = cardsTarefas.find(c => c.nome === 'Pessoal') || cardsTarefas[0];
-      tarefas.forEach(t => { if(t.bloco === c.nome) t.bloco = alvo.nome; });
-      cardsTarefas = cardsTarefas.filter(c => c.id !== id);
-      salvarCardsTarefas();
-      salvarTarefas();
-      atualizarSelectCategorias();
-      renderizarTarefas();
-    }
+  function atualizarSelectCategorias() {
+    const select = document.getElementById('nova-bloco');
+    if(!select) return;
+    select.innerHTML = '';
+    window.cardsTarefas.forEach(card => {
+      const option = document.createElement('option');
+      option.value = card.nome;
+      option.textContent = card.nome;
+      select.appendChild(option);
+    });
   }
   
-  function moverCardMeta(o,d){const io=cardsMetas.findIndex(c=>c.id===o),id=cardsMetas.findIndex(c=>c.id===d);if(io===-1||id===-1)return;const[m]=cardsMetas.splice(io,1);cardsMetas.splice(id,0,m);salvarCardsMetas();}
-  function moverCardTarefa(o,d){const io=cardsTarefas.findIndex(c=>c.id===o),id=cardsTarefas.findIndex(c=>c.id===d);if(io===-1||id===-1)return;const[m]=cardsTarefas.splice(io,1);cardsTarefas.splice(id,0,m);salvarCardsTarefas();}
-  
-  function adicionarMeta(cat,cardId){const inp=document.getElementById(`input-meta-${cardId}`),txt=inp?.value.trim();if(!txt)return;const dInp=document.getElementById(`input-data-meta-${cardId}`);metas.push({id:Date.now(),texto:txt,categoria:cat,atingida:false,dataLimite:dInp?.value||''});inp.value='';if(dInp)dInp.value='';salvarMetas();}
-  function adicionarTarefa(){const texto=document.getElementById('nova-tarefa').value.trim();if(!texto){alert('Digite uma tarefa!');return;}const data=document.getElementById('nova-data').value||new Date().toISOString().split('T')[0];const bloco=document.getElementById('nova-bloco').value;tarefas.push({id:Date.now(),texto:texto,bloco:bloco,data:data,hora:document.getElementById('nova-hora').value,prioridade:document.getElementById('nova-prioridade').value,recorrencia:document.getElementById('nova-recorrencia').value,concluida:false,criada:new Date().toISOString(),alertado:false,ordem:tarefas.filter(t=>t.bloco===bloco).length,tempoGasto:0});document.getElementById('nova-tarefa').value='';document.getElementById('nova-hora').value='';salvarTarefas();alert('✅ Tarefa adicionada!');}
-  function toggleMeta(id){const m=metas.find(m=>m.id===id);if(m){m.atingida=!m.atingida;salvarMetas();}}
-  function toggleTarefa(id){const t=tarefas.find(t=>t.id===id);if(t){t.concluida=!t.concluida;salvarTarefas();}}
-  function excluirMeta(id){if(confirm('Excluir meta?')){metas=metas.filter(m=>m.id!==id);salvarMetas();}}
-  function excluirTarefa(id){if(confirm('Excluir tarefa?')){tarefas=tarefas.filter(t=>t.id!==id);salvarTarefas();}}
-  function editarMetaPrompt(id){const m=metas.find(m=>m.id===id);if(!m)return;const nt=prompt('Editar meta:',m.texto);if(nt&&nt.trim())m.texto=nt.trim();const nd=prompt('Data limite:',m.dataLimite||'');if(nd!==null)m.dataLimite=nd;salvarMetas();}
-  function editarTarefa(id){const t=tarefas.find(t=>t.id===id);if(!t)return;const nt=prompt('Editar tarefa:',t.texto);if(nt&&nt.trim())t.texto=nt.trim();const nd=prompt('Data:',t.data||'');if(nd&&nd.match(/^\d{4}-\d{2}-\d{2}$/))t.data=nd;const np=prompt('Prioridade (p1/p2/p3):',t.prioridade);if(np&&['p1','p2','p3'].includes(np))t.prioridade=np;salvarTarefas();}
-  
-  function setFiltro(f,btn){filtroAtual=f;document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderizarTarefas();}
-  function buscarGlobal(){termoBusca=document.getElementById('buscaGlobal').value.toLowerCase();renderizarTarefas();}
-  function filtrarTarefas(lista){const hoje=new Date().toISOString().split('T')[0];let f=lista;if(termoBusca)f=f.filter(t=>t.texto.toLowerCase().includes(termoBusca));if(filtroAtual==='hoje')return f.filter(t=>t.data<=hoje&&!t.concluida);if(filtroAtual==='concluidas')return f.filter(t=>t.concluida);return f.filter(t=>!t.concluida);}
-  
-  function toggleView(view){viewAtual=view;const cards=document.getElementById('cardsView'),cal=document.getElementById('calendarioView'),btns=document.querySelectorAll('.view-btn');btns.forEach(b=>b.classList.remove('active'));if(view==='cards'){cards.style.display='block';cal.style.display='none';btns[0].classList.add('active');renderizarTarefas();}else{cards.style.display='none';cal.style.display='block';btns[1].classList.add('active');renderizarCalendario();}}
-  function mudarMes(d){dataAtualCalendario.setMonth(dataAtualCalendario.getMonth()+d);renderizarCalendario();}
-  function renderizarCalendario(){const ano=dataAtualCalendario.getFullYear(),mes=dataAtualCalendario.getMonth();const pd=new Date(ano,mes,1),ud=new Date(ano,mes+1,0);const diasNoMes=ud.getDate(),diaInicio=pd.getDay();const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];document.getElementById('calendarioMes').textContent=`${meses[mes]} ${ano}`;const ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];let html='';ds.forEach(d=>{html+=`<div class="calendario-dia-semana">${d}</div>`;});let dia=1;const hoje=new Date().toISOString().split('T')[0];for(let i=0;i<42;i++){if(i<diaInicio||dia>diasNoMes){html+=`<div class="calendario-dia vazio"></div>`;}else{const dataStr=`${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;const tarefasDia=tarefas.filter(t=>t.data===dataStr&&!t.concluida);const isHoje=dataStr===hoje;html+=`<div class="calendario-dia ${isHoje?'hoje':''}" onclick="selecionarDataCalendario('${dataStr}')"><div style="font-weight:bold;margin-bottom:5px;">${dia}</div><div style="font-size:11px;max-height:70px;overflow-y:auto;">`;tarefasDia.slice(0,4).forEach(t=>{html+=`<div style="padding:2px 4px;background:rgba(102,126,234,0.2);border-radius:6px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="event.stopPropagation(); abrirModoFocoComTarefa(${t.id})">${escapeHtml(t.texto.substring(0,20))}${t.texto.length>20?'...':''}</div>`;});if(tarefasDia.length>4)html+=`<div style="font-size:10px;opacity:0.7;">+${tarefasDia.length-4} mais</div>`;html+=`</div></div>`;dia++;}}document.getElementById('calendarioGrade').innerHTML=html;}
-  function selecionarDataCalendario(data){const td=tarefas.filter(t=>t.data===data&&!t.concluida);if(td.length){alert(`📅 ${data}\n\n${td.map((t,i)=>`${i+1}. ${t.texto}`).join('\n')}`);}else{alert(`📅 ${data}\nNenhuma tarefa pendente.`);}}
-  
-  function abrirModoFocoComTarefa(id){const t=tarefas.find(t=>t.id===id);if(!t)return;tarefaFocoAtual=t;document.getElementById('tarefaFocoTexto').textContent=t.texto;tempoRestante=25*60;atualizarTimerDisplay();document.getElementById('modalFocoOverlay').classList.add('show');if(pomodoroInterval)clearInterval(pomodoroInterval);pomodoroAtivo=false;notificacoesAtivas=true;document.getElementById('btnIniciarFoco').style.display='inline-block';document.getElementById('btnPausarFoco').style.display='none';}
-  function abrirModoFoco(){const p=tarefas.filter(t=>!t.concluida);if(!p.length){alert('🎉 Nenhuma tarefa pendente!');return;}abrirModoFocoComTarefa(p[0].id);}
-  function atualizarTimerDisplay(){const min=Math.floor(tempoRestante/60),seg=tempoRestante%60;document.getElementById('timerFocoGrande').textContent=`${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;const p=((25*60-tempoRestante)/(25*60))*100;const bar=document.querySelector('#modalFocoOverlay .progresso-foco-bar');if(bar)bar.style.width=`${p}%`;}
-  
-  function renderizarDashboardMetas(){const c=document.getElementById('dashboardMetasGrid');if(!c)return;c.innerHTML='';cardsMetas.forEach(card=>{const mb=metas.filter(m=>m.categoria===card.nome);const total=mb.length,atingidas=mb.filter(m=>m.atingida).length,percentual=total>0?Math.round((atingidas/total)*100):0;const div=document.createElement('div');div.className='meta-card';div.setAttribute('draggable','true');div.dataset.cardId=card.id;div.addEventListener('dragstart',(e)=>{cardMetaArrastando=card.id;div.classList.add('dragging');e.dataTransfer.setData('text/plain',card.id);});div.addEventListener('dragend',()=>div.classList.remove('dragging'));div.addEventListener('dragover',(e)=>{e.preventDefault();div.classList.add('drag-over');});div.addEventListener('dragleave',()=>div.classList.remove('drag-over'));div.addEventListener('drop',(e)=>{e.preventDefault();div.classList.remove('drag-over');if(cardMetaArrastando&&cardMetaArrastando!==card.id)moverCardMeta(cardMetaArrastando,card.id);cardMetaArrastando=null;});div.innerHTML=`<div class="meta-card-header"><span><i class="fas fa-tag"></i> ${escapeHtml(card.nome)}</span><div class="card-actions"><span class="meta-progresso">${atingidas}/${total}</span><button onclick="event.stopPropagation(); editarCardMeta('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="event.stopPropagation(); excluirCardMeta('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div><div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width:${percentual}%"></div></div><div class="meta-lista" id="meta-lista-${card.id}"></div><div class="meta-add-dash"><input type="text" id="input-meta-${card.id}" placeholder="Nova meta..."><input type="date" id="input-data-meta-${card.id}"><button class="btn-glass" style="padding:8px 20px;" onclick="adicionarMeta('${card.nome}','${card.id}')"><i class="fas fa-plus"></i></button></div>`;c.appendChild(div);const lista=div.querySelector(`#meta-lista-${card.id}`);if(mb.length===0){lista.innerHTML=`<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia por aqui</p><small>Adicione uma meta para começar</small></div>`;}else{mb.forEach(meta=>{lista.innerHTML+=`<div class="meta-item-dash ${meta.atingida?'atingida':''}" draggable="true" data-meta-id="${meta.id}"><input type="checkbox" ${meta.atingida?'checked':''} onchange="toggleMeta(${meta.id})"><div style="flex:1"><div class="meta-texto-dash">${escapeHtml(meta.texto)}</div>${meta.dataLimite?`<div class="meta-data-limite"><i class="fas fa-calendar-alt"></i> ${new Date(meta.dataLimite).toLocaleDateString('pt-BR')}</div>`:''}</div><div class="item-actions"><button onclick="editarMetaPrompt(${meta.id})"><i class="fas fa-edit"></i></button><button onclick="excluirMeta(${meta.id})"><i class="fas fa-trash-alt"></i></button></div></div>`;});}});const addCard=document.createElement('div');addCard.className='meta-card card-adicionar';addCard.onclick=()=>adicionarCardMeta();addCard.innerHTML=`<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Espaço</p></div>`;c.appendChild(addCard);document.querySelectorAll('.meta-item-dash').forEach(item=>{item.addEventListener('dragstart',(e)=>{metaArrastando=parseInt(item.dataset.metaId);item.classList.add('dragging');});item.addEventListener('dragend',()=>item.classList.remove('dragging'));});}
-  
-  function renderizarTarefas(){
-    if(viewAtual === 'calendario') return;
+  function renderizarTarefas() {
     const container = document.getElementById('blocosTarefas');
     if(!container) return;
     container.innerHTML = '';
     
     const hoje = new Date().toISOString().split('T')[0];
+    const cards = window.cardsTarefas || [];
     
-    console.log('Renderizando tarefas, cards:', cardsTarefas);
-    
-    if(!cardsTarefas || cardsTarefas.length === 0){
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'bloco-tarefa';
-      msgDiv.style.minWidth = '100%';
-      msgDiv.style.textAlign = 'center';
-      msgDiv.style.padding = '40px';
-      msgDiv.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-folder-open"></i>
-          <p>Nenhum espaço de trabalho</p>
-          <small>Clique em "Novo Espaço de Trabalho" para começar</small>
+    if(cards.length === 0) {
+      container.innerHTML = `
+        <div class="bloco-tarefa" style="min-width: 100%; text-align: center; padding: 40px;">
+          <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <p>Nenhum espaço de trabalho</p>
+            <small>Clique em "Novo Espaço de Trabalho" para começar</small>
+          </div>
         </div>
       `;
-      container.appendChild(msgDiv);
       return;
     }
     
-    cardsTarefas.forEach(card => {
-      let tb = filtrarTarefas(tarefas.filter(t => t.bloco === card.nome));
-      const ativas = tb.filter(t => !t.concluida).length;
-      const total = tarefas.filter(t => t.bloco === card.nome).length;
+    cards.forEach(card => {
+      const tarefasDoCard = window.tarefas.filter(t => t.bloco === card.nome);
+      const tarefasFiltradas = filtrarTarefas(tarefasDoCard);
+      const ativas = tarefasFiltradas.filter(t => !t.concluida).length;
       
       const div = document.createElement('div');
       div.className = 'bloco-tarefa';
-      div.setAttribute('draggable', 'true');
-      div.dataset.cardId = card.id;
-      
-      div.addEventListener('dragstart', (e) => {
-        cardTarefaArrastando = card.id;
-        div.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', card.id);
-      });
-      div.addEventListener('dragend', () => div.classList.remove('dragging'));
-      div.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        div.classList.add('drag-over');
-      });
-      div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
-      div.addEventListener('drop', (e) => {
-        e.preventDefault();
-        div.classList.remove('drag-over');
-        if(cardTarefaArrastando && cardTarefaArrastando !== card.id) moverCardTarefa(cardTarefaArrastando, card.id);
-        cardTarefaArrastando = null;
-      });
-      
-      let html = `<div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div class="card-actions"><span>${ativas} ativas</span><button onclick="event.stopPropagation(); editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="event.stopPropagation(); excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div><div class="tarefa-lista">`;
-      
-      if(tb.length === 0){
-        html += `<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa para começar</small></div>`;
-      } else {
-        tb.forEach(t => {
-          const atrasada = t.data && t.data < hoje && !t.concluida;
-          const rec = {diaria:'🔄 Diária', dias_uteis:'📅 Dias úteis', semanal:'📆 Semanal', mensal:'📅 Mensal'}[t.recorrencia] || '';
-          html += `<div class="tarefa-item ${t.concluida ? 'concluida' : ''}" draggable="true" data-tarefa-id="${t.id}"><input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})"><div class="tarefa-conteudo"><div class="tarefa-texto">${escapeHtml(t.texto)}</div><div class="tarefa-meta">${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}${rec ? `<span class="badge recorrente">${rec}</span>` : ''}</div></div><div class="item-actions"><button onclick="abrirModoFocoComTarefa(${t.id})" title="Pomodoro"><i class="fas fa-clock"></i></button><button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button><button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button></div></div>`;
-        });
-      }
-      html += `</div>`;
-      div.innerHTML = html;
+      div.innerHTML = `
+        <div class="bloco-header">
+          <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
+          <div class="card-actions">
+            <span>${ativas} ativas</span>
+            <button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button>
+            <button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+        <div class="tarefa-lista" id="tarefa-lista-${card.id}">
+          ${renderizarListaTarefas(tarefasFiltradas, hoje)}
+        </div>
+      `;
       container.appendChild(div);
-      
-      div.querySelectorAll('.tarefa-item').forEach(item => {
-        item.addEventListener('dragstart', (e) => {
-          tarefaArrastando = parseInt(item.dataset.tarefaId);
-          item.classList.add('dragging');
-        });
-        item.addEventListener('dragend', () => item.classList.remove('dragging'));
-        item.addEventListener('dragover', (e) => e.preventDefault());
-        item.addEventListener('drop', (e) => {
-          e.preventDefault();
-          if(tarefaArrastando){
-            const cardEl = e.target.closest('.bloco-tarefa');
-            if(cardEl) moverTarefa(tarefaArrastando, cardEl.querySelector('.bloco-header span').textContent.replace(/[^\w\s]/g, '').trim());
-          }
-          tarefaArrastando = null;
-        });
-      });
     });
     
+    // Botão para adicionar novo espaço
     const addCard = document.createElement('div');
     addCard.className = 'bloco-tarefa card-adicionar';
     addCard.onclick = () => adicionarCardTarefa();
+    addCard.innerHTML = `
+      <div class="card-adicionar-conteudo">
+        <i class="fas fa-plus-circle"></i>
+        <p>Novo Espaço</p>
+      </div>
+    `;
+    container.appendChild(addCard);
+  }
+  
+  function renderizarListaTarefas(tarefasList, hoje) {
+    if(tarefasList.length === 0) {
+      return `<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa para começar</small></div>`;
+    }
+    
+    let html = '';
+    tarefasList.forEach(t => {
+      const atrasada = t.data && t.data < hoje && !t.concluida;
+      const rec = {diaria:'🔄 Diária', dias_uteis:'📅 Dias úteis', semanal:'📆 Semanal', mensal:'📅 Mensal'}[t.recorrencia] || '';
+      html += `
+        <div class="tarefa-item ${t.concluida ? 'concluida' : ''}">
+          <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
+          <div class="tarefa-conteudo">
+            <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
+            <div class="tarefa-meta">
+              ${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}
+              ${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}
+              ${rec ? `<span class="badge recorrente">${rec}</span>` : ''}
+            </div>
+          </div>
+          <div class="item-actions">
+            <button onclick="abrirModoFocoComTarefa(${t.id})" title="Pomodoro"><i class="fas fa-clock"></i></button>
+            <button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button>
+            <button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+      `;
+    });
+    return html;
+  }
+  
+  function filtrarTarefas(lista) {
+    const termo = document.getElementById('buscaGlobal')?.value.toLowerCase() || '';
+    let filtradas = lista;
+    if(termo) filtradas = filtradas.filter(t => t.texto.toLowerCase().includes(termo));
+    
+    if(filtroAtual === 'hoje') {
+      const hoje = new Date().toISOString().split('T')[0];
+      return filtradas.filter(t => t.data <= hoje && !t.concluida);
+    }
+    if(filtroAtual === 'concluidas') return filtradas.filter(t => t.concluida);
+    return filtradas.filter(t => !t.concluida);
+  }
+  
+  function renderizarDashboardMetas() {
+    const container = document.getElementById('dashboardMetasGrid');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    const cards = window.cardsMetas || [];
+    
+    cards.forEach(card => {
+      const metasDoCard = window.metas.filter(m => m.categoria === card.nome);
+      const total = metasDoCard.length;
+      const atingidas = metasDoCard.filter(m => m.atingida).length;
+      const percentual = total > 0 ? Math.round((atingidas / total) * 100) : 0;
+      
+      const div = document.createElement('div');
+      div.className = 'meta-card';
+      div.innerHTML = `
+        <div class="meta-card-header">
+          <span><i class="fas fa-tag"></i> ${escapeHtml(card.nome)}</span>
+          <div class="card-actions">
+            <span class="meta-progresso">${atingidas}/${total}</span>
+            <button onclick="editarCardMeta('${card.id}')"><i class="fas fa-edit"></i></button>
+            <button onclick="excluirCardMeta('${card.id}')"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+        <div class="meta-progresso-bar"><div class="meta-progresso-fill" style="width:${percentual}%"></div></div>
+        <div class="meta-lista" id="meta-lista-${card.id}">
+          ${renderizarListaMetas(metasDoCard)}
+        </div>
+        <div class="meta-add-dash">
+          <input type="text" id="input-meta-${card.id}" placeholder="Nova meta...">
+          <input type="date" id="input-data-meta-${card.id}">
+          <button class="btn-glass" onclick="adicionarMeta('${card.nome}','${card.id}')"><i class="fas fa-plus"></i> Adicionar</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+    
+    const addCard = document.createElement('div');
+    addCard.className = 'meta-card card-adicionar';
+    addCard.onclick = () => adicionarCardMeta();
     addCard.innerHTML = `<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Espaço</p></div>`;
     container.appendChild(addCard);
   }
   
-  function moverTarefa(id, nb){
-    const t = tarefas.find(t => t.id === id);
-    if(t && t.bloco !== nb){
-      t.bloco = nb;
+  function renderizarListaMetas(metasList) {
+    if(metasList.length === 0) {
+      return `<div class="empty-state"><i class="fas fa-bullseye"></i><p>Tudo em dia por aqui</p><small>Adicione uma meta para começar</small></div>`;
+    }
+    
+    let html = '';
+    metasList.forEach(meta => {
+      html += `
+        <div class="meta-item-dash ${meta.atingida ? 'atingida' : ''}">
+          <input type="checkbox" ${meta.atingida ? 'checked' : ''} onchange="toggleMeta(${meta.id})">
+          <div style="flex:1">
+            <div class="meta-texto-dash">${escapeHtml(meta.texto)}</div>
+            ${meta.dataLimite ? `<div class="meta-data-limite"><i class="fas fa-calendar-alt"></i> ${new Date(meta.dataLimite).toLocaleDateString('pt-BR')}</div>` : ''}
+          </div>
+          <div class="item-actions">
+            <button onclick="editarMetaPrompt(${meta.id})"><i class="fas fa-edit"></i></button>
+            <button onclick="excluirMeta(${meta.id})"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+      `;
+    });
+    return html;
+  }
+  
+  function renderizarEstatisticas() {
+    const tt = window.tarefas.length;
+    const concluidas = window.tarefas.filter(t => t.concluida).length;
+    const metasAt = window.metas.filter(m => m.atingida).length;
+    const tempo = window.tarefas.reduce((a, t) => a + (t.tempoGasto || 0), 0);
+    const horas = Math.floor(tempo / 3600);
+    const min = Math.floor((tempo % 3600) / 60);
+    
+    const statsGrid = document.getElementById('statsGrid');
+    if(statsGrid) {
+      statsGrid.innerHTML = `
+        <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Tarefas Concluídas</div></div>
+        <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${tt ? Math.round(concluidas / tt * 100) : 0}%</div><div class="stat-label">Taxa de Conclusão</div></div>
+        <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${window.metas.length}</div><div class="stat-label">Metas Atingidas</div></div>
+        <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${min}m</div><div class="stat-label">Tempo Focado</div></div>
+      `;
+    }
+  }
+  
+  // Funções auxiliares
+  function escapeHtml(text) {
+    if(!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  function toggleTarefa(id) {
+    const tarefa = window.tarefas.find(t => t.id === id);
+    if(tarefa) {
+      tarefa.concluida = !tarefa.concluida;
       salvarTarefas();
     }
   }
   
-  function renderizarEstatisticas(){
-    const tt = tarefas.length, concluidas = tarefas.filter(t => t.concluida).length;
-    const metasAt = metas.filter(m => m.atingida).length;
-    const tempo = tarefas.reduce((a, t) => a + (t.tempoGasto || 0), 0);
-    const horas = Math.floor(tempo / 3600), min = Math.floor((tempo % 3600) / 60);
-    
-    document.getElementById('statsGrid').innerHTML = `
-      <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Tarefas Concluídas</div></div>
-      <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${tt ? Math.round(concluidas / tt * 100) : 0}%</div><div class="stat-label">Taxa de Conclusão</div></div>
-      <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-numero">${metasAt}/${metas.length}</div><div class="stat-label">Metas Atingidas</div></div>
-      <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horas}h ${min}m</div><div class="stat-label">Tempo Focado</div></div>
-    `;
-    
-    const grafico = document.getElementById('graficoBarras');
-    if(grafico){
-      grafico.innerHTML = '';
-      const max = Math.max(...cardsTarefas.map(c => tarefas.filter(t => t.bloco === c.nome && t.concluida).length), 1);
-      cardsTarefas.forEach(card => {
-        const cCard = tarefas.filter(t => t.bloco === card.nome && t.concluida).length;
-        const altura = Math.max((cCard / max) * 100, 5);
-        const barra = document.createElement('div');
-        barra.className = 'barra';
-        barra.style.height = altura + '%';
-        barra.innerHTML = `<div class="barra-valor">${cCard}</div><div class="barra-label">${card.nome.substring(0, 3)}</div>`;
-        grafico.appendChild(barra);
-      });
+  function toggleMeta(id) {
+    const meta = window.metas.find(m => m.id === id);
+    if(meta) {
+      meta.atingida = !meta.atingida;
+      salvarMetas();
     }
   }
   
-  function abrirModalNovaMeta(){
-    const cat = prompt('Categoria:', cardsMetas[0]?.nome);
-    if(cat && cardsMetas.some(c => c.nome === cat)){
+  function excluirTarefa(id) {
+    if(confirm('Excluir tarefa?')) {
+      window.tarefas = window.tarefas.filter(t => t.id !== id);
+      salvarTarefas();
+    }
+  }
+  
+  function excluirMeta(id) {
+    if(confirm('Excluir meta?')) {
+      window.metas = window.metas.filter(m => m.id !== id);
+      salvarMetas();
+    }
+  }
+  
+  function editarTarefa(id) {
+    const tarefa = window.tarefas.find(t => t.id === id);
+    if(!tarefa) return;
+    const novoTexto = prompt('Editar tarefa:', tarefa.texto);
+    if(novoTexto && novoTexto.trim()) tarefa.texto = novoTexto.trim();
+    salvarTarefas();
+  }
+  
+  function editarMetaPrompt(id) {
+    const meta = window.metas.find(m => m.id === id);
+    if(!meta) return;
+    const novoTexto = prompt('Editar meta:', meta.texto);
+    if(novoTexto && novoTexto.trim()) meta.texto = novoTexto.trim();
+    salvarMetas();
+  }
+  
+  function adicionarMeta(categoria, cardId) {
+    const input = document.getElementById(`input-meta-${cardId}`);
+    const texto = input?.value.trim();
+    if(!texto) return;
+    
+    const dataInput = document.getElementById(`input-data-meta-${cardId}`);
+    window.metas.push({
+      id: Date.now(),
+      texto: texto,
+      categoria: categoria,
+      atingida: false,
+      dataLimite: dataInput?.value || ''
+    });
+    input.value = '';
+    if(dataInput) dataInput.value = '';
+    salvarMetas();
+  }
+  
+  function adicionarTarefa() {
+    const texto = document.getElementById('nova-tarefa').value.trim();
+    if(!texto) {
+      alert('Digite uma tarefa!');
+      return;
+    }
+    const data = document.getElementById('nova-data').value || new Date().toISOString().split('T')[0];
+    const bloco = document.getElementById('nova-bloco').value;
+    window.tarefas.push({
+      id: Date.now(),
+      texto: texto,
+      bloco: bloco,
+      data: data,
+      hora: document.getElementById('nova-hora').value,
+      prioridade: document.getElementById('nova-prioridade').value,
+      recorrencia: document.getElementById('nova-recorrencia').value,
+      concluida: false,
+      criada: new Date().toISOString(),
+      alertado: false,
+      tempoGasto: 0
+    });
+    document.getElementById('nova-tarefa').value = '';
+    document.getElementById('nova-hora').value = '';
+    salvarTarefas();
+    alert('✅ Tarefa adicionada!');
+  }
+  
+  function editarCardTarefa(id) {
+    const card = window.cardsTarefas.find(c => c.id === id);
+    if(!card) return;
+    const novoNome = prompt('Editar nome do espaço:', card.nome);
+    if(novoNome && novoNome.trim()) {
+      // Atualizar nome em todas as tarefas
+      window.tarefas.forEach(t => {
+        if(t.bloco === card.nome) t.bloco = novoNome.trim();
+      });
+      card.nome = novoNome.trim();
+      salvarCardsTarefas();
+      salvarTarefas();
+    }
+  }
+  
+  function excluirCardTarefa(id) {
+    const card = window.cardsTarefas.find(c => c.id === id);
+    if(!card) return;
+    if(confirm(`Excluir "${card.nome}"? As tarefas serão movidas para "Pessoal".`)) {
+      const pessoal = window.cardsTarefas.find(c => c.nome === 'Pessoal') || window.cardsTarefas[0];
+      window.tarefas.forEach(t => {
+        if(t.bloco === card.nome) t.bloco = pessoal.nome;
+      });
+      window.cardsTarefas = window.cardsTarefas.filter(c => c.id !== id);
+      salvarCardsTarefas();
+      salvarTarefas();
+    }
+  }
+  
+  function editarCardMeta(id) {
+    const card = window.cardsMetas.find(c => c.id === id);
+    if(!card) return;
+    const novoNome = prompt('Editar nome do espaço:', card.nome);
+    if(novoNome && novoNome.trim()) {
+      window.metas.forEach(m => {
+        if(m.categoria === card.nome) m.categoria = novoNome.trim();
+      });
+      card.nome = novoNome.trim();
+      salvarCardsMetas();
+      salvarMetas();
+    }
+  }
+  
+  function excluirCardMeta(id) {
+    const card = window.cardsMetas.find(c => c.id === id);
+    if(!card) return;
+    if(confirm(`Excluir "${card.nome}"? As metas serão movidas para "Pessoal".`)) {
+      const pessoal = window.cardsMetas.find(c => c.nome === 'Pessoal') || window.cardsMetas[0];
+      window.metas.forEach(m => {
+        if(m.categoria === card.nome) m.categoria = pessoal.nome;
+      });
+      window.cardsMetas = window.cardsMetas.filter(c => c.id !== id);
+      salvarCardsMetas();
+      salvarMetas();
+    }
+  }
+  
+  function abrirModalNovaMeta() {
+    const cat = prompt('Categoria:', window.cardsMetas[0]?.nome);
+    if(cat && window.cardsMetas.some(c => c.nome === cat)) {
       const texto = prompt('Meta:');
-      if(texto && texto.trim()){
-        metas.push({id: Date.now(), texto: texto.trim(), categoria: cat, atingida: false, dataLimite: ''});
+      if(texto && texto.trim()) {
+        window.metas.push({
+          id: Date.now(),
+          texto: texto.trim(),
+          categoria: cat,
+          atingida: false,
+          dataLimite: ''
+        });
         salvarMetas();
         alert('✅ Meta adicionada!');
       }
     }
   }
   
-  function limparMetasConcluidas(){
-    if(confirm('Remover metas concluídas?')){
-      metas = metas.filter(m => !m.atingida);
+  function limparMetasConcluidas() {
+    if(confirm('Remover metas concluídas?')) {
+      window.metas = window.metas.filter(m => !m.atingida);
       salvarMetas();
       alert('✅ Metas concluídas removidas!');
     }
   }
   
-  function exportarBackup(){
-    const dados = {tarefas, metas, cardsMetas, cardsTarefas};
+  function abrirModoFocoComTarefa(id) {
+    alert('Modo foco em desenvolvimento...');
+  }
+  
+  let filtroAtual = 'hoje';
+  function setFiltro(filtro, btn) {
+    filtroAtual = filtro;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderizarTarefas();
+  }
+  
+  function buscarGlobal() {
+    renderizarTarefas();
+  }
+  
+  function toggleView(view) {
+    const cardsView = document.getElementById('cardsView');
+    const calendarioView = document.getElementById('calendarioView');
+    const btns = document.querySelectorAll('.view-btn');
+    
+    if(view === 'cards') {
+      cardsView.style.display = 'block';
+      calendarioView.style.display = 'none';
+      btns[0].classList.add('active');
+      btns[1].classList.remove('active');
+      renderizarTarefas();
+    } else {
+      cardsView.style.display = 'none';
+      calendarioView.style.display = 'block';
+      btns[0].classList.remove('active');
+      btns[1].classList.add('active');
+    }
+  }
+  
+  function mudarMes(delta) {
+    // Implementação do calendário
+  }
+  
+  function exportarBackup() {
+    const dados = {
+      tarefas: window.tarefas,
+      metas: window.metas,
+      cardsMetas: window.cardsMetas,
+      cardsTarefas: window.cardsTarefas
+    };
     const blob = new Blob([JSON.stringify(dados)], {type: 'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -1343,56 +1353,59 @@
     alert('✅ Backup exportado!');
   }
   
-  function importarBackup(e){
-    const file = e.target.files[0];
+  function importarBackup(event) {
+    const file = event.target.files[0];
     if(!file) return;
     const reader = new FileReader();
-    reader.onload = ev => {
-      try{
-        const dados = JSON.parse(ev.target.result);
-        if(confirm(`Importar backup?\n\nTarefas: ${dados.tarefas?.length || 0}\nMetas: ${dados.metas?.length || 0}`)){
-          if(dados.tarefas) tarefas = dados.tarefas;
-          if(dados.metas) metas = dados.metas;
-          if(dados.cardsMetas) cardsMetas = dados.cardsMetas;
-          if(dados.cardsTarefas) cardsTarefas = dados.cardsTarefas;
+    reader.onload = (e) => {
+      try {
+        const dados = JSON.parse(e.target.result);
+        if(confirm(`Importar backup?`)) {
+          if(dados.tarefas) window.tarefas = dados.tarefas;
+          if(dados.metas) window.metas = dados.metas;
+          if(dados.cardsMetas) window.cardsMetas = dados.cardsMetas;
+          if(dados.cardsTarefas) window.cardsTarefas = dados.cardsTarefas;
           salvarCardsMetas();
           salvarCardsTarefas();
           salvarTarefas();
           salvarMetas();
           alert('✅ Backup importado!');
-          atualizarSelectCategorias();
-          renderizarDashboardMetas();
-          renderizarTarefas();
-          renderizarEstatisticas();
         }
-      } catch(err){
+      } catch(err) {
         alert('❌ Erro ao importar.');
       }
     };
     reader.readAsText(file);
-    e.target.value = '';
+    event.target.value = '';
   }
   
-  window.recarregarSistema = function(){
-    tarefas = window.tarefas;
-    metas = window.metas;
-    cardsMetas = window.cardsMetas;
-    cardsTarefas = window.cardsTarefas;
+  function atualizarDataHoje() {
+    const hoje = new Date();
+    document.getElementById('dataHoje').textContent = hoje.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+  
+  window.recarregarSistema = function() {
+    carregarDados();
     atualizarSelectCategorias();
     renderizarDashboardMetas();
     renderizarTarefas();
     renderizarEstatisticas();
   };
   
-  pedirPermissaoNotificacoes();
-  setInterval(checarNotificacoes, 60000);
+  // Inicialização
+  carregarDados();
   atualizarSelectCategorias();
-  carregarTema();
-  atualizarDataHoje();
   renderizarDashboardMetas();
   renderizarTarefas();
   renderizarEstatisticas();
-  console.log("🚀 App FLUXO inicializado!");
+  atualizarDataHoje();
+  
+  console.log('🚀 App inicializado com cards:', window.cardsTarefas);
 </script>
 </body>
 </html>
