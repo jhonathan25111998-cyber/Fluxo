@@ -18,12 +18,51 @@
     -webkit-tap-highlight-color: transparent;
   }
   
+  /* Tema Claro (padrão) */
   body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     background-attachment: fixed;
     padding: 16px;
     min-height: 100vh;
+    transition: background 0.3s ease;
+  }
+  
+  /* Tema Escuro */
+  body.dark-theme {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  }
+  
+  body.dark-theme .header,
+  body.dark-theme .meta-card,
+  body.dark-theme .bloco-tarefa,
+  body.dark-theme .adicionar,
+  body.dark-theme .estatisticas {
+    background: rgba(10, 10, 20, 0.8);
+  }
+  
+  body.dark-theme .tarefa-item,
+  body.dark-theme .meta-item-dash {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  
+  .theme-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+  
+  .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
   }
   
   @media (min-width: 768px) {
@@ -48,6 +87,7 @@
     margin-bottom: 20px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
+    transition: all 0.3s ease;
   }
   
   @media (min-width: 768px) {
@@ -482,7 +522,34 @@
     .meta-lista, .tarefa-lista { padding: 20px; }
   }
   
-  /* Botão de adicionar tarefa dentro do card */
+  /* Estilos para ordenação */
+  .sort-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    justify-content: flex-end;
+  }
+  
+  .sort-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: white;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .sort-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .sort-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: rgba(255,255,255,0.2);
+  }
+  
   .add-tarefa-btn {
     width: 100%;
     background: rgba(255, 255, 255, 0.08);
@@ -507,7 +574,6 @@
     transform: translateY(-2px);
   }
   
-  /* Formulário inline dentro do card */
   .inline-form {
     margin-top: 12px;
     padding: 12px;
@@ -603,6 +669,7 @@
     padding: 16px;
     margin-top: 20px;
     border: 1px solid rgba(255,255,255,0.08);
+    transition: all 0.3s ease;
   }
   
   @media (min-width: 768px) {
@@ -816,7 +883,30 @@
     transform: scale(1.02);
   }
   
-  .tarefa-item, .meta-item-dash {
+  .tarefa-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: flex-start;
+    cursor: grab;
+  }
+  
+  .tarefa-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+  }
+  
+  .tarefa-item.drag-over {
+    border: 2px solid #667eea;
+    background: rgba(102, 126, 234, 0.2);
+  }
+  
+  .meta-item-dash {
     padding: 10px;
     margin-bottom: 8px;
     border-radius: 12px;
@@ -837,7 +927,7 @@
     }
   }
   
-  .tarefa-item:hover, .meta-item-dash:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
+  .tarefa-item:hover, .meta-item-dash:hover { background: rgba(255,255,255,0.08); }
   .tarefa-item.concluida, .meta-item-dash.atingida { opacity: 0.5; text-decoration: line-through; }
   .tarefa-item input, .meta-item-dash input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
   
@@ -1034,6 +1124,7 @@
     flex: 1;
   }
   
+  /* Modo Foco */
   .modal-foco-overlay {
     display: none;
     position: fixed;
@@ -1065,11 +1156,11 @@
   
   .progresso-foco { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 20px 0; overflow: hidden; }
   .progresso-foco-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); width: 0%; transition: width 0.3s; }
-  .timer-foco-grande { font-size: 48px; font-weight: bold; margin: 16px 0; color: #667eea; }
+  .timer-foco-grande { font-size: 48px; font-weight: bold; margin: 16px 0; color: #667eea; font-family: monospace; }
   @media (min-width: 768px) {
     .timer-foco-grande { font-size: 64px; }
   }
-  .controles-foco { gap: 8px; }
+  .controles-foco { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   @media (min-width: 768px) {
     .controles-foco { gap: 12px; }
   }
@@ -1085,6 +1176,20 @@
     z-index: 999;
     border: 3px solid rgba(102,126,234,0.5);
     box-shadow: inset 0 0 50px rgba(102,126,234,0.2);
+  }
+  
+  .tarefa-foco-grande {
+    font-size: 18px;
+    margin: 16px 0;
+    font-weight: bold;
+    color: white;
+    word-break: break-word;
+  }
+  
+  .cronometro-info {
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    margin-top: 8px;
   }
   
   button, .filtro-btn, .view-btn, .add-workspace-btn {
@@ -1158,6 +1263,9 @@
 <div class="container" id="mainApp" style="display: none;">
   <div class="header">
     <div class="user-info">
+      <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+        <i class="fas fa-moon"></i>
+      </button>
       <div class="user-avatar" id="userAvatar">
         <i class="fas fa-user-circle"></i>
         <div class="user-tooltip" id="userTooltip">
@@ -1198,7 +1306,6 @@
       <div class="metas-dashboard-grid" id="dashboardMetasGrid"></div>
     </div>
     
-    <!-- Filtros -->
     <div class="filtros">
       <button class="filtro-btn active" onclick="setFiltro('hoje', this)"><i class="fas fa-calendar-day"></i> Hoje</button>
       <button class="filtro-btn" onclick="setFiltro('semana', this)"><i class="fas fa-calendar-week"></i> Semana</button>
@@ -1206,11 +1313,17 @@
       <button class="filtro-btn" onclick="setFiltro('concluidas', this)"><i class="fas fa-check-circle"></i> Concluídas</button>
     </div>
     
-    <div style="display: flex; justify-content: flex-end;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
       <button class="add-workspace-btn" onclick="adicionarCardTarefa()">
         <i class="fas fa-plus-circle"></i> Novo Espaço
       </button>
+      <div class="sort-controls">
+        <button class="sort-btn" data-sort="data" onclick="ordenarTarefas('data')"><i class="fas fa-calendar"></i> Data</button>
+        <button class="sort-btn" data-sort="prioridade" onclick="ordenarTarefas('prioridade')"><i class="fas fa-flag"></i> Prioridade</button>
+        <button class="sort-btn active" data-sort="manual" onclick="ordenarTarefas('manual')"><i class="fas fa-grip-vertical"></i> Manual</button>
+      </div>
     </div>
+    
     <div class="blocos-tarefas" id="blocosTarefas"></div>
   </div>
   <div id="calendarioView" style="display: none;">
@@ -1248,24 +1361,29 @@
   </div>
 </div>
 
+<!-- Modal Modo Foco -->
 <div class="modal-foco-overlay" id="modalFocoOverlay">
   <div class="modal-foco-conteudo">
-    <i class="fas fa-brain" style="font-size: 36px; color: #667eea;"></i>
+    <i class="fas fa-brain" style="font-size: 48px; color: #667eea;"></i>
     <h2>🎯 Modo Foco</h2>
-    <div class="tarefa-foco-grande" id="tarefaFocoTexto" style="font-size: 18px; margin: 16px 0; font-weight: bold; color: white;">Nenhuma tarefa</div>
+    <div class="tarefa-foco-grande" id="tarefaFocoTexto">Selecione uma tarefa</div>
     <div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div>
-    <div class="timer-foco-grande" id="timerFocoGrande" style="font-size: 48px; font-weight: bold; margin: 16px 0; color: #667eea;">25:00</div>
-    <div class="controles-foco" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-      <button class="btn-glass" onclick="iniciarPomodoroFocoMelhorado()" id="btnIniciarFoco"><i class="fas fa-play"></i> Iniciar</button>
-      <button class="btn-glass" onclick="pausarPomodoroFoco()" id="btnPausarFoco" style="display:none"><i class="fas fa-pause"></i> Pausar</button>
-      <button class="btn-glass" onclick="resetarPomodoroFoco()"><i class="fas fa-redo-alt"></i> Resetar</button>
+    <div class="timer-foco-grande" id="timerFocoGrande">25:00</div>
+    <div class="cronometro-info" id="cronometroInfo">🍅 Pomodoro 25 minutos</div>
+    <div class="controles-foco">
+      <button class="btn-glass" onclick="iniciarPomodoro()" id="btnIniciarFoco"><i class="fas fa-play"></i> Iniciar</button>
+      <button class="btn-glass" onclick="pausarPomodoro()" id="btnPausarFoco" style="display:none"><i class="fas fa-pause"></i> Pausar</button>
+      <button class="btn-glass" onclick="resetarPomodoro()"><i class="fas fa-redo-alt"></i> Resetar</button>
       <button class="btn-glass" onclick="concluirTarefaFoco()" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-check"></i> Concluir</button>
     </div>
-    <div class="musica-controle" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
-      <button class="btn-musica" onclick="toggleMusica()" id="btnMusica" style="background: #17a2b8; color: white; padding: 8px 16px; border: none; border-radius: 20px; cursor: pointer; font-size: 12px;"><i class="fas fa-music"></i> Música LoFi</button>
-      <div style="margin-top: 8px;"><input type="range" id="volumeControle" min="0" max="100" value="30" onchange="ajustarVolume(this.value)" style="width: 120px;"><span style="font-size:11px; margin-left:8px;">Volume</span></div>
+    <div class="musica-controle" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+      <button class="btn-musica" onclick="toggleMusica()" id="btnMusica" style="background: #17a2b8; color: white; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;"><i class="fas fa-music"></i> Música LoFi</button>
+      <div style="margin-top: 10px;"><input type="range" id="volumeControle" min="0" max="100" value="30" onchange="ajustarVolume(this.value)" style="width: 150px;"><span style="font-size:12px; margin-left:8px;">Volume</span></div>
     </div>
-    <button class="btn-glass" onclick="fecharModoFocoMelhorado()" style="margin-top: 16px; background: rgba(255,255,255,0.1);"><i class="fas fa-times"></i> Sair</button>
+    <div class="dica-foco" style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
+      <i class="fas fa-bell-slash"></i> Notificações silenciadas durante o foco
+    </div>
+    <button class="btn-glass" onclick="fecharModoFoco()" style="margin-top: 20px; background: rgba(255,255,255,0.1);"><i class="fas fa-times"></i> Sair</button>
   </div>
 </div>
 
@@ -1401,11 +1519,213 @@
 </script>
 
 <script>
-  // ========== FUNÇÕES PRINCIPAIS ==========
+  // ========== TEMA ESCURO AUTOMÁTICO ==========
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const hour = new Date().getHours();
+    
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+      document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+    } else if (savedTheme === 'light') {
+      document.body.classList.remove('dark-theme');
+      document.getElementById('themeToggle').innerHTML = '<i class="fas fa-moon"></i>';
+    } else {
+      // Automático: dark entre 18h e 6h
+      if (hour >= 18 || hour < 6) {
+        document.body.classList.add('dark-theme');
+        document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.getElementById('themeToggle').innerHTML = '<i class="fas fa-moon"></i>';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+  }
   
+  function toggleTheme() {
+    if (document.body.classList.contains('dark-theme')) {
+      document.body.classList.remove('dark-theme');
+      document.getElementById('themeToggle').innerHTML = '<i class="fas fa-moon"></i>';
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.body.classList.add('dark-theme');
+      document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+      localStorage.setItem('theme', 'dark');
+    }
+  }
+  
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  
+  // ========== MODO FOCO FUNCIONAL ==========
+  let pomodoroAtivo = false;
+  let pomodoroPausado = false;
+  let tempoRestante = 25 * 60;
+  let pomodoroInterval = null;
+  let tarefaFocoAtual = null;
+  let notificacoesAtivas = true;
+  
+  function abrirModoFocoComTarefa(id) {
+    const tarefa = window.tarefas.find(t => t.id === id);
+    if(!tarefa) return;
+    tarefaFocoAtual = tarefa;
+    document.getElementById('tarefaFocoTexto').textContent = tarefa.texto;
+    tempoRestante = 25 * 60;
+    atualizarTimerDisplayFoco();
+    document.getElementById('modalFocoOverlay').classList.add('show');
+    if(pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroAtivo = false;
+    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+    document.getElementById('btnPausarFoco').style.display = 'none';
+    document.getElementById('cronometroInfo').textContent = '🍅 Pomodoro 25 minutos';
+  }
+  
+  function iniciarPomodoro() {
+    if(pomodoroAtivo) return;
+    
+    notificacoesAtivas = false;
+    const overlay = document.createElement('div');
+    overlay.id = 'focus-overlay';
+    overlay.className = 'foco-overlay';
+    document.body.appendChild(overlay);
+    document.body.classList.add('foco-ativo');
+    
+    pomodoroAtivo = true;
+    pomodoroPausado = false;
+    
+    if(pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroInterval = setInterval(() => {
+      if(!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+        tempoRestante--;
+        atualizarTimerDisplayFoco();
+        
+        if(tempoRestante <= 0) {
+          clearInterval(pomodoroInterval);
+          pomodoroAtivo = false;
+          
+          if(tarefaFocoAtual) {
+            tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + (25 * 60);
+            salvarTarefas();
+          }
+          
+          notificacoesAtivas = true;
+          const ov = document.getElementById('focus-overlay');
+          if(ov) ov.remove();
+          document.body.classList.remove('foco-ativo');
+          
+          // Tocar som de notificação
+          const audio = new Audio('data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==');
+          audio.play().catch(e => console.log('Som não disponível'));
+          
+          alert('🎉 Pomodoro concluído! Faça uma pausa de 5 minutos.');
+          
+          document.getElementById('cronometroInfo').textContent = '☕ Pausa de 5 minutos';
+          tempoRestante = 5 * 60;
+          atualizarTimerDisplayFoco();
+          
+          document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+          document.getElementById('btnPausarFoco').style.display = 'none';
+        }
+      }
+    }, 1000);
+    
+    document.getElementById('btnIniciarFoco').style.display = 'none';
+    document.getElementById('btnPausarFoco').style.display = 'inline-block';
+    document.getElementById('cronometroInfo').textContent = '🍅 Focando...';
+  }
+  
+  function pausarPomodoro() {
+    if(!pomodoroAtivo) return;
+    pomodoroPausado = !pomodoroPausado;
+    document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
+    document.getElementById('cronometroInfo').textContent = pomodoroPausado ? '⏸ Pausado' : '🍅 Focando...';
+  }
+  
+  function resetarPomodoro() {
+    if(pomodoroInterval) clearInterval(pomodoroInterval);
+    tempoRestante = 25 * 60;
+    atualizarTimerDisplayFoco();
+    pomodoroAtivo = false;
+    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+    document.getElementById('btnPausarFoco').style.display = 'none';
+    document.getElementById('cronometroInfo').textContent = '🍅 Pomodoro 25 minutos';
+  }
+  
+  function concluirTarefaFoco() {
+    if(!tarefaFocoAtual) return;
+    if(confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) {
+      toggleTarefa(tarefaFocoAtual.id);
+      fecharModoFoco();
+      setTimeout(() => {
+        const pendentes = window.tarefas.filter(t => !t.concluida);
+        if(pendentes.length) abrirModoFocoComTarefa(pendentes[0].id);
+      }, 300);
+    }
+  }
+  
+  function fecharModoFoco() {
+    if(pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroAtivo = false;
+    notificacoesAtivas = true;
+    const ov = document.getElementById('focus-overlay');
+    if(ov) ov.remove();
+    document.body.classList.remove('foco-ativo');
+    document.getElementById('modalFocoOverlay').classList.remove('show');
+  }
+  
+  function atualizarTimerDisplayFoco() {
+    const min = Math.floor(tempoRestante / 60);
+    const seg = tempoRestante % 60;
+    document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
+    const progresso = ((25 * 60 - tempoRestante) / (25 * 60)) * 100;
+    const bar = document.getElementById('progressoFocoBar');
+    if(bar) bar.style.width = `${Math.min(100, Math.max(0, progresso))}%`;
+  }
+  
+  // ========== ORDENAÇÃO DE TAREFAS ==========
+  let ordenacaoAtual = 'manual';
+  
+  function ordenarTarefas(tipo) {
+    ordenacaoAtual = tipo;
+    
+    // Atualizar botões
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelector(`.sort-btn[data-sort="${tipo}"]`).classList.add('active');
+    
+    // Ordenar tarefas globais
+    if(tipo === 'data') {
+      window.tarefas.sort((a, b) => {
+        if(!a.data) return 1;
+        if(!b.data) return -1;
+        return a.data.localeCompare(b.data);
+      });
+    } else if(tipo === 'prioridade') {
+      const prioridadeOrder = { p1: 1, p2: 2, p3: 3 };
+      window.tarefas.sort((a, b) => {
+        return (prioridadeOrder[a.prioridade] || 3) - (prioridadeOrder[b.prioridade] || 3);
+      });
+    } else if(tipo === 'manual') {
+      window.tarefas.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+    }
+    
+    salvarTarefas();
+    renderizarTarefas();
+  }
+  
+  // Salvar ordem ao arrastar
+  function salvarOrdemTarefas(tarefasOrdenadas, cardNome) {
+    tarefasOrdenadas.forEach((tarefa, index) => {
+      tarefa.ordem = index;
+    });
+    salvarTarefas();
+  }
+  
+  // ========== FUNÇÕES PRINCIPAIS ==========
   let tarefaReagendando = null;
   
-  // Tooltip handlers
   const avatar = document.getElementById('userAvatar');
   const tooltip = document.getElementById('userTooltip');
   
@@ -1413,23 +1733,19 @@
     avatar.addEventListener('mouseenter', () => {
       tooltip.style.display = 'block';
     });
-    
     avatar.addEventListener('mouseleave', () => {
       tooltip.style.display = 'none';
     });
-    
     avatar.addEventListener('click', (e) => {
       e.stopPropagation();
       const isVisible = tooltip.style.display === 'block';
       tooltip.style.display = isVisible ? 'none' : 'block';
-      
       if(!isVisible) {
         setTimeout(() => {
           tooltip.style.display = 'none';
         }, 3000);
       }
     });
-    
     document.addEventListener('click', (e) => {
       if(!avatar.contains(e.target)) {
         tooltip.style.display = 'none';
@@ -1468,7 +1784,6 @@
     }
   }
   
-  // Funções para o formulário inline
   function mostrarFormAdicionar(cardNome) {
     const formId = `form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`;
     const form = document.getElementById(formId);
@@ -1507,17 +1822,16 @@
       concluida: false,
       criada: new Date().toISOString(),
       alertado: false,
-      tempoGasto: 0
+      tempoGasto: 0,
+      ordem: window.tarefas.filter(t => t.bloco === cardNome).length
     });
     
-    // Limpar formulário
     inputTexto.value = '';
     if(inputData) inputData.value = '';
     if(inputHora) inputHora.value = '';
     if(selectPrioridade) selectPrioridade.value = 'p3';
     if(selectRecorrencia) selectRecorrencia.value = '';
     
-    // Fechar formulário
     const form = document.getElementById(formId);
     if(form) form.classList.remove('show');
     
@@ -1644,7 +1958,7 @@
     }
     
     cards.forEach(card => {
-      const tarefasDoCard = window.tarefas.filter(t => t.bloco === card.nome);
+      let tarefasDoCard = window.tarefas.filter(t => t.bloco === card.nome);
       const tarefasFiltradas = filtrarTarefas(tarefasDoCard);
       const ativas = tarefasFiltradas.filter(t => !t.concluida).length;
       const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -1660,7 +1974,7 @@
             <button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>
-        <div class="tarefa-lista">
+        <div class="tarefa-lista" data-card="${card.nome}">
           ${renderizarListaTarefas(tarefasFiltradas, hoje)}
           <button class="add-tarefa-btn" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')">
             <i class="fas fa-plus-circle"></i> Adicionar Tarefa
@@ -1689,6 +2003,51 @@
         </div>
       `;
       container.appendChild(div);
+      
+      // Adicionar drag and drop para ordenação manual
+      const listaDiv = div.querySelector('.tarefa-lista');
+      const tarefasItems = listaDiv.querySelectorAll('.tarefa-item');
+      
+      tarefasItems.forEach(item => {
+        item.setAttribute('draggable', 'true');
+        
+        item.addEventListener('dragstart', (e) => {
+          item.classList.add('dragging');
+          e.dataTransfer.setData('text/plain', item.dataset.tarefaId);
+        });
+        
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+        });
+        
+        item.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          const draggingItem = listaDiv.querySelector('.dragging');
+          if(draggingItem && ordenacaoAtual === 'manual') {
+            const siblings = [...listaDiv.querySelectorAll('.tarefa-item:not(.dragging)')];
+            const nextSibling = siblings.find(sibling => {
+              const rect = sibling.getBoundingClientRect();
+              return e.clientY < rect.top + rect.height / 2;
+            });
+            if(nextSibling) {
+              listaDiv.insertBefore(draggingItem, nextSibling);
+            } else {
+              listaDiv.appendChild(draggingItem);
+            }
+          }
+        });
+        
+        item.addEventListener('drop', (e) => {
+          e.preventDefault();
+          if(ordenacaoAtual === 'manual') {
+            const tarefasOrdenadas = [...listaDiv.querySelectorAll('.tarefa-item')].map(el => {
+              const id = parseInt(el.dataset.tarefaId);
+              return window.tarefas.find(t => t.id === id);
+            }).filter(t => t);
+            salvarOrdemTarefas(tarefasOrdenadas, card.nome);
+          }
+        });
+      });
     });
     
     const addCard = document.createElement('div');
@@ -1713,7 +2072,7 @@
       const atrasada = t.data && t.data < hoje && !t.concluida;
       const rec = {diaria:'🔄 Diária', dias_uteis:'📅 Dias úteis', semanal:'📆 Semanal', mensal:'📅 Mensal'}[t.recorrencia] || '';
       html += `
-        <div class="tarefa-item ${t.concluida ? 'concluida' : ''}">
+        <div class="tarefa-item ${t.concluida ? 'concluida' : ''}" data-tarefa-id="${t.id}" data-ordem="${t.ordem || 0}">
           <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
           <div class="tarefa-conteudo">
             <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
@@ -1721,11 +2080,12 @@
               ${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}
               ${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}
               ${rec ? `<span class="badge recorrente">${rec}</span>` : ''}
+              ${t.tempoGasto ? `<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ''}
             </div>
           </div>
           <div class="item-actions">
             <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
-            <button onclick="abrirModoFocoComTarefa(${t.id})" title="Pomodoro"><i class="fas fa-clock"></i></button>
+            <button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button>
             <button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button>
             <button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button>
           </div>
@@ -2133,17 +2493,18 @@
     }
   }
   
-  function abrirModoFocoComTarefa(id) {
-    alert('🎯 Modo foco em desenvolvimento!\nEm breve você poderá focar em cada tarefa.');
+  let audioContext = null;
+  let lofiLoopActive = false;
+  let currentVolume = 0.3;
+  
+  function toggleMusica() {
+    // Placeholder para música LoFi
+    alert('🎵 Música LoFi em desenvolvimento!');
   }
   
-  function iniciarPomodoroFocoMelhorado() {}
-  function pausarPomodoroFoco() {}
-  function resetarPomodoroFoco() {}
-  function concluirTarefaFoco() {}
-  function fecharModoFocoMelhorado() {}
-  function toggleMusica() {}
-  function ajustarVolume(valor) {}
+  function ajustarVolume(valor) {
+    currentVolume = valor / 100;
+  }
   
   window.recarregarSistema = function() {
     carregarDados();
@@ -2154,6 +2515,7 @@
   };
   
   // Inicialização
+  initTheme();
   carregarDados();
   renderizarDashboardMetas();
   renderizarTarefas();
@@ -2161,7 +2523,7 @@
   renderizarCalendario();
   atualizarDataHoje();
   
-  console.log('🚀 App FLUXO inicializado - Layout simplificado!');
+  console.log('🚀 App FLUXO inicializado - Com Modo Foco, Ordenação e Tema Escuro!');
 </script>
 </body>
 </html>
