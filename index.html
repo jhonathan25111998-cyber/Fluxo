@@ -18,7 +18,6 @@
     -webkit-tap-highlight-color: transparent;
   }
   
-  /* Tema Claro (padrão) */
   body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -28,7 +27,6 @@
     transition: background 0.3s ease;
   }
   
-  /* Tema Escuro */
   body.dark-theme {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   }
@@ -516,13 +514,17 @@
     padding: 14px; 
     max-height: 400px; 
     overflow-y: auto;
+    min-height: 100px;
   }
   
   @media (min-width: 768px) {
     .meta-lista, .tarefa-lista { padding: 20px; }
   }
   
-  /* Estilos para ordenação */
+  .bloco-tarefa .tarefa-lista {
+    min-height: 120px;
+  }
+  
   .sort-controls {
     display: flex;
     gap: 8px;
@@ -901,9 +903,9 @@
     cursor: grabbing;
   }
   
-  .tarefa-item.drag-over {
+  .bloco-tarefa.drag-over {
     border: 2px solid #667eea;
-    background: rgba(102, 126, 234, 0.2);
+    background: rgba(102, 126, 234, 0.1);
   }
   
   .meta-item-dash {
@@ -1124,7 +1126,81 @@
     flex: 1;
   }
   
-  /* Modo Foco */
+  /* Modal de Edição Completa */
+  .modal-editar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    z-index: 4000;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-editar-overlay.show {
+    display: flex;
+  }
+  
+  .modal-editar-conteudo {
+    background: rgba(26, 27, 38, 0.95);
+    backdrop-filter: blur(24px);
+    border-radius: 24px;
+    padding: 20px;
+    max-width: 90%;
+    width: 500px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  @media (min-width: 768px) {
+    .modal-editar-conteudo {
+      padding: 30px;
+      border-radius: 32px;
+      width: 550px;
+    }
+  }
+  
+  .modal-editar-conteudo h3 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  
+  .modal-editar-conteudo input, 
+  .modal-editar-conteudo select {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+  }
+  
+  .modal-editar-conteudo input:focus, 
+  .modal-editar-conteudo select:focus {
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  
+  .modal-editar-conteudo .form-group {
+    margin-bottom: 12px;
+    text-align: left;
+  }
+  
+  .modal-editar-conteudo .form-group label {
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  
   .modal-foco-overlay {
     display: none;
     position: fixed;
@@ -1361,6 +1437,33 @@
   </div>
 </div>
 
+<!-- Modal de Edição Completa -->
+<div class="modal-editar-overlay" id="modalEditarOverlay">
+  <div class="modal-editar-conteudo">
+    <i class="fas fa-edit" style="font-size: 36px; color: #667eea; margin-bottom: 16px;"></i>
+    <h3>Editar Tarefa</h3>
+    <input type="text" id="editarTarefaTexto" placeholder="Descrição da tarefa">
+    <input type="date" id="editarTarefaData" placeholder="Data">
+    <input type="time" id="editarTarefaHora" placeholder="Hora">
+    <select id="editarTarefaPrioridade">
+      <option value="p3">🟢 Baixa Prioridade</option>
+      <option value="p2">🟡 Média Prioridade</option>
+      <option value="p1">🔴 Alta Prioridade</option>
+    </select>
+    <select id="editarTarefaRecorrencia">
+      <option value="">Sem recorrência</option>
+      <option value="diaria">🔄 Diária</option>
+      <option value="dias_uteis">📅 Dias úteis</option>
+      <option value="semanal">📆 Semanal</option>
+      <option value="mensal">📅 Mensal</option>
+    </select>
+    <div class="modal-botoes">
+      <button class="btn-glass" onclick="salvarEdicaoTarefa()">Salvar</button>
+      <button class="btn-glass" onclick="fecharModalEditar()" style="background: rgba(255,255,255,0.1);">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Modo Foco -->
 <div class="modal-foco-overlay" id="modalFocoOverlay">
   <div class="modal-foco-conteudo">
@@ -1531,7 +1634,6 @@
       document.body.classList.remove('dark-theme');
       document.getElementById('themeToggle').innerHTML = '<i class="fas fa-moon"></i>';
     } else {
-      // Automático: dark entre 18h e 6h
       if (hour >= 18 || hour < 6) {
         document.body.classList.add('dark-theme');
         document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i>';
@@ -1558,7 +1660,7 @@
   
   document.getElementById('themeToggle').addEventListener('click', toggleTheme);
   
-  // ========== MODO FOCO FUNCIONAL ==========
+  // ========== MODO FOCO ==========
   let pomodoroAtivo = false;
   let pomodoroPausado = false;
   let tempoRestante = 25 * 60;
@@ -1613,10 +1715,6 @@
           const ov = document.getElementById('focus-overlay');
           if(ov) ov.remove();
           document.body.classList.remove('foco-ativo');
-          
-          // Tocar som de notificação
-          const audio = new Audio('data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==');
-          audio.play().catch(e => console.log('Som não disponível'));
           
           alert('🎉 Pomodoro concluído! Faça uma pausa de 5 minutos.');
           
@@ -1683,19 +1781,17 @@
     if(bar) bar.style.width = `${Math.min(100, Math.max(0, progresso))}%`;
   }
   
-  // ========== ORDENAÇÃO DE TAREFAS ==========
+  // ========== ORDENAÇÃO ==========
   let ordenacaoAtual = 'manual';
   
   function ordenarTarefas(tipo) {
     ordenacaoAtual = tipo;
     
-    // Atualizar botões
     document.querySelectorAll('.sort-btn').forEach(btn => {
       btn.classList.remove('active');
     });
     document.querySelector(`.sort-btn[data-sort="${tipo}"]`).classList.add('active');
     
-    // Ordenar tarefas globais
     if(tipo === 'data') {
       window.tarefas.sort((a, b) => {
         if(!a.data) return 1;
@@ -1707,20 +1803,68 @@
       window.tarefas.sort((a, b) => {
         return (prioridadeOrder[a.prioridade] || 3) - (prioridadeOrder[b.prioridade] || 3);
       });
-    } else if(tipo === 'manual') {
-      window.tarefas.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
     }
     
     salvarTarefas();
-    renderizarTarefas();
   }
   
-  // Salvar ordem ao arrastar
-  function salvarOrdemTarefas(tarefasOrdenadas, cardNome) {
-    tarefasOrdenadas.forEach((tarefa, index) => {
-      tarefa.ordem = index;
-    });
-    salvarTarefas();
+  // ========== EDIÇÃO COMPLETA ==========
+  let tarefaEditando = null;
+  
+  function editarTarefaCompleta(id) {
+    tarefaEditando = window.tarefas.find(t => t.id === id);
+    if(tarefaEditando) {
+      document.getElementById('editarTarefaTexto').value = tarefaEditando.texto || '';
+      document.getElementById('editarTarefaData').value = tarefaEditando.data || '';
+      document.getElementById('editarTarefaHora').value = tarefaEditando.hora || '';
+      document.getElementById('editarTarefaPrioridade').value = tarefaEditando.prioridade || 'p3';
+      document.getElementById('editarTarefaRecorrencia').value = tarefaEditando.recorrencia || '';
+      
+      document.getElementById('modalEditarOverlay').classList.add('show');
+    }
+  }
+  
+  function salvarEdicaoTarefa() {
+    if(tarefaEditando) {
+      tarefaEditando.texto = document.getElementById('editarTarefaTexto').value;
+      tarefaEditando.data = document.getElementById('editarTarefaData').value;
+      tarefaEditando.hora = document.getElementById('editarTarefaHora').value;
+      tarefaEditando.prioridade = document.getElementById('editarTarefaPrioridade').value;
+      tarefaEditando.recorrencia = document.getElementById('editarTarefaRecorrencia').value;
+      
+      salvarTarefas();
+      fecharModalEditar();
+      alert('✅ Tarefa editada com sucesso!');
+    }
+  }
+  
+  function fecharModalEditar() {
+    document.getElementById('modalEditarOverlay').classList.remove('show');
+    tarefaEditando = null;
+  }
+  
+  // ========== DRAG AND DROP ENTRE CARDS ==========
+  let tarefaArrastandoId = null;
+  
+  function iniciarDragTarefa(id) {
+    tarefaArrastandoId = id;
+  }
+  
+  function permitirDrop(event) {
+    event.preventDefault();
+  }
+  
+  function soltarTarefa(event, cardNome) {
+    event.preventDefault();
+    if(tarefaArrastandoId) {
+      const tarefa = window.tarefas.find(t => t.id === tarefaArrastandoId);
+      if(tarefa && tarefa.bloco !== cardNome) {
+        tarefa.bloco = cardNome;
+        salvarTarefas();
+        alert(`✅ Tarefa movida para "${cardNome}"`);
+      }
+      tarefaArrastandoId = null;
+    }
   }
   
   // ========== FUNÇÕES PRINCIPAIS ==========
@@ -1965,6 +2109,10 @@
       
       const div = document.createElement('div');
       div.className = 'bloco-tarefa';
+      div.setAttribute('data-card-nome', card.nome);
+      div.setAttribute('ondragover', 'permitirDrop(event)');
+      div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome)}')`);
+      
       div.innerHTML = `
         <div class="bloco-header">
           <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
@@ -1974,7 +2122,7 @@
             <button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>
-        <div class="tarefa-lista" data-card="${card.nome}">
+        <div class="tarefa-lista">
           ${renderizarListaTarefas(tarefasFiltradas, hoje)}
           <button class="add-tarefa-btn" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')">
             <i class="fas fa-plus-circle"></i> Adicionar Tarefa
@@ -2003,51 +2151,6 @@
         </div>
       `;
       container.appendChild(div);
-      
-      // Adicionar drag and drop para ordenação manual
-      const listaDiv = div.querySelector('.tarefa-lista');
-      const tarefasItems = listaDiv.querySelectorAll('.tarefa-item');
-      
-      tarefasItems.forEach(item => {
-        item.setAttribute('draggable', 'true');
-        
-        item.addEventListener('dragstart', (e) => {
-          item.classList.add('dragging');
-          e.dataTransfer.setData('text/plain', item.dataset.tarefaId);
-        });
-        
-        item.addEventListener('dragend', () => {
-          item.classList.remove('dragging');
-        });
-        
-        item.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          const draggingItem = listaDiv.querySelector('.dragging');
-          if(draggingItem && ordenacaoAtual === 'manual') {
-            const siblings = [...listaDiv.querySelectorAll('.tarefa-item:not(.dragging)')];
-            const nextSibling = siblings.find(sibling => {
-              const rect = sibling.getBoundingClientRect();
-              return e.clientY < rect.top + rect.height / 2;
-            });
-            if(nextSibling) {
-              listaDiv.insertBefore(draggingItem, nextSibling);
-            } else {
-              listaDiv.appendChild(draggingItem);
-            }
-          }
-        });
-        
-        item.addEventListener('drop', (e) => {
-          e.preventDefault();
-          if(ordenacaoAtual === 'manual') {
-            const tarefasOrdenadas = [...listaDiv.querySelectorAll('.tarefa-item')].map(el => {
-              const id = parseInt(el.dataset.tarefaId);
-              return window.tarefas.find(t => t.id === id);
-            }).filter(t => t);
-            salvarOrdemTarefas(tarefasOrdenadas, card.nome);
-          }
-        });
-      });
     });
     
     const addCard = document.createElement('div');
@@ -2072,7 +2175,10 @@
       const atrasada = t.data && t.data < hoje && !t.concluida;
       const rec = {diaria:'🔄 Diária', dias_uteis:'📅 Dias úteis', semanal:'📆 Semanal', mensal:'📅 Mensal'}[t.recorrencia] || '';
       html += `
-        <div class="tarefa-item ${t.concluida ? 'concluida' : ''}" data-tarefa-id="${t.id}" data-ordem="${t.ordem || 0}">
+        <div class="tarefa-item ${t.concluida ? 'concluida' : ''}" 
+             draggable="true" 
+             ondragstart="iniciarDragTarefa(${t.id})"
+             ondragend="tarefaArrastandoId = null">
           <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
           <div class="tarefa-conteudo">
             <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
@@ -2086,8 +2192,8 @@
           <div class="item-actions">
             <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
             <button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button>
-            <button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button>
-            <button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button>
+            <button onclick="editarTarefaCompleta(${t.id})" title="Editar"><i class="fas fa-edit"></i></button>
+            <button onclick="excluirTarefa(${t.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>
       `;
@@ -2227,14 +2333,6 @@
     }
   }
   
-  function editarTarefa(id) {
-    const tarefa = window.tarefas.find(t => t.id === id);
-    if(!tarefa) return;
-    const novoTexto = prompt('Editar tarefa:', tarefa.texto);
-    if(novoTexto && novoTexto.trim()) tarefa.texto = novoTexto.trim();
-    salvarTarefas();
-  }
-  
   function editarMetaPrompt(id) {
     const meta = window.metas.find(m => m.id === id);
     if(!meta) return;
@@ -2278,7 +2376,7 @@
   function excluirCardTarefa(id) {
     const card = window.cardsTarefas.find(c => c.id === id);
     if(!card) return;
-    if(confirm(`Excluir "${card.nome}"?`)) {
+    if(confirm(`Excluir "${card.nome}"? As tarefas serão movidas para "Pessoal".`)) {
       const pessoal = window.cardsTarefas.find(c => c.nome === 'Pessoal') || window.cardsTarefas[0];
       window.tarefas.forEach(t => {
         if(t.bloco === card.nome) t.bloco = pessoal.nome;
@@ -2306,7 +2404,7 @@
   function excluirCardMeta(id) {
     const card = window.cardsMetas.find(c => c.id === id);
     if(!card) return;
-    if(confirm(`Excluir "${card.nome}"?`)) {
+    if(confirm(`Excluir "${card.nome}"? As metas serão movidas para "Pessoal".`)) {
       const pessoal = window.cardsMetas.find(c => c.nome === 'Pessoal') || window.cardsMetas[0];
       window.metas.forEach(m => {
         if(m.categoria === card.nome) m.categoria = pessoal.nome;
@@ -2498,7 +2596,6 @@
   let currentVolume = 0.3;
   
   function toggleMusica() {
-    // Placeholder para música LoFi
     alert('🎵 Música LoFi em desenvolvimento!');
   }
   
@@ -2514,7 +2611,13 @@
     renderizarCalendario();
   };
   
-  // Inicialização
+  window.permitirDrop = permitirDrop;
+  window.soltarTarefa = soltarTarefa;
+  window.iniciarDragTarefa = iniciarDragTarefa;
+  window.editarTarefaCompleta = editarTarefaCompleta;
+  window.salvarEdicaoTarefa = salvarEdicaoTarefa;
+  window.fecharModalEditar = fecharModalEditar;
+  
   initTheme();
   carregarDados();
   renderizarDashboardMetas();
@@ -2523,7 +2626,7 @@
   renderizarCalendario();
   atualizarDataHoje();
   
-  console.log('🚀 App FLUXO inicializado - Com Modo Foco, Ordenação e Tema Escuro!');
+  console.log('🚀 App FLUXO inicializado - Drag & Drop entre cards e edição completa funcionando!');
 </script>
 </body>
 </html>
