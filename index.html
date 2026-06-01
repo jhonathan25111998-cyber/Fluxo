@@ -113,7 +113,6 @@
     .logo-texto .logo-subtitulo { font-size: 12px; }
   }
   
-  /* USER INFO COM ÍCONE E TOOLTIP */
   .user-info {
     position: static;
     display: flex;
@@ -940,6 +939,77 @@
     .calendario-mes { font-size: 24px !important; }
   }
   
+  /* Modal de reagendamento */
+  .modal-reagendar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    z-index: 4000;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-reagendar-overlay.show {
+    display: flex;
+  }
+  
+  .modal-reagendar-conteudo {
+    background: rgba(26, 27, 38, 0.95);
+    backdrop-filter: blur(24px);
+    border-radius: 24px;
+    padding: 20px;
+    max-width: 90%;
+    width: 400px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  @media (min-width: 768px) {
+    .modal-reagendar-conteudo {
+      padding: 30px;
+      border-radius: 32px;
+      width: 450px;
+    }
+  }
+  
+  .modal-reagendar-conteudo h3 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  
+  .modal-reagendar-conteudo input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 20px;
+  }
+  
+  .modal-reagendar-conteudo input:focus {
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  
+  .modal-botoes {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+  
+  .modal-botoes button {
+    flex: 1;
+  }
+  
   .modal-foco-overlay {
     display: none;
     position: fixed;
@@ -1152,6 +1222,19 @@
   </div>
 </div>
 
+<!-- Modal de Reagendamento -->
+<div class="modal-reagendar-overlay" id="modalReagendarOverlay">
+  <div class="modal-reagendar-conteudo">
+    <i class="fas fa-calendar-alt" style="font-size: 36px; color: #667eea; margin-bottom: 16px;"></i>
+    <h3>Reagendar Tarefa</h3>
+    <input type="date" id="novaDataReagendar" class="nova-data-reagendar">
+    <div class="modal-botoes">
+      <button class="btn-glass" onclick="confirmarReagendamento()">Confirmar</button>
+      <button class="btn-glass" onclick="fecharModalReagendar()" style="background: rgba(255,255,255,0.1);">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-foco-overlay" id="modalFocoOverlay">
   <div class="modal-foco-conteudo">
     <i class="fas fa-brain" style="font-size: 36px; color: #667eea;"></i>
@@ -1280,7 +1363,6 @@
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       
-      // Atualiza o tooltip com o email do usuário
       const userEmail = user.email;
       const tooltipSpan = document.getElementById('userEmailTooltip');
       if(tooltipSpan) tooltipSpan.textContent = userEmail;
@@ -1307,6 +1389,9 @@
 
 <script>
   // ========== FUNÇÕES PRINCIPAIS ==========
+  
+  // Variável para armazenar a tarefa que está sendo reagendada
+  let tarefaReagendando = null;
   
   // Tooltip handlers
   const avatar = document.getElementById('userAvatar');
@@ -1340,6 +1425,40 @@
     });
   }
   
+  // Função para abrir modal de reagendamento
+  function abrirModalReagendar(tarefaId) {
+    tarefaReagendando = window.tarefas.find(t => t.id === tarefaId);
+    if(tarefaReagendando) {
+      const inputData = document.getElementById('novaDataReagendar');
+      if(inputData) {
+        // Pré-preencher com a data atual da tarefa ou hoje
+        inputData.value = tarefaReagendando.data || new Date().toISOString().split('T')[0];
+      }
+      const modal = document.getElementById('modalReagendarOverlay');
+      if(modal) modal.classList.add('show');
+    }
+  }
+  
+  function fecharModalReagendar() {
+    const modal = document.getElementById('modalReagendarOverlay');
+    if(modal) modal.classList.remove('show');
+    tarefaReagendando = null;
+  }
+  
+  function confirmarReagendamento() {
+    const novaData = document.getElementById('novaDataReagendar').value;
+    if(tarefaReagendando && novaData) {
+      tarefaReagendando.data = novaData;
+      // Resetar alertado para que a notificação funcione na nova data
+      tarefaReagendando.alertado = false;
+      salvarTarefas();
+      alert(`✅ Tarefa reagendada para ${new Date(novaData).toLocaleDateString('pt-BR')}`);
+      fecharModalReagendar();
+    } else {
+      alert('❌ Selecione uma data válida!');
+    }
+  }
+  
   function carregarDados() {
     window.tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
     window.metas = JSON.parse(localStorage.getItem('metas') || '[]');
@@ -1367,6 +1486,7 @@
     localStorage.setItem('tarefas', JSON.stringify(window.tarefas));
     renderizarTarefas();
     renderizarEstatisticas();
+    renderizarCalendario(); // Atualizar calendário também
     if(window.salvarTudoFirebase) window.salvarTudoFirebase();
   }
   
@@ -1520,6 +1640,7 @@
             </div>
           </div>
           <div class="item-actions">
+            <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
             <button onclick="abrirModoFocoComTarefa(${t.id})" title="Pomodoro"><i class="fas fa-clock"></i></button>
             <button onclick="editarTarefa(${t.id})"><i class="fas fa-edit"></i></button>
             <button onclick="excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button>
@@ -1985,7 +2106,7 @@
   renderizarCalendario();
   atualizarDataHoje();
   
-  console.log('🚀 App FLUXO inicializado - Interface otimizada!');
+  console.log('🚀 App FLUXO inicializado - Com botão de reagendar!');
 </script>
 </body>
 </html>
