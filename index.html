@@ -44,6 +44,28 @@
     background: rgba(255, 255, 255, 0.03);
   }
   
+  /* Status de conexão */
+  .status-online {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #10b981;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+  }
+  
+  .status-offline {
+    background: #ef4444;
+  }
+  
   .theme-toggle {
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -222,7 +244,7 @@
     }
   }
   
-  .logout-btn, .sync-btn {
+  .logout-btn, .sync-btn, .notify-btn {
     background: rgba(255, 255, 255, 0.2);
     border: none;
     padding: 6px 10px;
@@ -235,10 +257,10 @@
   }
   
   @media (min-width: 768px) {
-    .logout-btn, .sync-btn { padding: 6px 12px; font-size: 12px; }
+    .logout-btn, .sync-btn, .notify-btn { padding: 6px 12px; font-size: 12px; }
   }
   
-  .logout-btn:hover, .sync-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
+  .logout-btn:hover, .sync-btn:hover, .notify-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
   .sync-btn.syncing { animation: pulse 1s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   
@@ -435,7 +457,7 @@
     .busca-global input { padding: 10px 16px 10px 12px; font-size: 14px; }
   }
   
-  /* ========== NOVA SEÇÃO DE METAS ========== */
+  /* METAS DASHBOARD */
   .metas-dashboard {
     background: rgba(26, 27, 38, 0.6);
     backdrop-filter: blur(24px);
@@ -658,7 +680,7 @@
     opacity: 0.5;
   }
   
-  /* ========== TAREFAS (CARDS) ========== */
+  /* TAREFAS */
   .blocos-tarefas {
     display: grid;
     grid-template-columns: 1fr;
@@ -760,6 +782,23 @@
     border-color: rgba(255,255,255,0.2);
   }
   
+  .filtro-prioridade {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+  }
+  
+  .filtro-prioridade select {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 10px;
+    color: white;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  
   .add-tarefa-btn {
     width: 100%;
     background: rgba(255, 255, 255, 0.08);
@@ -782,6 +821,25 @@
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(102, 126, 234, 0.5);
     transform: translateY(-2px);
+  }
+  
+  .btn-marcar-todas {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: #10b981;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .btn-marcar-todas:hover {
+    background: rgba(16, 185, 129, 0.3);
+    transform: scale(1.02);
   }
   
   .inline-form {
@@ -1147,6 +1205,7 @@
   
   .badge i { font-size: 9px; }
   .badge.p1 { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
+  .badge.p2 { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
   .badge.recorrente { background: rgba(102,126,234,0.2); color: #A5B4FC; border: 1px solid rgba(102,126,234,0.3); }
   .badge.atrasada { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); animation: pulse 2s infinite; }
   
@@ -1205,7 +1264,7 @@
     .calendario-mes { font-size: 24px !important; }
   }
   
-  .modal-reagendar-overlay, .modal-editar-overlay {
+  .modal-reagendar-overlay, .modal-editar-overlay, .modal-confirm-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -1219,11 +1278,11 @@
     justify-content: center;
   }
   
-  .modal-reagendar-overlay.show, .modal-editar-overlay.show {
+  .modal-reagendar-overlay.show, .modal-editar-overlay.show, .modal-confirm-overlay.show {
     display: flex;
   }
   
-  .modal-reagendar-conteudo, .modal-editar-conteudo {
+  .modal-reagendar-conteudo, .modal-editar-conteudo, .modal-confirm-conteudo {
     background: rgba(26, 27, 38, 0.95);
     backdrop-filter: blur(24px);
     border-radius: 24px;
@@ -1235,14 +1294,14 @@
   }
   
   @media (min-width: 768px) {
-    .modal-reagendar-conteudo, .modal-editar-conteudo {
+    .modal-reagendar-conteudo, .modal-editar-conteudo, .modal-confirm-conteudo {
       padding: 30px;
       border-radius: 32px;
       width: 450px;
     }
   }
   
-  .modal-reagendar-conteudo h3, .modal-editar-conteudo h3 {
+  .modal-reagendar-conteudo h3, .modal-editar-conteudo h3, .modal-confirm-conteudo h3 {
     color: white;
     margin-bottom: 20px;
     font-size: 18px;
@@ -1410,6 +1469,9 @@
       <button class="theme-toggle" id="themeToggle" title="Alternar tema">
         <i class="fas fa-moon"></i>
       </button>
+      <button class="notify-btn" id="notifyBtn" title="Ativar notificações">
+        <i class="fas fa-bell"></i> Notificações
+      </button>
       <div class="user-avatar" id="userAvatar">
         <i class="fas fa-user-circle"></i>
         <div class="user-tooltip" id="userTooltip">
@@ -1429,6 +1491,10 @@
     <div class="data-hoje" id="dataHoje"></div>
   </div>
   
+  <div id="statusConnection" class="status-online">
+    <i class="fas fa-wifi"></i> Online
+  </div>
+  
   <div class="top-bar">
     <div class="view-toggle">
       <button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
@@ -1441,7 +1507,7 @@
   </div>
   
   <div id="cardsView">
-    <!-- NOVA SEÇÃO DE METAS - DASHBOARD ÚNICA -->
+    <!-- METAS DASHBOARD -->
     <div class="metas-dashboard" id="metasDashboard">
       <div class="metas-header">
         <h2><i class="fas fa-trophy"></i> Minhas Metas</h2>
@@ -1453,7 +1519,7 @@
       </div>
       <div class="metas-grid" id="metasGrid"></div>
       <div class="add-meta-form">
-        <input type="text" id="novaMetaTexto" placeholder="Nova meta... (ex: Fazer academia 5x na semana)">
+        <input type="text" id="novaMetaTexto" placeholder="Nova meta... (ex: Fazer academia 5x na semana)" maxlength="200">
         <select id="novaMetaCategoria">
           <option value="Saúde">💪 Saúde</option>
           <option value="Desenvolvimento">📚 Desenvolvimento</option>
@@ -1473,12 +1539,25 @@
       <button class="filtro-btn" onclick="setFiltro('semana', this)"><i class="fas fa-calendar-week"></i> Semana</button>
       <button class="filtro-btn" onclick="setFiltro('todas', this)"><i class="fas fa-list"></i> Todas</button>
       <button class="filtro-btn" onclick="setFiltro('concluidas', this)"><i class="fas fa-check-circle"></i> Concluídas</button>
+      <div class="filtro-prioridade">
+        <select id="filtroPrioridade" onchange="filtrarPorPrioridade()">
+          <option value="todas">Todas prioridades</option>
+          <option value="p1">🔴 Alta</option>
+          <option value="p2">🟡 Média</option>
+          <option value="p3">🟢 Baixa</option>
+        </select>
+      </div>
     </div>
     
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
-      <button class="add-workspace-btn" onclick="adicionarCardTarefa()">
-        <i class="fas fa-plus-circle"></i> Novo Espaço de Trabalho
-      </button>
+      <div style="display: flex; gap: 8px;">
+        <button class="add-workspace-btn" onclick="adicionarCardTarefa()">
+          <i class="fas fa-plus-circle"></i> Novo Espaço
+        </button>
+        <button class="btn-marcar-todas" onclick="marcarTodasHoje()">
+          <i class="fas fa-check-double"></i> Concluir todas do dia
+        </button>
+      </div>
       <div class="sort-controls">
         <button class="sort-btn" data-sort="data" onclick="ordenarTarefas('data')"><i class="fas fa-calendar"></i> Data</button>
         <button class="sort-btn" data-sort="prioridade" onclick="ordenarTarefas('prioridade')"><i class="fas fa-flag"></i> Prioridade</button>
@@ -1512,6 +1591,7 @@
   </div>
 </div>
 
+<!-- Modais -->
 <div class="modal-reagendar-overlay" id="modalReagendarOverlay">
   <div class="modal-reagendar-conteudo">
     <i class="fas fa-calendar-alt" style="font-size: 36px; color: #667eea; margin-bottom: 16px;"></i>
@@ -1528,7 +1608,7 @@
   <div class="modal-editar-conteudo">
     <i class="fas fa-edit" style="font-size: 36px; color: #667eea; margin-bottom: 16px;"></i>
     <h3>Editar Tarefa</h3>
-    <input type="text" id="editarTarefaTexto" placeholder="Descrição da tarefa">
+    <input type="text" id="editarTarefaTexto" placeholder="Descrição da tarefa" maxlength="200">
     <input type="date" id="editarTarefaData" placeholder="Data">
     <input type="time" id="editarTarefaHora" placeholder="Hora">
     <select id="editarTarefaPrioridade">
@@ -1546,6 +1626,18 @@
     <div class="modal-botoes">
       <button class="btn-glass" onclick="salvarEdicaoTarefa()">Salvar</button>
       <button class="btn-glass" onclick="fecharModalEditar()" style="background: rgba(255,255,255,0.1);">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-confirm-overlay" id="modalConfirmOverlay">
+  <div class="modal-confirm-conteudo">
+    <i class="fas fa-question-circle" style="font-size: 48px; color: #fbbf24; margin-bottom: 16px;"></i>
+    <h3 id="confirmTitulo">Confirmar</h3>
+    <p id="confirmMensagem" style="color: white; margin-bottom: 20px;">Tem certeza que deseja concluir todas as tarefas de hoje?</p>
+    <div class="modal-botoes">
+      <button class="btn-glass" id="confirmSimBtn" style="background: #10b981;">Sim</button>
+      <button class="btn-glass" id="confirmNaoBtn" style="background: rgba(255,255,255,0.1);">Não</button>
     </div>
   </div>
 </div>
@@ -1606,7 +1698,6 @@
 
   let currentUser = null;
 
-  // Inicializar cards padrão se não existirem
   if (!localStorage.getItem('cardsTarefas') || JSON.parse(localStorage.getItem('cardsTarefas')).length === 0) {
     const defaultCards = [
       { id: "tarefa_pessoal_" + Date.now(), nome: "Pessoal" },
@@ -1705,6 +1796,80 @@
 </script>
 
 <script>
+  // ========== STATUS DE CONEXÃO (OFFLINE SYNC) ==========
+  let isOnline = navigator.onLine;
+  let pendingSync = false;
+  
+  function updateConnectionStatus() {
+    const statusDiv = document.getElementById('statusConnection');
+    if (navigator.onLine) {
+      statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online';
+      statusDiv.classList.remove('status-offline');
+      if (pendingSync) {
+        pendingSync = false;
+        if(window.salvarTudoFirebase) window.salvarTudoFirebase();
+      }
+    } else {
+      statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline (dados salvos localmente)';
+      statusDiv.classList.add('status-offline');
+      pendingSync = true;
+    }
+  }
+  
+  window.addEventListener('online', updateConnectionStatus);
+  window.addEventListener('offline', updateConnectionStatus);
+  
+  // ========== NOTIFICAÇÕES PUSH ==========
+  let notificacoesPermitidas = false;
+  
+  function pedirPermissaoNotificacoes() {
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        notificacoesPermitidas = true;
+        alert('✅ Notificações já estão ativadas!');
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            notificacoesPermitidas = true;
+            alert('✅ Notificações ativadas! Você receberá lembretes das tarefas.');
+            new Notification('FLUXO', { body: 'Notificações ativadas com sucesso!', icon: '🎯' });
+          } else {
+            alert('❌ Você precisa permitir notificações nas configurações do navegador.');
+          }
+        });
+      } else {
+        alert('❌ As notificações estão bloqueadas. Por favor, permita nas configurações do navegador.');
+      }
+    } else {
+      alert('❌ Seu navegador não suporta notificações.');
+    }
+  }
+  
+  document.getElementById('notifyBtn').addEventListener('click', pedirPermissaoNotificacoes);
+  
+  // Verificar tarefas para notificação
+  function checarNotificacoesAgendadas() {
+    if (!notificacoesPermitidas) return;
+    
+    const agora = new Date();
+    const hoje = agora.toISOString().split('T')[0];
+    const horaAtual = agora.getHours().toString().padStart(2,'0') + ':' + agora.getMinutes().toString().padStart(2,'0');
+    
+    window.tarefas.forEach(tarefa => {
+      if (!tarefa.concluida && tarefa.data === hoje && tarefa.hora === horaAtual && !tarefa.notificado) {
+        new Notification('⏰ Hora da tarefa!', { 
+          body: tarefa.texto,
+          icon: '🎯',
+          tag: tarefa.id.toString()
+        });
+        tarefa.notificado = true;
+        salvarTarefas();
+      }
+    });
+  }
+  
+  setInterval(checarNotificacoesAgendadas, 60000);
+  
   // ========== TEMA ESCURO ==========
   function initTheme() {
     const savedTheme = localStorage.getItem('theme');
@@ -1749,7 +1914,6 @@
   let tempoRestante = 25 * 60;
   let pomodoroInterval = null;
   let tarefaFocoAtual = null;
-  let notificacoesAtivas = true;
   
   function abrirModoFocoComTarefa(id) {
     const tarefa = window.tarefas.find(t => t.id === id);
@@ -1769,7 +1933,6 @@
   function iniciarPomodoro() {
     if(pomodoroAtivo) return;
     
-    notificacoesAtivas = false;
     const overlay = document.createElement('div');
     overlay.id = 'focus-overlay';
     overlay.className = 'foco-overlay';
@@ -1794,11 +1957,13 @@
             salvarTarefas();
           }
           
-          notificacoesAtivas = true;
           const ov = document.getElementById('focus-overlay');
           if(ov) ov.remove();
           document.body.classList.remove('foco-ativo');
           
+          if(notificacoesPermitidas) {
+            new Notification('🎉 Pomodoro concluído!', { body: 'Faça uma pausa de 5 minutos.', icon: '🍅' });
+          }
           alert('🎉 Pomodoro concluído! Faça uma pausa de 5 minutos.');
           
           document.getElementById('cronometroInfo').textContent = '☕ Pausa de 5 minutos';
@@ -1848,7 +2013,6 @@
   function fecharModoFoco() {
     if(pomodoroInterval) clearInterval(pomodoroInterval);
     pomodoroAtivo = false;
-    notificacoesAtivas = true;
     const ov = document.getElementById('focus-overlay');
     if(ov) ov.remove();
     document.body.classList.remove('foco-ativo');
@@ -1976,7 +2140,13 @@
   let tarefaReagendando = null;
   let ordenacaoAtual = 'manual';
   let filtroAtual = 'hoje';
+  let filtroPrioridadeAtual = 'todas';
   let tarefaArrastandoId = null;
+  
+  function filtrarPorPrioridade() {
+    filtroPrioridadeAtual = document.getElementById('filtroPrioridade').value;
+    renderizarTarefas();
+  }
   
   function iniciarDragTarefa(id) {
     tarefaArrastandoId = id;
@@ -2017,6 +2187,44 @@
       });
     }
     salvarTarefas();
+  }
+  
+  function marcarTodasHoje() {
+    const hoje = new Date().toISOString().split('T')[0];
+    const tarefasHoje = window.tarefas.filter(t => t.data === hoje && !t.concluida);
+    
+    if(tarefasHoje.length === 0) {
+      alert('🎉 Nenhuma tarefa pendente para hoje!');
+      return;
+    }
+    
+    // Modal de confirmação
+    const modal = document.getElementById('modalConfirmOverlay');
+    const confirmSim = document.getElementById('confirmSimBtn');
+    const confirmNao = document.getElementById('confirmNaoBtn');
+    
+    document.getElementById('confirmTitulo').textContent = 'Concluir todas?';
+    document.getElementById('confirmMensagem').innerHTML = `Tem certeza que deseja concluir as ${tarefasHoje.length} tarefa(s) de hoje?`;
+    
+    modal.classList.add('show');
+    
+    const handlerSim = () => {
+      tarefasHoje.forEach(t => t.concluida = true);
+      salvarTarefas();
+      modal.classList.remove('show');
+      alert(`✅ ${tarefasHoje.length} tarefa(s) concluída(s)!`);
+      confirmSim.removeEventListener('click', handlerSim);
+      confirmNao.removeEventListener('click', handlerNao);
+    };
+    
+    const handlerNao = () => {
+      modal.classList.remove('show');
+      confirmSim.removeEventListener('click', handlerSim);
+      confirmNao.removeEventListener('click', handlerNao);
+    };
+    
+    confirmSim.onclick = handlerSim;
+    confirmNao.onclick = handlerNao;
   }
   
   function editarTarefaCompleta(id) {
@@ -2067,6 +2275,7 @@
     if(tarefaReagendando && novaData) {
       tarefaReagendando.data = novaData;
       tarefaReagendando.alertado = false;
+      tarefaReagendando.notificado = false;
       salvarTarefas();
       alert(`✅ Tarefa reagendada para ${new Date(novaData).toLocaleDateString('pt-BR')}`);
       fecharModalReagendar();
@@ -2074,6 +2283,66 @@
       alert('❌ Selecione uma data válida!');
     }
   }
+  
+  // ========== TAREFAS RECORRENTES AUTOMÁTICAS ==========
+  function verificarRecorrencias() {
+    const hoje = new Date().toISOString().split('T')[0];
+    
+    window.tarefas.forEach(tarefa => {
+      if (tarefa.concluida && tarefa.recorrencia && tarefa.recorrencia !== '') {
+        let proximaData = null;
+        const dataAtual = new Date(tarefa.data);
+        
+        switch(tarefa.recorrencia) {
+          case 'diaria':
+            dataAtual.setDate(dataAtual.getDate() + 1);
+            proximaData = dataAtual.toISOString().split('T')[0];
+            break;
+          case 'dias_uteis':
+            dataAtual.setDate(dataAtual.getDate() + 1);
+            while (dataAtual.getDay() === 0 || dataAtual.getDay() === 6) {
+              dataAtual.setDate(dataAtual.getDate() + 1);
+            }
+            proximaData = dataAtual.toISOString().split('T')[0];
+            break;
+          case 'semanal':
+            dataAtual.setDate(dataAtual.getDate() + 7);
+            proximaData = dataAtual.toISOString().split('T')[0];
+            break;
+          case 'mensal':
+            dataAtual.setMonth(dataAtual.getMonth() + 1);
+            proximaData = dataAtual.toISOString().split('T')[0];
+            break;
+        }
+        
+        if (proximaData) {
+          window.tarefas.push({
+            id: Date.now(),
+            texto: tarefa.texto,
+            bloco: tarefa.bloco,
+            data: proximaData,
+            hora: tarefa.hora,
+            prioridade: tarefa.prioridade,
+            recorrencia: tarefa.recorrencia,
+            concluida: false,
+            criada: new Date().toISOString(),
+            alertado: false,
+            notificado: false,
+            tempoGasto: 0,
+            ordem: window.tarefas.filter(t => t.bloco === tarefa.bloco).length
+          });
+          
+          // Remove a tarefa concluída se for recorrente (cria nova)
+          const index = window.tarefas.findIndex(t => t.id === tarefa.id);
+          if (index !== -1) window.tarefas.splice(index, 1);
+        }
+      }
+    });
+    
+    salvarTarefas();
+  }
+  
+  setInterval(verificarRecorrencias, 60000);
   
   function carregarDados() {
     window.tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
@@ -2164,6 +2433,11 @@
     let filtradas = lista;
     if(termo) filtradas = filtradas.filter(t => t.texto.toLowerCase().includes(termo));
     
+    // Filtro por prioridade
+    if(filtroPrioridadeAtual !== 'todas') {
+      filtradas = filtradas.filter(t => t.prioridade === filtroPrioridadeAtual);
+    }
+    
     if(filtroAtual === 'hoje') {
       const hoje = new Date().toISOString().split('T')[0];
       return filtradas.filter(t => t.data <= hoje && !t.concluida);
@@ -2198,7 +2472,7 @@
     window.tarefas.push({
       id: Date.now(), texto: texto, bloco: cardNome, data: data, hora: hora,
       prioridade: prioridade, recorrencia: recorrencia, concluida: false,
-      criada: new Date().toISOString(), alertado: false, tempoGasto: 0,
+      criada: new Date().toISOString(), alertado: false, notificado: false, tempoGasto: 0,
       ordem: window.tarefas.filter(t => t.bloco === cardNome).length
     });
     
@@ -2242,6 +2516,7 @@
       tarefasFiltradas.forEach(t => {
         const atrasada = t.data && t.data < hoje && !t.concluida;
         const rec = {diaria:'🔄 Diária', dias_uteis:'📅 Dias úteis', semanal:'📆 Semanal', mensal:'📅 Mensal'}[t.recorrencia] || '';
+        const prioridadeLabel = t.prioridade === 'p1' ? 'p1' : (t.prioridade === 'p2' ? 'p2' : '');
         tarefasHtml += `
           <div class="tarefa-item ${t.concluida ? 'concluida' : ''}" draggable="true" ondragstart="iniciarDragTarefa(${t.id})" ondragend="tarefaArrastandoId = null">
             <input type="checkbox" ${t.concluida ? 'checked' : ''} onchange="toggleTarefa(${t.id})">
@@ -2249,7 +2524,7 @@
               <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
               <div class="tarefa-meta">
                 ${t.data ? `<span class="badge ${atrasada ? 'atrasada' : ''}">${atrasada ? '<i class="fas fa-triangle-exclamation"></i> ' : '<i class="fas fa-calendar"></i> '}${t.data}</span>` : ''}
-                ${t.prioridade === 'p1' ? '<span class="badge p1"><i class="fas fa-flag"></i> Alta</span>' : ''}
+                ${prioridadeLabel ? `<span class="badge ${prioridadeLabel}"><i class="fas fa-flag"></i> ${prioridadeLabel === 'p1' ? 'Alta' : prioridadeLabel === 'p2' ? 'Média' : 'Baixa'}</span>` : ''}
                 ${rec ? `<span class="badge recorrente">${rec}</span>` : ''}
                 ${t.tempoGasto ? `<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ''}
               </div>
@@ -2279,7 +2554,7 @@
             <i class="fas fa-plus-circle"></i> Adicionar Tarefa
           </button>
           <div class="inline-form" id="${formId}">
-            <input type="text" id="texto-${formId}" placeholder="Descreva a tarefa...">
+            <input type="text" id="texto-${formId}" placeholder="Descreva a tarefa..." maxlength="200">
             <input type="date" id="data-${formId}" placeholder="Data">
             <input type="time" id="hora-${formId}" placeholder="Hora">
             <select id="prioridade-${formId}">
@@ -2497,6 +2772,8 @@
   window.soltarTarefa = soltarTarefa;
   window.iniciarDragTarefa = iniciarDragTarefa;
   window.ordenarTarefas = ordenarTarefas;
+  window.marcarTodasHoje = marcarTodasHoje;
+  window.filtrarPorPrioridade = filtrarPorPrioridade;
   window.editarTarefaCompleta = editarTarefaCompleta;
   window.salvarEdicaoTarefa = salvarEdicaoTarefa;
   window.fecharModalEditar = fecharModalEditar;
@@ -2532,6 +2809,7 @@
   
   // INICIALIZAÇÃO
   initTheme();
+  updateConnectionStatus();
   carregarDados();
   carregarMetas();
   renderizarTarefas();
@@ -2539,7 +2817,7 @@
   renderizarCalendario();
   atualizarDataHoje();
   
-  console.log('🚀 App FLUXO inicializado - Nova seção de Metas redesenhada!');
+  console.log('🚀 App FLUXO inicializado - Todas as funcionalidades implementadas!');
 </script>
 </body>
 </html>
