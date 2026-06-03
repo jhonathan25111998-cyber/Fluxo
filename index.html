@@ -163,9 +163,12 @@
 </div>
 <div class="modal-foco-overlay" id="modalFocoOverlay"><div class="modal-foco-conteudo"><i class="fas fa-brain" style="font-size:48px;color:#667eea;"></i><h2>🎯 Modo Foco</h2><div id="tarefaFocoTexto" class="tarefa-foco-grande"></div><div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div><div class="timer-foco-grande" id="timerFocoGrande">25:00</div><div class="controles-foco"><button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button><button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button><button class="btn-glass btn-prorrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button><button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button><button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button></div><div style="margin-top:20px; padding-top:20px; border-top: 1px solid rgba(255,255,255,0.1);"><button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button><input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:120px;margin-left:12px;vertical-align:middle;"><span style="font-size:12px; margin-left:6px;">Volume</span></div><div id="cronometroInfo" class="cronometro-info">🍅 Pomodoro 25 minutos</div><div style="margin-top:12px; font-size:11px; opacity:0.6;"><i class="fas fa-headphones"></i> Música LoFi relaxante para foco</div></div></div>
 <div class="modal-reagendar-overlay" id="modalReagendarOverlay"><div class="modal-reagendar-conteudo"><i class="fas fa-calendar-alt" style="font-size:36px;color:#667eea;"></i><h3>Reagendar Tarefa</h3><input type="date" id="novaDataReagendar"><div class="modal-botoes"><button class="btn-glass" onclick="confirmarReagendamento()">Confirmar</button><button class="btn-glass" onclick="fecharModalReagendar()" style="background:rgba(255,255,255,0.1);">Cancelar</button></div></div></div>
+
+<!-- ÁUDIO LOFI - Coloque seu arquivo lofi.mp3 na mesma pasta -->
 <audio id="lofiAudio" loop preload="auto" style="display:none;">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/02/audio_3e6e5b9f1a.mp3" type="audio/mpeg">
+    <source src="lofi.mp3" type="audio/mpeg">
 </audio>
+
 <script type="importmap">{ "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js" } }</script>
 <script type="module">
   import { initializeApp } from "firebase/app";
@@ -193,7 +196,7 @@
   let ultimaDataReset = localStorage.getItem('ultimaDataReset') || '';
   let tarefaReagendando = null;
   
-  // Música LoFi
+  // Música LoFi com arquivo lofi.mp3
   let lofiAudioElement = null;
   let lofiActive = false;
   
@@ -203,6 +206,10 @@
           if(lofiAudioElement) {
               lofiAudioElement.volume = 0.3;
               lofiAudioElement.loop = true;
+              // Se o arquivo não existir, mostra aviso no console
+              lofiAudioElement.onerror = function() {
+                  console.warn('⚠️ Arquivo lofi.mp3 não encontrado! Coloque o arquivo na mesma pasta do index.html');
+              };
           }
       }
   }
@@ -210,18 +217,19 @@
   function playLofi() {
       initLofiAudio();
       if(lofiAudioElement) {
-          lofiAudioElement.play().catch(e => {
-              console.log('Autoplay bloqueado, clique no botão para ativar a música');
-              // Fallback: mostrar que precisa de interação
-              const btn = document.getElementById('btnMusicaFoco');
-              if(btn) btn.style.animation = 'pulse 1s infinite';
-          });
-          lofiActive = true;
-          const btn = document.getElementById('btnMusicaFoco');
-          if(btn) {
-              btn.style.background = '#28a745';
-              btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON';
+          const playPromise = lofiAudioElement.play();
+          if(playPromise !== undefined) {
+              playPromise.then(() => {
+                  lofiActive = true;
+                  atualizarBotaoMusica(true);
+              }).catch(error => {
+                  console.log('Autoplay bloqueado. Clique no botão para ativar a música.');
+                  lofiActive = false;
+                  atualizarBotaoMusica(false);
+              });
           }
+      } else {
+          console.warn('Elemento de áudio não encontrado');
       }
   }
   
@@ -230,11 +238,7 @@
           lofiAudioElement.pause();
           lofiAudioElement.currentTime = 0;
           lofiActive = false;
-          const btn = document.getElementById('btnMusicaFoco');
-          if(btn) {
-              btn.style.background = '#17a2b8';
-              btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus';
-          }
+          atualizarBotaoMusica(false);
       }
   }
   
@@ -244,6 +248,19 @@
           stopLofi();
       } else {
           playLofi();
+      }
+  }
+  
+  function atualizarBotaoMusica(ativo) {
+      const btn = document.getElementById('btnMusicaFoco');
+      if(btn) {
+          if(ativo) {
+              btn.style.background = '#28a745';
+              btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON';
+          } else {
+              btn.style.background = '#17a2b8';
+              btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus';
+          }
       }
   }
   
@@ -632,7 +649,7 @@
           statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online';
           statusDiv.classList.remove('status-offline');
       } else {
-          statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline';
+          statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline (dados salvos localmente)';
           statusDiv.classList.add('status-offline');
       }
   }
