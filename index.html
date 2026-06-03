@@ -537,20 +537,33 @@
       const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); addCard.innerHTML='<div style="text-align:center;padding:40px;color:white;"><i class="fas fa-plus-circle" style="font-size:48px;margin-bottom:8px;"></i><p>Novo Espaço</p></div>'; container.appendChild(addCard); 
   }
   
-  function renderizarEstatisticas() { 
-      const concluidas = tarefas.filter(t=>t.concluida).length; 
-      const total = tarefas.length; 
-      const horasFoco = Math.floor(tempoTotalFocado / 3600); 
-      const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
-      const hoje = new Date().toISOString().split('T')[0]; 
-      const tarefasHoje = tarefas.filter(t=>t.data===hoje && !t.concluida).length; 
-      document.getElementById('statsGrid').innerHTML = `
-          <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidas}</div><div class="stat-label">Concluídas</div><div style="font-size:10px;">de ${total}</div></div>
-          <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${total?Math.round(concluidas/total*100):0}%</div><div class="stat-label">Taxa Sucesso</div></div>
-          <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${tarefasHoje}</div><div class="stat-label">Hoje Pendentes</div></div>
-          <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
-      `; 
-  }
+function renderizarEstatisticas() { 
+    const hoje = new Date().toISOString().split('T')[0];
+    
+    // Tarefas do dia (apenas hoje)
+    const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
+    const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
+    const totalHoje = tarefasHojeLista.length;
+    const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
+    
+    // Total geral de tarefas concluídas
+    const concluidasTotal = tarefas.filter(t=>t.concluida).length;
+    const totalGeral = tarefas.length;
+    
+    // Tempo focado
+    const horasFoco = Math.floor(tempoTotalFocado / 3600); 
+    const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
+    
+    // Tarefas pendentes hoje
+    const pendentesHoje = tarefas.filter(t=>t.data===hoje && !t.concluida).length; 
+    
+    document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
+        <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div><div style="font-size:10px;">sucesso do dia</div></div>
+        <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Hoje Pendentes</div></div>
+        <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
+    `; 
+}
   
   // Calendário
   let dataCalendario = new Date(); 
