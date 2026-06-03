@@ -372,6 +372,7 @@
       }
   }
   
+  // SALVAR DADOS - CHAMADO EM TODAS AS ALTERAÇÕES
   function salvarDados() { 
       localStorage.setItem('tarefas', JSON.stringify(tarefas)); 
       localStorage.setItem('metas', JSON.stringify(metas)); 
@@ -538,7 +539,7 @@
   // Tarefas
   function escapeHtml(t) { if(!t) return ''; return t.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
   
-  // GERENCIAMENTO DE DUPLICATAS
+  // GERENCIAMENTO DE DUPLICATAS - MANTÉM PELO MENOS 1
   function verificarTarefaDuplicada(texto, data, cardNome, idIgnorar = null) {
       const duplicada = tarefas.some(t => {
           if(idIgnorar && t.id === idIgnorar) return false;
@@ -572,7 +573,7 @@
   
   function limparTodasDuplicatas() {
       const grupos = new Map();
-      const duplicatas = [];
+      const duplicatasParaConcluir = [];
       
       tarefas.forEach(t => {
           if(t.concluida) return;
@@ -585,25 +586,26 @@
       
       for(let [chave, lista] of grupos) {
           if(lista.length > 1) {
+              lista.sort((a, b) => b.id - a.id);
               for(let i = 1; i < lista.length; i++) {
-                  duplicatas.push(lista[i]);
+                  duplicatasParaConcluir.push(lista[i]);
               }
           }
       }
       
-      if(duplicatas.length === 0) {
+      if(duplicatasParaConcluir.length === 0) {
           alert('🎉 Nenhuma tarefa duplicada encontrada!');
           return;
       }
       
-      const nomesDuplicados = [...new Set(duplicatas.map(d => d.texto))].join(', ');
-      if(confirm(`🔍 Encontradas ${duplicatas.length} tarefa(s) duplicada(s):\n\n${nomesDuplicados}\n\nDeseja marcar todas como concluídas?`)) {
-          duplicatas.forEach(dup => {
+      const nomesDuplicados = [...new Set(duplicatasParaConcluir.map(d => d.texto))].join(', ');
+      if(confirm(`🔍 Encontradas ${duplicatasParaConcluir.length} tarefa(s) duplicada(s):\n\n${nomesDuplicados}\n\nDeseja manter apenas UMA de cada e concluir as demais?`)) {
+          duplicatasParaConcluir.forEach(dup => {
               dup.concluida = true;
               dup.notificado = true;
           });
           salvarDados();
-          alert(`✅ ${duplicatas.length} tarefa(s) duplicada(s) concluída(s)!`);
+          alert(`✅ ${duplicatasParaConcluir.length} tarefa(s) duplicada(s) concluída(s)!\n📌 Mantida 1 tarefa de cada no estado ativo.`);
           renderizarTarefas();
       }
   }
