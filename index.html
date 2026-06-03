@@ -84,7 +84,7 @@
   .bloco-header button { background: rgba(255,255,255,0.15); border: none; width: 32px; height: 32px; border-radius: 10px; color: white; cursor: pointer; margin-left: 5px; transition: all 0.2s; }
   .bloco-header button:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
   .tarefa-lista { padding: 14px; max-height: 400px; overflow-y: auto; min-height: 120px; }
-  .tarefa-item { padding: 12px; margin-bottom: 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: flex-start; gap: 10px; border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.2s; cursor: grab; }
+  .tarefa-item { padding: 12px; margin-bottom: 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.2s; cursor: grab; }
   .tarefa-item:active { cursor: grabbing; }
   .tarefa-item.dragging { opacity: 0.3; cursor: grabbing; }
   .tarefa-item:hover { background: rgba(255, 255, 255, 0.08); }
@@ -99,11 +99,11 @@
   .badge.recorrente { background: rgba(102,126,234,0.2); color: #A5B4FC; }
   .badge.atrasada { background: rgba(239,68,68,0.3); color: #ff9999; border: 1px solid rgba(239,68,68,0.5); animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .drag-handle { cursor: grab; color: rgba(255,255,255,0.4); margin-right: 4px; font-size: 16px; }
+  .drag-handle:active { cursor: grabbing; }
   .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .item-actions button { background: transparent; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; color: rgba(255,255,255,0.6); transition: all 0.2s; }
   .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; transform: scale(1.05); }
-  .drag-handle { cursor: grab; color: rgba(255,255,255,0.4); margin-right: 4px; font-size: 16px; }
-  .drag-handle:active { cursor: grabbing; }
   .add-tarefa-btn { width: 100%; background: rgba(255, 255, 255, 0.08); border: 1px dashed rgba(255, 255, 255, 0.2); padding: 12px; border-radius: 12px; color: white; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; }
   .add-tarefa-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(102,126,234,0.5); transform: translateY(-2px); }
   .inline-form { margin-top: 12px; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; display: none; }
@@ -327,14 +327,19 @@
   let tarefaArrastandoOrigem = null;
   
   // ========== DRAG AND DROP ==========
-  function iniciarDragTarefa(id, cardNome) {
+  function iniciarDragTarefa(id, cardNome, event) {
     tarefaArrastandoId = id;
     tarefaArrastandoOrigem = cardNome;
     event.dataTransfer.setData('text/plain', id);
-    event.target.classList.add('dragging');
+    const el = event.target.closest('.tarefa-item');
+    if(el) el.classList.add('dragging');
   }
   
-  function permitirDrop(event) {
+  function permitirDropTarefa(event) {
+    event.preventDefault();
+  }
+  
+  function permitirDropCard(event) {
     event.preventDefault();
     event.currentTarget.classList.add('drag-over');
   }
@@ -343,47 +348,59 @@
     event.currentTarget.classList.remove('drag-over');
   }
   
-  function soltarTarefa(event, cardNomeDestino) {
+  function soltarTarefa(event, cardNomeDestino, tarefaIdDestino) {
     event.preventDefault();
     event.currentTarget.classList.remove('drag-over');
     
     if(!tarefaArrastandoId) return;
     
-    const tarefa = tarefas.find(t => t.id === tarefaArrastandoId);
-    if(!tarefa) return;
-    
-    // Se mudou de espaço
-    if(tarefaArrastandoOrigem !== cardNomeDestino) {
-      tarefa.bloco = cardNomeDestino;
-      salvarDados();
-      mostrarIndicadorSync(`📦 Tarefa movida para "${cardNomeDestino}"`);
+    // Reordenar dentro do mesmo card
+    if(tarefaArrastandoOrigem === cardNomeDestino && tarefaIdDestino) {
+      reordenarTarefas(cardNomeDestino, tarefaArrastandoId, tarefaIdDestino);
+    } 
+    // Mover para outro card
+    else if(tarefaArrastandoOrigem !== cardNomeDestino) {
+      const tarefa = tarefas.find(t => t.id === tarefaArrastandoId);
+      if(tarefa) {
+        tarefa.bloco = cardNomeDestino;
+        salvarDados();
+        mostrarIndicadorSync(`📦 Tarefa movida para "${cardNomeDestino}"`);
+      }
     }
     
     tarefaArrastandoId = null;
     tarefaArrastandoOrigem = null;
+    
+    document.querySelectorAll('.tarefa-item').forEach(el => {
+      el.classList.remove('dragging');
+    });
   }
   
-  function reordenarTarefas(cardNome, tarefaId, posicaoDestino) {
-    const tarefasDoCard = tarefas.filter(t => t.bloco === cardNome && !t.concluida);
-    const indexOrigem = tarefasDoCard.findIndex(t => t.id === tarefaId);
-    if(indexOrigem === -1) return;
+  function reordenarTarefas(cardNome, tarefaIdOrigem, tarefaIdDestino) {
+    // Pega as tarefas do card (não concluídas)
+    const tarefasDoCard = tarefas
+      .filter(t => t.bloco === cardNome && !t.concluida)
+      .sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
     
-    // Reordenar baseado na posição visual
-    const tarefa = tarefasDoCard[indexOrigem];
-    const tarefasSemEssa = tarefasDoCard.filter(t => t.id !== tarefaId);
-    tarefasSemEssa.splice(posicaoDestino, 0, tarefa);
+    const indexOrigem = tarefasDoCard.findIndex(t => t.id === tarefaIdOrigem);
+    const indexDestino = tarefasDoCard.findIndex(t => t.id === tarefaIdDestino);
     
-    // Atualizar ordem no array global
-    const novasTarefas = [...tarefas];
-    tarefasSemEssa.forEach((t, idx) => {
-      const indexGlobal = novasTarefas.findIndex(gt => gt.id === t.id);
-      if(indexGlobal !== -1) {
-        novasTarefas[indexGlobal].ordem = idx;
+    if(indexOrigem === -1 || indexDestino === -1) return;
+    
+    // Reordenar
+    const [item] = tarefasDoCard.splice(indexOrigem, 1);
+    tarefasDoCard.splice(indexDestino, 0, item);
+    
+    // Atualizar ordem
+    tarefasDoCard.forEach((t, idx) => {
+      const tarefaGlobal = tarefas.find(gt => gt.id === t.id);
+      if(tarefaGlobal) {
+        tarefaGlobal.ordem = idx;
       }
     });
     
-    tarefas = novasTarefas;
     salvarDados();
+    mostrarIndicadorSync('📌 Ordem atualizada');
   }
   
   // ========== SALVAR DADOS ==========
@@ -833,7 +850,7 @@
           else { alert('❌ Tarefa não adicionada.'); return; }
       }
       
-      tarefas.push({ id: Date.now(), texto, bloco: cardNome, data, prioridade, recorrencia, concluida: false, tempoGasto: 0, notificado: false }); 
+      tarefas.push({ id: Date.now(), texto, bloco: cardNome, data, prioridade, recorrencia, concluida: false, tempoGasto: 0, notificado: false, ordem: tarefas.filter(t=>t.bloco===cardNome && !t.concluida).length }); 
       document.getElementById(`texto-${cardNome}`).value = ''; 
       document.getElementById(`form-${cardNome}`)?.classList.remove('show'); 
       salvarDados(); 
@@ -876,13 +893,18 @@
           const isAtrasada = (data) => data && data < hoje;
           const div = document.createElement('div'); div.className='bloco-tarefa'; 
           div.setAttribute('data-card-nome', card.nome);
-          div.setAttribute('ondragover', 'permitirDrop(event)');
+          div.setAttribute('ondragover', 'permitirDropCard(event)');
           div.setAttribute('ondragleave', 'removerDragOver(event)');
-          div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}')`);
+          div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`);
           div.innerHTML = `
               <div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div>
-              <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state" style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.6);"><i class="fas fa-check-circle" style="font-size:36px;margin-bottom:8px;"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa</small></div>' : lista.map(t=>`
-                  <div class="tarefa-item" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}')" ondragend="tarefaArrastandoId=null">
+              <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state" style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.6);"><i class="fas fa-check-circle" style="font-size:36px;margin-bottom:8px;"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa</small></div>' : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`
+                  <div class="tarefa-item" 
+                       draggable="true" 
+                       ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" 
+                       ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))"
+                       ondragover="permitirDropTarefa(event)"
+                       ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
                       <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
                       <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
                       <div class="tarefa-conteudo">
@@ -1006,7 +1028,8 @@
   window.recarregarSistema = recarregarSistema;
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
   window.iniciarDragTarefa = iniciarDragTarefa;
-  window.permitirDrop = permitirDrop;
+  window.permitirDropTarefa = permitirDropTarefa;
+  window.permitirDropCard = permitirDropCard;
   window.removerDragOver = removerDragOver;
   window.soltarTarefa = soltarTarefa;
   
