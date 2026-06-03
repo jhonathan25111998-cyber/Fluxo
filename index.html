@@ -354,11 +354,9 @@
     
     if(!tarefaArrastandoId) return;
     
-    // Reordenar dentro do mesmo card
     if(tarefaArrastandoOrigem === cardNomeDestino && tarefaIdDestino) {
       reordenarTarefas(cardNomeDestino, tarefaArrastandoId, tarefaIdDestino);
     } 
-    // Mover para outro card
     else if(tarefaArrastandoOrigem !== cardNomeDestino) {
       const tarefa = tarefas.find(t => t.id === tarefaArrastandoId);
       if(tarefa) {
@@ -377,7 +375,6 @@
   }
   
   function reordenarTarefas(cardNome, tarefaIdOrigem, tarefaIdDestino) {
-    // Pega as tarefas do card (não concluídas)
     const tarefasDoCard = tarefas
       .filter(t => t.bloco === cardNome && !t.concluida)
       .sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
@@ -387,11 +384,9 @@
     
     if(indexOrigem === -1 || indexDestino === -1) return;
     
-    // Reordenar
     const [item] = tarefasDoCard.splice(indexOrigem, 1);
     tarefasDoCard.splice(indexDestino, 0, item);
     
-    // Atualizar ordem
     tarefasDoCard.forEach((t, idx) => {
       const tarefaGlobal = tarefas.find(gt => gt.id === t.id);
       if(tarefaGlobal) {
@@ -543,8 +538,8 @@
       }
   }
   
-  // ========== POMODORO ==========
-  let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
+  // ========== POMODORO COM ACUMULAÇÃO DE TEMPO ==========
+  let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0, tempoAcumuladoSessao = 0;
   
   function atualizarTimerDisplay() { 
       const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; 
@@ -579,8 +574,8 @@
               if(tempoRestante <= 0) { 
                   clearInterval(pomodoroInterval); 
                   const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000); 
-                  tempoTotalFocado += tempoGasto; 
-                  pomodoroAtivo = false; 
+                  tempoTotalFocado += tempoGasto;
+                  tempoAcumuladoSessao = 0;
                   if(tarefaFocoAtual) { tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto; } 
                   stopLofi(); 
                   tocarSino(); 
@@ -604,14 +599,44 @@
   
   function pausarPomodoro() { 
       if(!pomodoroAtivo) return; 
+      if(!pomodoroPausado) {
+          // Acumula o tempo quando pausa
+          const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+          if(tempoDecorrido > 0) {
+              tempoAcumuladoSessao += tempoDecorrido;
+              tempoTotalFocado += tempoDecorrido;
+              if(tarefaFocoAtual) {
+                  tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
+              }
+              salvarDados();
+              mostrarIndicadorSync(`⏱️ +${Math.floor(tempoDecorrido/60)}min de foco acumulado`);
+          }
+          tempoFocoInicio = Date.now();
+      } else {
+          tempoFocoInicio = Date.now();
+      }
       pomodoroPausado = !pomodoroPausado; 
       document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar'; 
       document.getElementById('cronometroInfo').innerHTML = pomodoroPausado ? '⏸ Pausado' : (emPausaEntrePomodoros ? '☕ Pausa' : '🍅 Focando...'); 
-      if(pomodoroPausado) { stopLofi(); } else { playLofi(); }
+      if(pomodoroPausado) { 
+          stopLofi(); 
+      } else { 
+          playLofi();
+          tempoFocoInicio = Date.now();
+      }
   }
   
   function concluirTarefaFoco() { 
       if(!tarefaFocoAtual) return; 
+      // Salva o tempo parcial antes de concluir
+      if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros) {
+          const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+          if(tempoDecorrido > 0) {
+              tempoTotalFocado += tempoDecorrido;
+              tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
+              salvarDados();
+          }
+      }
       if(confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) { 
           const idx = tarefas.findIndex(t => t.id === tarefaFocoAtual.id); 
           if(idx !== -1) tarefas[idx].concluida = true; 
@@ -621,12 +646,23 @@
   }
   
   function fecharModoFoco() { 
+      // Salva o tempo parcial ao fechar o modo foco
+      if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros && tarefaFocoAtual) {
+          const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+          if(tempoDecorrido > 0) {
+              tempoTotalFocado += tempoDecorrido;
+              tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
+              salvarDados();
+              mostrarIndicadorSync(`⏱️ +${Math.floor(tempoDecorrido/60)}min de foco salvo`);
+          }
+      }
       if(pomodoroInterval) clearInterval(pomodoroInterval); 
       pomodoroAtivo = false; 
       stopLofi(); 
       document.getElementById('modalFocoOverlay').classList.remove('show'); 
       tarefaFocoAtual = null; 
       emPausaEntrePomodoros = false; 
+      tempoAcumuladoSessao = 0;
   }
   
   function abrirModoFocoComTarefa(id) { 
@@ -933,17 +969,18 @@
   
   function renderizarEstatisticas() { 
       const hoje = new Date().toISOString().split('T')[0];
+      // CORRIGIDO: Tarefas pendentes inclui as atrasadas (data <= hoje)
+      const pendentesHoje = tarefas.filter(t => (t.data === hoje || (t.data && t.data < hoje)) && !t.concluida).length;
       const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
       const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
       const totalHoje = tarefasHojeLista.length;
       const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
       const horasFoco = Math.floor(tempoTotalFocado / 3600); 
       const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
-      const pendentesHoje = tarefas.filter(t=>t.data===hoje && !t.concluida).length; 
       document.getElementById('statsGrid').innerHTML = `
           <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
           <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div>
-          <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Hoje Pendentes</div></div>
+          <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Pendentes</div><div style="font-size:10px;">(hoje + atrasadas)</div></div>
           <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
       `; 
   }
