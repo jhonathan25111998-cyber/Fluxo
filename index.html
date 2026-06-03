@@ -967,23 +967,36 @@
       const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); addCard.innerHTML='<div style="text-align:center;padding:40px;color:white;"><i class="fas fa-plus-circle" style="font-size:48px;margin-bottom:8px;"></i><p>Novo Espaço</p></div>'; container.appendChild(addCard); 
   }
   
-  function renderizarEstatisticas() { 
-      const hoje = new Date().toISOString().split('T')[0];
-      // CORRIGIDO: Tarefas pendentes inclui as atrasadas (data <= hoje)
-      const pendentesHoje = tarefas.filter(t => (t.data === hoje || (t.data && t.data < hoje)) && !t.concluida).length;
-      const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
-      const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
-      const totalHoje = tarefasHojeLista.length;
-      const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
-      const horasFoco = Math.floor(tempoTotalFocado / 3600); 
-      const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
-      document.getElementById('statsGrid').innerHTML = `
-          <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
-          <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div>
-          <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Pendentes</div><div style="font-size:10px;">(hoje + atrasadas)</div></div>
-          <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
-      `; 
-  }
+ function renderizarEstatisticas() { 
+    const hoje = new Date().toISOString().split('T')[0];
+    
+    // CORRIGIDO: Apenas tarefas com data <= hoje (hoje ou atrasadas), NÃO concluídas, e com data definida
+    const pendentesHoje = tarefas.filter(t => {
+        // Verifica se tem data, se a data é <= hoje, e se NÃO está concluída
+        return t.data && t.data <= hoje && !t.concluida;
+    }).length;
+    
+    // Tarefas especificamente de hoje (para calcular taxa de sucesso do dia)
+    const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
+    const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
+    const totalHoje = tarefasHojeLista.length;
+    const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
+    
+    // Tempo focado
+    const horasFoco = Math.floor(tempoTotalFocado / 3600); 
+    const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
+    
+    document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
+        <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div>
+        <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Pendentes</div><div style="font-size:10px;">(hoje + atrasadas)</div></div>
+        <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
+    `; 
+    
+    // Para debug - mostrar no console quais tarefas estão sendo contadas
+    console.log('📊 Estatísticas - Pendentes:', pendentesHoje);
+    console.log('📋 Tarefas consideradas pendentes:', tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).map(t => ({texto: t.texto, data: t.data, concluida: t.concluida})));
+}
   
   // ========== CALENDÁRIO ==========
   let dataCalendario = new Date(); 
