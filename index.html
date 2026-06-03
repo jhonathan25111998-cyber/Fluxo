@@ -79,11 +79,14 @@
   .blocos-tarefas { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
   .bloco-tarefa { background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.3s; }
   .bloco-tarefa:hover { transform: translateY(-2px); }
+  .bloco-tarefa.drag-over { border: 2px solid #667eea; background: rgba(102,126,234,0.2); }
   .bloco-header { padding: 14px 18px; font-weight: 700; color: white; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 18px 18px 0 0; }
   .bloco-header button { background: rgba(255,255,255,0.15); border: none; width: 32px; height: 32px; border-radius: 10px; color: white; cursor: pointer; margin-left: 5px; transition: all 0.2s; }
   .bloco-header button:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-  .tarefa-lista { padding: 14px; max-height: 400px; overflow-y: auto; }
-  .tarefa-item { padding: 12px; margin-bottom: 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: flex-start; gap: 10px; border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.2s; }
+  .tarefa-lista { padding: 14px; max-height: 400px; overflow-y: auto; min-height: 120px; }
+  .tarefa-item { padding: 12px; margin-bottom: 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: flex-start; gap: 10px; border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.2s; cursor: grab; }
+  .tarefa-item:active { cursor: grabbing; }
+  .tarefa-item.dragging { opacity: 0.3; cursor: grabbing; }
   .tarefa-item:hover { background: rgba(255, 255, 255, 0.08); }
   .tarefa-item.concluida { opacity: 0.5; text-decoration: line-through; }
   .tarefa-item input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
@@ -99,6 +102,8 @@
   .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .item-actions button { background: transparent; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; color: rgba(255,255,255,0.6); transition: all 0.2s; }
   .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; transform: scale(1.05); }
+  .drag-handle { cursor: grab; color: rgba(255,255,255,0.4); margin-right: 4px; font-size: 16px; }
+  .drag-handle:active { cursor: grabbing; }
   .add-tarefa-btn { width: 100%; background: rgba(255, 255, 255, 0.08); border: 1px dashed rgba(255, 255, 255, 0.2); padding: 12px; border-radius: 12px; color: white; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; }
   .add-tarefa-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(102,126,234,0.5); transform: translateY(-2px); }
   .inline-form { margin-top: 12px; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; display: none; }
@@ -193,7 +198,6 @@
   const db = getFirestore(app); 
   let currentUser = null;
   
-  // Expor currentUser globalmente para o outro script
   window.currentUser = null;
   
   window.fazerLogin = async () => { 
@@ -231,10 +235,7 @@
   let isSyncing = false;
   
   async function salvarTudoFirebase() { 
-    if(!currentUser) {
-      console.log('⚠️ Sem usuário logado, não salvou no Firebase');
-      return;
-    }
+    if(!currentUser) return;
     if(isSyncing) return;
     isSyncing = true;
     try {
@@ -246,9 +247,9 @@
         ultimaAtualizacao: new Date().toISOString()
       };
       await setDoc(doc(db, "usuarios", currentUser.uid), dados);
-      console.log('✅ Firebase sincronizado com sucesso');
+      console.log('✅ Firebase sincronizado');
     } catch(err) { 
-      console.error('❌ Erro ao salvar no Firebase:', err); 
+      console.error('❌ Erro no Firebase:', err); 
     } finally { 
       isSyncing = false; 
     }
@@ -266,12 +267,10 @@
         if(d.cardsTarefas && d.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(d.cardsTarefas)); 
         if(d.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', d.tempoTotalFocado);
         console.log('✅ Dados carregados do Firebase');
-        return true;
       }
     } catch(err) { 
-      console.error('❌ Erro ao carregar do Firebase:', err); 
+      console.error('❌ Erro ao carregar:', err); 
     }
-    return false;
   }
   
   window.salvarTudoFirebase = salvarTudoFirebase;
@@ -300,9 +299,7 @@
       document.getElementById('loginOverlay').style.display='none'; 
       document.getElementById('mainApp').style.display='block'; 
       document.getElementById('userEmailTooltip').textContent = user.email; 
-      
       await carregarDadosFirebase(); 
-      
       if(window.recarregarSistema) window.recarregarSistema();
       if(window.iniciarSincronizacaoPeriodica) window.iniciarSincronizacaoPeriodica();
     } else { 
@@ -326,29 +323,84 @@
   let tarefaReagendando = null;
   let syncTimeout = null;
   let syncInterval = null;
+  let tarefaArrastandoId = null;
+  let tarefaArrastandoOrigem = null;
   
-  // ========== FUNÇÃO PRINCIPAL DE SALVAR ==========
+  // ========== DRAG AND DROP ==========
+  function iniciarDragTarefa(id, cardNome) {
+    tarefaArrastandoId = id;
+    tarefaArrastandoOrigem = cardNome;
+    event.dataTransfer.setData('text/plain', id);
+    event.target.classList.add('dragging');
+  }
+  
+  function permitirDrop(event) {
+    event.preventDefault();
+    event.currentTarget.classList.add('drag-over');
+  }
+  
+  function removerDragOver(event) {
+    event.currentTarget.classList.remove('drag-over');
+  }
+  
+  function soltarTarefa(event, cardNomeDestino) {
+    event.preventDefault();
+    event.currentTarget.classList.remove('drag-over');
+    
+    if(!tarefaArrastandoId) return;
+    
+    const tarefa = tarefas.find(t => t.id === tarefaArrastandoId);
+    if(!tarefa) return;
+    
+    // Se mudou de espaço
+    if(tarefaArrastandoOrigem !== cardNomeDestino) {
+      tarefa.bloco = cardNomeDestino;
+      salvarDados();
+      mostrarIndicadorSync(`📦 Tarefa movida para "${cardNomeDestino}"`);
+    }
+    
+    tarefaArrastandoId = null;
+    tarefaArrastandoOrigem = null;
+  }
+  
+  function reordenarTarefas(cardNome, tarefaId, posicaoDestino) {
+    const tarefasDoCard = tarefas.filter(t => t.bloco === cardNome && !t.concluida);
+    const indexOrigem = tarefasDoCard.findIndex(t => t.id === tarefaId);
+    if(indexOrigem === -1) return;
+    
+    // Reordenar baseado na posição visual
+    const tarefa = tarefasDoCard[indexOrigem];
+    const tarefasSemEssa = tarefasDoCard.filter(t => t.id !== tarefaId);
+    tarefasSemEssa.splice(posicaoDestino, 0, tarefa);
+    
+    // Atualizar ordem no array global
+    const novasTarefas = [...tarefas];
+    tarefasSemEssa.forEach((t, idx) => {
+      const indexGlobal = novasTarefas.findIndex(gt => gt.id === t.id);
+      if(indexGlobal !== -1) {
+        novasTarefas[indexGlobal].ordem = idx;
+      }
+    });
+    
+    tarefas = novasTarefas;
+    salvarDados();
+  }
+  
+  // ========== SALVAR DADOS ==========
   function salvarDados() { 
-      console.log('💾 Salvando dados...');
-      
-      // Salvar no localStorage
       localStorage.setItem('tarefas', JSON.stringify(tarefas)); 
       localStorage.setItem('metas', JSON.stringify(metas)); 
       localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
       localStorage.setItem('tempoTotalFocado', tempoTotalFocado);
-      
-      // Atualizar interface
       renderizarTarefas(); 
       renderizarMetas(); 
       renderizarEstatisticas();
       renderizarCalendario();
-      
-      // Sincronizar com Firebase
       if(window.currentUser && window.salvarTudoFirebase) {
           if(syncTimeout) clearTimeout(syncTimeout);
           syncTimeout = setTimeout(() => {
               window.salvarTudoFirebase();
-              mostrarIndicadorSync('✅ Sincronizado com nuvem');
+              mostrarIndicadorSync('✅ Sincronizado');
           }, 500);
       }
   }
@@ -370,13 +422,11 @@
       if(syncInterval) clearInterval(syncInterval);
       syncInterval = setInterval(() => {
           if(window.currentUser && window.salvarTudoFirebase) {
-              console.log('🔄 Sync periódica (30s)');
               window.salvarTudoFirebase();
           }
       }, 30000);
   }
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
-  window.syncInterval = syncInterval;
   
   // ========== MÚSICA LOFI ==========
   let lofiAudioElement = null;
@@ -395,13 +445,10 @@
   function playLofi() {
       initLofiAudio();
       if(lofiAudioElement) {
-          const playPromise = lofiAudioElement.play();
-          if(playPromise !== undefined) {
-              playPromise.then(() => {
-                  lofiActive = true;
-                  atualizarBotaoMusica(true);
-              }).catch(e => console.log('Autoplay bloqueado'));
-          }
+          lofiAudioElement.play().then(() => {
+              lofiActive = true;
+              atualizarBotaoMusica(true);
+          }).catch(e => console.log('Autoplay bloqueado'));
       }
   }
   
@@ -492,12 +539,12 @@
   
   function prorrogarTempoFoco() { 
       if(!pomodoroAtivo || emPausaEntrePomodoros) { 
-          alert('⏰ Só pode prorrogar durante o foco ativo (antes da pausa de 5 min)!'); 
+          alert('⏰ Só pode prorrogar durante o foco ativo!'); 
           return; 
       } 
       tempoRestante += 10 * 60; 
       atualizarTimerDisplay(); 
-      document.getElementById('cronometroInfo').innerHTML = '⏰ +10 minutos prorrogados!'; 
+      document.getElementById('cronometroInfo').innerHTML = '⏰ +10 minutos!'; 
       setTimeout(() => { if(document.getElementById('cronometroInfo')) document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...'; }, 2000); 
   }
   
@@ -521,7 +568,7 @@
                   stopLofi(); 
                   tocarSino(); 
                   salvarDados(); 
-                  alert('🎉 Pomodoro concluído! Faça uma pausa de 5 minutos.'); 
+                  alert('🎉 Pomodoro concluído! Pausa de 5 minutos.'); 
                   document.getElementById('cronometroInfo').innerHTML = '☕ Pausa de 5 minutos'; 
                   tempoRestante = 5 * 60; 
                   emPausaEntrePomodoros = true; 
@@ -635,14 +682,13 @@
   
   // GERENCIAMENTO DE DUPLICATAS
   function verificarTarefaDuplicada(texto, data, cardNome, idIgnorar = null) {
-      const duplicada = tarefas.some(t => {
+      return tarefas.some(t => {
           if(idIgnorar && t.id === idIgnorar) return false;
           return t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && 
                  t.data === data && 
                  !t.concluida &&
                  t.bloco === cardNome;
       });
-      return duplicada;
   }
   
   function marcarDuplicatasComoConcluidas(texto, data, cardNome, tarefaAtualId = null) {
@@ -660,7 +706,7 @@
       });
       if(marcadas > 0) {
           salvarDados();
-          mostrarIndicadorSync(`⚠️ ${marcadas} tarefa(s) duplicada(s) concluída(s)`);
+          mostrarIndicadorSync(`⚠️ ${marcadas} duplicada(s) concluída(s)`);
       }
       return marcadas > 0;
   }
@@ -672,18 +718,14 @@
       tarefas.forEach(t => {
           if(t.concluida) return;
           const chave = `${t.texto.toLowerCase().trim()}|${t.data}|${t.bloco}`;
-          if(!grupos.has(chave)) {
-              grupos.set(chave, []);
-          }
+          if(!grupos.has(chave)) grupos.set(chave, []);
           grupos.get(chave).push(t);
       });
       
       for(let [chave, lista] of grupos) {
           if(lista.length > 1) {
               lista.sort((a, b) => b.id - a.id);
-              for(let i = 1; i < lista.length; i++) {
-                  duplicatasParaConcluir.push(lista[i]);
-              }
+              for(let i = 1; i < lista.length; i++) duplicatasParaConcluir.push(lista[i]);
           }
       }
       
@@ -699,7 +741,7 @@
               dup.notificado = true;
           });
           salvarDados();
-          alert(`✅ ${duplicatasParaConcluir.length} tarefa(s) duplicada(s) concluída(s)!\n📌 Mantida 1 tarefa de cada no estado ativo.`);
+          alert(`✅ ${duplicatasParaConcluir.length} tarefa(s) duplicada(s) concluída(s)!`);
           renderizarTarefas();
       }
   }
@@ -707,9 +749,7 @@
   function concluirComDuplicatas(id) {
       const tarefa = tarefas.find(t => t.id === id);
       if(!tarefa) return;
-      
       tarefa.concluida = true;
-      
       tarefas.forEach(t => {
           if(t.id !== id && 
              t.texto.toLowerCase().trim() === tarefa.texto.toLowerCase().trim() && 
@@ -720,20 +760,14 @@
               t.notificado = true;
           }
       });
-      
       salvarDados();
-      mostrarIndicadorSync('✅ Tarefa(s) concluída(s)');
   }
   
   function toggleTarefa(id) { 
       const t = tarefas.find(t=>t.id===id); 
       if(t) { 
-          if(!t.concluida) {
-              concluirComDuplicatas(id);
-          } else {
-              t.concluida = false; 
-              salvarDados();
-          }
+          if(!t.concluida) concluirComDuplicatas(id);
+          else { t.concluida = false; salvarDados(); }
       } 
   }
   
@@ -794,27 +828,12 @@
       const recorrencia = document.getElementById(`recorrencia-${cardNome}`)?.value || ''; 
       
       if(verificarTarefaDuplicada(texto, data, cardNome)) {
-          const confirmar = confirm(`⚠️ Já existe uma tarefa "${texto}" para o dia ${data}.\n\nDeseja marcar a existente como concluída e criar uma nova?`);
-          if(confirmar) {
-              marcarDuplicatasComoConcluidas(texto, data, cardNome);
-          } else {
-              alert('❌ Tarefa não adicionada para evitar duplicidade.');
-              return;
-          }
+          const confirmar = confirm(`⚠️ Já existe "${texto}" para ${data}.\n\nDeseja marcar a existente como concluída e criar uma nova?`);
+          if(confirmar) marcarDuplicatasComoConcluidas(texto, data, cardNome);
+          else { alert('❌ Tarefa não adicionada.'); return; }
       }
       
-      tarefas.push({ 
-          id: Date.now(), 
-          texto, 
-          bloco: cardNome, 
-          data, 
-          prioridade, 
-          recorrencia, 
-          concluida: false, 
-          tempoGasto: 0, 
-          notificado: false 
-      }); 
-      
+      tarefas.push({ id: Date.now(), texto, bloco: cardNome, data, prioridade, recorrencia, concluida: false, tempoGasto: 0, notificado: false }); 
       document.getElementById(`texto-${cardNome}`).value = ''; 
       document.getElementById(`form-${cardNome}`)?.classList.remove('show'); 
       salvarDados(); 
@@ -845,20 +864,10 @@
       container.innerHTML = ''; 
       cardsTarefas.forEach(card => { 
           let lista = tarefas.filter(t=>t.bloco===card.nome); 
-          if(filtroAtual==='hoje') { 
-              lista = lista.filter(t => (t.data === hoje || (t.data && t.data < hoje)) && !t.concluida); 
-          } 
-          else if(filtroAtual==='semana') { 
-              const semana = new Date(); 
-              semana.setDate(semana.getDate() + 7); 
-              lista = lista.filter(t=>t.data <= semana.toISOString().split('T')[0] && !t.concluida); 
-          } 
-          else if(filtroAtual==='concluidas') { 
-              lista = lista.filter(t=>t.concluida); 
-          } 
-          else { 
-              lista = lista.filter(t=>!t.concluida); 
-          } 
+          if(filtroAtual==='hoje') lista = lista.filter(t => (t.data === hoje || (t.data && t.data < hoje)) && !t.concluida); 
+          else if(filtroAtual==='semana') { const semana = new Date(); semana.setDate(semana.getDate() + 7); lista = lista.filter(t=>t.data <= semana.toISOString().split('T')[0] && !t.concluida); } 
+          else if(filtroAtual==='concluidas') lista = lista.filter(t=>t.concluida); 
+          else lista = lista.filter(t=>!t.concluida); 
           if(filtroPrioridade!=='todas') lista = lista.filter(t=>t.prioridade===filtroPrioridade); 
           if(termo) lista = lista.filter(t=>t.texto.toLowerCase().includes(termo)); 
           const ativas = lista.filter(t=>!t.concluida).length; 
@@ -866,10 +875,15 @@
           const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'};
           const isAtrasada = (data) => data && data < hoje;
           const div = document.createElement('div'); div.className='bloco-tarefa'; 
+          div.setAttribute('data-card-nome', card.nome);
+          div.setAttribute('ondragover', 'permitirDrop(event)');
+          div.setAttribute('ondragleave', 'removerDragOver(event)');
+          div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}')`);
           div.innerHTML = `
               <div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div>
               <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state" style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.6);"><i class="fas fa-check-circle" style="font-size:36px;margin-bottom:8px;"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa</small></div>' : lista.map(t=>`
-                  <div class="tarefa-item ${t.concluida?'concluida':''}">
+                  <div class="tarefa-item" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}')" ondragend="tarefaArrastandoId=null">
+                      <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
                       <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
                       <div class="tarefa-conteudo">
                           <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
@@ -906,7 +920,7 @@
       const pendentesHoje = tarefas.filter(t=>t.data===hoje && !t.concluida).length; 
       document.getElementById('statsGrid').innerHTML = `
           <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
-          <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div><div style="font-size:10px;">sucesso do dia</div></div>
+          <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div>
           <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Hoje Pendentes</div></div>
           <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
       `; 
@@ -986,13 +1000,15 @@
       renderizarEstatisticas(); 
       renderizarCalendario(); 
       document.getElementById('dataHoje').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' }); 
-      console.log('🔄 Sistema recarregado');
   }
   
   // ========== INICIALIZAÇÃO ==========
   window.recarregarSistema = recarregarSistema;
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
-  window.salvarDados = salvarDados;
+  window.iniciarDragTarefa = iniciarDragTarefa;
+  window.permitirDrop = permitirDrop;
+  window.removerDragOver = removerDragOver;
+  window.soltarTarefa = soltarTarefa;
   
   document.getElementById('themeToggle').addEventListener('click',()=>{ document.body.classList.toggle('dark-theme'); localStorage.setItem('theme',document.body.classList.contains('dark-theme')?'dark':'light'); });
   if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-theme');
@@ -1014,7 +1030,7 @@
           statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online';
           statusDiv.classList.remove('status-offline');
       } else {
-          statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline (dados salvos localmente)';
+          statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline';
           statusDiv.classList.add('status-offline');
       }
   }
