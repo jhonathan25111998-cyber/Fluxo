@@ -94,8 +94,8 @@
   .badge.p1 { background: rgba(239,68,68,0.2); color: #FCA5A5; }
   .badge.p2 { background: rgba(245,158,11,0.2); color: #fbbf24; }
   .badge.recorrente { background: rgba(102,126,234,0.2); color: #A5B4FC; }
-  .badge.atrasada { background: rgba(239,68,68,0.2); color: #FCA5A5; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .badge.atrasada { background: rgba(239,68,68,0.3); color: #ff9999; border: 1px solid rgba(239,68,68,0.5); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
   .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .item-actions button { background: transparent; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; color: rgba(255,255,255,0.6); transition: all 0.2s; }
   .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; transform: scale(1.05); }
@@ -149,12 +149,13 @@
   .btn-musica:hover { transform: scale(1.05); background: #138496; }
   .backup-acoes { margin-top: 16px; display: flex; gap: 12px; justify-content: center; }
   @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  .sync-indicator { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; z-index: 9999; opacity: 0; transition: opacity 0.3s; }
 </style>
 </head>
 <body>
 <div class="login-overlay" id="loginOverlay"><div class="login-container"><div class="logo-img" style="margin:0 auto 20px;"><img src="logo.png" alt="FLUXO" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div><h2>FLUXO</h2><p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p><div id="loginForm"><input type="email" id="loginEmail" placeholder="Email"><div class="password-container"><input type="password" id="loginPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword',this)"><i class="far fa-eye"></i></button></div><div id="loginErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerLogin()">Entrar</button><a class="register-link" onclick="mostrarCadastro()">Criar conta</a></div><div id="registerForm" style="display:none;"><input type="email" id="registerEmail" placeholder="Email"><div class="password-container"><input type="password" id="registerPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerPassword',this)"><i class="far fa-eye"></i></button></div><div class="password-container"><input type="password" id="registerConfirm" placeholder="Confirmar senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerConfirm',this)"><i class="far fa-eye"></i></button></div><div id="registerErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerCadastro()">Cadastrar</button><a class="register-link" onclick="mostrarLogin()">Já tenho conta</a></div></div></div>
 <div class="container" id="mainApp" style="display:none;">
-  <div class="header"><div class="user-info"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button><button class="notify-btn" id="notifyBtn"><i class="fas fa-bell"></i></button><div class="user-avatar" id="userAvatar"><i class="fas fa-user-circle"></i><div class="user-tooltip" id="userTooltip"><span id="userEmailTooltip"></span></div></div><button class="sync-btn" id="syncBtn"><i class="fas fa-cloud-upload-alt"></i> Sinc</button><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button></div><div class="header-content"><div class="logo-img"><img src="logo.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div><div class="logo-texto"><div class="logo-titulo">FLUXO</div><div class="logo-subtitulo">Organize. Execute. Flua.</div></div></div><div class="data-hoje" id="dataHoje"></div></div>
+  <div class="header"><div class="user-info"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button><button class="notify-btn" id="notifyBtn"><i class="fas fa-bell"></i></button><div class="user-avatar" id="userAvatar"><i class="fas fa-user-circle"></i><div class="user-tooltip" id="userTooltip"><span id="userEmailTooltip"></span></div></div><button class="sync-btn" id="syncBtn" style="display:none;"><i class="fas fa-cloud-upload-alt"></i> Sinc</button><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button></div><div class="header-content"><div class="logo-img"><img src="logo.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div><div class="logo-texto"><div class="logo-titulo">FLUXO</div><div class="logo-subtitulo">Organize. Execute. Flua.</div></div></div><div class="data-hoje" id="dataHoje"></div></div>
   <div id="statusConnection" class="status-online"><i class="fas fa-wifi"></i> Online</div>
   <div class="top-bar"><div class="view-toggle"><button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button><button class="view-btn" onclick="toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button></div><div class="busca-global"><i class="fas fa-search"></i><input type="text" id="buscaGlobal" placeholder="Buscar tarefas..." oninput="renderizarTarefas()"></div></div>
   <div id="cardsView"><div class="metas-dashboard"><div class="metas-header"><h2><i class="fas fa-trophy"></i> Minhas Metas</h2><div class="metas-stats"><span>🎯 <strong id="totalMetas">0</strong> total</span><span>✅ <strong id="concluidasMetas">0</strong> concluídas</span><span>📈 <strong id="progressoMetas">0</strong>%</span></div></div><div class="metas-grid" id="metasGrid"></div><div class="add-meta-form"><input type="text" id="novaMetaTexto" placeholder="Nova meta..."><select id="novaMetaCategoria"><option>Saúde</option><option>Desenvolvimento</option><option>Financeiro</option><option>Espiritual</option><option>Carreira</option><option>Relacionamentos</option></select><button onclick="adicionarMeta()"><i class="fas fa-plus"></i> Adicionar Meta</button></div></div><div class="filtros"><button class="filtro-btn active" onclick="setFiltro('hoje',this)"><i class="fas fa-calendar-day"></i> Hoje</button><button class="filtro-btn" onclick="setFiltro('semana',this)"><i class="fas fa-calendar-week"></i> Semana</button><button class="filtro-btn" onclick="setFiltro('todas',this)"><i class="fas fa-list"></i> Todas</button><select id="filtroPrioridade" onchange="filtrarPorPrioridade()" style="background:rgba(0,0,0,0.5);color:white;border-radius:20px;padding:4px 12px;border:1px solid rgba(255,255,255,0.2);"><option value="todas">Todas prioridades</option><option value="p1">🔴 Alta</option><option value="p2">🟡 Média</option><option value="p3">🟢 Baixa</option></select></div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:16px;"><button class="add-workspace-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button><button class="btn-marcar-todas" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button></div><div class="blocos-tarefas" id="blocosTarefas"></div></div>
@@ -164,9 +165,9 @@
 <div class="modal-foco-overlay" id="modalFocoOverlay"><div class="modal-foco-conteudo"><i class="fas fa-brain" style="font-size:48px;color:#667eea;"></i><h2>🎯 Modo Foco</h2><div id="tarefaFocoTexto" class="tarefa-foco-grande"></div><div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div><div class="timer-foco-grande" id="timerFocoGrande">25:00</div><div class="controles-foco"><button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button><button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button><button class="btn-glass btn-prorrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button><button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button><button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button></div><div style="margin-top:20px; padding-top:20px; border-top: 1px solid rgba(255,255,255,0.1);"><button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button><input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:120px;margin-left:12px;vertical-align:middle;"><span style="font-size:12px; margin-left:6px;">Volume</span></div><div id="cronometroInfo" class="cronometro-info">🍅 Pomodoro 25 minutos</div><div style="margin-top:12px; font-size:11px; opacity:0.6;"><i class="fas fa-headphones"></i> Música LoFi relaxante para foco</div></div></div>
 <div class="modal-reagendar-overlay" id="modalReagendarOverlay"><div class="modal-reagendar-conteudo"><i class="fas fa-calendar-alt" style="font-size:36px;color:#667eea;"></i><h3>Reagendar Tarefa</h3><input type="date" id="novaDataReagendar"><div class="modal-botoes"><button class="btn-glass" onclick="confirmarReagendamento()">Confirmar</button><button class="btn-glass" onclick="fecharModalReagendar()" style="background:rgba(255,255,255,0.1);">Cancelar</button></div></div></div>
 
-<!-- ÁUDIO LOFI - Coloque seu arquivo lofi.MP3 na mesma pasta -->
+<!-- ÁUDIO LOFI -->
 <audio id="lofiAudio" loop preload="auto" style="display:none;">
-    <source src="lofi.MP3" type="audio/mpeg">
+    <source src="lofi.mp3" type="audio/mpeg">
 </audio>
 
 <script type="importmap">{ "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js" } }</script>
@@ -179,12 +180,47 @@
   window.fazerLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); } catch(e) { document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!'; } };
   window.fazerCadastro = async () => { const pwd = document.getElementById('registerPassword').value; if(pwd !== document.getElementById('registerConfirm').value) { document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem'; return; } try { await createUserWithEmailAndPassword(auth, document.getElementById('registerEmail').value, pwd); alert('✅ Conta criada!'); } catch(e) { document.getElementById('registerErrorMessage').textContent = e.message; } };
   window.fazerLogout = () => signOut(auth); window.mostrarCadastro = () => { document.getElementById('loginForm').style.display='none'; document.getElementById('registerForm').style.display='block'; }; window.mostrarLogin = () => { document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; };
-  onAuthStateChanged(auth, async (user) => { if(user) { currentUser = user; document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('userEmailTooltip').textContent = user.email; await carregarDadosFirebase(); recarregarSistema(); } else { currentUser=null; document.getElementById('loginOverlay').style.display='flex'; document.getElementById('mainApp').style.display='none'; } });
-  async function salvarTudoFirebase() { if(!currentUser) return; await setDoc(doc(db,"usuarios",currentUser.uid),{ tarefas:JSON.parse(localStorage.getItem('tarefas')||'[]'), metas:JSON.parse(localStorage.getItem('metas')||'[]'), cardsTarefas:JSON.parse(localStorage.getItem('cardsTarefas')||'[]'), tempoTotalFocado:parseInt(localStorage.getItem('tempoTotalFocado')||'0') }); }
+  
+  let isSyncing = false;
+  async function salvarTudoFirebase() { 
+    if(!currentUser) return;
+    if(isSyncing) return;
+    isSyncing = true;
+    try {
+      await setDoc(doc(db, "usuarios", currentUser.uid), {
+        tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'),
+        metas: JSON.parse(localStorage.getItem('metas') || '[]'),
+        cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'),
+        tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0')
+      });
+      console.log('✅ Firebase sincronizado automaticamente');
+    } catch(err) { console.error(err); }
+    finally { isSyncing = false; }
+  }
+  
   async function carregarDadosFirebase() { if(!currentUser) return; const snap = await getDoc(doc(db,"usuarios",currentUser.uid)); if(snap.exists()){ const d=snap.data(); if(d.tarefas) localStorage.setItem('tarefas',JSON.stringify(d.tarefas)); if(d.metas) localStorage.setItem('metas',JSON.stringify(d.metas)); if(d.cardsTarefas) localStorage.setItem('cardsTarefas',JSON.stringify(d.cardsTarefas)); if(d.tempoTotalFocado) localStorage.setItem('tempoTotalFocado',d.tempoTotalFocado); } }
+  
   window.sincronizarFirebase = async () => { await salvarTudoFirebase(); alert('✅ Sincronizado!'); };
-  document.getElementById('logoutBtn').onclick = () => window.fazerLogout(); document.getElementById('syncBtn').onclick = () => window.sincronizarFirebase(); document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); else alert('Notificações já ativadas!'); };
+  document.getElementById('logoutBtn').onclick = () => window.fazerLogout(); 
+  document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); else alert('Notificações já ativadas!'); };
   window.togglePasswordVisibility = (id, btn) => { const inp = document.getElementById(id); if(inp.type === 'password'){ inp.type='text'; btn.innerHTML='<i class="far fa-eye-slash"></i>'; } else { inp.type='password'; btn.innerHTML='<i class="far fa-eye"></i>'; } };
+  
+  onAuthStateChanged(auth, async (user) => { 
+    if(user) { 
+      currentUser = user; 
+      document.getElementById('loginOverlay').style.display='none'; 
+      document.getElementById('mainApp').style.display='block'; 
+      document.getElementById('userEmailTooltip').textContent = user.email; 
+      await carregarDadosFirebase(); 
+      recarregarSistema(); 
+      iniciarSincronizacaoPeriodica();
+    } else { 
+      currentUser=null; 
+      document.getElementById('loginOverlay').style.display='flex'; 
+      document.getElementById('mainApp').style.display='none'; 
+      if(syncInterval) clearInterval(syncInterval);
+    } 
+  });
 </script>
 <script>
   let tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
@@ -195,8 +231,45 @@
   let tempoTotalFocado = parseInt(localStorage.getItem('tempoTotalFocado') || '0');
   let ultimaDataReset = localStorage.getItem('ultimaDataReset') || '';
   let tarefaReagendando = null;
+  let syncTimeout = null;
+  let syncInterval = null;
   
-  // Música LoFi com arquivo lofi.MP3
+  // Sincronização automática
+  function sincronizarFirebaseAutomatico() {
+    if(!window.currentUser) return;
+    if(syncTimeout) clearTimeout(syncTimeout);
+    syncTimeout = setTimeout(() => {
+      if(window.salvarTudoFirebase) {
+        window.salvarTudoFirebase();
+        mostrarIndicadorSync('✅ Dados sincronizados');
+      }
+    }, 1000);
+  }
+  
+  function mostrarIndicadorSync(mensagem) {
+    let indicator = document.getElementById('syncIndicator');
+    if(!indicator) {
+      indicator = document.createElement('div');
+      indicator.id = 'syncIndicator';
+      indicator.className = 'sync-indicator';
+      document.body.appendChild(indicator);
+    }
+    indicator.textContent = mensagem;
+    indicator.style.opacity = '1';
+    setTimeout(() => { if(indicator) indicator.style.opacity = '0'; }, 2000);
+  }
+  
+  function iniciarSincronizacaoPeriodica() {
+    if(syncInterval) clearInterval(syncInterval);
+    syncInterval = setInterval(() => {
+      if(window.currentUser && window.salvarTudoFirebase) {
+        window.salvarTudoFirebase();
+        console.log('🔄 Sync periódica (30s)');
+      }
+    }, 30000);
+  }
+  
+  // Música LoFi
   let lofiAudioElement = null;
   let lofiActive = false;
   
@@ -206,10 +279,6 @@
           if(lofiAudioElement) {
               lofiAudioElement.volume = 0.3;
               lofiAudioElement.loop = true;
-              // Se o arquivo não existir, mostra aviso no console
-              lofiAudioElement.onerror = function() {
-                  console.warn('⚠️ Arquivo lofi.mp3 não encontrado! Coloque o arquivo na mesma pasta do index.html');
-              };
           }
       }
   }
@@ -222,14 +291,8 @@
               playPromise.then(() => {
                   lofiActive = true;
                   atualizarBotaoMusica(true);
-              }).catch(error => {
-                  console.log('Autoplay bloqueado. Clique no botão para ativar a música.');
-                  lofiActive = false;
-                  atualizarBotaoMusica(false);
-              });
+              }).catch(e => console.log('Autoplay bloqueado'));
           }
-      } else {
-          console.warn('Elemento de áudio não encontrado');
       }
   }
   
@@ -244,11 +307,8 @@
   
   function toggleMusicaFoco() {
       initLofiAudio();
-      if(lofiActive) {
-          stopLofi();
-      } else {
-          playLofi();
-      }
+      if(lofiActive) stopLofi();
+      else playLofi();
   }
   
   function atualizarBotaoMusica(ativo) {
@@ -256,7 +316,7 @@
       if(btn) {
           if(ativo) {
               btn.style.background = '#28a745';
-              btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON';
+              btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON ✓';
           } else {
               btn.style.background = '#17a2b8';
               btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus';
@@ -319,7 +379,7 @@
       renderizarMetas(); 
       renderizarEstatisticas();
       renderizarCalendario();
-      if(window.salvarTudoFirebase) window.salvarTudoFirebase(); 
+      sincronizarFirebaseAutomatico();
   }
   
   // Pomodoro
@@ -378,7 +438,6 @@
       document.getElementById('btnIniciarFoco').style.display = 'none'; 
       document.getElementById('btnPausarFoco').style.display = 'inline-block'; 
       document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...'; 
-      // Inicia música LoFi automaticamente ao dar play
       setTimeout(() => { playLofi(); }, 100);
   }
   
@@ -514,20 +573,48 @@
       container.innerHTML = ''; 
       cardsTarefas.forEach(card => { 
           let lista = tarefas.filter(t=>t.bloco===card.nome); 
-          if(filtroAtual==='hoje') lista = lista.filter(t=>t.data===hoje && !t.concluida); 
-          else if(filtroAtual==='semana') { const semana = new Date(); semana.setDate(semana.getDate() + 7); lista = lista.filter(t=>t.data<=semana.toISOString().split('T')[0] && !t.concluida); } 
-          else if(filtroAtual==='concluidas') lista = lista.filter(t=>t.concluida); 
-          else lista = lista.filter(t=>!t.concluida); 
+          // FILTRO CORRIGIDO - Mostra tarefas de hoje E atrasadas
+          if(filtroAtual==='hoje') { 
+              lista = lista.filter(t => (t.data === hoje || (t.data && t.data < hoje)) && !t.concluida); 
+          } 
+          else if(filtroAtual==='semana') { 
+              const semana = new Date(); 
+              semana.setDate(semana.getDate() + 7); 
+              lista = lista.filter(t=>t.data <= semana.toISOString().split('T')[0] && !t.concluida); 
+          } 
+          else if(filtroAtual==='concluidas') { 
+              lista = lista.filter(t=>t.concluida); 
+          } 
+          else { 
+              lista = lista.filter(t=>!t.concluida); 
+          } 
           if(filtroPrioridade!=='todas') lista = lista.filter(t=>t.prioridade===filtroPrioridade); 
           if(termo) lista = lista.filter(t=>t.texto.toLowerCase().includes(termo)); 
           const ativas = lista.filter(t=>!t.concluida).length; 
           const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`;
           const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'};
-          const atrasada = (data) => data && data < hoje ? 'atrasada' : '';
+          const isAtrasada = (data) => data && data < hoje;
           const div = document.createElement('div'); div.className='bloco-tarefa'; 
           div.innerHTML = `
               <div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div>
-              <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state" style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.6);"><i class="fas fa-check-circle" style="font-size:36px;margin-bottom:8px;"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa</small></div>' : lista.map(t=>`<div class="tarefa-item ${t.concluida?'concluida':''}"><input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})"><div class="tarefa-conteudo"><div class="tarefa-texto">${escapeHtml(t.texto)}</div><div class="tarefa-meta">${t.data?`<span class="badge ${atrasada(t.data)}"><i class="fas fa-calendar"></i> ${t.data}</span>`:''}<span class="badge ${prioridadeLabel(t.prioridade).class}"><i class="fas fa-flag"></i> ${prioridadeLabel(t.prioridade).text}</span>${t.recorrencia?`<span class="badge recorrente"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}</div></div><div class="item-actions"><button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button><button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button><button onclick="excluirTarefa(${t.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button></div></div>`).join('')}
+              <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state" style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.6);"><i class="fas fa-check-circle" style="font-size:36px;margin-bottom:8px;"></i><p>Tudo certo por aqui</p><small>Adicione uma tarefa</small></div>' : lista.map(t=>`
+                  <div class="tarefa-item ${t.concluida?'concluida':''}">
+                      <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
+                      <div class="tarefa-conteudo">
+                          <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
+                          <div class="tarefa-meta">
+                              ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '(Atrasada)' : ''}</span>`:''}
+                              <span class="badge ${prioridadeLabel(t.prioridade).class}"><i class="fas fa-flag"></i> ${prioridadeLabel(t.prioridade).text}</span>
+                              ${t.recorrencia?`<span class="badge recorrente"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
+                              ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
+                          </div>
+                      </div>
+                      <div class="item-actions">
+                          <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
+                          <button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button>
+                          <button onclick="excluirTarefa(${t.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                      </div>
+                  </div>`).join('')}
               <button class="add-tarefa-btn" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')"><i class="fas fa-plus-circle"></i> Adicionar Tarefa</button>
               <div class="inline-form" id="${formId}"><input type="text" id="texto-${escapeHtml(card.nome)}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${escapeHtml(card.nome)}" placeholder="Data"><select id="prioridade-${escapeHtml(card.nome)}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${escapeHtml(card.nome)}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${escapeHtml(card.nome)}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('${formId}').classList.remove('show')">Cancelar</button></div></div>
               </div>
@@ -537,33 +624,22 @@
       const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); addCard.innerHTML='<div style="text-align:center;padding:40px;color:white;"><i class="fas fa-plus-circle" style="font-size:48px;margin-bottom:8px;"></i><p>Novo Espaço</p></div>'; container.appendChild(addCard); 
   }
   
-function renderizarEstatisticas() { 
-    const hoje = new Date().toISOString().split('T')[0];
-    
-    // Tarefas do dia (apenas hoje)
-    const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
-    const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
-    const totalHoje = tarefasHojeLista.length;
-    const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
-    
-    // Total geral de tarefas concluídas
-    const concluidasTotal = tarefas.filter(t=>t.concluida).length;
-    const totalGeral = tarefas.length;
-    
-    // Tempo focado
-    const horasFoco = Math.floor(tempoTotalFocado / 3600); 
-    const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
-    
-    // Tarefas pendentes hoje
-    const pendentesHoje = tarefas.filter(t=>t.data===hoje && !t.concluida).length; 
-    
-    document.getElementById('statsGrid').innerHTML = `
-        <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
-        <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div><div style="font-size:10px;">sucesso do dia</div></div>
-        <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Hoje Pendentes</div></div>
-        <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
-    `; 
-}
+  function renderizarEstatisticas() { 
+      const hoje = new Date().toISOString().split('T')[0];
+      const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
+      const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
+      const totalHoje = tarefasHojeLista.length;
+      const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
+      const horasFoco = Math.floor(tempoTotalFocado / 3600); 
+      const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
+      const pendentesHoje = tarefas.filter(t=>t.data===hoje && !t.concluida).length; 
+      document.getElementById('statsGrid').innerHTML = `
+          <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
+          <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div><div style="font-size:10px;">sucesso do dia</div></div>
+          <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Hoje Pendentes</div></div>
+          <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
+      `; 
+  }
   
   // Calendário
   let dataCalendario = new Date(); 
