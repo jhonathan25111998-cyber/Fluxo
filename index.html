@@ -197,7 +197,6 @@
 <audio id="lofiAudio" loop preload="auto" style="display:none;">
     <source src="lofi.mp3" type="audio/mpeg">
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
-    <source src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Noel_B%C3%A4rtschi_-_LoFi_Hip_Hop_Beat_%28instrumental%29_-_2.ogg" type="audio/ogg">
 </audio>
 
 <script type="importmap">{ "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js" } }</script>
@@ -334,6 +333,15 @@
   });
 </script>
 <script>
+  // ========== FUNÇÃO CORRIGIDA PARA DATA (FUSO HORÁRIO BRASIL) ==========
+  function getDataHoje() {
+      const agora = new Date();
+      const ano = agora.getFullYear();
+      const mes = String(agora.getMonth() + 1).padStart(2, '0');
+      const dia = String(agora.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+  }
+  
   // ========== DADOS GLOBAIS ==========
   let tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
   let metas = JSON.parse(localStorage.getItem('metas') || '[]');
@@ -349,7 +357,7 @@
   let tarefaArrastandoOrigem = null;
   
   function concluirTodasAtrasadas() {
-      const hoje = new Date().toISOString().split('T')[0];
+      const hoje = getDataHoje();
       const atrasadas = tarefas.filter(t => {
           return t.data && t.data < hoje && !t.concluida;
       });
@@ -607,7 +615,7 @@
   }
   
   function verificarResetDiario() {
-      const hoje = new Date().toISOString().split('T')[0];
+      const hoje = getDataHoje();
       if (ultimaDataReset !== hoje) {
           tarefas = tarefas.map(t => {
               if (t.recorrencia && t.recorrencia !== '' && t.concluida) {
@@ -763,7 +771,7 @@
   function abrirModalReagendar(id) {
       tarefaReagendando = tarefas.find(t => t.id === id);
       if(tarefaReagendando) {
-          document.getElementById('novaDataReagendar').value = tarefaReagendando.data || new Date().toISOString().split('T')[0];
+          document.getElementById('novaDataReagendar').value = tarefaReagendando.data || getDataHoje();
           document.getElementById('modalReagendarOverlay').classList.add('show');
       }
   }
@@ -952,7 +960,7 @@
   function adicionarTarefaInline(cardNome) { 
       const texto = document.getElementById(`texto-${cardNome}`)?.value.trim(); 
       if(!texto) { alert('Digite uma tarefa!'); return; }
-      const data = document.getElementById(`data-${cardNome}`)?.value || new Date().toISOString().split('T')[0]; 
+      const data = document.getElementById(`data-${cardNome}`)?.value || getDataHoje(); 
       const prioridade = document.getElementById(`prioridade-${cardNome}`)?.value || 'p3'; 
       const recorrencia = document.getElementById(`recorrencia-${cardNome}`)?.value || ''; 
       
@@ -975,7 +983,7 @@
   }
   
   function marcarTodasHoje() { 
-      const hoje = new Date().toISOString().split('T')[0]; 
+      const hoje = getDataHoje(); 
       const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida); 
       if(alvos.length===0) return alert('🎉 Nenhuma tarefa pendente para hoje!'); 
       if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){ 
@@ -989,7 +997,10 @@
       const container = document.getElementById('blocosTarefas'); 
       if(!container) return; 
       const termo = document.getElementById('buscaGlobal')?.value.toLowerCase() || ''; 
-      const hoje = new Date().toISOString().split('T')[0]; 
+      const hoje = getDataHoje(); 
+      
+      console.log('🔍 FILTRO ATUAL:', filtroAtual);
+      console.log('📅 DATA DE HOJE (ajustada):', hoje);
       
       container.innerHTML = ''; 
       cardsTarefas.forEach(card => { 
@@ -1068,7 +1079,7 @@
                       </div>
                   </div>`).join('')}
               <button class="add-tarefa-btn" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')"><i class="fas fa-plus-circle"></i> Adicionar Tarefa</button>
-              <div class="inline-form" id="${formId}"><input type="text" id="texto-${escapeHtml(card.nome)}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${escapeHtml(card.nome)}" placeholder="Data"><select id="prioridade-${escapeHtml(card.nome)}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${escapeHtml(card.nome)}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${escapeHtml(card.nome)}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('${formId}').classList.remove('show')">Cancelar</button></div></div>
+              <div class="inline-form" id="${formId}"><input type="text" id="texto-${escapeHtml(card.nome)}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${escapeHtml(card.nome)}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${escapeHtml(card.nome)}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${escapeHtml(card.nome)}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${escapeHtml(card.nome)}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('${formId}').classList.remove('show')">Cancelar</button></div></div>
               </div>
           `; 
           container.appendChild(div); 
@@ -1084,7 +1095,7 @@
   }
   
   function renderizarEstatisticas() { 
-      const hoje = new Date().toISOString().split('T')[0];
+      const hoje = getDataHoje();
       
       const atrasadas = tarefas.filter(t => t.data && t.data < hoje && !t.concluida).length;
       const hojeTarefas = tarefas.filter(t => t.data === hoje && !t.concluida).length;
@@ -1117,7 +1128,7 @@
       document.getElementById('calendarioMes').textContent=`${meses[mes]} ${ano}`; 
       let html=''; 
       for(let i=0;i<7;i++) html+=`<div class="calendario-dia-semana">${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][i]}</div>`; 
-      let dia=1; const hoje = new Date().toISOString().split('T')[0];
+      let dia=1; const hoje = getDataHoje();
       for(let i=0;i<42;i++){ 
           if(i<primeiroDia || dia>diasNoMes){ html+=`<div class="calendario-dia" style="opacity:0.3;"></div>`; 
           }else{ 
@@ -1144,7 +1155,7 @@
       const blob = new Blob([JSON.stringify(dados)], {type:'application/json'}); 
       const a=document.createElement('a'); 
       a.href=URL.createObjectURL(blob); 
-      a.download=`fluxo-backup-${new Date().toISOString().split('T')[0]}.json`; 
+      a.download=`fluxo-backup-${getDataHoje()}.json`; 
       a.click(); 
       alert('✅ Backup exportado!');
   }
@@ -1220,7 +1231,7 @@
   
   if ('Notification' in window && Notification.permission === 'granted') {
       setInterval(() => {
-          const hoje = new Date().toISOString().split('T')[0];
+          const hoje = getDataHoje();
           const agora = new Date();
           const horaAtual = agora.getHours().toString().padStart(2,'0') + ':' + agora.getMinutes().toString().padStart(2,'0');
           tarefas.forEach(t => {
