@@ -908,11 +908,121 @@
       } 
   }
   
-  function excluirTarefa(id) { 
-      if(confirm('Excluir tarefa?')) { 
-          tarefas = tarefas.filter(t=>t.id!==id); 
-          salvarDados(); 
+  // ========== EXCLUIR CARD COM OPÇÕES ==========
+  function excluirCardTarefa(id) { 
+      const card = cardsTarefas.find(c => c.id === id); 
+      if(!card) return;
+      
+      const tarefasDoCard = tarefas.filter(t => t.bloco === card.nome);
+      const tarefasAtivas = tarefasDoCard.filter(t => !t.concluida).length;
+      const tarefasConcluidas = tarefasDoCard.filter(t => t.concluida).length;
+      
+      if(tarefasDoCard.length === 0) {
+          if(confirm(`Excluir o card "${card.nome}"?`)) {
+              cardsTarefas = cardsTarefas.filter(c => c.id !== id);
+              salvarDados();
+              alert(`✅ Card "${card.nome}" excluído!`);
+          }
+          return;
+      }
+      
+      let mensagem = `🗑️ EXCLUIR CARD: "${card.nome}"\n\n`;
+      mensagem += `📊 Este card contém:\n`;
+      mensagem += `   📋 ${tarefasAtivas} tarefa(s) ATIVA(S)\n`;
+      mensagem += `   ✅ ${tarefasConcluidas} tarefa(s) CONCLUÍDA(S)\n\n`;
+      mensagem += `Escolha uma opção:\n`;
+      mensagem += `1 - Mover tarefas para outro card\n`;
+      mensagem += `2 - Excluir TODAS as tarefas junto com o card\n`;
+      mensagem += `3 - Cancelar`;
+      
+      const opcao = prompt(mensagem);
+      
+      if(opcao === '1') {
+          const outrosCards = cardsTarefas.filter(c => c.id !== id);
+          if(outrosCards.length === 0) {
+              alert('❌ Não há outro card para mover as tarefas! Crie um novo card primeiro.');
+              return;
+          }
+          
+          let listaCards = "Escolha o card de destino:\n";
+          outrosCards.forEach((c, idx) => {
+              listaCards += `${idx + 1} - ${c.nome}\n`;
+          });
+          
+          const destinoIdx = prompt(listaCards);
+          if(destinoIdx && destinoIdx >= 1 && destinoIdx <= outrosCards.length) {
+              const cardDestino = outrosCards[destinoIdx - 1];
+              tarefasDoCard.forEach(t => {
+                  t.bloco = cardDestino.nome;
+              });
+              cardsTarefas = cardsTarefas.filter(c => c.id !== id);
+              salvarDados();
+              alert(`✅ Card "${card.nome}" excluído!\n📦 ${tarefasDoCard.length} tarefa(s) movidas para "${cardDestino.nome}"`);
+          } else {
+              alert('❌ Operação cancelada.');
+          }
       } 
+      else if(opcao === '2') {
+          if(confirm(`⚠️ ATENÇÃO: Isso irá excluir PERMANENTEMENTE o card "${card.nome}" e TODAS as ${tarefasDoCard.length} tarefas associadas.\n\nTem certeza?`)) {
+              tarefas = tarefas.filter(t => t.bloco !== card.nome);
+              cardsTarefas = cardsTarefas.filter(c => c.id !== id);
+              salvarDados();
+              alert(`✅ Card "${card.nome}" e ${tarefasDoCard.length} tarefa(s) excluídos!`);
+          }
+      }
+  }
+  
+  // ========== EXCLUIR TAREFA COM RECORRÊNCIA ==========
+  function excluirTarefa(id) { 
+      const tarefa = tarefas.find(t => t.id === id);
+      if(!tarefa) return;
+      
+      const temRecorrencia = tarefa.recorrencia && tarefa.recorrencia !== '';
+      
+      if(temRecorrencia) {
+          const tarefasRecorrentes = tarefas.filter(t => 
+              t.texto === tarefa.texto && 
+              t.recorrencia === tarefa.recorrencia &&
+              !t.concluida
+          ).sort((a, b) => (a.data || '').localeCompare(b.data || ''));
+          
+          const totalRecorrentes = tarefasRecorrentes.length;
+          
+          let mensagem = `🗑️ EXCLUIR TAREFA RECORRENTE\n\n`;
+          mensagem += `"${tarefa.texto}"\n`;
+          mensagem += `🔄 Recorrência: ${tarefa.recorrencia}\n`;
+          mensagem += `📅 Data: ${tarefa.data || 'sem data'}\n\n`;
+          mensagem += `Existem ${totalRecorrentes} ocorrência(s) desta tarefa.\n\n`;
+          mensagem += `Escolha uma opção:\n`;
+          mensagem += `1 - Excluir APENAS esta ocorrência\n`;
+          mensagem += `2 - Excluir TODAS as ocorrências (${totalRecorrentes} tarefas)\n`;
+          mensagem += `3 - Cancelar`;
+          
+          const opcao = prompt(mensagem);
+          
+          if(opcao === '1') {
+              if(confirm(`Confirmar exclusão da tarefa "${tarefa.texto}"?`)) {
+                  tarefas = tarefas.filter(t => t.id !== id);
+                  salvarDados();
+                  alert(`✅ Tarefa excluída!`);
+              }
+          } 
+          else if(opcao === '2') {
+              if(confirm(`⚠️ ATENÇÃO: Isso irá excluir TODAS as ${totalRecorrentes} ocorrências da tarefa "${tarefa.texto}".\n\nTem certeza?`)) {
+                  const idsParaExcluir = tarefasRecorrentes.map(t => t.id);
+                  tarefas = tarefas.filter(t => !idsParaExcluir.includes(t.id));
+                  salvarDados();
+                  alert(`✅ ${totalRecorrentes} tarefa(s) recorrente(s) excluída(s)!`);
+              }
+          }
+      } 
+      else {
+          if(confirm(`Excluir tarefa "${tarefa.texto}"?`)) {
+              tarefas = tarefas.filter(t => t.id !== id);
+              salvarDados();
+              alert(`✅ Tarefa excluída!`);
+          }
+      }
   }
   
   function setFiltro(filtro, btn) { 
@@ -944,16 +1054,6 @@
               card.nome=novo.trim(); 
               salvarDados(); 
           } 
-      } 
-  }
-  
-  function excluirCardTarefa(id) { 
-      const card = cardsTarefas.find(c=>c.id===id); 
-      if(card && confirm(`Excluir "${card.nome}"? As tarefas serão movidas`)){ 
-          const pessoal = cardsTarefas.find(c=>c.nome==='Minhas Tarefas') || cardsTarefas[0]; 
-          tarefas.forEach(t=>{ if(t.bloco===card.nome) t.bloco=pessoal.nome; }); 
-          cardsTarefas = cardsTarefas.filter(c=>c.id!==id); 
-          salvarDados(); 
       } 
   }
   
@@ -998,9 +1098,6 @@
       if(!container) return; 
       const termo = document.getElementById('buscaGlobal')?.value.toLowerCase() || ''; 
       const hoje = getDataHoje(); 
-      
-      console.log('🔍 FILTRO ATUAL:', filtroAtual);
-      console.log('📅 DATA DE HOJE (ajustada):', hoje);
       
       container.innerHTML = ''; 
       cardsTarefas.forEach(card => { 
@@ -1202,6 +1299,8 @@
   window.removerDragOver = removerDragOver;
   window.soltarTarefa = soltarTarefa;
   window.concluirTodasAtrasadas = concluirTodasAtrasadas;
+  window.excluirCardTarefa = excluirCardTarefa;
+  window.excluirTarefa = excluirTarefa;
   
   document.getElementById('themeToggle').addEventListener('click',()=>{ document.body.classList.toggle('dark-theme'); localStorage.setItem('theme',document.body.classList.contains('dark-theme')?'dark':'light'); });
   if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-theme');
@@ -1254,12 +1353,10 @@
   window.prorrogarTempoFoco = prorrogarTempoFoco;
   window.adicionarMeta = adicionarMeta; 
   window.toggleTarefa = toggleTarefa; 
-  window.excluirTarefa = excluirTarefa; 
   window.setFiltro = setFiltro; 
   window.filtrarPorPrioridade = filtrarPorPrioridade; 
   window.adicionarCardTarefa = adicionarCardTarefa; 
   window.editarCardTarefa = editarCardTarefa; 
-  window.excluirCardTarefa = excluirCardTarefa; 
   window.mostrarFormAdicionar = mostrarFormAdicionar; 
   window.adicionarTarefaInline = adicionarTarefaInline; 
   window.marcarTodasHoje = marcarTodasHoje; 
