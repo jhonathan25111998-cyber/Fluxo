@@ -119,7 +119,9 @@
   .action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; color: white; cursor: pointer; font-size: 12px; transition: all 0.3s; }
   .action-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
   .action-btn.danger { background: #dc3545; border-color: #dc3545; }
+  .action-btn.danger:hover { background: #c82333; }
   .action-btn.warning { background: #ff9800; border-color: #ff9800; color: #1a1a2e; }
+  .action-btn.warning:hover { background: #e68900; }
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
   .modal-foco-overlay.show { display: flex; }
   .modal-foco-conteudo { background: rgba(26,27,38,0.95); backdrop-filter: blur(24px); padding: 24px; border-radius: 24px; max-width: 90%; width: 420px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
@@ -1011,19 +1013,28 @@
               lista = lista.filter(t=>!t.concluida);
           }
           else if(filtroAtual==='atrasadas') {
-              lista = lista.filter(t => t.data && t.data < hoje && !t.concluida);
+              lista = lista.filter(t => {
+                  return t.data && t.data < hoje && !t.concluida;
+              });
           }
           else { 
               lista = lista.filter(t=>!t.concluida); 
           } 
           
-          if(filtroPrioridade!=='todas') lista = lista.filter(t=>t.prioridade===filtroPrioridade); 
+          if(filtroPrioridade!=='todas' && filtroAtual !== 'atrasadas') {
+              lista = lista.filter(t=>t.prioridade===filtroPrioridade); 
+          }
+          
           if(termo) lista = lista.filter(t=>t.texto.toLowerCase().includes(termo)); 
           
           const ativas = lista.filter(t=>!t.concluida).length; 
           const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`;
           const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'};
           const isAtrasada = (data) => data && data < hoje;
+          
+          if(filtroAtual === 'atrasadas' && lista.length === 0) {
+              return;
+          }
           
           const div = document.createElement('div'); div.className='bloco-tarefa'; 
           div.setAttribute('data-card-nome', card.nome);
@@ -1062,7 +1073,14 @@
           `; 
           container.appendChild(div); 
       }); 
-      const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); addCard.innerHTML='<div style="text-align:center;padding:40px;color:white;"><i class="fas fa-plus-circle" style="font-size:48px;margin-bottom:8px;"></i><p>Novo Espaço</p></div>'; container.appendChild(addCard); 
+      
+      if(filtroAtual === 'atrasadas' && container.children.length === 0) {
+          container.innerHTML = '<div class="bloco-tarefa" style="text-align:center;padding:40px;"><div class="empty-state"><i class="fas fa-check-circle" style="font-size:48px;"></i><p>Nenhuma tarefa atrasada encontrada!</p></div></div>';
+      }
+      
+      const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); 
+      addCard.innerHTML='<div style="text-align:center;padding:40px;color:white;"><i class="fas fa-plus-circle" style="font-size:48px;margin-bottom:8px;"></i><p>Novo Espaço</p></div>'; 
+      container.appendChild(addCard); 
   }
   
   function renderizarEstatisticas() { 
