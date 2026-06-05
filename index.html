@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <meta name="theme-color" content="#667eea">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>FLUXO - Organize. Execute. Flua.</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -175,9 +173,11 @@
 <div class="modal-foco-overlay" id="modalFocoOverlay"><div class="modal-foco-conteudo"><i class="fas fa-brain" style="font-size:48px;color:#667eea;"></i><h2>🎯 Modo Foco</h2><div id="tarefaFocoTexto" class="tarefa-foco-grande"></div><div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div><div class="timer-foco-grande" id="timerFocoGrande">25:00</div><div class="controles-foco"><button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button><button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button><button class="btn-glass btn-prorrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button><button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button><button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button></div><div style="margin-top:20px; padding-top:20px; border-top: 1px solid rgba(255,255,255,0.1);"><button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button><input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:120px;margin-left:12px;vertical-align:middle;"><span style="font-size:12px; margin-left:6px;">Volume</span></div><div id="cronometroInfo" class="cronometro-info">🍅 Pomodoro 25 minutos</div><div style="margin-top:12px; font-size:11px; opacity:0.6;"><i class="fas fa-headphones"></i> Música LoFi relaxante para foco</div></div></div>
 <div class="modal-reagendar-overlay" id="modalReagendarOverlay"><div class="modal-reagendar-conteudo"><i class="fas fa-calendar-alt" style="font-size:36px;color:#667eea;"></i><h3>Reagendar Tarefa</h3><input type="date" id="novaDataReagendar"><div class="modal-botoes"><button class="btn-glass" onclick="confirmarReagendamento()">Confirmar</button><button class="btn-glass" onclick="fecharModalReagendar()" style="background:rgba(255,255,255,0.1);">Cancelar</button></div></div></div>
 
-<!-- ÁUDIO LOFI -->
+<!-- ÁUDIO LOFI COM MÚLTIPLAS FONTES E FALLBACK -->
 <audio id="lofiAudio" loop preload="auto" style="display:none;">
     <source src="lofi.mp3" type="audio/mpeg">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+    <source src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Noel_B%C3%A4rtschi_-_LoFi_Hip_Hop_Beat_%28instrumental%29_-_2.ogg" type="audio/ogg">
 </audio>
 
 <script type="importmap">{ "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js" } }</script>
@@ -442,9 +442,12 @@
   }
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
   
-  // ========== MÚSICA LOFI ==========
+  // ========== MÚSICA LOFI COM FALLBACK ==========
   let lofiAudioElement = null;
   let lofiActive = false;
+  let fallbackAudioRunning = false;
+  let fallbackContext = null;
+  let fallbackNoise = null;
   
   function initLofiAudio() {
       if(!lofiAudioElement) {
@@ -457,24 +460,65 @@
       }
   }
   
+  function gerarMusicaAmbiente() {
+      if(fallbackAudioRunning) return;
+      fallbackAudioRunning = true;
+      
+      try {
+          fallbackContext = new (window.AudioContext || window.webkitAudioContext)();
+          
+          const bufferSize = fallbackContext.sampleRate * 5;
+          const buffer = fallbackContext.createBuffer(1, bufferSize, fallbackContext.sampleRate);
+          const data = buffer.getChannelData(0);
+          let lastOut = 0;
+          for (let i = 0; i < bufferSize; i++) {
+              const white = Math.random() * 2 - 1;
+              lastOut = (lastOut + (0.02 * white)) / 1.02;
+              data[i] = lastOut * 0.1;
+          }
+          
+          fallbackNoise = fallbackContext.createBufferSource();
+          fallbackNoise.buffer = buffer;
+          fallbackNoise.loop = true;
+          
+          const filter = fallbackContext.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = 700;
+          
+          const gain = fallbackContext.createGain();
+          gain.gain.value = 0.2;
+          
+          fallbackNoise.connect(filter);
+          filter.connect(gain);
+          gain.connect(fallbackContext.destination);
+          fallbackNoise.start();
+          
+          lofiActive = true;
+          atualizarBotaoMusica(true);
+          console.log('🎵 Som ambiente ativado via Web Audio (fallback)');
+          
+          if(fallbackContext.state === 'suspended') {
+              fallbackContext.resume();
+          }
+      } catch(e) { 
+          console.log('Erro no fallback:', e);
+          fallbackAudioRunning = false;
+      }
+  }
+  
   function playLofi() {
       initLofiAudio();
       if(lofiAudioElement) {
-          console.log('🎵 Tentando tocar LoFi...');
-          const playPromise = lofiAudioElement.play();
-          if(playPromise !== undefined) {
-              playPromise.then(() => {
-                  lofiActive = true;
-                  atualizarBotaoMusica(true);
-                  console.log('🎵 LoFi tocando!');
-              }).catch(e => {
-                  console.log('❌ Autoplay bloqueado:', e);
-                  lofiActive = false;
-                  atualizarBotaoMusica(false);
-              });
-          }
+          lofiAudioElement.play().then(() => {
+              lofiActive = true;
+              atualizarBotaoMusica(true);
+              console.log('🎵 Música LoFi tocando via MP3!');
+          }).catch((error) => {
+              console.log('⚠️ Falha no MP3, usando sintetizador de ambiente');
+              gerarMusicaAmbiente();
+          });
       } else {
-          console.log('❌ Elemento de áudio não encontrado');
+          gerarMusicaAmbiente();
       }
   }
   
@@ -482,10 +526,22 @@
       if(lofiAudioElement) {
           lofiAudioElement.pause();
           lofiAudioElement.currentTime = 0;
-          lofiActive = false;
-          atualizarBotaoMusica(false);
-          console.log('🔇 LoFi pausado');
       }
+      
+      if(fallbackNoise) {
+          try { fallbackNoise.stop(); } catch(e) {}
+          fallbackNoise = null;
+      }
+      
+      if(fallbackContext) {
+          fallbackContext.close();
+          fallbackContext = null;
+      }
+      
+      lofiActive = false;
+      fallbackAudioRunning = false;
+      atualizarBotaoMusica(false);
+      console.log('🔇 LoFi pausado');
   }
   
   function toggleMusicaFoco() {
@@ -986,25 +1042,22 @@
   function renderizarEstatisticas() { 
       const hoje = new Date().toISOString().split('T')[0];
       
-      // CORRIGIDO: Conta APENAS tarefas (NÃO metas) com data <= hoje (hoje ou atrasadas) e NÃO concluídas
+      // Conta APENAS tarefas (NÃO metas) com data <= hoje e NÃO concluídas
       const tarefasPendentes = tarefas.filter(t => {
           return t.data && t.data <= hoje && !t.concluida;
       }).length;
       
-      // Tarefas especificamente de hoje (para calcular taxa de sucesso do dia)
       const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
       const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
       const totalHoje = tarefasHojeLista.length;
       const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
       
-      // Tempo focado
       const horasFoco = Math.floor(tempoTotalFocado / 3600); 
       const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
       
-      // Debug no console para verificar o que está sendo contado
+      // Debug
       console.log('📊 === ESTATÍSTICAS ===');
       console.log('📋 Tarefas pendentes (data <= hoje e não concluídas):', tarefasPendentes);
-      console.log('📋 Lista de tarefas pendentes:', tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).map(t => ({texto: t.texto, data: t.data, concluida: t.concluida})));
       console.log('📋 Total de tarefas no array:', tarefas.length);
       console.log('📋 Total de metas no array:', metas.length);
       
