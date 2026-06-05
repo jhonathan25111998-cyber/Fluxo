@@ -123,6 +123,8 @@
   .action-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
   .action-btn.danger { background: #dc3545; border-color: #dc3545; }
   .action-btn.danger:hover { background: #c82333; }
+  .action-btn.warning { background: #ff9800; border-color: #ff9800; color: #1a1a2e; }
+  .action-btn.warning:hover { background: #e68900; }
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
   .modal-foco-overlay.show { display: flex; }
   .modal-foco-conteudo { background: rgba(26,27,38,0.95); backdrop-filter: blur(24px); padding: 24px; border-radius: 24px; max-width: 90%; width: 420px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
@@ -166,7 +168,7 @@
   <div class="header"><div class="user-info"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button><button class="notify-btn" id="notifyBtn"><i class="fas fa-bell"></i></button><div class="user-avatar" id="userAvatar"><i class="fas fa-user-circle"></i><div class="user-tooltip" id="userTooltip"><span id="userEmailTooltip"></span></div></div><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button></div><div class="header-content"><div class="logo-img"><img src="logo.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div><div class="logo-texto"><div class="logo-titulo">FLUXO</div><div class="logo-subtitulo">Organize. Execute. Flua.</div></div></div><div class="data-hoje" id="dataHoje"></div></div>
   <div id="statusConnection" class="status-online"><i class="fas fa-wifi"></i> Online</div>
   <div class="top-bar"><div class="view-toggle"><button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button><button class="view-btn" onclick="toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button></div><div class="busca-global"><i class="fas fa-search"></i><input type="text" id="buscaGlobal" placeholder="Buscar tarefas..." oninput="renderizarTarefas()"></div></div>
-  <div id="cardsView"><div class="metas-dashboard"><div class="metas-header"><h2><i class="fas fa-trophy"></i> Minhas Metas</h2><div class="metas-stats"><span>🎯 <strong id="totalMetas">0</strong> total</span><span>✅ <strong id="concluidasMetas">0</strong> concluídas</span><span>📈 <strong id="progressoMetas">0</strong>%</span></div></div><div class="metas-grid" id="metasGrid"></div><div class="add-meta-form"><input type="text" id="novaMetaTexto" placeholder="Nova meta..."><select id="novaMetaCategoria"><option>Saúde</option><option>Desenvolvimento</option><option>Financeiro</option><option>Espiritual</option><option>Carreira</option><option>Relacionamentos</option></select><button onclick="adicionarMeta()"><i class="fas fa-plus"></i> Adicionar Meta</button></div></div><div class="filtros"><button class="filtro-btn active" onclick="setFiltro('hoje',this)"><i class="fas fa-calendar-day"></i> Hoje</button><button class="filtro-btn" onclick="setFiltro('semana',this)"><i class="fas fa-calendar-week"></i> Semana</button><button class="filtro-btn" onclick="setFiltro('todas',this)"><i class="fas fa-list"></i> Todas</button><select id="filtroPrioridade" onchange="filtrarPorPrioridade()" style="background:rgba(0,0,0,0.5);color:white;border-radius:20px;padding:4px 12px;border:1px solid rgba(255,255,255,0.2);"><option value="todas">Todas prioridades</option><option value="p1">🔴 Alta</option><option value="p2">🟡 Média</option><option value="p3">🟢 Baixa</option></select></div><div class="action-buttons"><button class="action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button><button class="action-btn" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button><button class="action-btn danger" onclick="limparTodasDuplicatas()"><i class="fas fa-broom"></i> Limpar Duplicatas</button></div><div class="blocos-tarefas" id="blocosTarefas"></div></div>
+  <div id="cardsView"><div class="metas-dashboard"><div class="metas-header"><h2><i class="fas fa-trophy"></i> Minhas Metas</h2><div class="metas-stats"><span>🎯 <strong id="totalMetas">0</strong> total</span><span>✅ <strong id="concluidasMetas">0</strong> concluídas</span><span>📈 <strong id="progressoMetas">0</strong>%</span></div></div><div class="metas-grid" id="metasGrid"></div><div class="add-meta-form"><input type="text" id="novaMetaTexto" placeholder="Nova meta..."><select id="novaMetaCategoria"><option>Saúde</option><option>Desenvolvimento</option><option>Financeiro</option><option>Espiritual</option><option>Carreira</option><option>Relacionamentos</option></select><button onclick="adicionarMeta()"><i class="fas fa-plus"></i> Adicionar Meta</button></div></div><div class="filtros"><button class="filtro-btn active" onclick="setFiltro('hoje',this)"><i class="fas fa-calendar-day"></i> Hoje</button><button class="filtro-btn" onclick="setFiltro('semana',this)"><i class="fas fa-calendar-week"></i> Semana</button><button class="filtro-btn" onclick="setFiltro('todas',this)"><i class="fas fa-list"></i> Todas</button><button class="filtro-btn" onclick="setFiltro('pendentes',this)" style="background:#ff9800; color:#1a1a2e;"><i class="fas fa-clock"></i> Pendentes</button><select id="filtroPrioridade" onchange="filtrarPorPrioridade()" style="background:rgba(0,0,0,0.5);color:white;border-radius:20px;padding:4px 12px;border:1px solid rgba(255,255,255,0.2);"><option value="todas">Todas prioridades</option><option value="p1">🔴 Alta</option><option value="p2">🟡 Média</option><option value="p3">🟢 Baixa</option></select></div><div class="action-buttons"><button class="action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button><button class="action-btn" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button><button class="action-btn danger" onclick="limparTodasDuplicatas()"><i class="fas fa-broom"></i> Limpar Duplicatas</button></div><div class="blocos-tarefas" id="blocosTarefas"></div></div>
   <div id="calendarioView" style="display:none;"><div><div style="display:flex;justify-content:space-between;margin-bottom:20px;"><button class="btn-glass" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button><span id="calendarioMes" style="color:white;font-weight:bold;font-size:18px;"></span><button class="btn-glass" onclick="mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button></div><div id="calendarioGrade" class="calendario-grade"></div></div></div>
   <div class="estatisticas"><h3><i class="fas fa-chart-line"></i> Estatísticas</h3><div class="stats-grid" id="statsGrid"></div><div class="backup-acoes"><button class="btn-glass" onclick="exportarBackup()"><i class="fas fa-download"></i> Exportar</button><input type="file" id="inputImportar" style="display:none" accept=".json" onchange="importarBackup(event)"><button class="btn-glass" onclick="document.getElementById('inputImportar').click()"><i class="fas fa-upload"></i> Importar</button></div></div>
 </div>
@@ -450,6 +452,7 @@
           if(lofiAudioElement) {
               lofiAudioElement.volume = 0.3;
               lofiAudioElement.loop = true;
+              console.log('🎵 Elemento de áudio LoFi inicializado');
           }
       }
   }
@@ -457,10 +460,21 @@
   function playLofi() {
       initLofiAudio();
       if(lofiAudioElement) {
-          lofiAudioElement.play().then(() => {
-              lofiActive = true;
-              atualizarBotaoMusica(true);
-          }).catch(e => console.log('Autoplay bloqueado'));
+          console.log('🎵 Tentando tocar LoFi...');
+          const playPromise = lofiAudioElement.play();
+          if(playPromise !== undefined) {
+              playPromise.then(() => {
+                  lofiActive = true;
+                  atualizarBotaoMusica(true);
+                  console.log('🎵 LoFi tocando!');
+              }).catch(e => {
+                  console.log('❌ Autoplay bloqueado:', e);
+                  lofiActive = false;
+                  atualizarBotaoMusica(false);
+              });
+          }
+      } else {
+          console.log('❌ Elemento de áudio não encontrado');
       }
   }
   
@@ -470,13 +484,17 @@
           lofiAudioElement.currentTime = 0;
           lofiActive = false;
           atualizarBotaoMusica(false);
+          console.log('🔇 LoFi pausado');
       }
   }
   
   function toggleMusicaFoco() {
       initLofiAudio();
-      if(lofiActive) stopLofi();
-      else playLofi();
+      if(lofiActive) {
+          stopLofi();
+      } else {
+          playLofi();
+      }
   }
   
   function atualizarBotaoMusica(ativo) {
@@ -600,7 +618,6 @@
   function pausarPomodoro() { 
       if(!pomodoroAtivo) return; 
       if(!pomodoroPausado) {
-          // Acumula o tempo quando pausa
           const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
           if(tempoDecorrido > 0) {
               tempoAcumuladoSessao += tempoDecorrido;
@@ -628,7 +645,6 @@
   
   function concluirTarefaFoco() { 
       if(!tarefaFocoAtual) return; 
-      // Salva o tempo parcial antes de concluir
       if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros) {
           const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
           if(tempoDecorrido > 0) {
@@ -646,7 +662,6 @@
   }
   
   function fecharModoFoco() { 
-      // Salva o tempo parcial ao fechar o modo foco
       if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros && tarefaFocoAtual) {
           const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
           if(tempoDecorrido > 0) {
@@ -920,6 +935,7 @@
           if(filtroAtual==='hoje') lista = lista.filter(t => (t.data === hoje || (t.data && t.data < hoje)) && !t.concluida); 
           else if(filtroAtual==='semana') { const semana = new Date(); semana.setDate(semana.getDate() + 7); lista = lista.filter(t=>t.data <= semana.toISOString().split('T')[0] && !t.concluida); } 
           else if(filtroAtual==='concluidas') lista = lista.filter(t=>t.concluida); 
+          else if(filtroAtual==='pendentes') lista = lista.filter(t=>!t.concluida);
           else lista = lista.filter(t=>!t.concluida); 
           if(filtroPrioridade!=='todas') lista = lista.filter(t=>t.prioridade===filtroPrioridade); 
           if(termo) lista = lista.filter(t=>t.texto.toLowerCase().includes(termo)); 
@@ -967,36 +983,38 @@
       const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); addCard.innerHTML='<div style="text-align:center;padding:40px;color:white;"><i class="fas fa-plus-circle" style="font-size:48px;margin-bottom:8px;"></i><p>Novo Espaço</p></div>'; container.appendChild(addCard); 
   }
   
- function renderizarEstatisticas() { 
-    const hoje = new Date().toISOString().split('T')[0];
-    
-    // CORRIGIDO: Apenas tarefas com data <= hoje (hoje ou atrasadas), NÃO concluídas, e com data definida
-    const pendentesHoje = tarefas.filter(t => {
-        // Verifica se tem data, se a data é <= hoje, e se NÃO está concluída
-        return t.data && t.data <= hoje && !t.concluida;
-    }).length;
-    
-    // Tarefas especificamente de hoje (para calcular taxa de sucesso do dia)
-    const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
-    const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
-    const totalHoje = tarefasHojeLista.length;
-    const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
-    
-    // Tempo focado
-    const horasFoco = Math.floor(tempoTotalFocado / 3600); 
-    const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
-    
-    document.getElementById('statsGrid').innerHTML = `
-        <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
-        <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div>
-        <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${pendentesHoje}</div><div class="stat-label">Pendentes</div><div style="font-size:10px;">(hoje + atrasadas)</div></div>
-        <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
-    `; 
-    
-    // Para debug - mostrar no console quais tarefas estão sendo contadas
-    console.log('📊 Estatísticas - Pendentes:', pendentesHoje);
-    console.log('📋 Tarefas consideradas pendentes:', tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).map(t => ({texto: t.texto, data: t.data, concluida: t.concluida})));
-}
+  function renderizarEstatisticas() { 
+      const hoje = new Date().toISOString().split('T')[0];
+      
+      // CORRIGIDO: Conta APENAS tarefas (NÃO metas) com data <= hoje (hoje ou atrasadas) e NÃO concluídas
+      const tarefasPendentes = tarefas.filter(t => {
+          return t.data && t.data <= hoje && !t.concluida;
+      }).length;
+      
+      // Tarefas especificamente de hoje (para calcular taxa de sucesso do dia)
+      const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
+      const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
+      const totalHoje = tarefasHojeLista.length;
+      const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
+      
+      // Tempo focado
+      const horasFoco = Math.floor(tempoTotalFocado / 3600); 
+      const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
+      
+      // Debug no console para verificar o que está sendo contado
+      console.log('📊 === ESTATÍSTICAS ===');
+      console.log('📋 Tarefas pendentes (data <= hoje e não concluídas):', tarefasPendentes);
+      console.log('📋 Lista de tarefas pendentes:', tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).map(t => ({texto: t.texto, data: t.data, concluida: t.concluida})));
+      console.log('📋 Total de tarefas no array:', tarefas.length);
+      console.log('📋 Total de metas no array:', metas.length);
+      
+      document.getElementById('statsGrid').innerHTML = `
+          <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
+          <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div>
+          <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${tarefasPendentes}</div><div class="stat-label">Pendentes</div><div style="font-size:10px;">(hoje + atrasadas)</div></div>
+          <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
+      `; 
+  }
   
   // ========== CALENDÁRIO ==========
   let dataCalendario = new Date(); 
