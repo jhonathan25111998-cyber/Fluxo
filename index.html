@@ -7,6 +7,7 @@
 <title>FLUXO - Organize. Execute. Flua.</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); background-attachment: fixed; padding: 16px; min-height: 100vh; transition: background 0.3s ease; }
@@ -16,7 +17,7 @@
   .status-offline { background: #ef4444; }
   .theme-toggle { background: rgba(255, 255, 255, 0.2); border: none; width: 36px; height: 36px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
   .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
-  .container { max-width: 1600px; margin: 0 auto; width: 100%; }
+  .container { max-width: 1440px; margin: 0 auto; width: 100%; }
   .header { background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.08); position: relative; }
   @media (min-width: 768px) { .header { padding: 24px 32px; } }
   .header-content { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
@@ -94,8 +95,6 @@
   .badge.p1 { background: rgba(239,68,68,0.2); color: #FCA5A5; }
   .badge.p2 { background: rgba(245,158,11,0.2); color: #fbbf24; }
   .badge.recorrente { background: rgba(102,126,234,0.2); color: #A5B4FC; }
-  .badge.atrasada { background: rgba(239,68,68,0.3); color: #ff9999; border: 1px solid rgba(239,68,68,0.5); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
   .drag-handle { cursor: grab; color: rgba(255,255,255,0.4); margin-right: 4px; font-size: 16px; }
   .drag-handle:active { cursor: grabbing; }
   .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
@@ -141,10 +140,16 @@
   .stat-numero { font-size: 28px; font-weight: 800; color: white !important; background: none !important; -webkit-text-fill-color: white !important; }
   .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-top: 6px; color: white !important; }
   
-  /* ========== CALENDÁRIO REFORMULADO ========== */
+  /* ========== CALENDÁRIO REFORMULADO - LINEAR.APP STYLE ========== */
+  .calendario-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+  }
+  
   .calendario-grade {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, minmax(200px, 1fr));
       gap: 16px;
       margin-top: 8px;
   }
@@ -152,59 +157,60 @@
   .calendario-dia-semana {
       text-align: center;
       padding: 12px 8px;
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.06);
       backdrop-filter: blur(8px);
       border-radius: 12px;
-      color: white;
+      color: rgba(255, 255, 255, 0.7);
       font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
   }
   
   .calendario-dia {
-      min-height: 160px;
-      background: rgba(255, 255, 255, 0.06);
+      min-height: 180px;
+      background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(12px);
       border-radius: 16px;
-      padding: 12px 10px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 0;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
   }
   
   .calendario-dia:hover {
-      background: rgba(255, 255, 255, 0.12);
-      transform: translateY(-3px);
-      border-color: rgba(102, 126, 234, 0.5);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(102, 126, 234, 0.4);
+      transform: translateY(-2px);
   }
   
   .calendario-dia.hoje {
       border: 2px solid #667eea;
-      background: rgba(102, 126, 234, 0.15);
-      box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+      background: rgba(102, 126, 234, 0.12);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
   }
   
-  /* Cabeçalho do dia */
+  /* Header do dia */
   .calendario-dia-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 12px 8px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
   
   .calendario-dia-numero {
       font-weight: 700;
-      font-size: 18px;
+      font-size: 20px;
       color: white;
+      letter-spacing: -0.3px;
   }
   
   .calendario-dia-badge {
-      font-size: 10px;
-      background: rgba(16, 185, 129, 0.3);
+      font-size: 11px;
+      background: rgba(16, 185, 129, 0.2);
       color: #10b981;
       padding: 3px 8px;
       border-radius: 20px;
@@ -213,53 +219,53 @@
   
   /* Lista de tarefas */
   .calendario-tarefas {
-      max-height: 110px;
+      flex: 1;
       overflow-y: auto;
-      margin: 6px 0;
+      padding: 8px;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      max-height: 110px;
   }
   
   .calendario-tarefa-item {
-      background: rgba(102, 126, 234, 0.2);
-      border-radius: 10px;
-      padding: 8px 10px;
-      cursor: pointer;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
+      justify-content: space-between;
       gap: 8px;
+      padding: 6px 10px;
+      min-height: 32px;
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border-left: 3px solid transparent;
   }
   
   .calendario-tarefa-item.atrasada {
       border-left-color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(30, 41, 59, 0.6);
   }
   
   .calendario-tarefa-item:hover {
-      background: rgba(102, 126, 234, 0.35);
-      transform: translateX(3px);
+      background: rgba(51, 65, 85, 0.7);
+      transform: translateX(2px);
   }
   
   .calendario-tarefa-texto {
-      font-size: 12px;
+      font-size: 13px;
       color: white;
+      line-height: 1.3;
       flex: 1;
       overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      word-break: break-word;
-      line-height: 1.4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
   }
   
-  /* Botões de ação modernos */
+  /* Ações da tarefa */
   .calendario-acoes {
       display: flex;
+      align-items: center;
       gap: 6px;
       flex-shrink: 0;
   }
@@ -268,55 +274,53 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      font-size: 14px;
       padding: 4px;
-      border-radius: 6px;
-      transition: all 0.2s;
-      opacity: 0.6;
-      width: 24px;
-      height: 24px;
+      border-radius: 4px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.15s ease;
+      opacity: 0.4;
   }
   
   .calendario-btn-edit:hover, .calendario-btn-check:hover {
-      opacity: 1;
-      transform: scale(1.1);
-      background: rgba(255, 255, 255, 0.15);
+      opacity: 0.9;
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
   }
   
-  .calendario-btn-check.concluida {
+  .calendario-btn-check.concluida svg {
       color: #10b981;
       opacity: 1;
   }
   
   /* Botão adicionar */
   .calendario-add-btn {
-      width: 100%;
-      margin-top: 10px;
+      width: calc(100% - 16px);
+      margin: 8px;
       padding: 6px;
-      background: rgba(102, 126, 234, 0.25);
-      border: 1px dashed rgba(102, 126, 234, 0.5);
-      border-radius: 10px;
-      color: rgba(255, 255, 255, 0.8);
+      background: rgba(102, 126, 234, 0.15);
+      border: 1px dashed rgba(102, 126, 234, 0.4);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.7);
       cursor: pointer;
-      font-size: 11px;
+      font-size: 12px;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
+      font-weight: 500;
   }
   
   .calendario-add-btn:hover {
-      background: rgba(102, 126, 234, 0.4);
+      background: rgba(102, 126, 234, 0.3);
       border-color: #667eea;
       color: white;
       transform: translateY(-1px);
   }
   
-  /* Scrollbar personalizada */
+  /* Scrollbar */
   .calendario-tarefas::-webkit-scrollbar {
       width: 4px;
   }
@@ -331,6 +335,7 @@
       border-radius: 4px;
   }
   
+  /* Navegação do calendário */
   .calendario-nav {
       display: flex;
       justify-content: space-between;
@@ -338,6 +343,9 @@
       margin-bottom: 24px;
       flex-wrap: wrap;
       gap: 12px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
   }
   
   .calendario-nav-buttons {
@@ -357,8 +365,30 @@
   .btn-musica:hover { transform: scale(1.05); background: #138496; }
   .backup-acoes { margin-top: 16px; display: flex; gap: 12px; justify-content: center; }
   .sync-indicator { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; z-index: 9999; opacity: 0; transition: opacity 0.3s; }
-  @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 768px) { .calendario-dia { min-height: 130px; } }
+  
+  /* Responsividade */
+  @media (max-width: 1200px) {
+      .calendario-grade { gap: 12px; }
+      .calendario-dia { min-height: 160px; }
+  }
+  
+  @media (max-width: 768px) {
+      .calendario-grade { gap: 8px; }
+      .calendario-dia { min-height: 140px; }
+      .calendario-dia-numero { font-size: 16px; }
+      .calendario-tarefa-texto { font-size: 11px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .calendario-dia-semana { font-size: 11px; padding: 8px 4px; }
+  }
+  
+  @media (max-width: 640px) { 
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .calendario-grade { grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 6px; }
+  }
+  
+  @media (max-width: 480px) {
+      .calendario-grade { overflow-x: auto; }
+      .calendario-grade { min-width: 700px; }
+  }
 </style>
 </head>
 <body>
@@ -379,7 +409,7 @@
   </div>
   <div class="action-buttons"><button class="action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button><button class="action-btn" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button><button class="action-btn danger" onclick="limparTodasDuplicatas()"><i class="fas fa-broom"></i> Limpar Duplicatas</button><button class="action-btn" onclick="concluirTodasAtrasadas()" style="background:#dc3545; color:white;"><i class="fas fa-check-double"></i> Concluir Atrasadas</button></div>
   <div class="blocos-tarefas" id="blocosTarefas"></div></div>
-  <div id="calendarioView" style="display:none;"><div class="calendario-nav"><div class="calendario-nav-buttons"><button class="btn-glass" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button><button class="btn-glass" onclick="mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button></div><span id="calendarioMes" style="color:white;font-weight:bold;font-size:22px;"></span><div class="calendario-nav-buttons"><button class="btn-glass" onclick="irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button><button class="btn-glass" onclick="irParaData()"><i class="fas fa-search"></i> Ir para data</button></div></div><div id="calendarioGrade" class="calendario-grade"></div></div>
+  <div id="calendarioView" style="display:none;"><div class="calendario-wrapper"><div class="calendario-nav"><div class="calendario-nav-buttons"><button class="btn-glass" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button><button class="btn-glass" onclick="mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button></div><span id="calendarioMes" style="color:white;font-weight:600;font-size:22px;letter-spacing:-0.5px;"></span><div class="calendario-nav-buttons"><button class="btn-glass" onclick="irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button><button class="btn-glass" onclick="irParaData()"><i class="fas fa-search"></i> Ir para data</button></div></div><div id="calendarioGrade" class="calendario-grade"></div></div></div>
   <div class="estatisticas"><h3 style="color: white;"><i class="fas fa-chart-line" style="color: white;"></i> Estatísticas</h3><div class="stats-grid" id="statsGrid"></div><div class="backup-acoes"><button class="btn-glass" onclick="exportarBackup()"><i class="fas fa-download"></i> Exportar</button><input type="file" id="inputImportar" style="display:none" accept=".json" onchange="importarBackup(event)"><button class="btn-glass" onclick="document.getElementById('inputImportar').click()"><i class="fas fa-upload"></i> Importar</button></div></div>
 </div>
 <div class="modal-foco-overlay" id="modalFocoOverlay"><div class="modal-foco-conteudo"><i class="fas fa-brain" style="font-size:48px;color:#667eea;"></i><h2>🎯 Modo Foco</h2><div id="tarefaFocoTexto" class="tarefa-foco-grande"></div><div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div><div class="timer-foco-grande" id="timerFocoGrande">25:00</div><div class="controles-foco"><button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button><button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button><button class="btn-glass btn-prorrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button><button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button><button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button></div><div style="margin-top:20px; padding-top:20px; border-top: 1px solid rgba(255,255,255,0.1);"><button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button><input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:120px;margin-left:12px;vertical-align:middle;"><span style="font-size:12px; margin-left:6px;">Volume</span></div><div id="cronometroInfo" class="cronometro-info">🍅 Pomodoro 25 minutos</div><div style="margin-top:12px; font-size:11px; opacity:0.6;"><i class="fas fa-headphones"></i> Música LoFi relaxante para foco</div></div></div>
@@ -482,7 +512,7 @@
   function abrirEditarTarefaCalendario(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; const novoTexto = prompt('Editar texto:', tarefa.texto); if(novoTexto && novoTexto.trim()) tarefa.texto = novoTexto.trim(); const novaData = prompt('Editar data (YYYY-MM-DD):', tarefa.data); if(novaData && novaData.trim()) tarefa.data = novaData.trim(); const prioridadeAtual = tarefa.prioridade === 'p1' ? 'Alta' : (tarefa.prioridade === 'p2' ? 'Média' : 'Baixa'); const novaPrioridade = prompt(`Editar prioridade:\n1 - Alta 🔴\n2 - Média 🟡\n3 - Baixa 🟢\n\nAtual: ${prioridadeAtual}`, tarefa.prioridade === 'p1' ? '1' : (tarefa.prioridade === 'p2' ? '2' : '3')); if(novaPrioridade === '1') tarefa.prioridade = 'p1'; else if(novaPrioridade === '2') tarefa.prioridade = 'p2'; else if(novaPrioridade === '3') tarefa.prioridade = 'p3'; salvarDados(); renderizarCalendario(); mostrarIndicadorSync('✏️ Tarefa editada!'); }
   function adicionarTarefaCalendario(data) { const texto = prompt('📝 Digite a tarefa:'); if(!texto || !texto.trim()) return; const prioridade = prompt('Prioridade:\n1 - Alta 🔴\n2 - Média 🟡\n3 - Baixa 🟢', '3'); let prioridadeValue = 'p3'; if(prioridade === '1') prioridadeValue = 'p1'; else if(prioridade === '2') prioridadeValue = 'p2'; const cardNome = prompt('Qual espaço? (deixe em branco para "Minhas Tarefas")', 'Minhas Tarefas'); const cardDestino = cardNome && cardNome.trim() ? cardNome.trim() : 'Minhas Tarefas'; let cardExistente = cardsTarefas.find(c => c.nome === cardDestino); if(!cardExistente) { cardsTarefas.push({ id: 'card_' + Date.now(), nome: cardDestino }); cardExistente = cardsTarefas.find(c => c.nome === cardDestino); } tarefas.push({ id: Date.now(), texto: texto.trim(), bloco: cardDestino, data: data, prioridade: prioridadeValue, recorrencia: '', concluida: false, tempoGasto: 0, notificado: false, ordem: tarefas.filter(t => t.bloco === cardDestino && !t.concluida).length }); salvarDados(); renderizarCalendario(); mostrarIndicadorSync(`✅ Tarefa adicionada em ${data}!`); }
   function abrirOpcoesTarefaCalendario(id, texto, data) { const opcao = prompt(`📋 Tarefa: ${texto}\n📅 Data: ${data}\n\nO que deseja fazer?\n1 - Concluir tarefa\n2 - Editar tarefa\n3 - Reagendar tarefa\n4 - Excluir tarefa\n\nDigite o número da opção:`); if(opcao === '1') { concluirTarefaCalendario(id); } else if(opcao === '2') { abrirEditarTarefaCalendario(id); } else if(opcao === '3') { abrirModalReagendar(id); setTimeout(() => renderizarCalendario(), 100); } else if(opcao === '4') { if(confirm(`Excluir tarefa "${texto}"?`)) { excluirTarefa(id); renderizarCalendario(); } } }
-  function renderizarCalendario() { const ano = dataCalendario.getFullYear(), mes = dataCalendario.getMonth(); const primeiroDia = new Date(ano, mes, 1).getDay(); const diasNoMes = new Date(ano, mes + 1, 0).getDate(); const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`; let html = '<div class="calendario-grade">'; const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; for(let i = 0; i < 7; i++) { html += `<div class="calendario-dia-semana">${diasSemana[i]}</div>`; } let dia = 1; const hoje = getDataHoje(); const hojeObj = new Date(); const mesAtual = hojeObj.getMonth(); const anoAtual = hojeObj.getFullYear(); for(let i = 0; i < 42; i++) { if(i < primeiroDia || dia > diasNoMes) { html += `<div class="calendario-dia" style="opacity:0.3; min-height:130px;"></div>`; } else { const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`; const tarefasDia = tarefas.filter(t => t.data === dataStr && !t.concluida); const tarefasConcluidasDia = tarefas.filter(t => t.data === dataStr && t.concluida).length; const isHoje = (ano === anoAtual && mes === mesAtual && dia === hojeObj.getDate()); html += `<div class="calendario-dia ${isHoje ? 'hoje' : ''}"><div class="calendario-dia-header"><span class="calendario-dia-numero">${dia}</span>${tarefasConcluidasDia > 0 ? `<span class="calendario-dia-badge">✓${tarefasConcluidasDia}</span>` : ''}</div><div class="calendario-tarefas">${tarefasDia.slice(0, 4).map(t => `<div class="calendario-tarefa-item ${t.data && t.data < hoje ? 'atrasada' : ''}" onclick="abrirOpcoesTarefaCalendario(${t.id}, '${escapeHtml(t.texto).replace(/'/g, "\\'")}', '${t.data}')"><span class="calendario-tarefa-texto">${escapeHtml(t.texto.substring(0, 35))}${t.texto.length > 35 ? '...' : ''}</span><div class="calendario-acoes"><button class="calendario-btn-edit" onclick="event.stopPropagation(); abrirEditarTarefaCalendario(${t.id})" title="Editar">✏️</button><button class="calendario-btn-check ${t.concluida ? 'concluida' : ''}" onclick="event.stopPropagation(); concluirTarefaCalendario(${t.id})" title="Concluir">✓</button></div></div>`).join('')}${tarefasDia.length > 4 ? `<div style="font-size:11px; color:#667eea; text-align:center; margin-top:6px; opacity:0.8;">+${tarefasDia.length - 4} mais</div>` : ''}</div><button class="calendario-add-btn" onclick="adicionarTarefaCalendario('${dataStr}')"><i class="fas fa-plus" style="font-size:10px;"></i> Adicionar</button></div>`; dia++; } } html += '</div>'; document.getElementById('calendarioGrade').innerHTML = html; }
+  function renderizarCalendario() { const ano = dataCalendario.getFullYear(), mes = dataCalendario.getMonth(); const primeiroDia = new Date(ano, mes, 1).getDay(); const diasNoMes = new Date(ano, mes + 1, 0).getDate(); const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`; let html = '<div class="calendario-grade">'; const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; for(let i = 0; i < 7; i++) { html += `<div class="calendario-dia-semana">${diasSemana[i]}</div>`; } let dia = 1; const hoje = getDataHoje(); const hojeObj = new Date(); const mesAtual = hojeObj.getMonth(); const anoAtual = hojeObj.getFullYear(); for(let i = 0; i < 42; i++) { if(i < primeiroDia || dia > diasNoMes) { html += `<div class="calendario-dia" style="opacity:0.3; min-height:180px;"></div>`; } else { const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`; const tarefasDia = tarefas.filter(t => t.data === dataStr && !t.concluida); const tarefasConcluidasDia = tarefas.filter(t => t.data === dataStr && t.concluida).length; const isHoje = (ano === anoAtual && mes === mesAtual && dia === hojeObj.getDate()); html += `<div class="calendario-dia ${isHoje ? 'hoje' : ''}"><div class="calendario-dia-header"><span class="calendario-dia-numero">${dia}</span>${tarefasConcluidasDia > 0 ? `<span class="calendario-dia-badge">✓${tarefasConcluidasDia}</span>` : ''}</div><div class="calendario-tarefas">${tarefasDia.slice(0, 4).map(t => `<div class="calendario-tarefa-item ${t.data && t.data < hoje ? 'atrasada' : ''}" onclick="abrirOpcoesTarefaCalendario(${t.id}, '${escapeHtml(t.texto).replace(/'/g, "\\'")}', '${t.data}')"><span class="calendario-tarefa-texto" title="${escapeHtml(t.texto)}">${escapeHtml(t.texto.substring(0, 35))}${t.texto.length > 35 ? '...' : ''}</span><div class="calendario-acoes"><button class="calendario-btn-edit" onclick="event.stopPropagation(); abrirEditarTarefaCalendario(${t.id})" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-7 7H10v-4l7-7z"/><path d="M4 20l4-4 4 4-4 4z"/></svg></button><button class="calendario-btn-check ${t.concluida ? 'concluida' : ''}" onclick="event.stopPropagation(); concluirTarefaCalendario(${t.id})" title="Concluir"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></button></div></div>`).join('')}${tarefasDia.length > 4 ? `<div style="font-size:11px; color:#667eea; text-align:center; margin-top:8px; opacity:0.8;">+${tarefasDia.length - 4} mais</div>` : ''}</div><button class="calendario-add-btn" onclick="adicionarTarefaCalendario('${dataStr}')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> Adicionar</button></div>`; dia++; } } html += '</div>'; document.getElementById('calendarioGrade').innerHTML = html; }
   function toggleView(view) { document.getElementById('cardsView').style.display = view==='cards'?'block':'none'; document.getElementById('calendarioView').style.display = view==='calendario'?'block':'none'; document.querySelectorAll('.view-btn').forEach((btn,i)=>{ if((view==='cards' && i===0) || (view==='calendario' && i===1)) btn.classList.add('active'); else btn.classList.remove('active'); }); if(view==='calendario') renderizarCalendario(); else renderizarTarefas(); }
   function exportarBackup() { const dados = { tarefas, metas, cardsTarefas, tempoTotalFocado }; const blob = new Blob([JSON.stringify(dados)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`fluxo-backup-${getDataHoje()}.json`; a.click(); alert('✅ Backup exportado!'); }
   function importarBackup(e) { const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=(ev)=>{ try{ const dados=JSON.parse(ev.target.result); if(dados.tarefas) tarefas=dados.tarefas; if(dados.metas) metas=dados.metas; if(dados.cardsTarefas) cardsTarefas=dados.cardsTarefas; if(dados.tempoTotalFocado) tempoTotalFocado=dados.tempoTotalFocado; salvarDados(); alert('✅ Backup importado!'); }catch(err){ alert('Erro ao importar arquivo'); } }; reader.readAsText(file); e.target.value = ''; }
