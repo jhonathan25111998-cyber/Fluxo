@@ -119,9 +119,7 @@
   .action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; color: white; cursor: pointer; font-size: 12px; transition: all 0.3s; }
   .action-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
   .action-btn.danger { background: #dc3545; border-color: #dc3545; }
-  .action-btn.danger:hover { background: #c82333; }
   .action-btn.warning { background: #ff9800; border-color: #ff9800; color: #1a1a2e; }
-  .action-btn.warning:hover { background: #e68900; }
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
   .modal-foco-overlay.show { display: flex; }
   .modal-foco-conteudo { background: rgba(26,27,38,0.95); backdrop-filter: blur(24px); padding: 24px; border-radius: 24px; max-width: 90%; width: 420px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
@@ -194,7 +192,6 @@
 <div class="modal-foco-overlay" id="modalFocoOverlay"><div class="modal-foco-conteudo"><i class="fas fa-brain" style="font-size:48px;color:#667eea;"></i><h2>🎯 Modo Foco</h2><div id="tarefaFocoTexto" class="tarefa-foco-grande"></div><div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div><div class="timer-foco-grande" id="timerFocoGrande">25:00</div><div class="controles-foco"><button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button><button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button><button class="btn-glass btn-prorrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button><button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button><button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button></div><div style="margin-top:20px; padding-top:20px; border-top: 1px solid rgba(255,255,255,0.1);"><button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button><input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:120px;margin-left:12px;vertical-align:middle;"><span style="font-size:12px; margin-left:6px;">Volume</span></div><div id="cronometroInfo" class="cronometro-info">🍅 Pomodoro 25 minutos</div><div style="margin-top:12px; font-size:11px; opacity:0.6;"><i class="fas fa-headphones"></i> Música LoFi relaxante para foco</div></div></div>
 <div class="modal-reagendar-overlay" id="modalReagendarOverlay"><div class="modal-reagendar-conteudo"><i class="fas fa-calendar-alt" style="font-size:36px;color:#667eea;"></i><h3>Reagendar Tarefa</h3><input type="date" id="novaDataReagendar"><div class="modal-botoes"><button class="btn-glass" onclick="confirmarReagendamento()">Confirmar</button><button class="btn-glass" onclick="fecharModalReagendar()" style="background:rgba(255,255,255,0.1);">Cancelar</button></div></div></div>
 
-<!-- ÁUDIO LOFI -->
 <audio id="lofiAudio" loop preload="auto" style="display:none;">
     <source src="lofi.mp3" type="audio/mpeg">
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
@@ -349,7 +346,6 @@
   let tarefaArrastandoId = null;
   let tarefaArrastandoOrigem = null;
   
-  // ========== BOTÃO PARA CONCLUIR TODAS ATRASADAS ==========
   function concluirTodasAtrasadas() {
       const hoje = new Date().toISOString().split('T')[0];
       const atrasadas = tarefas.filter(t => {
@@ -485,7 +481,7 @@
   }
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
   
-  // ========== MÚSICA LOFI COM FALLBACK ==========
+  // ========== MÚSICA LOFI ==========
   let lofiAudioElement = null;
   let lofiActive = false;
   let fallbackAudioRunning = false;
@@ -498,7 +494,6 @@
           if(lofiAudioElement) {
               lofiAudioElement.volume = 0.3;
               lofiAudioElement.loop = true;
-              console.log('🎵 Elemento de áudio LoFi inicializado');
           }
       }
   }
@@ -509,7 +504,6 @@
       
       try {
           fallbackContext = new (window.AudioContext || window.webkitAudioContext)();
-          
           const bufferSize = fallbackContext.sampleRate * 5;
           const buffer = fallbackContext.createBuffer(1, bufferSize, fallbackContext.sampleRate);
           const data = buffer.getChannelData(0);
@@ -519,32 +513,22 @@
               lastOut = (lastOut + (0.02 * white)) / 1.02;
               data[i] = lastOut * 0.1;
           }
-          
           fallbackNoise = fallbackContext.createBufferSource();
           fallbackNoise.buffer = buffer;
           fallbackNoise.loop = true;
-          
           const filter = fallbackContext.createBiquadFilter();
           filter.type = 'lowpass';
           filter.frequency.value = 700;
-          
           const gain = fallbackContext.createGain();
           gain.gain.value = 0.2;
-          
           fallbackNoise.connect(filter);
           filter.connect(gain);
           gain.connect(fallbackContext.destination);
           fallbackNoise.start();
-          
           lofiActive = true;
           atualizarBotaoMusica(true);
-          console.log('🎵 Som ambiente ativado via Web Audio (fallback)');
-          
-          if(fallbackContext.state === 'suspended') {
-              fallbackContext.resume();
-          }
+          if(fallbackContext.state === 'suspended') fallbackContext.resume();
       } catch(e) { 
-          console.log('Erro no fallback:', e);
           fallbackAudioRunning = false;
       }
   }
@@ -555,11 +539,7 @@
           lofiAudioElement.play().then(() => {
               lofiActive = true;
               atualizarBotaoMusica(true);
-              console.log('🎵 Música LoFi tocando via MP3!');
-          }).catch((error) => {
-              console.log('⚠️ Falha no MP3, usando sintetizador de ambiente');
-              gerarMusicaAmbiente();
-          });
+          }).catch(() => gerarMusicaAmbiente());
       } else {
           gerarMusicaAmbiente();
       }
@@ -570,30 +550,23 @@
           lofiAudioElement.pause();
           lofiAudioElement.currentTime = 0;
       }
-      
       if(fallbackNoise) {
           try { fallbackNoise.stop(); } catch(e) {}
           fallbackNoise = null;
       }
-      
       if(fallbackContext) {
           fallbackContext.close();
           fallbackContext = null;
       }
-      
       lofiActive = false;
       fallbackAudioRunning = false;
       atualizarBotaoMusica(false);
-      console.log('🔇 LoFi pausado');
   }
   
   function toggleMusicaFoco() {
       initLofiAudio();
-      if(lofiActive) {
-          stopLofi();
-      } else {
-          playLofi();
-      }
+      if(lofiActive) stopLofi();
+      else playLofi();
   }
   
   function atualizarBotaoMusica(ativo) {
@@ -628,7 +601,7 @@
           gain.gain.exponentialRampToValueAtTime(0.00001, now + 10);
           osc.stop(now + 10);
           setTimeout(() => ctx.close(), 11000);
-      } catch(e) { console.log('Sino error:', e); }
+      } catch(e) {}
   }
   
   function verificarResetDiario() {
@@ -656,7 +629,7 @@
   }
   
   // ========== POMODORO ==========
-  let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0, tempoAcumuladoSessao = 0;
+  let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
   
   function atualizarTimerDisplay() { 
       const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; 
@@ -692,7 +665,6 @@
                   clearInterval(pomodoroInterval); 
                   const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000); 
                   tempoTotalFocado += tempoGasto;
-                  tempoAcumuladoSessao = 0;
                   if(tarefaFocoAtual) { tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto; } 
                   stopLofi(); 
                   tocarSino(); 
@@ -719,13 +691,9 @@
       if(!pomodoroPausado) {
           const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
           if(tempoDecorrido > 0) {
-              tempoAcumuladoSessao += tempoDecorrido;
               tempoTotalFocado += tempoDecorrido;
-              if(tarefaFocoAtual) {
-                  tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
-              }
+              if(tarefaFocoAtual) tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
               salvarDados();
-              mostrarIndicadorSync(`⏱️ +${Math.floor(tempoDecorrido/60)}min de foco acumulado`);
           }
           tempoFocoInicio = Date.now();
       } else {
@@ -734,12 +702,7 @@
       pomodoroPausado = !pomodoroPausado; 
       document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar'; 
       document.getElementById('cronometroInfo').innerHTML = pomodoroPausado ? '⏸ Pausado' : (emPausaEntrePomodoros ? '☕ Pausa' : '🍅 Focando...'); 
-      if(pomodoroPausado) { 
-          stopLofi(); 
-      } else { 
-          playLofi();
-          tempoFocoInicio = Date.now();
-      }
+      if(pomodoroPausado) stopLofi(); else playLofi();
   }
   
   function concluirTarefaFoco() { 
@@ -767,7 +730,6 @@
               tempoTotalFocado += tempoDecorrido;
               tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
               salvarDados();
-              mostrarIndicadorSync(`⏱️ +${Math.floor(tempoDecorrido/60)}min de foco salvo`);
           }
       }
       if(pomodoroInterval) clearInterval(pomodoroInterval); 
@@ -776,7 +738,6 @@
       document.getElementById('modalFocoOverlay').classList.remove('show'); 
       tarefaFocoAtual = null; 
       emPausaEntrePomodoros = false; 
-      tempoAcumuladoSessao = 0;
   }
   
   function abrirModoFocoComTarefa(id) { 
@@ -793,7 +754,7 @@
       document.getElementById('btnPausarFoco').style.display = 'none'; 
       document.getElementById('cronometroInfo').innerHTML = '🍅 Pomodoro 25 minutos'; 
       document.getElementById('modalFocoOverlay').classList.add('show'); 
-      if(lofiAudioElement) { stopLofi(); }
+      if(lofiAudioElement) stopLofi();
   }
   
   // ========== REAGENDAR ==========
@@ -847,7 +808,6 @@
   // ========== TAREFAS ==========
   function escapeHtml(t) { if(!t) return ''; return t.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
   
-  // GERENCIAMENTO DE DUPLICATAS
   function verificarTarefaDuplicada(texto, data, cardNome, idIgnorar = null) {
       return tarefas.some(t => {
           if(idIgnorar && t.id === idIgnorar) return false;
@@ -1023,7 +983,6 @@
       } 
   }
   
-  // RENDERIZAR TAREFAS COM FILTRO ATRASADAS
   function renderizarTarefas() { 
       const container = document.getElementById('blocosTarefas'); 
       if(!container) return; 
@@ -1052,9 +1011,7 @@
               lista = lista.filter(t=>!t.concluida);
           }
           else if(filtroAtual==='atrasadas') {
-              lista = lista.filter(t => {
-                  return t.data && t.data < hoje && !t.concluida;
-              });
+              lista = lista.filter(t => t.data && t.data < hoje && !t.concluida);
           }
           else { 
               lista = lista.filter(t=>!t.concluida); 
@@ -1111,9 +1068,9 @@
   function renderizarEstatisticas() { 
       const hoje = new Date().toISOString().split('T')[0];
       
-      const tarefasPendentes = tarefas.filter(t => {
-          return t.data && t.data <= hoje && !t.concluida;
-      }).length;
+      const atrasadas = tarefas.filter(t => t.data && t.data < hoje && !t.concluida).length;
+      const hojeTarefas = tarefas.filter(t => t.data === hoje && !t.concluida).length;
+      const tarefasPendentes = atrasadas + hojeTarefas;
       
       const tarefasHojeLista = tarefas.filter(t => t.data === hoje);
       const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length;
@@ -1126,7 +1083,7 @@
       document.getElementById('statsGrid').innerHTML = `
           <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
           <div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div>
-          <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${tarefasPendentes}</div><div class="stat-label">Pendentes</div><div style="font-size:10px;">(hoje + atrasadas)</div></div>
+          <div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${tarefasPendentes}</div><div class="stat-label">Pendentes</div><div style="font-size:10px;">(${atrasadas} atrasadas + ${hojeTarefas} hoje)</div></div>
           <div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFoco}h ${minutosFoco}m</div><div class="stat-label">Tempo Focado</div></div>
       `; 
   }
