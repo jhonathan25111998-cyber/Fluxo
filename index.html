@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <meta name="theme-color" content="#667eea">
 <title>FLUXO - Organize. Execute. Flua.</title>
-<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -166,14 +165,14 @@
   <div class="header"><div class="user-info"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button><button class="notify-btn" id="notifyBtn"><i class="fas fa-bell"></i></button><div class="user-avatar" id="userAvatar"><i class="fas fa-user-circle"></i><div class="user-tooltip" id="userTooltip"><span id="userEmailTooltip"></span></div></div><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button></div><div class="header-content"><div class="logo-img"><img src="logo.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div><div class="logo-texto"><div class="logo-titulo">FLUXO</div><div class="logo-subtitulo">Organize. Execute. Flua.</div></div></div><div class="data-hoje" id="dataHoje"></div></div>
   <div id="statusConnection" class="status-online"><i class="fas fa-wifi"></i> Online</div>
   <div class="top-bar"><div class="view-toggle"><button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button><button class="view-btn" onclick="toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button></div><div class="busca-global"><i class="fas fa-search"></i><input type="text" id="buscaGlobal" placeholder="Buscar tarefas..." oninput="renderizarTarefas()"></div></div>
-  <div id="cardsView"><div class="metas-dashboard"><div class="metas-header"><h2><i class="fas fa-trophy"></i> Minhas Metas</h2><div class="metas-stats"><span>🎯 <strong id="totalMetas">0</strong> total</span><span>✅ <strong id="concluidasMetas">0</strong> concluídas</span><span>📈 <strong id="progressoMetas">0</strong>%</span></div></div><div class="metas-grid" id="metasGrid"></div><div class="add-meta-form"><input type="text" id="novaMetaTexto" placeholder="Nova meta..."><select id="novaMetaCategoria"><option>Saúde</option><option>Desenvolvimento</option><option>Financeiro</option><option>Espiritual</option><option>Carreira</option><option>Relacionamentos</option></select><button onclick="adicionarMeta()"><i class="fas fa-plus"></i> Adicionar Meta</button></div></div><div class="filtros"><button class="filtro-btn active" onclick="setFiltro('hoje',this)"><i class="fas fa-calendar-day"></i> Hoje</button><button class="filtro-btn" onclick="setFiltro('semana',this)"><i class="fas fa-calendar-week"></i> Semana</button><button class="filtro-btn" onclick="setFiltro('todas',this)"><i class="fas fa-list"></i> Todas</button><button class="filtro-btn" onclick="setFiltro('pendentes',this)" style="background:#ff9800; color:#1a1a2e;"><i class="fas fa-clock"></i> Pendentes</button><select id="filtroPrioridade" onchange="filtrarPorPrioridade()" style="background:rgba(0,0,0,0.5);color:white;border-radius:20px;padding:4px 12px;border:1px solid rgba(255,255,255,0.2);"><option value="todas">Todas prioridades</option><option value="p1">🔴 Alta</option><option value="p2">🟡 Média</option><option value="p3">🟢 Baixa</option></select></div><div class="action-buttons"><button class="action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button><button class="action-btn" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button><button class="action-btn danger" onclick="limparTodasDuplicatas()"><i class="fas fa-broom"></i> Limpar Duplicatas</button></div><div class="blocos-tarefas" id="blocosTarefas"></div></div>
+  <div id="cardsView"><div class="metas-dashboard"><div class="metas-header"><h2><i class="fas fa-trophy"></i> Minhas Metas</h2><div class="metas-stats"><span>🎯 <strong id="totalMetas">0</strong> total</span><span>✅ <strong id="concluidasMetas">0</strong> concluídas</span><span>📈 <strong id="progressoMetas">0</strong>%</span></div></div><div class="metas-grid" id="metasGrid"></div><div class="add-meta-form"><input type="text" id="novaMetaTexto" placeholder="Nova meta..."><select id="novaMetaCategoria"><option>Saúde</option><option>Desenvolvimento</option><option>Financeiro</option><option>Espiritual</option><option>Carreira</option><option>Relacionamentos</option></select><button onclick="adicionarMeta()"><i class="fas fa-plus"></i> Adicionar Meta</button></div></div><div class="filtros"><button class="filtro-btn active" onclick="setFiltro('hoje',this)"><i class="fas fa-calendar-day"></i> Hoje</button><button class="filtro-btn" onclick="setFiltro('semana',this)"><i class="fas fa-calendar-week"></i> Semana</button><button class="filtro-btn" onclick="setFiltro('todas',this)"><i class="fas fa-list"></i> Todas</button><button class="filtro-btn" onclick="setFiltro('pendentes',this)" style="background:#ff9800; color:#1a1a2e;"><i class="fas fa-clock"></i> Pendentes</button><select id="filtroPrioridade" onchange="filtrarPorPrioridade()" style="background:rgba(0,0,0,0.5);color:white;border-radius:20px;padding:4px 12px;border:1px solid rgba(255,255,255,0.2);"><option value="todas">Todas prioridades</option><option value="p1">🔴 Alta</option><option value="p2">🟡 Média</option><option value="p3">🟢 Baixa</option></select></div><div class="action-buttons"><button class="action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button><button class="action-btn" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button><button class="action-btn danger" onclick="limparTodasDuplicatas()"><i class="fas fa-broom"></i> Limpar Duplicatas</button><button class="action-btn warning" onclick="concluirTodasAtrasadas()" style="background:#dc3545; color:white;"><i class="fas fa-check-double"></i> Concluir Atrasadas</button></div><div class="blocos-tarefas" id="blocosTarefas"></div></div>
   <div id="calendarioView" style="display:none;"><div><div style="display:flex;justify-content:space-between;margin-bottom:20px;"><button class="btn-glass" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button><span id="calendarioMes" style="color:white;font-weight:bold;font-size:18px;"></span><button class="btn-glass" onclick="mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button></div><div id="calendarioGrade" class="calendario-grade"></div></div></div>
   <div class="estatisticas"><h3><i class="fas fa-chart-line"></i> Estatísticas</h3><div class="stats-grid" id="statsGrid"></div><div class="backup-acoes"><button class="btn-glass" onclick="exportarBackup()"><i class="fas fa-download"></i> Exportar</button><input type="file" id="inputImportar" style="display:none" accept=".json" onchange="importarBackup(event)"><button class="btn-glass" onclick="document.getElementById('inputImportar').click()"><i class="fas fa-upload"></i> Importar</button></div></div>
 </div>
 <div class="modal-foco-overlay" id="modalFocoOverlay"><div class="modal-foco-conteudo"><i class="fas fa-brain" style="font-size:48px;color:#667eea;"></i><h2>🎯 Modo Foco</h2><div id="tarefaFocoTexto" class="tarefa-foco-grande"></div><div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div><div class="timer-foco-grande" id="timerFocoGrande">25:00</div><div class="controles-foco"><button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button><button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button><button class="btn-glass btn-prorrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button><button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button><button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button></div><div style="margin-top:20px; padding-top:20px; border-top: 1px solid rgba(255,255,255,0.1);"><button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button><input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:120px;margin-left:12px;vertical-align:middle;"><span style="font-size:12px; margin-left:6px;">Volume</span></div><div id="cronometroInfo" class="cronometro-info">🍅 Pomodoro 25 minutos</div><div style="margin-top:12px; font-size:11px; opacity:0.6;"><i class="fas fa-headphones"></i> Música LoFi relaxante para foco</div></div></div>
 <div class="modal-reagendar-overlay" id="modalReagendarOverlay"><div class="modal-reagendar-conteudo"><i class="fas fa-calendar-alt" style="font-size:36px;color:#667eea;"></i><h3>Reagendar Tarefa</h3><input type="date" id="novaDataReagendar"><div class="modal-botoes"><button class="btn-glass" onclick="confirmarReagendamento()">Confirmar</button><button class="btn-glass" onclick="fecharModalReagendar()" style="background:rgba(255,255,255,0.1);">Cancelar</button></div></div></div>
 
-<!-- ÁUDIO LOFI COM MÚLTIPLAS FONTES E FALLBACK -->
+<!-- ÁUDIO LOFI -->
 <audio id="lofiAudio" loop preload="auto" style="display:none;">
     <source src="lofi.mp3" type="audio/mpeg">
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
@@ -327,6 +326,29 @@
   let syncInterval = null;
   let tarefaArrastandoId = null;
   let tarefaArrastandoOrigem = null;
+  
+  // ========== BOTÃO PARA CONCLUIR TODAS ATRASADAS ==========
+  function concluirTodasAtrasadas() {
+      const hoje = new Date().toISOString().split('T')[0];
+      const atrasadas = tarefas.filter(t => {
+          return t.data && t.data < hoje && !t.concluida;
+      });
+      
+      if(atrasadas.length === 0) {
+          alert('🎉 Nenhuma tarefa atrasada encontrada!');
+          return;
+      }
+      
+      if(confirm(`📋 Encontradas ${atrasadas.length} tarefa(s) atrasada(s).\n\nDeseja marcar TODAS como concluídas?`)) {
+          atrasadas.forEach(t => {
+              t.concluida = true;
+              t.notificado = true;
+          });
+          salvarDados();
+          alert(`✅ ${atrasadas.length} tarefa(s) atrasada(s) concluída(s)!`);
+          renderizarTarefas();
+      }
+  }
   
   // ========== DRAG AND DROP ==========
   function iniciarDragTarefa(id, cardNome, event) {
@@ -980,25 +1002,51 @@
       } 
   }
   
+  // CORREÇÃO: FILTRO "HOJE" MOSTRA TAREFAS DE HOJE E ATRASADAS
   function renderizarTarefas() { 
       const container = document.getElementById('blocosTarefas'); 
       if(!container) return; 
       const termo = document.getElementById('buscaGlobal')?.value.toLowerCase() || ''; 
       const hoje = new Date().toISOString().split('T')[0]; 
+      
+      console.log('🔍 FILTRO ATUAL:', filtroAtual);
+      console.log('📅 Data de hoje:', hoje);
+      
       container.innerHTML = ''; 
       cardsTarefas.forEach(card => { 
           let lista = tarefas.filter(t=>t.bloco===card.nome); 
-          if(filtroAtual==='hoje') lista = lista.filter(t => (t.data === hoje || (t.data && t.data < hoje)) && !t.concluida); 
-          else if(filtroAtual==='semana') { const semana = new Date(); semana.setDate(semana.getDate() + 7); lista = lista.filter(t=>t.data <= semana.toISOString().split('T')[0] && !t.concluida); } 
-          else if(filtroAtual==='concluidas') lista = lista.filter(t=>t.concluida); 
-          else if(filtroAtual==='pendentes') lista = lista.filter(t=>!t.concluida);
-          else lista = lista.filter(t=>!t.concluida); 
+          
+          if(filtroAtual==='hoje') {
+              // CORRIGIDO: Mostra tarefas de hoje E tarefas atrasadas (data < hoje)
+              lista = lista.filter(t => {
+                  if(!t.data || t.concluida) return false;
+                  return t.data === hoje || t.data < hoje;
+              });
+              console.log(`📋 Card "${card.nome}" - Tarefas hoje/atrasadas:`, lista.length);
+          } 
+          else if(filtroAtual==='semana') { 
+              const semana = new Date(); 
+              semana.setDate(semana.getDate() + 7); 
+              lista = lista.filter(t=>t.data <= semana.toISOString().split('T')[0] && !t.concluida); 
+          } 
+          else if(filtroAtual==='concluidas') { 
+              lista = lista.filter(t=>t.concluida); 
+          } 
+          else if(filtroAtual==='pendentes') {
+              lista = lista.filter(t=>!t.concluida);
+          }
+          else { 
+              lista = lista.filter(t=>!t.concluida); 
+          } 
+          
           if(filtroPrioridade!=='todas') lista = lista.filter(t=>t.prioridade===filtroPrioridade); 
           if(termo) lista = lista.filter(t=>t.texto.toLowerCase().includes(termo)); 
+          
           const ativas = lista.filter(t=>!t.concluida).length; 
           const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`;
           const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'};
           const isAtrasada = (data) => data && data < hoje;
+          
           const div = document.createElement('div'); div.className='bloco-tarefa'; 
           div.setAttribute('data-card-nome', card.nome);
           div.setAttribute('ondragover', 'permitirDropCard(event)');
@@ -1018,7 +1066,7 @@
                       <div class="tarefa-conteudo">
                           <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
                           <div class="tarefa-meta">
-                              ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '(Atrasada)' : ''}</span>`:''}
+                              ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}
                               <span class="badge ${prioridadeLabel(t.prioridade).class}"><i class="fas fa-flag"></i> ${prioridadeLabel(t.prioridade).text}</span>
                               ${t.recorrencia?`<span class="badge recorrente"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
                               ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
@@ -1042,7 +1090,7 @@
   function renderizarEstatisticas() { 
       const hoje = new Date().toISOString().split('T')[0];
       
-      // Conta APENAS tarefas (NÃO metas) com data <= hoje e NÃO concluídas
+      // Conta APENAS tarefas com data <= hoje e NÃO concluídas
       const tarefasPendentes = tarefas.filter(t => {
           return t.data && t.data <= hoje && !t.concluida;
       }).length;
@@ -1055,11 +1103,8 @@
       const horasFoco = Math.floor(tempoTotalFocado / 3600); 
       const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); 
       
-      // Debug
       console.log('📊 === ESTATÍSTICAS ===');
       console.log('📋 Tarefas pendentes (data <= hoje e não concluídas):', tarefasPendentes);
-      console.log('📋 Total de tarefas no array:', tarefas.length);
-      console.log('📋 Total de metas no array:', metas.length);
       
       document.getElementById('statsGrid').innerHTML = `
           <div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:10px;">de ${totalHoje}</div></div>
@@ -1153,6 +1198,7 @@
   window.permitirDropCard = permitirDropCard;
   window.removerDragOver = removerDragOver;
   window.soltarTarefa = soltarTarefa;
+  window.concluirTodasAtrasadas = concluirTodasAtrasadas;
   
   document.getElementById('themeToggle').addEventListener('click',()=>{ document.body.classList.toggle('dark-theme'); localStorage.setItem('theme',document.body.classList.contains('dark-theme')?'dark':'light'); });
   if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-theme');
