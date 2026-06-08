@@ -327,7 +327,59 @@
   function atualizarBotaoMusica(ativo) { const btn = document.getElementById('btnMusicaFoco'); if(btn) { if(ativo) { btn.style.background = '#28a745'; btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON ✓'; } else { btn.style.background = '#17a2b8'; btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus'; } } }
   function ajustarVolumeFoco(val) { if(lofiAudioElement) lofiAudioElement.volume = val / 100; }
   function tocarSino() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const now = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'sine'; osc.frequency.value = 880; gain.gain.value = 0.25; osc.connect(gain); gain.connect(ctx.destination); osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, now + 10); osc.stop(now + 10); setTimeout(() => ctx.close(), 11000); } catch(e) {} }
-  function verificarResetDiario() { const hoje = getDataHoje(); if (ultimaDataReset !== hoje) { tarefas = tarefas.map(t => { if (t.recorrencia && t.recorrencia !== '' && t.concluida) { let proximaData = new Date(t.data); switch(t.recorrencia) { case 'diaria': proximaData.setDate(proximaData.getDate() + 1); break; case 'dias_uteis': proximaData.setDate(proximaData.getDate() + 1); while (proximaData.getDay() === 0 || proximaData.getDay() === 6) proximaData.setDate(proximaData.getDate() + 1); break; case 'semanal': proximaData.setDate(proximaData.getDate() + 7); break; case 'mensal': proximaData.setMonth(proximaData.getMonth() + 1); break; } return { ...t, concluida: false, data: proximaData.toISOString().split('T')[0], notificado: false }; } return t; }); localStorage.setItem('ultimaDataReset', hoje); salvarDados(); } }
+  
+  // ========== FUNÇÃO CORRIGIDA - NÃO CRIA DUPLICATAS ==========
+  function verificarResetDiario() { 
+      const hoje = getDataHoje(); 
+      if (ultimaDataReset !== hoje) { 
+          console.log('🔄 Reset diário - Data:', hoje);
+          
+          const novasTarefas = [];
+          const tarefasAtualizadas = [];
+          
+          for(let t of tarefas) {
+              if (t.recorrencia && t.recorrencia !== '' && t.concluida) {
+                  let proximaData = new Date(t.data);
+                  switch(t.recorrencia) {
+                      case 'diaria': proximaData.setDate(proximaData.getDate() + 1); break;
+                      case 'dias_uteis': 
+                          proximaData.setDate(proximaData.getDate() + 1);
+                          while (proximaData.getDay() === 0 || proximaData.getDay() === 6) proximaData.setDate(proximaData.getDate() + 1);
+                          break;
+                      case 'semanal': proximaData.setDate(proximaData.getDate() + 7); break;
+                      case 'mensal': proximaData.setMonth(proximaData.getMonth() + 1); break;
+                  }
+                  const novaDataStr = proximaData.toISOString().split('T')[0];
+                  
+                  // VERIFICAR SE JÁ EXISTE UMA TAREFA COM MESMO TEXTO E DATA
+                  const jaExiste = tarefas.some(t2 => 
+                      t2.texto === t.texto && 
+                      t2.data === novaDataStr && 
+                      t2.recorrencia === t.recorrencia
+                  );
+                  
+                  if(!jaExiste) {
+                      // Criar nova tarefa apenas se não existir
+                      novasTarefas.push({ 
+                          ...t, 
+                          concluida: false, 
+                          data: novaDataStr, 
+                          notificado: false,
+                          id: Date.now() + Math.random()
+                      });
+                  }
+                  // A tarefa concluída original é removida (não adicionamos à lista)
+              } else {
+                  tarefasAtualizadas.push(t);
+              }
+          }
+          
+          tarefas = [...tarefasAtualizadas, ...novasTarefas];
+          localStorage.setItem('ultimaDataReset', hoje);
+          salvarDados();
+      }
+  }
+  
   let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
   function atualizarTimerDisplay() { const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`; const progresso = ((25*60 - tempoRestante)/(25*60))*100; const bar = document.getElementById('progressoFocoBar'); if(bar) bar.style.width = `${Math.min(100,Math.max(0,progresso))}%`; }
   function prorrogarTempoFoco() { if(!pomodoroAtivo || emPausaEntrePomodoros) { alert('⏰ Só pode prorrogar durante o foco ativo!'); return; } tempoRestante += 10 * 60; atualizarTimerDisplay(); document.getElementById('cronometroInfo').innerHTML = '⏰ +10 minutos!'; setTimeout(() => { if(document.getElementById('cronometroInfo')) document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...'; }, 2000); }
