@@ -63,31 +63,138 @@
   .add-meta-form { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; flex-wrap: wrap; }
   .add-meta-form input, .add-meta-form select { padding: 10px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 13px; outline: none; }
   .add-meta-form button { padding: 10px 20px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 10px; color: #1a1a2e; font-weight: 600; cursor: pointer; font-size: 13px; }
-  .blocos-tarefas { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
-  .bloco-tarefa { background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); }
-  .bloco-tarefa.drag-over { border: 2px solid #667eea; background: rgba(102,126,234,0.2); }
-  .bloco-header { padding: 14px 16px; font-weight: 600; color: white; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0; font-size: 14px; }
-  .bloco-header button { background: rgba(255,255,255,0.15); border: none; width: 28px; height: 28px; border-radius: 8px; color: white; cursor: pointer; margin-left: 4px; }
-  .tarefa-lista { padding: 12px; max-height: 400px; overflow-y: auto; }
-  .tarefa-item { padding: 10px; margin-bottom: 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.05); cursor: grab; }
+  
+  /* ========== ALTERADO: GRID DE CARDS RESPONSIVO ========== */
+  .blocos-tarefas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .blocos-tarefas { 
+      grid-template-columns: repeat(2, 1fr); 
+    }
+  }
+  @media (min-width: 1025px) {
+    .blocos-tarefas { 
+      grid-template-columns: repeat(3, 1fr); 
+    }
+  }
+  
+  /* ========== ALTERADO: CARD "ADICIONAR ESPAÇO" IGUAL AOS DEMAIS ========== */
+  .bloco-tarefa.card-adicionar {
+    min-width: auto !important;
+    height: auto !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(24px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bloco-tarefa.card-adicionar:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
+  .card-adicionar-conteudo {
+    text-align: center;
+    padding: 20px;
+    color: white;
+  }
+  .card-adicionar-conteudo i {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .card-adicionar-conteudo p {
+    font-size: 14px;
+  }
+  
+  /* ========== ALTERADO: BOTÃO NOVA TAREFA ========== */
+  .btn-nova-tarefa {
+    width: 100%;
+    min-height: 48px;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .btn-nova-tarefa:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+  }
+  .btn-nova-tarefa:active {
+    transform: translateY(0);
+  }
+  
+  /* ========== ALTERADO: CARD DE TAREFA - REDUÇÃO DE RUÍDO ========== */
+  .tarefa-item {
+    position: relative;
+    border-left: 4px solid transparent;
+    transition: all 0.2s;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: grab;
+  }
+  .tarefa-item.p1 {
+    border-left-color: #ef4444;
+  }
+  .tarefa-item.p2 {
+    border-left-color: #fbbf24;
+  }
+  
+  /* Esconder ícones de ação por padrão */
+  .tarefa-item .item-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  /* Mostrar ícones apenas em hover */
+  .tarefa-item:hover .item-actions {
+    opacity: 1;
+  }
+  
+  /* Para dispositivos touch: mostrar ao segurar */
+  .tarefa-item:active .item-actions {
+    opacity: 1;
+  }
+  
   .tarefa-item.dragging { opacity: 0.3; cursor: grabbing; }
   .tarefa-item:hover { background: rgba(255, 255, 255, 0.08); }
   .tarefa-item.concluida { opacity: 0.5; text-decoration: line-through; }
   .tarefa-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
+  
   .tarefa-conteudo { flex: 1; }
   .tarefa-texto { font-size: 12px; line-height: 1.4; color: white; word-break: break-word; margin-bottom: 4px; }
   .tarefa-meta { display: flex; flex-wrap: wrap; gap: 4px; }
+  
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 20px; font-size: 9px; background: rgba(255, 255, 255, 0.1); color: white; }
-  .badge.p1 { background: rgba(239,68,68,0.2); color: #FCA5A5; }
-  .badge.p2 { background: rgba(245,158,11,0.2); color: #fbbf24; }
+  .badge.p1, .badge.p2, .badge.p3 { background: transparent; padding-left: 0; }
   .badge.atrasada { background: rgba(239,68,68,0.3); color: #ff9999; border: 1px solid rgba(239,68,68,0.5); animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  
   .drag-handle { cursor: grab; color: rgba(255,255,255,0.3); margin-right: 4px; font-size: 14px; }
   .item-actions { display: flex; gap: 4px; flex-shrink: 0; }
   .item-actions button { background: transparent; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; color: rgba(255,255,255,0.5); font-size: 12px; }
   .item-actions button:hover { background: rgba(255,255,255,0.1); color: white; }
-  .add-tarefa-btn { width: 100%; background: rgba(255, 255, 255, 0.08); border: 1px dashed rgba(255, 255, 255, 0.2); padding: 10px; border-radius: 10px; color: white; cursor: pointer; margin-top: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-  .add-tarefa-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(102,126,234,0.5); }
+  
   .inline-form { margin-top: 10px; padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 10px; display: none; }
   .inline-form.show { display: block; }
   .inline-form input, .inline-form select { width: 100%; padding: 8px; margin-bottom: 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 12px; outline: none; }
@@ -95,6 +202,16 @@
   .inline-form-buttons button { flex: 1; padding: 6px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; font-size: 12px; }
   .btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
   .btn-cancel { background: rgba(255, 255, 255, 0.1); color: white; }
+  
+  /* Removendo o botão antigo add-tarefa-btn */
+  .add-tarefa-btn { display: none; }
+  
+  .bloco-tarefa { background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); }
+  .bloco-tarefa.drag-over { border: 2px solid #667eea; background: rgba(102,126,234,0.2); }
+  .bloco-header { padding: 14px 16px; font-weight: 600; color: white; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0; font-size: 14px; }
+  .bloco-header button { background: rgba(255,255,255,0.15); border: none; width: 28px; height: 28px; border-radius: 8px; color: white; cursor: pointer; margin-left: 4px; }
+  .tarefa-lista { padding: 16px; max-height: 400px; overflow-y: auto; }
+  
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
   .modal-foco-overlay.show { display: flex; }
   .modal-foco-conteudo { background: rgba(26,27,38,0.95); backdrop-filter: blur(24px); padding: 24px; border-radius: 24px; max-width: 90%; width: 400px; text-align: center; }
@@ -105,12 +222,7 @@
   .controles-foco { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .btn-glass { background: linear-gradient(135deg, #667eea, #764ba2); border: none; padding: 8px 16px; border-radius: 40px; color: white; cursor: pointer; font-weight: 600; margin: 4px; }
   .btn-prorrogar { background: linear-gradient(135deg, #f59e0b, #d97706); }
-  .estatisticas { background: rgba(26,27,38,0.6); backdrop-filter: blur(24px); border-radius: 16px; padding: 16px; margin-top: 20px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .stat-card { background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center; }
-  .stat-card i { color: white; font-size: 20px; margin-bottom: 6px; }
-  .stat-numero { font-size: 24px; font-weight: 700; color: white; }
-  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-top: 4px; color: white; }
+  
   .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
   .calendario-dia-semana { text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; color: white; font-size: 12px; font-weight: 600; }
   .calendario-dia { min-height: 130px; background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border-radius: 12px; padding: 8px; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.08); }
@@ -128,6 +240,7 @@
   .calendario-btn-edit:hover, .calendario-btn-check:hover { opacity: 1; }
   .calendario-add-btn { width: 100%; margin-top: 6px; padding: 4px; background: rgba(102,126,234,0.2); border: 1px dashed rgba(102,126,234,0.4); border-radius: 6px; color: white; cursor: pointer; font-size: 10px; }
   .calendario-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  
   .modal-reagendar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); z-index: 4000; align-items: center; justify-content: center; }
   .modal-reagendar-overlay.show { display: flex; }
   .modal-reagendar-conteudo { background: rgba(26,27,38,0.95); backdrop-filter: blur(24px); border-radius: 20px; padding: 20px; max-width: 90%; width: 320px; text-align: center; }
@@ -137,8 +250,8 @@
   .tarefa-foco-grande { font-size: 16px; margin: 12px 0; font-weight: bold; color: white; }
   .cronometro-info { font-size: 12px; margin-top: 8px; color: white; opacity: 0.8; }
   .btn-musica { background: #17a2b8; padding: 6px 16px; border: none; border-radius: 20px; cursor: pointer; color: white; font-size: 12px; }
-  .backup-acoes { margin-top: 16px; display: flex; gap: 12px; justify-content: center; }
   .sync-indicator { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; z-index: 9999; opacity: 0; transition: opacity 0.3s; }
+  
   .dashboard-alerta { background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25)); backdrop-filter: blur(16px); border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
   .alerta-conteudo { display: flex; align-items: center; gap: 12px; padding: 12px 16px; flex-wrap: wrap; }
@@ -148,6 +261,7 @@
   .alerta-texto { font-size: 14px; font-weight: 600; color: white; display: block; }
   .alerta-subtexto { font-size: 11px; color: rgba(255,255,255,0.6); display: block; margin-top: 2px; }
   .alerta-btn { background: linear-gradient(135deg, #667eea, #764ba2); border: none; padding: 6px 14px; border-radius: 30px; color: white; cursor: pointer; font-size: 12px; font-weight: 500; }
+  
   .metas-compactas { background: rgba(26, 27, 38, 0.5); backdrop-filter: blur(16px); border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
   .metas-compactas-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.05); }
   .metas-compactas-header span { color: white; font-size: 13px; font-weight: 600; }
@@ -166,7 +280,50 @@
   .meta-compact-categoria { font-size: 9px; color: #fbbf24; margin-top: 2px; }
   .meta-compact-actions button { background: transparent; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 10px; padding: 2px; }
   .meta-compact-actions button:hover { color: white; }
-  @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .blocos-tarefas { grid-template-columns: 1fr; } .calendario-grade { gap: 6px; } .calendario-dia { min-height: 110px; } .action-buttons { width: 100%; justify-content: center; } }
+  
+  /* ========== ALTERADO: RODAPÉ FIXO COM ESTATÍSTICAS ========== */
+  .footer-stats {
+    position: sticky;
+    bottom: 0;
+    height: 56px;
+    background: rgba(26, 27, 38, 0.95);
+    backdrop-filter: blur(16px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 10;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 20px;
+    padding: 0 16px;
+  }
+  .footer-stats-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: white;
+  }
+  .footer-stats-item i {
+    font-size: 16px;
+    opacity: 0.7;
+  }
+  .footer-stats-item strong {
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff, #f0f0f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  @media (max-width: 640px) { 
+    .footer-stats-item { font-size: 11px; }
+    .footer-stats-item i { font-size: 14px; }
+    .blocos-tarefas { gap: 12px; }
+  }
+  @media (max-width: 480px) { 
+    .blocos-tarefas { grid-template-columns: 1fr; }
+  }
+  /* Esconder estatísticas antigas */
+  .estatisticas { display: none !important; }
 </style>
 </head>
 <body>
@@ -193,11 +350,20 @@
   
   <div class="top-bar"><div class="view-toggle"><button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button><button class="view-btn" onclick="toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button></div><div class="action-buttons"><button class="action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button><button class="action-btn" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button></div></div>
   
+  <!-- ALTERADO: Grid de cards responsivo -->
   <div id="cardsView"><div class="blocos-tarefas" id="blocosTarefas"></div></div>
   
   <div id="calendarioView" style="display:none;"><div class="calendario-nav"><div class="calendario-nav-buttons"><button class="btn-glass" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button><button class="btn-glass" onclick="mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button></div><span id="calendarioMes" style="color:white;font-weight:600;font-size:18px;"></span><div class="calendario-nav-buttons"><button class="btn-glass" onclick="irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button><button class="btn-glass" onclick="irParaData()"><i class="fas fa-search"></i> Ir para data</button></div></div><div id="calendarioGrade" class="calendario-grade"></div></div>
   
-  <div class="estatisticas"><h3 style="color: white;"><i class="fas fa-chart-line" style="color: white;"></i> Estatísticas</h3><div class="stats-grid" id="statsGrid"></div><div class="backup-acoes"><button class="btn-glass" onclick="exportarBackup()"><i class="fas fa-download"></i> Exportar</button><input type="file" id="inputImportar" style="display:none" accept=".json" onchange="importarBackup(event)"><button class="btn-glass" onclick="document.getElementById('inputImportar').click()"><i class="fas fa-upload"></i> Importar</button></div></div>
+  <!-- ALTERADO: Estatísticas antigas removidas - movidas para o rodapé -->
+  
+  <!-- ALTERADO: Rodapé fixo com estatísticas -->
+  <div class="footer-stats" id="footerStats">
+      <div class="footer-stats-item"><i class="fas fa-check-circle"></i><span id="footerConcluidas">0</span><span>concluídas</span></div>
+      <div class="footer-stats-item"><i class="fas fa-chart-line"></i><span id="footerTaxa">0%</span><span>taxa</span></div>
+      <div class="footer-stats-item"><i class="fas fa-clock"></i><span id="footerPendentes">0</span><span>pendentes</span></div>
+      <div class="footer-stats-item"><i class="fas fa-hourglass-half"></i><span id="footerTempo">0h 0m</span><span>foco</span></div>
+  </div>
 </div>
 
 <div class="modal-foco-overlay" id="modalFocoOverlay"><div class="modal-foco-conteudo"><i class="fas fa-brain" style="font-size:40px;color:#667eea;"></i><h2 style="color:white;">🎯 Modo Foco</h2><div id="tarefaFocoTexto" class="tarefa-foco-grande" style="color:white;"></div><div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div><div class="timer-foco-grande" id="timerFocoGrande" style="color:#667eea;">25:00</div><div class="controles-foco"><button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button><button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button><button class="btn-glass btn-prorrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button><button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button><button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button></div><div style="margin-top:16px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.1);"><button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button><span style="color:white; font-size:11px; margin-left:10px;">Volume</span><input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:100px;margin-left:6px;vertical-align:middle;"></div><div id="cronometroInfo" class="cronometro-info" style="color:white;">🍅 Pomodoro 25 minutos</div><div style="margin-top:10px; font-size:10px; opacity:0.7; color:white;"><i class="fas fa-headphones"></i> Música LoFi relaxante para foco</div></div></div>
@@ -218,59 +384,10 @@
   window.fazerCadastro = async () => { const pwd = document.getElementById('registerPassword').value; if(pwd !== document.getElementById('registerConfirm').value) { document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem'; return; } try { await createUserWithEmailAndPassword(auth, document.getElementById('registerEmail').value, pwd); alert('✅ Conta criada!'); } catch(e) { document.getElementById('registerErrorMessage').textContent = e.message; } };
   window.fazerLogout = () => signOut(auth); window.mostrarCadastro = () => { document.getElementById('loginForm').style.display='none'; document.getElementById('registerForm').style.display='block'; }; window.mostrarLogin = () => { document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; };
   let isSyncing = false;
-  async function salvarTudoFirebase() { 
-    if(!currentUser) return;
-    if(isSyncing) return;
-    isSyncing = true;
-    try {
-      const tarefasAtualizadas = JSON.parse(localStorage.getItem('tarefas') || '[]');
-      const metasAtualizadas = JSON.parse(localStorage.getItem('metas') || '[]');
-      const cardsAtualizados = JSON.parse(localStorage.getItem('cardsTarefas') || '[]');
-      const tempoTotal = parseInt(localStorage.getItem('tempoTotalFocado') || '0');
-      const tempoHoje = parseInt(localStorage.getItem('tempoFocadoHoje') || '0');
-      const ultimaData = localStorage.getItem('ultimaDataFoco') || '';
-      
-      const dados = { 
-        tarefas: tarefasAtualizadas,
-        metas: metasAtualizadas,
-        cardsTarefas: cardsAtualizados,
-        tempoTotalFocado: tempoTotal,
-        tempoFocadoHoje: tempoHoje,
-        ultimaDataFoco: ultimaData,
-        ultimaAtualizacao: new Date().toISOString()
-      };
-      await setDoc(doc(db, "usuarios", currentUser.uid), dados);
-      console.log('✅ Firebase sincronizado - Tempo focado hoje:', tempoHoje, 'segundos');
-    } catch(err) { 
-      console.error('❌ Erro no Firebase:', err); 
-    } finally { 
-      isSyncing = false; 
-    }
-  }
-  async function carregarDadosFirebase() { 
-    if(!currentUser) return; 
-    try {
-      const docRef = doc(db, "usuarios", currentUser.uid);
-      const docSnap = await getDoc(docRef); 
-      if(docSnap.exists()){ 
-        const d = docSnap.data(); 
-        if(d.tarefas) localStorage.setItem('tarefas', JSON.stringify(d.tarefas)); 
-        if(d.metas) localStorage.setItem('metas', JSON.stringify(d.metas)); 
-        if(d.cardsTarefas && d.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(d.cardsTarefas)); 
-        if(d.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', d.tempoTotalFocado);
-        if(d.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', d.tempoFocadoHoje);
-        if(d.ultimaDataFoco) localStorage.setItem('ultimaDataFoco', d.ultimaDataFoco);
-        console.log('✅ Dados carregados do Firebase - Tempo focado hoje:', d.tempoFocadoHoje || 0);
-        return true;
-      }
-    } catch(err) { 
-      console.error('❌ Erro ao carregar:', err); 
-    }
-    return false;
-  }
+  async function salvarTudoFirebase() { if(!currentUser) return; if(isSyncing) return; isSyncing = true; try { const dados = { tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'), metas: JSON.parse(localStorage.getItem('metas') || '[]'), cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'), tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0'), tempoFocadoHoje: parseInt(localStorage.getItem('tempoFocadoHoje') || '0'), ultimaDataFoco: localStorage.getItem('ultimaDataFoco') || '', ultimaAtualizacao: new Date().toISOString() }; await setDoc(doc(db, "usuarios", currentUser.uid), dados); console.log('✅ Firebase sincronizado'); } catch(err) { console.error('❌ Erro no Firebase:', err); } finally { isSyncing = false; } }
+  async function carregarDadosFirebase() { if(!currentUser) return; try { const docRef = doc(db, "usuarios", currentUser.uid); const docSnap = await getDoc(docRef); if(docSnap.exists()){ const d = docSnap.data(); if(d.tarefas) localStorage.setItem('tarefas', JSON.stringify(d.tarefas)); if(d.metas) localStorage.setItem('metas', JSON.stringify(d.metas)); if(d.cardsTarefas && d.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(d.cardsTarefas)); if(d.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', d.tempoTotalFocado); if(d.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', d.tempoFocadoHoje); if(d.ultimaDataFoco) localStorage.setItem('ultimaDataFoco', d.ultimaDataFoco); console.log('✅ Dados carregados do Firebase'); } } catch(err) { console.error('❌ Erro ao carregar:', err); } }
   window.salvarTudoFirebase = salvarTudoFirebase;
-  document.getElementById('logoutBtn').onclick = () => window.fazerLogout(); 
-  document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); else alert('Notificações já ativadas!'); };
+  document.getElementById('logoutBtn').onclick = () => window.fazerLogout(); document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); else alert('Notificações já ativadas!'); };
   window.togglePasswordVisibility = (id, btn) => { const inp = document.getElementById(id); if(inp.type === 'password'){ inp.type='text'; btn.innerHTML='<i class="far fa-eye-slash"></i>'; } else { inp.type='password'; btn.innerHTML='<i class="far fa-eye"></i>'; } };
   onAuthStateChanged(auth, async (user) => { if(user) { currentUser = user; window.currentUser = user; document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('userEmailTooltip').textContent = user.email; await carregarDadosFirebase(); if(window.recarregarSistema) window.recarregarSistema(); if(window.iniciarSincronizacaoPeriodica) window.iniciarSincronizacaoPeriodica(); } else { currentUser = null; window.currentUser = null; document.getElementById('loginOverlay').style.display='flex'; document.getElementById('mainApp').style.display='none'; if(window.syncInterval) clearInterval(window.syncInterval); } });
 </script>
@@ -292,17 +409,29 @@
   let dataCalendario = new Date();
   let intervalosNotificacoes = [];
   
-  function verificarResetFocoDiario() { 
-    const hoje = getDataHoje(); 
-    if (ultimaDataFoco !== hoje) { 
-      tempoFocadoHoje = 0; 
-      localStorage.setItem('tempoFocadoHoje', '0'); 
-      localStorage.setItem('ultimaDataFoco', hoje); 
-      ultimaDataFoco = hoje;
-      console.log('🔄 Tempo focado resetado para o novo dia:', hoje); 
-      salvarDados();
-    } 
+  // ALTERADO: Função para atualizar rodapé
+  function atualizarRodape() {
+      const hoje = getDataHoje();
+      const tarefasHoje = tarefas.filter(t => t.data === hoje);
+      const concluidasHoje = tarefasHoje.filter(t => t.concluida).length;
+      const totalHoje = tarefasHoje.length;
+      const taxaHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
+      const pendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length;
+      const horasFocoHoje = Math.floor(tempoFocadoHoje / 3600);
+      const minutosFocoHoje = Math.floor((tempoFocadoHoje % 3600) / 60);
+      
+      const footerConcluidas = document.getElementById('footerConcluidas');
+      const footerTaxa = document.getElementById('footerTaxa');
+      const footerPendentes = document.getElementById('footerPendentes');
+      const footerTempo = document.getElementById('footerTempo');
+      
+      if (footerConcluidas) footerConcluidas.textContent = concluidasHoje;
+      if (footerTaxa) footerTaxa.textContent = `${taxaHoje}%`;
+      if (footerPendentes) footerPendentes.textContent = pendentes;
+      if (footerTempo) footerTempo.textContent = `${horasFocoHoje}h ${minutosFocoHoje}m`;
   }
+  
+  function verificarResetFocoDiario() { const hoje = getDataHoje(); if (ultimaDataFoco !== hoje) { tempoFocadoHoje = 0; localStorage.setItem('tempoFocadoHoje', '0'); localStorage.setItem('ultimaDataFoco', hoje); ultimaDataFoco = hoje; console.log('🔄 Tempo focado resetado para o novo dia:', hoje); salvarDados(); } }
   
   function atualizarDashboard() { const hoje = getDataHoje(); const pendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; const alertaDiv = document.getElementById('dashboardAlerta'); const alertaBadge = document.getElementById('alertaBadge'); const alertaTexto = document.getElementById('alertaTexto'); const alertaSubtexto = document.getElementById('alertaSubtexto'); if (pendentes > 0) { alertaDiv.style.display = 'block'; alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; alertaBadge.textContent = pendentes; if (pendentes === 1) { alertaTexto.textContent = 'Você tem 1 tarefa pendente'; alertaSubtexto.textContent = 'Não deixe para depois! 🎯'; } else { alertaTexto.textContent = `Você tem ${pendentes} tarefas pendentes`; alertaSubtexto.textContent = 'Organize seu dia e conclua suas metas! 💪'; } const alertaBtn = document.getElementById('alertaBtn'); if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Ver agora'; alertaBtn.onclick = () => irParaHoje(); } } else { const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; if (concluidasHoje > 0) { verificarConclusaoTotal(); } else { alertaDiv.style.display = 'none'; } } }
   
@@ -329,11 +458,11 @@
     localStorage.setItem('ultimaDataFoco', ultimaDataFoco); 
     renderizarTarefas(); 
     renderizarMetas(); 
-    renderizarEstatisticas(); 
     renderizarCalendario(); 
     atualizarDashboard(); 
     renderizarMetasCompactas(); 
     verificarConclusaoTotal(); 
+    atualizarRodape(); // ALTERADO: Atualiza rodapé
     if(window.currentUser && window.salvarTudoFirebase) { 
       if(syncTimeout) clearTimeout(syncTimeout); 
       syncTimeout = setTimeout(() => { 
@@ -483,32 +612,60 @@
   
   function mostrarFormAdicionar(cardNome) { const f = document.getElementById(`form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`); if(f) f.classList.toggle('show'); }
   function marcarTodasHoje() { const hoje = getDataHoje(); const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida); if(alvos.length===0) return alert('🎉 Nenhuma tarefa pendente para hoje!'); if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){ alvos.forEach(t=>t.concluida=true); salvarDados(); alert(`✅ ${alvos.length} tarefa(s) concluída(s)!`); } }
-  function renderizarTarefas() { const container = document.getElementById('blocosTarefas'); if(!container) return; const hoje = getDataHoje(); container.innerHTML = ''; cardsTarefas.forEach(card => { let lista = tarefas.filter(t=>t.bloco===card.nome); lista = lista.filter(t => { if(!t.data || t.concluida) return false; return t.data === hoje || t.data < hoje; }); const ativas = lista.filter(t=>!t.concluida).length; const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`; const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'}; const isAtrasada = (data) => data && data < hoje; const div = document.createElement('div'); div.className='bloco-tarefa'; div.setAttribute('data-card-nome', card.nome); div.setAttribute('ondragover', 'permitirDropCard(event)'); div.setAttribute('ondragleave', 'removerDragOver(event)'); div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div>
-        <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state" style="text-align:center;padding:30px;color:rgba(255,255,255,0.5);"><i class="fas fa-check-circle" style="font-size:28px;margin-bottom:8px;"></i><p style="font-size:12px;">Tudo certo por aqui</p><small style="font-size:10px;">Adicione uma tarefa</small></div>' : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`
-            <div class="tarefa-item" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
-                <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
-                <div class="tarefa-conteudo">
-                    <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
-                    <div class="tarefa-meta">
-                        ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}
-                        <span class="badge ${prioridadeLabel(t.prioridade).class}"><i class="fas fa-flag"></i> ${prioridadeLabel(t.prioridade).text}</span>
-                        ${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
-                        ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
-                    </div>
-                </div>
-                <div class="item-actions">
-                    <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
-                    <button onclick="editarTarefaCompleta(${t.id})" title="Editar"><i class="fas fa-edit"></i></button>
-                    <button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button>
-                    <button onclick="excluirTarefa(${t.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-                </div>
-            </div>`).join('')}
-        <button class="add-tarefa-btn" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')"><i class="fas fa-plus-circle"></i> Adicionar Tarefa</button>
-        <div class="inline-form" id="${formId}"><input type="text" id="texto-${escapeHtml(card.nome)}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${escapeHtml(card.nome)}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${escapeHtml(card.nome)}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${escapeHtml(card.nome)}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${escapeHtml(card.nome)}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('${formId}').classList.remove('show')">Cancelar</button></div></div>
-        </div>`; container.appendChild(div); }); const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); addCard.innerHTML='<div style="text-align:center;padding:30px;color:white;"><i class="fas fa-plus-circle" style="font-size:32px;margin-bottom:6px;"></i><p style="font-size:12px;">Novo Espaço</p></div>'; container.appendChild(addCard); }
   
-  function renderizarEstatisticas() { const hoje = getDataHoje(); const atrasadas = tarefas.filter(t => t.data && t.data < hoje && !t.concluida).length; const hojeTarefas = tarefas.filter(t => t.data === hoje && !t.concluida).length; const tarefasPendentes = atrasadas + hojeTarefas; const tarefasHojeLista = tarefas.filter(t => t.data === hoje); const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length; const totalHoje = tarefasHojeLista.length; const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0; const horasFocoHoje = Math.floor(tempoFocadoHoje / 3600); const minutosFocoHoje = Math.floor((tempoFocadoHoje % 3600) / 60); const horasFocoTotal = Math.floor(tempoTotalFocado / 3600); const minutosFocoTotal = Math.floor((tempoTotalFocado % 3600) / 60); document.getElementById('statsGrid').innerHTML = `<div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">de ${totalHoje}</div></div><div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div><div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${tarefasPendentes}</div><div class="stat-label">Pendentes</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">${atrasadas} atrasadas</div></div><div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFocoHoje}h ${minutosFocoHoje}m</div><div class="stat-label">Foco Hoje</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">Total: ${horasFocoTotal}h ${minutosFocoTotal}m</div></div>`; }
+  // ALTERADO: renderizarTarefas com botão nova tarefa solid e classes de prioridade
+  function renderizarTarefas() { 
+      const container = document.getElementById('blocosTarefas'); 
+      if(!container) return; 
+      const hoje = getDataHoje(); 
+      container.innerHTML = ''; 
+      cardsTarefas.forEach(card => { 
+          let lista = tarefas.filter(t=>t.bloco===card.nome); 
+          lista = lista.filter(t => { if(!t.data || t.concluida) return false; return t.data === hoje || t.data < hoje; }); 
+          const ativas = lista.filter(t=>!t.concluida).length; 
+          const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`; 
+          const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'}; 
+          const isAtrasada = (data) => data && data < hoje; 
+          const div = document.createElement('div'); 
+          div.className='bloco-tarefa'; 
+          div.setAttribute('data-card-nome', card.nome); 
+          div.setAttribute('ondragover', 'permitirDropCard(event)'); 
+          div.setAttribute('ondragleave', 'removerDragOver(event)'); 
+          div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); 
+          div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div>
+          <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state" style="text-align:center;padding:30px;color:rgba(255,255,255,0.5);"><i class="fas fa-check-circle" style="font-size:28px;margin-bottom:8px;"></i><p style="font-size:12px;">Tudo certo por aqui</p><small style="font-size:10px;">Adicione uma tarefa</small></div>' : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`
+              <div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
+                  <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                  <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
+                  <div class="tarefa-conteudo">
+                      <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
+                      <div class="tarefa-meta">
+                          ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}
+                          ${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
+                          ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
+                      </div>
+                  </div>
+                  <div class="item-actions">
+                      <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
+                      <button onclick="editarTarefaCompleta(${t.id})" title="Editar"><i class="fas fa-edit"></i></button>
+                      <button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button>
+                      <button onclick="excluirTarefa(${t.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                  </div>
+              </div>`).join('')}
+          <!-- ALTERADO: Botão nova tarefa solid -->
+          <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button>
+          <div class="inline-form" id="${formId}"><input type="text" id="texto-${escapeHtml(card.nome)}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${escapeHtml(card.nome)}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${escapeHtml(card.nome)}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${escapeHtml(card.nome)}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${escapeHtml(card.nome)}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('${formId}').classList.remove('show')">Cancelar</button></div></div>
+          </div>`; 
+          container.appendChild(div); 
+      }); 
+      // ALTERADO: Card "Novo Espaço" como tile normal
+      const addCard = document.createElement('div'); 
+      addCard.className = 'bloco-tarefa card-adicionar'; 
+      addCard.onclick = () => adicionarCardTarefa(); 
+      addCard.innerHTML = '<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Espaço</p></div>'; 
+      container.appendChild(addCard);
+  }
+  
   function mudarMes(d) { dataCalendario.setMonth(dataCalendario.getMonth() + d); renderizarCalendario(); }
   function irParaHoje() { dataCalendario = new Date(); renderizarCalendario(); const tarefasContainer = document.getElementById('blocosTarefas'); if (tarefasContainer) { tarefasContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); } mostrarIndicadorSync('📅 Redirecionado para suas tarefas de hoje!'); }
   function irParaData() { const dataInput = prompt('Digite a data (YYYY-MM-DD):', getDataHoje()); if(dataInput && dataInput.match(/^\d{4}-\d{2}-\d{2}$/)) { const [ano, mes, dia] = dataInput.split('-'); dataCalendario = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia)); renderizarCalendario(); } else if(dataInput) { alert('Formato inválido! Use YYYY-MM-DD'); } }
@@ -532,11 +689,11 @@
     verificarResetFocoDiario(); 
     renderizarTarefas(); 
     renderizarMetas(); 
-    renderizarEstatisticas(); 
     renderizarCalendario(); 
     atualizarDashboard(); 
     renderizarMetasCompactas(); 
     configurarNotificacoesProgramadas(); 
+    atualizarRodape(); // ALTERADO: Atualiza rodapé
     document.getElementById('dataHoje').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' }); 
   }
   window.recarregarSistema = recarregarSistema;
