@@ -83,37 +83,64 @@
   
   /* ========== AJUSTE BANNER E TOP SECTION ========== */
   .top-section {
-    display: grid;
-    grid-template-columns: 65% 35%;
-    gap: 16px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
     margin-bottom: 20px;
   }
-  .dashboard-alerta {
-    margin-bottom: 0;
-    height: auto;
-    min-height: 56px;
-    display: flex;
+  
+  /* BANNER TAREFAS - AJUSTADO PARA INLINE-FLEX */
+  .banner-tarefas {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    background: linear-gradient(90deg, #7c3aed 0%, #1a1a2e 100%);
+    border-radius: 12px;
+    padding: 14px 18px;
     align-items: center;
-    padding: 8px 16px;
-    background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25));
-    backdrop-filter: blur(16px);
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.1);
-    animation: slideDown 0.5s ease;
-  }
-  .dashboard-alerta .alerta-conteudo {
-    padding: 0;
-    width: 100%;
+    gap: 16px;
+    flex-wrap: wrap;
   }
   
-  /* AJUSTE BANNER - botão ao lado do texto */
+  /* Mobile: banner ocupa 100% */
+  @media (max-width: 640px) {
+    .banner-tarefas {
+      width: 100%;
+      display: flex;
+    }
+  }
+  
   .banner-esquerda {
     display: flex;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
   }
+  
+  .icon-notif {
+    width: 20px;
+    height: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    stroke-width: 1.5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .badge-notif {
+    background: #ef4444;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    border: 2px solid #1a1a1a;
+  }
+  
   .btn-ver-agora {
     margin-left: 8px;
     height: 32px;
@@ -126,41 +153,10 @@
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s;
+    white-space: nowrap;
   }
   .btn-ver-agora:hover {
     background: rgba(124, 58, 237, 0.35);
-  }
-  
-  /* ÍCONE DE NOTIFICAÇÃO MAIS CLEAN */
-  .icon-notif {
-    width: 20px;
-    height: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    stroke-width: 1.5;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  .badge-notif {
-    background: #ef4444;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    border: 2px solid #1a1a1a;
-  }
-  
-  @media (max-width: 640px) {
-    .banner-esquerda { 
-      flex-wrap: wrap; 
-    }
-    .btn-ver-agora { 
-      margin-left: 32px; 
-      margin-top: 4px; 
-    }
   }
   
   .botoes-topo {
@@ -178,7 +174,7 @@
   .alerta-mensagem { flex: 1; }
   .alerta-texto { font-size: 14px; font-weight: 600; color: white; display: block; }
   .alerta-subtexto { font-size: 11px; color: rgba(255,255,255,0.6); display: block; margin-top: 2px; }
-  .alerta-acoes { display: none; } /* Esconder o container antigo do botão */
+  .alerta-acoes { display: none; }
   
   .view-toggle { display: flex; gap: 8px; }
   .view-btn { padding: 8px 20px; background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 40px; color: white; cursor: pointer; font-size: 13px; transition: all 0.3s; }
@@ -444,12 +440,8 @@
   
   @media (max-width: 1023px) {
     .top-section {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    .dashboard-alerta {
-      height: auto;
-      min-height: 56px;
+      flex-direction: column;
+      align-items: stretch;
     }
     .botoes-topo {
       justify-content: flex-start;
@@ -498,18 +490,16 @@
     </div>
   </div>
   
-  <!-- AJUSTE BANNER E BOTÕES - com botão Ver agora ao lado do texto -->
+  <!-- AJUSTE BANNER E BOTÕES - com banner inline-flex -->
   <div class="top-section">
-    <div class="dashboard-alerta" id="dashboardAlerta" style="display: none;">
-      <div class="alerta-conteudo">
-        <div class="banner-esquerda">
-          <span class="icon-notif"><i class="fas fa-bell" style="font-size: 18px; color: rgba(255,255,255,0.7);"></i><span class="badge-notif" id="alertaBadgeNotif" style="display: none;"></span></span>
-          <div>
-            <span class="alerta-texto" id="alertaTexto">Você tem tarefas pendentes!</span>
-            <span class="alerta-subtexto" id="alertaSubtexto">Organize seu dia 🎯</span>
-          </div>
-          <button class="btn-ver-agora" id="alertaBtn" onclick="irParaHoje()">Ver agora</button>
+    <div class="banner-tarefas" id="dashboardAlerta" style="display: none;">
+      <div class="banner-esquerda">
+        <span class="icon-notif"><i class="fas fa-bell" style="font-size: 18px; color: rgba(255,255,255,0.7);"></i><span class="badge-notif" id="alertaBadgeNotif" style="display: none;"></span></span>
+        <div>
+          <span class="alerta-texto" id="alertaTexto">Você tem tarefas pendentes!</span>
+          <span class="alerta-subtexto" id="alertaSubtexto">Organize seu dia 🎯</span>
         </div>
+        <button class="btn-ver-agora" id="alertaBtn" onclick="irParaHoje()">Ver agora</button>
       </div>
     </div>
     <div class="botoes-topo">
@@ -632,7 +622,6 @@
     
     if (pendentes > 0) { 
       alertaDiv.style.display = 'flex'; 
-      alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; 
       if (alertaBadgeNotif) {
         alertaBadgeNotif.style.display = 'block';
       }
@@ -654,7 +643,7 @@
     } 
   }
   
-  function verificarConclusaoTotal() { const hoje = getDataHoje(); const totalPendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; const totalHoje = tarefas.filter(t => t.data === hoje).length; const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; if (totalPendentes === 0 && totalHoje > 0) { const horasFoco = Math.floor(tempoTotalFocado / 3600); const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); let mensagem = '', subMensagem = ''; if (concluidasHoje === 1) { mensagem = `🎉 Parabéns! Você concluiu sua tarefa de hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco acumulado. Continue assim! 🌟`; } else if (concluidasHoje >= 3) { mensagem = `🏆 INCRÍVEL! Você concluiu TODAS as ${concluidasHoje} tarefas do dia!`; subMensagem = `🔥 ${horasFoco}h ${minutosFoco}m de foco intenso! Você é uma máquina! 🚀`; } else if (concluidasHoje > 0) { mensagem = `✨ Parabéns! Você concluiu ${concluidasHoje} de ${totalHoje} tarefas hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco. Continue produtivo! 💪`; } const alertaDiv = document.getElementById('dashboardAlerta'); if (alertaDiv) { alertaDiv.style.display = 'flex'; alertaDiv.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.3))'; document.getElementById('alertaTexto').innerHTML = mensagem; document.getElementById('alertaSubtexto').innerHTML = subMensagem; const alertaBtn = document.getElementById('alertaBtn'); if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-share-alt"></i> Compartilhar conquista'; alertaBtn.onclick = () => { if (navigator.share) { navigator.share({ title: 'Minha conquista no FLUXO', text: mensagem, }); } else { alert(mensagem + '\n\n' + subMensagem); } }; } setTimeout(() => { if (totalPendentes === 0) { alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; document.getElementById('alertaTexto').innerHTML = 'Você não tem tarefas pendentes hoje!'; document.getElementById('alertaSubtexto').innerHTML = 'Aproveite seu dia 🎯'; if (alertaBtn) { alertaBtn.innerHTML = 'Ver agora'; alertaBtn.onclick = () => irParaHoje(); } } }, 8000); } if (Notification.permission === 'granted') { new Notification('🎯 FLUXO - Dia Concluído!', { body: mensagem, icon: '🏆' }); } } }
+  function verificarConclusaoTotal() { const hoje = getDataHoje(); const totalPendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; const totalHoje = tarefas.filter(t => t.data === hoje).length; const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; if (totalPendentes === 0 && totalHoje > 0) { const horasFoco = Math.floor(tempoTotalFocado / 3600); const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); let mensagem = '', subMensagem = ''; if (concluidasHoje === 1) { mensagem = `🎉 Parabéns! Você concluiu sua tarefa de hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco acumulado. Continue assim! 🌟`; } else if (concluidasHoje >= 3) { mensagem = `🏆 INCRÍVEL! Você concluiu TODAS as ${concluidasHoje} tarefas do dia!`; subMensagem = `🔥 ${horasFoco}h ${minutosFoco}m de foco intenso! Você é uma máquina! 🚀`; } else if (concluidasHoje > 0) { mensagem = `✨ Parabéns! Você concluiu ${concluidasHoje} de ${totalHoje} tarefas hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco. Continue produtivo! 💪`; } const alertaDiv = document.getElementById('dashboardAlerta'); if (alertaDiv) { alertaDiv.style.display = 'flex'; document.getElementById('alertaTexto').innerHTML = mensagem; document.getElementById('alertaSubtexto').innerHTML = subMensagem; const alertaBtn = document.getElementById('alertaBtn'); if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-share-alt"></i> Compartilhar conquista'; alertaBtn.onclick = () => { if (navigator.share) { navigator.share({ title: 'Minha conquista no FLUXO', text: mensagem, }); } else { alert(mensagem + '\n\n' + subMensagem); } }; } setTimeout(() => { if (totalPendentes === 0) { document.getElementById('alertaTexto').innerHTML = 'Você não tem tarefas pendentes hoje!'; document.getElementById('alertaSubtexto').innerHTML = 'Aproveite seu dia 🎯'; if (alertaBtn) { alertaBtn.innerHTML = 'Ver agora'; alertaBtn.onclick = () => irParaHoje(); } } }, 8000); } if (Notification.permission === 'granted') { new Notification('🎯 FLUXO - Dia Concluído!', { body: mensagem, icon: '🏆' }); } } }
   
   function renderizarMetasCompactas() { const container = document.getElementById('metasCompactasGrid'); if (!container) return; const metasAtivas = metas.filter(m => !m.atingida); const metasConcluidas = metas.filter(m => m.atingida); const todasMetas = [...metasAtivas, ...metasConcluidas]; if (todasMetas.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:16px; color:rgba(255,255,255,0.5); font-size:12px;"><i class="fas fa-flag-checkered"></i> Nenhuma meta definida</div>'; return; } container.innerHTML = todasMetas.map(meta => `<div class="meta-compact-card ${meta.atingida ? 'atingida' : ''}"><div class="meta-compact-checkbox" onclick="toggleMeta(${meta.id})"><i class="fas fa-check"></i></div><div class="meta-compact-info"><div class="meta-compact-texto" title="${escapeHtml(meta.texto)}">${escapeHtml(meta.texto.length > 30 ? meta.texto.substring(0,30) + '...' : meta.texto)}</div><div class="meta-compact-categoria"><i class="fas fa-tag"></i> ${escapeHtml(meta.categoria)}</div></div><div class="meta-compact-actions"><button onclick="editarMeta(${meta.id})" title="Editar"><i class="fas fa-edit"></i></button><button onclick="excluirMeta(${meta.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button></div></div>`).join(''); }
   let metasExpandidas = false;
