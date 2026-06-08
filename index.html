@@ -91,10 +91,11 @@
   }
   .dashboard-alerta {
     margin-bottom: 0;
-    height: 56px;
+    height: auto;
+    min-height: 56px;
     display: flex;
     align-items: center;
-    padding: 0 16px;
+    padding: 8px 16px;
     background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25));
     backdrop-filter: blur(16px);
     border-radius: 16px;
@@ -104,11 +105,64 @@
   .dashboard-alerta .alerta-conteudo {
     padding: 0;
     width: 100%;
+  }
+  
+  /* AJUSTE BANNER - botão ao lado do texto */
+  .banner-esquerda {
     display: flex;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
   }
+  .btn-ver-agora {
+    margin-left: 8px;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 13px;
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 6px;
+    color: #a855f7;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-ver-agora:hover {
+    background: rgba(124, 58, 237, 0.35);
+  }
+  
+  /* ÍCONE DE NOTIFICAÇÃO MAIS CLEAN */
+  .icon-notif {
+    width: 20px;
+    height: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    stroke-width: 1.5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .badge-notif {
+    background: #ef4444;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    border: 2px solid #1a1a1a;
+  }
+  
+  @media (max-width: 640px) {
+    .banner-esquerda { 
+      flex-wrap: wrap; 
+    }
+    .btn-ver-agora { 
+      margin-left: 32px; 
+      margin-top: 4px; 
+    }
+  }
+  
   .botoes-topo {
     display: flex;
     justify-content: flex-end;
@@ -124,7 +178,7 @@
   .alerta-mensagem { flex: 1; }
   .alerta-texto { font-size: 14px; font-weight: 600; color: white; display: block; }
   .alerta-subtexto { font-size: 11px; color: rgba(255,255,255,0.6); display: block; margin-top: 2px; }
-  .alerta-btn { background: linear-gradient(135deg, #667eea, #764ba2); border: none; padding: 6px 14px; border-radius: 30px; color: white; cursor: pointer; font-size: 12px; font-weight: 500; }
+  .alerta-acoes { display: none; } /* Esconder o container antigo do botão */
   
   .view-toggle { display: flex; gap: 8px; }
   .view-btn { padding: 8px 20px; background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 40px; color: white; cursor: pointer; font-size: 13px; transition: all 0.3s; }
@@ -444,16 +498,18 @@
     </div>
   </div>
   
-  <!-- AJUSTE BANNER E BOTÕES -->
+  <!-- AJUSTE BANNER E BOTÕES - com botão Ver agora ao lado do texto -->
   <div class="top-section">
     <div class="dashboard-alerta" id="dashboardAlerta" style="display: none;">
       <div class="alerta-conteudo">
-        <div class="alerta-icone"><i class="fas fa-bell"></i><span class="alerta-badge" id="alertaBadge">0</span></div>
-        <div class="alerta-mensagem">
-          <span class="alerta-texto" id="alertaTexto">Você tem tarefas pendentes!</span>
-          <span class="alerta-subtexto" id="alertaSubtexto">Organize seu dia 🎯</span>
+        <div class="banner-esquerda">
+          <span class="icon-notif"><i class="fas fa-bell" style="font-size: 18px; color: rgba(255,255,255,0.7);"></i><span class="badge-notif" id="alertaBadgeNotif" style="display: none;"></span></span>
+          <div>
+            <span class="alerta-texto" id="alertaTexto">Você tem tarefas pendentes!</span>
+            <span class="alerta-subtexto" id="alertaSubtexto">Organize seu dia 🎯</span>
+          </div>
+          <button class="btn-ver-agora" id="alertaBtn" onclick="irParaHoje()">Ver agora</button>
         </div>
-        <div class="alerta-acoes"><button class="alerta-btn" id="alertaBtn" onclick="irParaHoje()"><i class="fas fa-calendar-day"></i> Ver agora</button></div>
       </div>
     </div>
     <div class="botoes-topo">
@@ -536,7 +592,6 @@
   let dataCalendario = new Date();
   let intervalosNotificacoes = [];
   
-  // AJUSTE HEADER - Atualizar data no header
   function atualizarDataHeader() {
     const hoje = new Date();
     const dataFormatada = hoje.toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
@@ -567,9 +622,39 @@
   
   function verificarResetFocoDiario() { const hoje = getDataHoje(); if (ultimaDataFoco !== hoje) { tempoFocadoHoje = 0; localStorage.setItem('tempoFocadoHoje', '0'); localStorage.setItem('ultimaDataFoco', hoje); ultimaDataFoco = hoje; console.log('🔄 Tempo focado resetado para o novo dia:', hoje); salvarDados(); } }
   
-  function atualizarDashboard() { const hoje = getDataHoje(); const pendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; const alertaDiv = document.getElementById('dashboardAlerta'); const alertaBadge = document.getElementById('alertaBadge'); const alertaTexto = document.getElementById('alertaTexto'); const alertaSubtexto = document.getElementById('alertaSubtexto'); if (pendentes > 0) { alertaDiv.style.display = 'flex'; alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; alertaBadge.textContent = pendentes; if (pendentes === 1) { alertaTexto.textContent = 'Você tem 1 tarefa pendente'; alertaSubtexto.textContent = 'Não deixe para depois! 🎯'; } else { alertaTexto.textContent = `Você tem ${pendentes} tarefas pendentes`; alertaSubtexto.textContent = 'Organize seu dia e conclua suas metas! 💪'; } const alertaBtn = document.getElementById('alertaBtn'); if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Ver agora'; alertaBtn.onclick = () => irParaHoje(); } } else { const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; if (concluidasHoje > 0) { verificarConclusaoTotal(); } else { alertaDiv.style.display = 'none'; } } }
+  function atualizarDashboard() { 
+    const hoje = getDataHoje(); 
+    const pendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; 
+    const alertaDiv = document.getElementById('dashboardAlerta'); 
+    const alertaTexto = document.getElementById('alertaTexto'); 
+    const alertaSubtexto = document.getElementById('alertaSubtexto');
+    const alertaBadgeNotif = document.getElementById('alertaBadgeNotif');
+    
+    if (pendentes > 0) { 
+      alertaDiv.style.display = 'flex'; 
+      alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; 
+      if (alertaBadgeNotif) {
+        alertaBadgeNotif.style.display = 'block';
+      }
+      if (pendentes === 1) { 
+        alertaTexto.textContent = 'Você tem 1 tarefa pendente'; 
+        alertaSubtexto.textContent = 'Não deixe para depois! 🎯'; 
+      } else { 
+        alertaTexto.textContent = `Você tem ${pendentes} tarefas pendentes`; 
+        alertaSubtexto.textContent = 'Organize seu dia e conclua suas metas! 💪'; 
+      } 
+    } else { 
+      const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; 
+      if (concluidasHoje > 0) { 
+        verificarConclusaoTotal(); 
+      } else { 
+        alertaDiv.style.display = 'none'; 
+        if (alertaBadgeNotif) alertaBadgeNotif.style.display = 'none';
+      } 
+    } 
+  }
   
-  function verificarConclusaoTotal() { const hoje = getDataHoje(); const totalPendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; const totalHoje = tarefas.filter(t => t.data === hoje).length; const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; if (totalPendentes === 0 && totalHoje > 0) { const horasFoco = Math.floor(tempoTotalFocado / 3600); const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); let mensagem = '', subMensagem = ''; if (concluidasHoje === 1) { mensagem = `🎉 Parabéns! Você concluiu sua tarefa de hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco acumulado. Continue assim! 🌟`; } else if (concluidasHoje >= 3) { mensagem = `🏆 INCRÍVEL! Você concluiu TODAS as ${concluidasHoje} tarefas do dia!`; subMensagem = `🔥 ${horasFoco}h ${minutosFoco}m de foco intenso! Você é uma máquina! 🚀`; } else if (concluidasHoje > 0) { mensagem = `✨ Parabéns! Você concluiu ${concluidasHoje} de ${totalHoje} tarefas hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco. Continue produtivo! 💪`; } const alertaDiv = document.getElementById('dashboardAlerta'); if (alertaDiv) { alertaDiv.style.display = 'flex'; alertaDiv.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.3))'; document.getElementById('alertaBadge').textContent = '🎉'; document.getElementById('alertaTexto').innerHTML = mensagem; document.getElementById('alertaSubtexto').innerHTML = subMensagem; const alertaBtn = document.getElementById('alertaBtn'); if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-share-alt"></i> Compartilhar conquista'; alertaBtn.onclick = () => { if (navigator.share) { navigator.share({ title: 'Minha conquista no FLUXO', text: mensagem, }); } else { alert(mensagem + '\n\n' + subMensagem); } }; } setTimeout(() => { if (totalPendentes === 0) { alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; document.getElementById('alertaBadge').textContent = '0'; document.getElementById('alertaTexto').innerHTML = 'Você não tem tarefas pendentes hoje!'; document.getElementById('alertaSubtexto').innerHTML = 'Aproveite seu dia 🎯'; if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Ver agora'; alertaBtn.onclick = () => irParaHoje(); } } }, 8000); } if (Notification.permission === 'granted') { new Notification('🎯 FLUXO - Dia Concluído!', { body: mensagem, icon: '🏆' }); } } }
+  function verificarConclusaoTotal() { const hoje = getDataHoje(); const totalPendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; const totalHoje = tarefas.filter(t => t.data === hoje).length; const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; if (totalPendentes === 0 && totalHoje > 0) { const horasFoco = Math.floor(tempoTotalFocado / 3600); const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); let mensagem = '', subMensagem = ''; if (concluidasHoje === 1) { mensagem = `🎉 Parabéns! Você concluiu sua tarefa de hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco acumulado. Continue assim! 🌟`; } else if (concluidasHoje >= 3) { mensagem = `🏆 INCRÍVEL! Você concluiu TODAS as ${concluidasHoje} tarefas do dia!`; subMensagem = `🔥 ${horasFoco}h ${minutosFoco}m de foco intenso! Você é uma máquina! 🚀`; } else if (concluidasHoje > 0) { mensagem = `✨ Parabéns! Você concluiu ${concluidasHoje} de ${totalHoje} tarefas hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco. Continue produtivo! 💪`; } const alertaDiv = document.getElementById('dashboardAlerta'); if (alertaDiv) { alertaDiv.style.display = 'flex'; alertaDiv.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.3))'; document.getElementById('alertaTexto').innerHTML = mensagem; document.getElementById('alertaSubtexto').innerHTML = subMensagem; const alertaBtn = document.getElementById('alertaBtn'); if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-share-alt"></i> Compartilhar conquista'; alertaBtn.onclick = () => { if (navigator.share) { navigator.share({ title: 'Minha conquista no FLUXO', text: mensagem, }); } else { alert(mensagem + '\n\n' + subMensagem); } }; } setTimeout(() => { if (totalPendentes === 0) { alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; document.getElementById('alertaTexto').innerHTML = 'Você não tem tarefas pendentes hoje!'; document.getElementById('alertaSubtexto').innerHTML = 'Aproveite seu dia 🎯'; if (alertaBtn) { alertaBtn.innerHTML = 'Ver agora'; alertaBtn.onclick = () => irParaHoje(); } } }, 8000); } if (Notification.permission === 'granted') { new Notification('🎯 FLUXO - Dia Concluído!', { body: mensagem, icon: '🏆' }); } } }
   
   function renderizarMetasCompactas() { const container = document.getElementById('metasCompactasGrid'); if (!container) return; const metasAtivas = metas.filter(m => !m.atingida); const metasConcluidas = metas.filter(m => m.atingida); const todasMetas = [...metasAtivas, ...metasConcluidas]; if (todasMetas.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:16px; color:rgba(255,255,255,0.5); font-size:12px;"><i class="fas fa-flag-checkered"></i> Nenhuma meta definida</div>'; return; } container.innerHTML = todasMetas.map(meta => `<div class="meta-compact-card ${meta.atingida ? 'atingida' : ''}"><div class="meta-compact-checkbox" onclick="toggleMeta(${meta.id})"><i class="fas fa-check"></i></div><div class="meta-compact-info"><div class="meta-compact-texto" title="${escapeHtml(meta.texto)}">${escapeHtml(meta.texto.length > 30 ? meta.texto.substring(0,30) + '...' : meta.texto)}</div><div class="meta-compact-categoria"><i class="fas fa-tag"></i> ${escapeHtml(meta.categoria)}</div></div><div class="meta-compact-actions"><button onclick="editarMeta(${meta.id})" title="Editar"><i class="fas fa-edit"></i></button><button onclick="excluirMeta(${meta.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button></div></div>`).join(''); }
   let metasExpandidas = false;
