@@ -44,6 +44,9 @@
   .view-toggle { display: flex; gap: 8px; }
   .view-btn { padding: 8px 20px; background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 40px; color: white; cursor: pointer; font-size: 13px; transition: all 0.3s; }
   .view-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); }
+  .action-buttons { display: flex; gap: 10px; }
+  .action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; color: white; cursor: pointer; font-size: 12px; transition: all 0.3s; white-space: nowrap; }
+  .action-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
   .metas-dashboard { background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.08); display: none; }
   .metas-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
   .metas-header h2 { color: white; font-size: 18px; display: flex; align-items: center; gap: 8px; }
@@ -92,12 +95,6 @@
   .inline-form-buttons button { flex: 1; padding: 6px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; font-size: 12px; }
   .btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
   .btn-cancel { background: rgba(255, 255, 255, 0.1); color: white; }
-  .filtros { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
-  .filtro-btn { padding: 6px 16px; background: rgba(26,27,38,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 40px; color: white; cursor: pointer; font-size: 13px; transition: all 0.3s; }
-  .filtro-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); }
-  .action-buttons { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; color: white; cursor: pointer; font-size: 12px; transition: all 0.3s; }
-  .action-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
   .modal-foco-overlay.show { display: flex; }
   .modal-foco-conteudo { background: rgba(26,27,38,0.95); backdrop-filter: blur(24px); padding: 24px; border-radius: 24px; max-width: 90%; width: 400px; text-align: center; }
@@ -142,7 +139,6 @@
   .btn-musica { background: #17a2b8; padding: 6px 16px; border: none; border-radius: 20px; cursor: pointer; color: white; font-size: 12px; }
   .backup-acoes { margin-top: 16px; display: flex; gap: 12px; justify-content: center; }
   .sync-indicator { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; z-index: 9999; opacity: 0; transition: opacity 0.3s; }
-  
   .dashboard-alerta { background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25)); backdrop-filter: blur(16px); border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
   .alerta-conteudo { display: flex; align-items: center; gap: 12px; padding: 12px 16px; flex-wrap: wrap; }
@@ -152,7 +148,6 @@
   .alerta-texto { font-size: 14px; font-weight: 600; color: white; display: block; }
   .alerta-subtexto { font-size: 11px; color: rgba(255,255,255,0.6); display: block; margin-top: 2px; }
   .alerta-btn { background: linear-gradient(135deg, #667eea, #764ba2); border: none; padding: 6px 14px; border-radius: 30px; color: white; cursor: pointer; font-size: 12px; font-weight: 500; }
-  
   .metas-compactas { background: rgba(26, 27, 38, 0.5); backdrop-filter: blur(16px); border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
   .metas-compactas-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.05); }
   .metas-compactas-header span { color: white; font-size: 13px; font-weight: 600; }
@@ -171,8 +166,7 @@
   .meta-compact-categoria { font-size: 9px; color: #fbbf24; margin-top: 2px; }
   .meta-compact-actions button { background: transparent; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 10px; padding: 2px; }
   .meta-compact-actions button:hover { color: white; }
-  
-  @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .blocos-tarefas { grid-template-columns: 1fr; } .calendario-grade { gap: 6px; } .calendario-dia { min-height: 110px; } }
+  @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .blocos-tarefas { grid-template-columns: 1fr; } .calendario-grade { gap: 6px; } .calendario-dia { min-height: 110px; } .action-buttons { width: 100%; justify-content: center; } }
 </style>
 </head>
 <body>
@@ -197,24 +191,9 @@
   
   <div id="statusConnection" class="status-online"><i class="fas fa-wifi"></i> Online</div>
   
-  <div class="top-bar"><div class="view-toggle"><button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button><button class="view-btn" onclick="toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button></div></div>
+  <div class="top-bar"><div class="view-toggle"><button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button><button class="view-btn" onclick="toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button></div><div class="action-buttons"><button class="action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button><button class="action-btn" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button></div></div>
   
-  <div id="cardsView">
-    <div class="filtros">
-      <button class="filtro-btn active" onclick="setFiltro('hoje',this)"><i class="fas fa-calendar-day"></i> Hoje</button>
-      <select id="filtroPrioridade" onchange="filtrarPorPrioridade()" style="background:rgba(0,0,0,0.5);color:white;border-radius:20px;padding:4px 12px;border:1px solid rgba(255,255,255,0.2);font-size:12px;">
-        <option value="todas">Todas prioridades</option>
-        <option value="p1">🔴 Alta</option>
-        <option value="p2">🟡 Média</option>
-        <option value="p3">🟢 Baixa</option>
-      </select>
-    </div>
-    <div class="action-buttons">
-      <button class="action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button>
-      <button class="action-btn" onclick="marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button>
-    </div>
-    <div class="blocos-tarefas" id="blocosTarefas"></div>
-  </div>
+  <div id="cardsView"><div class="blocos-tarefas" id="blocosTarefas"></div></div>
   
   <div id="calendarioView" style="display:none;"><div class="calendario-nav"><div class="calendario-nav-buttons"><button class="btn-glass" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button><button class="btn-glass" onclick="mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button></div><span id="calendarioMes" style="color:white;font-weight:600;font-size:18px;"></span><div class="calendario-nav-buttons"><button class="btn-glass" onclick="irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button><button class="btn-glass" onclick="irParaData()"><i class="fas fa-search"></i> Ir para data</button></div></div><div id="calendarioGrade" class="calendario-grade"></div></div>
   
@@ -252,7 +231,6 @@
   let metas = JSON.parse(localStorage.getItem('metas') || '[]');
   let cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas') || '[]');
   if(cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
-  let filtroAtual = 'hoje', filtroPrioridade = 'todas';
   let tempoTotalFocado = parseInt(localStorage.getItem('tempoTotalFocado') || '0');
   let tempoFocadoHoje = parseInt(localStorage.getItem('tempoFocadoHoje') || '0');
   let ultimaDataFoco = localStorage.getItem('ultimaDataFoco') || '';
@@ -296,7 +274,6 @@
   function ajustarVolumeFoco(val) { if(lofiAudioElement) lofiAudioElement.volume = val / 100; }
   function tocarSino() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const now = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'sine'; osc.frequency.value = 880; gain.gain.value = 0.25; osc.connect(gain); gain.connect(ctx.destination); osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, now + 10); osc.stop(now + 10); setTimeout(() => ctx.close(), 11000); } catch(e) {} }
   
-  // ========== FUNÇÃO DE RESET DIÁRIO CORRIGIDA (SEM DUPLICATAS) ==========
   function verificarResetDiario() { 
       const hoje = getDataHoje(); 
       if (ultimaDataReset !== hoje) { 
@@ -336,14 +313,11 @@
       }
   }
   
-  // ========== VERIFICAÇÃO DE DUPLICATA MELHORADA (INCLUI CONCLUÍDAS) ==========
   function verificarTarefaDuplicada(texto, data, cardNome, idIgnorar = null, incluirConcluidas = true) {
       return tarefas.some(t => {
           if(idIgnorar && t.id === idIgnorar) return false;
           if(!incluirConcluidas && t.concluida) return false;
-          return t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && 
-                 t.data === data && 
-                 t.bloco === cardNome;
+          return t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && t.data === data && t.bloco === cardNome;
       });
   }
   
@@ -370,12 +344,9 @@
   function toggleTarefa(id) { const t = tarefas.find(t=>t.id===id); if(t) { if(!t.concluida) concluirComDuplicatas(id); else { t.concluida = false; salvarDados(); } } }
   function excluirCardTarefa(id) { const card = cardsTarefas.find(c => c.id === id); if(!card) return; const tarefasDoCard = tarefas.filter(t => t.bloco === card.nome); const tarefasAtivas = tarefasDoCard.filter(t => !t.concluida).length; const tarefasConcluidas = tarefasDoCard.filter(t => t.concluida).length; if(tarefasDoCard.length === 0) { if(confirm(`Excluir o card "${card.nome}"?`)) { cardsTarefas = cardsTarefas.filter(c => c.id !== id); salvarDados(); alert(`✅ Card "${card.nome}" excluído!`); } return; } let mensagem = `🗑️ EXCLUIR CARD: "${card.nome}"\n\n📊 Este card contém:\n   📋 ${tarefasAtivas} tarefa(s) ATIVA(S)\n   ✅ ${tarefasConcluidas} tarefa(s) CONCLUÍDA(S)\n\nEscolha uma opção:\n1 - Mover tarefas para outro card\n2 - Excluir TODAS as tarefas junto com o card\n3 - Cancelar`; const opcao = prompt(mensagem); if(opcao === '1') { const outrosCards = cardsTarefas.filter(c => c.id !== id); if(outrosCards.length === 0) { alert('❌ Não há outro card para mover as tarefas! Crie um novo card primeiro.'); return; } let listaCards = "Escolha o card de destino:\n"; outrosCards.forEach((c, idx) => { listaCards += `${idx + 1} - ${c.nome}\n`; }); const destinoIdx = prompt(listaCards); if(destinoIdx && destinoIdx >= 1 && destinoIdx <= outrosCards.length) { const cardDestino = outrosCards[destinoIdx - 1]; tarefasDoCard.forEach(t => { t.bloco = cardDestino.nome; }); cardsTarefas = cardsTarefas.filter(c => c.id !== id); salvarDados(); alert(`✅ Card "${card.nome}" excluído!\n📦 ${tarefasDoCard.length} tarefa(s) movidas para "${cardDestino.nome}"`); } else { alert('❌ Operação cancelada.'); } } else if(opcao === '2') { if(confirm(`⚠️ ATENÇÃO: Isso irá excluir PERMANENTEMENTE o card "${card.nome}" e TODAS as ${tarefasDoCard.length} tarefas associadas.\n\nTem certeza?`)) { tarefas = tarefas.filter(t => t.bloco !== card.nome); cardsTarefas = cardsTarefas.filter(c => c.id !== id); salvarDados(); alert(`✅ Card "${card.nome}" e ${tarefasDoCard.length} tarefa(s) excluídos!`); } } }
   function excluirTarefa(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; const temRecorrencia = tarefa.recorrencia && tarefa.recorrencia !== ''; if(temRecorrencia) { const tarefasRecorrentes = tarefas.filter(t => t.texto === tarefa.texto && t.recorrencia === tarefa.recorrencia && !t.concluida).sort((a, b) => (a.data || '').localeCompare(b.data || '')); const totalRecorrentes = tarefasRecorrentes.length; let mensagem = `🗑️ EXCLUIR TAREFA RECORRENTE\n\n"${tarefa.texto}"\n🔄 Recorrência: ${tarefa.recorrencia}\n📅 Data: ${tarefa.data || 'sem data'}\n\nExistem ${totalRecorrentes} ocorrência(s) desta tarefa.\n\nEscolha uma opção:\n1 - Excluir APENAS esta ocorrência\n2 - Excluir TODAS as ocorrências (${totalRecorrentes} tarefas)\n3 - Cancelar`; const opcao = prompt(mensagem); if(opcao === '1') { if(confirm(`Confirmar exclusão da tarefa "${tarefa.texto}"?`)) { tarefas = tarefas.filter(t => t.id !== id); salvarDados(); alert(`✅ Tarefa excluída!`); } } else if(opcao === '2') { if(confirm(`⚠️ ATENÇÃO: Isso irá excluir TODAS as ${totalRecorrentes} ocorrências da tarefa "${tarefa.texto}".\n\nTem certeza?`)) { const idsParaExcluir = tarefasRecorrentes.map(t => t.id); tarefas = tarefas.filter(t => !idsParaExcluir.includes(t.id)); salvarDados(); alert(`✅ ${totalRecorrentes} tarefa(s) recorrente(s) excluída(s)!`); } } } else { if(confirm(`Excluir tarefa "${tarefa.texto}"?`)) { tarefas = tarefas.filter(t => t.id !== id); salvarDados(); alert(`✅ Tarefa excluída!`); } } }
-  function setFiltro(filtro, btn) { filtroAtual = filtro; document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderizarTarefas(); }
-  function filtrarPorPrioridade() { filtroPrioridade = document.getElementById('filtroPrioridade').value; renderizarTarefas(); }
   function adicionarCardTarefa() { const nome = prompt('📋 Nome do novo espaço:'); if(nome && nome.trim()) { cardsTarefas.push({ id:'card_'+Date.now(), nome:nome.trim() }); salvarDados(); alert(`✅ Espaço "${nome}" criado!`); } }
   function editarCardTarefa(id) { const card = cardsTarefas.find(c=>c.id===id); if(card){ const novo = prompt('Editar nome:', card.nome); if(novo && novo.trim()){ card.nome=novo.trim(); salvarDados(); } } }
   
-  // ========== FUNÇÃO CORRIGIDA - REATIVA OU AVISA SOBRE DUPLICATAS ==========
   function adicionarTarefaInline(cardNome) { 
       const texto = document.getElementById(`texto-${cardNome}`)?.value.trim(); 
       if(!texto) { alert('Digite uma tarefa!'); return; }
@@ -383,7 +354,6 @@
       const prioridade = document.getElementById(`prioridade-${cardNome}`)?.value || 'p3'; 
       const recorrencia = document.getElementById(`recorrencia-${cardNome}`)?.value || ''; 
       
-      // VERIFICAR SE JÁ EXISTE TAREFA CONCLUÍDA COM MESMO NOME E DATA
       const duplicadaConcluida = tarefas.some(t => 
           t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && 
           t.data === data && 
@@ -411,7 +381,6 @@
           }
       }
       
-      // VERIFICAR SE JÁ EXISTE TAREFA ATIVA COM MESMO NOME E DATA
       if(verificarTarefaDuplicada(texto, data, cardNome)) {
           const confirmar = confirm(`⚠️ Já existe uma tarefa ATIVA "${texto}" para ${data}.\n\nDeseja marcar a existente como concluída e criar uma nova?`);
           if(confirmar) {
@@ -431,7 +400,7 @@
   
   function mostrarFormAdicionar(cardNome) { const f = document.getElementById(`form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`); if(f) f.classList.toggle('show'); }
   function marcarTodasHoje() { const hoje = getDataHoje(); const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida); if(alvos.length===0) return alert('🎉 Nenhuma tarefa pendente para hoje!'); if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){ alvos.forEach(t=>t.concluida=true); salvarDados(); alert(`✅ ${alvos.length} tarefa(s) concluída(s)!`); } }
-  function renderizarTarefas() { const container = document.getElementById('blocosTarefas'); if(!container) return; const hoje = getDataHoje(); container.innerHTML = ''; cardsTarefas.forEach(card => { let lista = tarefas.filter(t=>t.bloco===card.nome); if(filtroAtual==='hoje') { lista = lista.filter(t => { if(!t.data || t.concluida) return false; return t.data === hoje || t.data < hoje; }); } else { lista = lista.filter(t=>!t.concluida); } if(filtroPrioridade!=='todas') { lista = lista.filter(t=>t.prioridade===filtroPrioridade); } const ativas = lista.filter(t=>!t.concluida).length; const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`; const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'}; const isAtrasada = (data) => data && data < hoje; const div = document.createElement('div'); div.className='bloco-tarefa'; div.setAttribute('data-card-nome', card.nome); div.setAttribute('ondragover', 'permitirDropCard(event)'); div.setAttribute('ondragleave', 'removerDragOver(event)'); div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div>
+  function renderizarTarefas() { const container = document.getElementById('blocosTarefas'); if(!container) return; const hoje = getDataHoje(); container.innerHTML = ''; cardsTarefas.forEach(card => { let lista = tarefas.filter(t=>t.bloco===card.nome); lista = lista.filter(t => { if(!t.data || t.concluida) return false; return t.data === hoje || t.data < hoje; }); const ativas = lista.filter(t=>!t.concluida).length; const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`; const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'}; const isAtrasada = (data) => data && data < hoje; const div = document.createElement('div'); div.className='bloco-tarefa'; div.setAttribute('data-card-nome', card.nome); div.setAttribute('ondragover', 'permitirDropCard(event)'); div.setAttribute('ondragleave', 'removerDragOver(event)'); div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div>
         <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state" style="text-align:center;padding:30px;color:rgba(255,255,255,0.5);"><i class="fas fa-check-circle" style="font-size:28px;margin-bottom:8px;"></i><p style="font-size:12px;">Tudo certo por aqui</p><small style="font-size:10px;">Adicione uma tarefa</small></div>' : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`
             <div class="tarefa-item" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
                 <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
@@ -457,7 +426,7 @@
         </div>`; container.appendChild(div); }); const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); addCard.innerHTML='<div style="text-align:center;padding:30px;color:white;"><i class="fas fa-plus-circle" style="font-size:32px;margin-bottom:6px;"></i><p style="font-size:12px;">Novo Espaço</p></div>'; container.appendChild(addCard); }
   function renderizarEstatisticas() { const hoje = getDataHoje(); const atrasadas = tarefas.filter(t => t.data && t.data < hoje && !t.concluida).length; const hojeTarefas = tarefas.filter(t => t.data === hoje && !t.concluida).length; const tarefasPendentes = atrasadas + hojeTarefas; const tarefasHojeLista = tarefas.filter(t => t.data === hoje); const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length; const totalHoje = tarefasHojeLista.length; const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0; const horasFocoHoje = Math.floor(tempoFocadoHoje / 3600); const minutosFocoHoje = Math.floor((tempoFocadoHoje % 3600) / 60); const horasFocoTotal = Math.floor(tempoTotalFocado / 3600); const minutosFocoTotal = Math.floor((tempoTotalFocado % 3600) / 60); document.getElementById('statsGrid').innerHTML = `<div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">de ${totalHoje}</div></div><div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div><div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${tarefasPendentes}</div><div class="stat-label">Pendentes</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">${atrasadas} atrasadas</div></div><div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFocoHoje}h ${minutosFocoHoje}m</div><div class="stat-label">Foco Hoje</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">Total: ${horasFocoTotal}h ${minutosFocoTotal}m</div></div>`; }
   function mudarMes(d) { dataCalendario.setMonth(dataCalendario.getMonth() + d); renderizarCalendario(); }
-  function irParaHoje() { dataCalendario = new Date(); renderizarCalendario(); const btnHojeCard = document.querySelector('.filtro-btn.active'); if (!btnHojeCard || btnHojeCard.innerText !== 'Hoje') { const btnFiltroHoje = document.querySelector('.filtro-btn'); if (btnFiltroHoje) btnFiltroHoje.click(); } const tarefasContainer = document.getElementById('blocosTarefas'); if (tarefasContainer) { tarefasContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); } mostrarIndicadorSync('📅 Redirecionado para suas tarefas de hoje!'); }
+  function irParaHoje() { dataCalendario = new Date(); renderizarCalendario(); const tarefasContainer = document.getElementById('blocosTarefas'); if (tarefasContainer) { tarefasContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); } mostrarIndicadorSync('📅 Redirecionado para suas tarefas de hoje!'); }
   function irParaData() { const dataInput = prompt('Digite a data (YYYY-MM-DD):', getDataHoje()); if(dataInput && dataInput.match(/^\d{4}-\d{2}-\d{2}$/)) { const [ano, mes, dia] = dataInput.split('-'); dataCalendario = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia)); renderizarCalendario(); } else if(dataInput) { alert('Formato inválido! Use YYYY-MM-DD'); } }
   function concluirTarefaCalendario(id) { const tarefa = tarefas.find(t => t.id === id); if(tarefa && confirm(`Concluir "${tarefa.texto}"?`)) { tarefa.concluida = true; concluirComDuplicatas(id); salvarDados(); renderizarCalendario(); mostrarIndicadorSync('✅ Tarefa concluída!'); } }
   function abrirEditarTarefaCalendario(id) { editarTarefaCompleta(id); renderizarCalendario(); }
@@ -489,8 +458,6 @@
   window.editarTarefaCompleta = editarTarefaCompleta;
   window.adicionarMeta = adicionarMeta;
   window.toggleTarefa = toggleTarefa;
-  window.setFiltro = setFiltro;
-  window.filtrarPorPrioridade = filtrarPorPrioridade;
   window.adicionarCardTarefa = adicionarCardTarefa;
   window.editarCardTarefa = editarCardTarefa;
   window.mostrarFormAdicionar = mostrarFormAdicionar;
