@@ -218,10 +218,59 @@
   window.fazerCadastro = async () => { const pwd = document.getElementById('registerPassword').value; if(pwd !== document.getElementById('registerConfirm').value) { document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem'; return; } try { await createUserWithEmailAndPassword(auth, document.getElementById('registerEmail').value, pwd); alert('✅ Conta criada!'); } catch(e) { document.getElementById('registerErrorMessage').textContent = e.message; } };
   window.fazerLogout = () => signOut(auth); window.mostrarCadastro = () => { document.getElementById('loginForm').style.display='none'; document.getElementById('registerForm').style.display='block'; }; window.mostrarLogin = () => { document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; };
   let isSyncing = false;
-  async function salvarTudoFirebase() { if(!currentUser) return; if(isSyncing) return; isSyncing = true; try { const dados = { tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'), metas: JSON.parse(localStorage.getItem('metas') || '[]'), cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'), tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0'), tempoFocadoHoje: parseInt(localStorage.getItem('tempoFocadoHoje') || '0'), ultimaDataFoco: localStorage.getItem('ultimaDataFoco') || '', ultimaAtualizacao: new Date().toISOString() }; await setDoc(doc(db, "usuarios", currentUser.uid), dados); console.log('✅ Firebase sincronizado'); } catch(err) { console.error('❌ Erro no Firebase:', err); } finally { isSyncing = false; } }
-  async function carregarDadosFirebase() { if(!currentUser) return; try { const docRef = doc(db, "usuarios", currentUser.uid); const docSnap = await getDoc(docRef); if(docSnap.exists()){ const d = docSnap.data(); if(d.tarefas) localStorage.setItem('tarefas', JSON.stringify(d.tarefas)); if(d.metas) localStorage.setItem('metas', JSON.stringify(d.metas)); if(d.cardsTarefas && d.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(d.cardsTarefas)); if(d.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', d.tempoTotalFocado); if(d.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', d.tempoFocadoHoje); if(d.ultimaDataFoco) localStorage.setItem('ultimaDataFoco', d.ultimaDataFoco); console.log('✅ Dados carregados do Firebase'); } } catch(err) { console.error('❌ Erro ao carregar:', err); } }
+  async function salvarTudoFirebase() { 
+    if(!currentUser) return;
+    if(isSyncing) return;
+    isSyncing = true;
+    try {
+      const tarefasAtualizadas = JSON.parse(localStorage.getItem('tarefas') || '[]');
+      const metasAtualizadas = JSON.parse(localStorage.getItem('metas') || '[]');
+      const cardsAtualizados = JSON.parse(localStorage.getItem('cardsTarefas') || '[]');
+      const tempoTotal = parseInt(localStorage.getItem('tempoTotalFocado') || '0');
+      const tempoHoje = parseInt(localStorage.getItem('tempoFocadoHoje') || '0');
+      const ultimaData = localStorage.getItem('ultimaDataFoco') || '';
+      
+      const dados = { 
+        tarefas: tarefasAtualizadas,
+        metas: metasAtualizadas,
+        cardsTarefas: cardsAtualizados,
+        tempoTotalFocado: tempoTotal,
+        tempoFocadoHoje: tempoHoje,
+        ultimaDataFoco: ultimaData,
+        ultimaAtualizacao: new Date().toISOString()
+      };
+      await setDoc(doc(db, "usuarios", currentUser.uid), dados);
+      console.log('✅ Firebase sincronizado - Tempo focado hoje:', tempoHoje, 'segundos');
+    } catch(err) { 
+      console.error('❌ Erro no Firebase:', err); 
+    } finally { 
+      isSyncing = false; 
+    }
+  }
+  async function carregarDadosFirebase() { 
+    if(!currentUser) return; 
+    try {
+      const docRef = doc(db, "usuarios", currentUser.uid);
+      const docSnap = await getDoc(docRef); 
+      if(docSnap.exists()){ 
+        const d = docSnap.data(); 
+        if(d.tarefas) localStorage.setItem('tarefas', JSON.stringify(d.tarefas)); 
+        if(d.metas) localStorage.setItem('metas', JSON.stringify(d.metas)); 
+        if(d.cardsTarefas && d.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(d.cardsTarefas)); 
+        if(d.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', d.tempoTotalFocado);
+        if(d.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', d.tempoFocadoHoje);
+        if(d.ultimaDataFoco) localStorage.setItem('ultimaDataFoco', d.ultimaDataFoco);
+        console.log('✅ Dados carregados do Firebase - Tempo focado hoje:', d.tempoFocadoHoje || 0);
+        return true;
+      }
+    } catch(err) { 
+      console.error('❌ Erro ao carregar:', err); 
+    }
+    return false;
+  }
   window.salvarTudoFirebase = salvarTudoFirebase;
-  document.getElementById('logoutBtn').onclick = () => window.fazerLogout(); document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); else alert('Notificações já ativadas!'); };
+  document.getElementById('logoutBtn').onclick = () => window.fazerLogout(); 
+  document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); else alert('Notificações já ativadas!'); };
   window.togglePasswordVisibility = (id, btn) => { const inp = document.getElementById(id); if(inp.type === 'password'){ inp.type='text'; btn.innerHTML='<i class="far fa-eye-slash"></i>'; } else { inp.type='password'; btn.innerHTML='<i class="far fa-eye"></i>'; } };
   onAuthStateChanged(auth, async (user) => { if(user) { currentUser = user; window.currentUser = user; document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('userEmailTooltip').textContent = user.email; await carregarDadosFirebase(); if(window.recarregarSistema) window.recarregarSistema(); if(window.iniciarSincronizacaoPeriodica) window.iniciarSincronizacaoPeriodica(); } else { currentUser = null; window.currentUser = null; document.getElementById('loginOverlay').style.display='flex'; document.getElementById('mainApp').style.display='none'; if(window.syncInterval) clearInterval(window.syncInterval); } });
 </script>
@@ -243,7 +292,17 @@
   let dataCalendario = new Date();
   let intervalosNotificacoes = [];
   
-  function verificarResetFocoDiario() { const hoje = getDataHoje(); if (ultimaDataFoco !== hoje) { tempoFocadoHoje = 0; localStorage.setItem('tempoFocadoHoje', '0'); localStorage.setItem('ultimaDataFoco', hoje); console.log('🔄 Tempo focado resetado para o novo dia:', hoje); } }
+  function verificarResetFocoDiario() { 
+    const hoje = getDataHoje(); 
+    if (ultimaDataFoco !== hoje) { 
+      tempoFocadoHoje = 0; 
+      localStorage.setItem('tempoFocadoHoje', '0'); 
+      localStorage.setItem('ultimaDataFoco', hoje); 
+      ultimaDataFoco = hoje;
+      console.log('🔄 Tempo focado resetado para o novo dia:', hoje); 
+      salvarDados();
+    } 
+  }
   
   function atualizarDashboard() { const hoje = getDataHoje(); const pendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; const alertaDiv = document.getElementById('dashboardAlerta'); const alertaBadge = document.getElementById('alertaBadge'); const alertaTexto = document.getElementById('alertaTexto'); const alertaSubtexto = document.getElementById('alertaSubtexto'); if (pendentes > 0) { alertaDiv.style.display = 'block'; alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; alertaBadge.textContent = pendentes; if (pendentes === 1) { alertaTexto.textContent = 'Você tem 1 tarefa pendente'; alertaSubtexto.textContent = 'Não deixe para depois! 🎯'; } else { alertaTexto.textContent = `Você tem ${pendentes} tarefas pendentes`; alertaSubtexto.textContent = 'Organize seu dia e conclua suas metas! 💪'; } const alertaBtn = document.getElementById('alertaBtn'); if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Ver agora'; alertaBtn.onclick = () => irParaHoje(); } } else { const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; if (concluidasHoje > 0) { verificarConclusaoTotal(); } else { alertaDiv.style.display = 'none'; } } }
   
@@ -260,7 +319,30 @@
   function removerDragOver(event) { event.currentTarget.classList.remove('drag-over'); }
   function soltarTarefa(event, cardNomeDestino, tarefaIdDestino) { event.preventDefault(); event.currentTarget.classList.remove('drag-over'); if(!tarefaArrastandoId) return; if(tarefaArrastandoOrigem === cardNomeDestino && tarefaIdDestino) { reordenarTarefas(cardNomeDestino, tarefaArrastandoId, tarefaIdDestino); } else if(tarefaArrastandoOrigem !== cardNomeDestino) { const tarefa = tarefas.find(t => t.id === tarefaArrastandoId); if(tarefa) { tarefa.bloco = cardNomeDestino; salvarDados(); mostrarIndicadorSync(`📦 Tarefa movida para "${cardNomeDestino}"`); } } tarefaArrastandoId = null; tarefaArrastandoOrigem = null; document.querySelectorAll('.tarefa-item').forEach(el => el.classList.remove('dragging')); }
   function reordenarTarefas(cardNome, tarefaIdOrigem, tarefaIdDestino) { const tarefasDoCard = tarefas.filter(t => t.bloco === cardNome && !t.concluida).sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); const indexOrigem = tarefasDoCard.findIndex(t => t.id === tarefaIdOrigem); const indexDestino = tarefasDoCard.findIndex(t => t.id === tarefaIdDestino); if(indexOrigem === -1 || indexDestino === -1) return; const [item] = tarefasDoCard.splice(indexOrigem, 1); tarefasDoCard.splice(indexDestino, 0, item); tarefasDoCard.forEach((t, idx) => { const tarefaGlobal = tarefas.find(gt => gt.id === t.id); if(tarefaGlobal) tarefaGlobal.ordem = idx; }); salvarDados(); mostrarIndicadorSync('📌 Ordem atualizada'); }
-  function salvarDados() { localStorage.setItem('tarefas', JSON.stringify(tarefas)); localStorage.setItem('metas', JSON.stringify(metas)); localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas)); localStorage.setItem('tempoTotalFocado', tempoTotalFocado); localStorage.setItem('tempoFocadoHoje', tempoFocadoHoje); localStorage.setItem('ultimaDataFoco', ultimaDataFoco); renderizarTarefas(); renderizarMetas(); renderizarEstatisticas(); renderizarCalendario(); atualizarDashboard(); renderizarMetasCompactas(); verificarConclusaoTotal(); if(window.currentUser && window.salvarTudoFirebase) { if(syncTimeout) clearTimeout(syncTimeout); syncTimeout = setTimeout(() => { window.salvarTudoFirebase(); mostrarIndicadorSync('✅ Sincronizado'); }, 500); } }
+  
+  function salvarDados() { 
+    localStorage.setItem('tarefas', JSON.stringify(tarefas)); 
+    localStorage.setItem('metas', JSON.stringify(metas)); 
+    localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas)); 
+    localStorage.setItem('tempoTotalFocado', tempoTotalFocado); 
+    localStorage.setItem('tempoFocadoHoje', tempoFocadoHoje); 
+    localStorage.setItem('ultimaDataFoco', ultimaDataFoco); 
+    renderizarTarefas(); 
+    renderizarMetas(); 
+    renderizarEstatisticas(); 
+    renderizarCalendario(); 
+    atualizarDashboard(); 
+    renderizarMetasCompactas(); 
+    verificarConclusaoTotal(); 
+    if(window.currentUser && window.salvarTudoFirebase) { 
+      if(syncTimeout) clearTimeout(syncTimeout); 
+      syncTimeout = setTimeout(() => { 
+        window.salvarTudoFirebase(); 
+        mostrarIndicadorSync('✅ Sincronizado'); 
+      }, 500); 
+    } 
+  }
+  
   function mostrarIndicadorSync(mensagem) { let indicator = document.getElementById('syncIndicator'); if(!indicator) { indicator = document.createElement('div'); indicator.id = 'syncIndicator'; indicator.className = 'sync-indicator'; document.body.appendChild(indicator); } indicator.textContent = mensagem; indicator.style.opacity = '1'; setTimeout(() => { if(indicator) indicator.style.opacity = '0'; }, 2000); }
   function iniciarSincronizacaoPeriodica() { if(syncInterval) clearInterval(syncInterval); syncInterval = setInterval(() => { if(window.currentUser && window.salvarTudoFirebase) window.salvarTudoFirebase(); }, 30000); }
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
@@ -309,6 +391,7 @@
           }
           tarefas = [...tarefasAtualizadas, ...novasTarefas];
           localStorage.setItem('ultimaDataReset', hoje);
+          ultimaDataReset = hoje;
           salvarDados();
       }
   }
@@ -424,6 +507,7 @@
         <button class="add-tarefa-btn" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')"><i class="fas fa-plus-circle"></i> Adicionar Tarefa</button>
         <div class="inline-form" id="${formId}"><input type="text" id="texto-${escapeHtml(card.nome)}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${escapeHtml(card.nome)}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${escapeHtml(card.nome)}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${escapeHtml(card.nome)}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${escapeHtml(card.nome)}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('${formId}').classList.remove('show')">Cancelar</button></div></div>
         </div>`; container.appendChild(div); }); const addCard = document.createElement('div'); addCard.className='bloco-tarefa'; addCard.style.display='flex'; addCard.style.alignItems='center'; addCard.style.justifyContent='center'; addCard.style.cursor='pointer'; addCard.onclick=()=>adicionarCardTarefa(); addCard.innerHTML='<div style="text-align:center;padding:30px;color:white;"><i class="fas fa-plus-circle" style="font-size:32px;margin-bottom:6px;"></i><p style="font-size:12px;">Novo Espaço</p></div>'; container.appendChild(addCard); }
+  
   function renderizarEstatisticas() { const hoje = getDataHoje(); const atrasadas = tarefas.filter(t => t.data && t.data < hoje && !t.concluida).length; const hojeTarefas = tarefas.filter(t => t.data === hoje && !t.concluida).length; const tarefasPendentes = atrasadas + hojeTarefas; const tarefasHojeLista = tarefas.filter(t => t.data === hoje); const concluidasHoje = tarefasHojeLista.filter(t => t.concluida).length; const totalHoje = tarefasHojeLista.length; const taxaSucessoHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0; const horasFocoHoje = Math.floor(tempoFocadoHoje / 3600); const minutosFocoHoje = Math.floor((tempoFocadoHoje % 3600) / 60); const horasFocoTotal = Math.floor(tempoTotalFocado / 3600); const minutosFocoTotal = Math.floor((tempoTotalFocado % 3600) / 60); document.getElementById('statsGrid').innerHTML = `<div class="stat-card"><i class="fas fa-check-circle"></i><div class="stat-numero">${concluidasHoje}</div><div class="stat-label">Concluídas Hoje</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">de ${totalHoje}</div></div><div class="stat-card"><i class="fas fa-chart-simple"></i><div class="stat-numero">${taxaSucessoHoje}%</div><div class="stat-label">Taxa Hoje</div></div><div class="stat-card"><i class="fas fa-calendar-day"></i><div class="stat-numero">${tarefasPendentes}</div><div class="stat-label">Pendentes</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">${atrasadas} atrasadas</div></div><div class="stat-card"><i class="fas fa-hourglass-half"></i><div class="stat-numero">${horasFocoHoje}h ${minutosFocoHoje}m</div><div class="stat-label">Foco Hoje</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">Total: ${horasFocoTotal}h ${minutosFocoTotal}m</div></div>`; }
   function mudarMes(d) { dataCalendario.setMonth(dataCalendario.getMonth() + d); renderizarCalendario(); }
   function irParaHoje() { dataCalendario = new Date(); renderizarCalendario(); const tarefasContainer = document.getElementById('blocosTarefas'); if (tarefasContainer) { tarefasContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); } mostrarIndicadorSync('📅 Redirecionado para suas tarefas de hoje!'); }
@@ -436,7 +520,25 @@
   function toggleView(view) { document.getElementById('cardsView').style.display = view==='cards'?'block':'none'; document.getElementById('calendarioView').style.display = view==='calendario'?'block':'none'; document.querySelectorAll('.view-btn').forEach((btn,i)=>{ if((view==='cards' && i===0) || (view==='calendario' && i===1)) btn.classList.add('active'); else btn.classList.remove('active'); }); if(view==='calendario') renderizarCalendario(); else renderizarTarefas(); }
   function exportarBackup() { const dados = { tarefas, metas, cardsTarefas, tempoTotalFocado, tempoFocadoHoje, ultimaDataFoco }; const blob = new Blob([JSON.stringify(dados)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`fluxo-backup-${getDataHoje()}.json`; a.click(); alert('✅ Backup exportado!'); }
   function importarBackup(e) { const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=(ev)=>{ try{ const dados=JSON.parse(ev.target.result); if(dados.tarefas) tarefas=dados.tarefas; if(dados.metas) metas=dados.metas; if(dados.cardsTarefas) cardsTarefas=dados.cardsTarefas; if(dados.tempoTotalFocado) tempoTotalFocado=dados.tempoTotalFocado; if(dados.tempoFocadoHoje) tempoFocadoHoje=dados.tempoFocadoHoje; if(dados.ultimaDataFoco) ultimaDataFoco=dados.ultimaDataFoco; salvarDados(); alert('✅ Backup importado!'); }catch(err){ alert('Erro ao importar arquivo'); } }; reader.readAsText(file); e.target.value = ''; }
-  function recarregarSistema() { tarefas = JSON.parse(localStorage.getItem('tarefas')||'[]'); metas = JSON.parse(localStorage.getItem('metas')||'[]'); cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas')||'[]'); tempoTotalFocado = parseInt(localStorage.getItem('tempoTotalFocado')||'0'); tempoFocadoHoje = parseInt(localStorage.getItem('tempoFocadoHoje')||'0'); ultimaDataFoco = localStorage.getItem('ultimaDataFoco') || ''; if(cardsTarefas.length===0) cardsTarefas=[{id:"default",nome:"Minhas Tarefas"}]; verificarResetDiario(); verificarResetFocoDiario(); renderizarTarefas(); renderizarMetas(); renderizarEstatisticas(); renderizarCalendario(); atualizarDashboard(); renderizarMetasCompactas(); configurarNotificacoesProgramadas(); document.getElementById('dataHoje').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' }); }
+  function recarregarSistema() { 
+    tarefas = JSON.parse(localStorage.getItem('tarefas')||'[]'); 
+    metas = JSON.parse(localStorage.getItem('metas')||'[]'); 
+    cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas')||'[]'); 
+    tempoTotalFocado = parseInt(localStorage.getItem('tempoTotalFocado')||'0'); 
+    tempoFocadoHoje = parseInt(localStorage.getItem('tempoFocadoHoje')||'0'); 
+    ultimaDataFoco = localStorage.getItem('ultimaDataFoco') || ''; 
+    if(cardsTarefas.length===0) cardsTarefas=[{id:"default",nome:"Minhas Tarefas"}]; 
+    verificarResetDiario(); 
+    verificarResetFocoDiario(); 
+    renderizarTarefas(); 
+    renderizarMetas(); 
+    renderizarEstatisticas(); 
+    renderizarCalendario(); 
+    atualizarDashboard(); 
+    renderizarMetasCompactas(); 
+    configurarNotificacoesProgramadas(); 
+    document.getElementById('dataHoje').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' }); 
+  }
   window.recarregarSistema = recarregarSistema;
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
   window.iniciarDragTarefa = iniciarDragTarefa;
