@@ -19,6 +19,7 @@
   .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
   .container { max-width: 1200px; margin: 0 auto; width: 100%; padding: 16px 0; }
   
+  /* ========== AJUSTE HEADER ========== */
   .header {
     height: 72px;
     padding: 0 24px;
@@ -80,6 +81,7 @@
   .password-container { position: relative; width: 100%; margin-bottom: 16px; }
   .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; }
   
+  /* ========== AJUSTE BANNER E TOP SECTION ========== */
   .top-section {
     display: flex;
     justify-content: space-between;
@@ -89,6 +91,7 @@
     margin-bottom: 20px;
   }
   
+  /* BANNER TAREFAS */
   .banner-tarefas {
     display: inline-flex;
     width: fit-content;
@@ -99,6 +102,12 @@
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+  }
+  
+  /* TEXTO BRANCO */
+  .alerta-texto,
+  .alerta-subtexto {
+    color: white !important;
   }
   
   @media (max-width: 640px) {
@@ -746,7 +755,7 @@
   function concluirComDuplicatas(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; tarefa.concluida = true; tarefas.forEach(t => { if(t.id !== id && t.texto.toLowerCase().trim() === tarefa.texto.toLowerCase().trim() && t.data === tarefa.data && !t.concluida && t.bloco === tarefa.bloco) { t.concluida = true; t.notificado = true; } }); salvarDados(); }
   
   let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
-  function atualizarTimerDisplay() { const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`; const progresso = (tempoRestante <= 5*60) ? ((5*60 - tempoRestante)/(5*60))*100 : 0; if(!emPausaEntrePomodoros) { const progresso = ((25*60 - tempoRestante)/(25*60))*100; const bar = document.getElementById('progressoFocoBar'); if(bar) bar.style.width = `${Math.min(100,Math.max(0,progresso))}%`; } else { const progresso = ((5*60 - tempoRestante)/(5*60))*100; const bar = document.getElementById('progressoFocoBar'); if(bar) bar.style.width = `${Math.min(100,Math.max(0,progresso))}%`; } }
+  function atualizarTimerDisplay() { const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`; if(!emPausaEntrePomodoros) { const progresso = ((25*60 - tempoRestante)/(25*60))*100; const bar = document.getElementById('progressoFocoBar'); if(bar) bar.style.width = `${Math.min(100,Math.max(0,progresso))}%`; } else { const progresso = ((5*60 - tempoRestante)/(5*60))*100; const bar = document.getElementById('progressoFocoBar'); if(bar) bar.style.width = `${Math.min(100,Math.max(0,progresso))}%`; } }
   function prorrogarTempoFoco() { if(!pomodoroAtivo || emPausaEntrePomodoros) { alert('⏰ Só pode prorrogar durante o foco ativo!'); return; } tempoRestante += 10 * 60; atualizarTimerDisplay(); document.getElementById('cronometroInfo').innerHTML = '⏰ +10 minutos!'; setTimeout(() => { if(document.getElementById('cronometroInfo')) document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...'; }, 2000); }
   
   function iniciarDescanso() {
