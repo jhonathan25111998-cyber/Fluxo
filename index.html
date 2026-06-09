@@ -457,9 +457,7 @@
   .progresso-foco-bar { height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); width: 0%; }
   .controles-foco { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .btn-glass { background: linear-gradient(135deg, #667eea, #764ba2); border: none; padding: 8px 16px; border-radius: 40px; color: white; cursor: pointer; font-weight: 600; margin: 4px; }
-  .btn-glass-outline { background: transparent; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 40px; color: white; cursor: pointer; font-weight: 600; margin: 4px; }
   .btn-prorrogar { background: linear-gradient(135deg, #f59e0b, #d97706); }
-  .btn-descanso { background: linear-gradient(135deg, #10b981, #059669); }
   
   .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
   .calendario-dia-semana { text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; color: white; font-size: 12px; font-weight: 600; }
@@ -541,9 +539,6 @@
     .botoes-topo .action-buttons { flex-wrap: nowrap; }
   }
   @media (max-width: 480px) { .blocos-tarefas { grid-template-columns: 1fr; } }
-  
-  .estatisticas { display: none !important; }
-  .metas-compactas-antigo { display: none; }
 </style>
 </head>
 <body>
@@ -641,7 +636,7 @@
   window.salvarTudoFirebase = salvarTudoFirebase;
   document.getElementById('logoutBtn').onclick = () => window.fazerLogout(); document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); else alert('Notificações já ativadas!'); };
   window.togglePasswordVisibility = (id, btn) => { const inp = document.getElementById(id); if(inp.type === 'password'){ inp.type='text'; btn.innerHTML='<i class="far fa-eye-slash"></i>'; } else { inp.type='password'; btn.innerHTML='<i class="far fa-eye"></i>'; } };
-  onAuthStateChanged(auth, async (user) => { if(user) { currentUser = user; window.currentUser = user; document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('userEmailTooltip').textContent = user.email; await carregarDadosFirebase(); if(window.recarregarSistema) window.recarregarSistema(); if(window.iniciarSincronizacaoPeriodica) window.iniciarSincronizacaoPeriodica(); } else { currentUser = null; window.currentUser = null; document.getElementById('loginOverlay').style.display='flex'; document.getElementById('mainApp').style.display='none'; if(window.syncInterval) clearInterval(window.syncInterval); } });
+  onAuthStateChanged(auth, async (user) => { if(user) { currentUser = user; window.currentUser = user; document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('userEmailTooltip').textContent = user.email; await carregarDadosFirebase(); if(window.recarregarSistema) window.recarregarSistema(); if(window.iniciarSincronizacaoPeriodica) window.iniciarSincronizacaoPeriodica(); } else { currentUser = null; window.currentUser = null; document.getElementById('loginOverlay').style.display='flex'; document.getElementById('mainApp').style.display='none'; if(window.syncInterval) clearInterval(window.syncInterval); if(window.dailyResetInterval) clearInterval(window.dailyResetInterval); } });
 </script>
 <script>
   function getDataHoje() { const agora = new Date(); const ano = agora.getFullYear(); const mes = String(agora.getMonth() + 1).padStart(2, '0'); const dia = String(agora.getDate()).padStart(2, '0'); return `${ano}-${mes}-${dia}`; }
@@ -800,9 +795,17 @@
     } 
   }
   
-  function renderizarMetasCompactas() { renderizarMetasCarrossel(); }
   let metasExpandidas = false;
-  function toggleMetasCompletas() { const metasCompletas = document.getElementById('metasCompletas'); const btnToggle = document.querySelector('.metas-toggle-btn'); if (metasExpandidas) { metasCompletas.style.display = 'none'; btnToggle.innerHTML = '<i class="fas fa-chevron-down"></i> Ver todas'; } else { metasCompletas.style.display = 'block'; btnToggle.innerHTML = '<i class="fas fa-chevron-up"></i> Mostrar menos'; } metasExpandidas = !metasExpandidas; }
+  function toggleMetasCompletas() { 
+    const metasCompletas = document.getElementById('metasCompletas'); 
+    if (metasExpandidas) { 
+      metasCompletas.style.display = 'none'; 
+    } else { 
+      metasCompletas.style.display = 'block'; 
+    } 
+    metasExpandidas = !metasExpandidas; 
+  }
+  
   function configurarNotificacoesProgramadas() { intervalosNotificacoes.forEach(clearInterval); intervalosNotificacoes = []; const horarios = [{ hora: 8, minuto: 0, mensagem: '🌅 Bom dia! Hora de organizar suas tarefas do dia!' }, { hora: 13, minuto: 30, mensagem: '🌤️ Boa tarde! Como estão suas tarefas hoje?' }, { hora: 16, minuto: 30, mensagem: '🌙 Final do expediente! Não esqueça de concluir suas pendências!' }]; function verificarHorario() { const agora = new Date(); const horaAtual = agora.getHours(); const minutoAtual = agora.getMinutes(); horarios.forEach(horario => { if (horaAtual === horario.hora && minutoAtual === horario.minuto) { const pendentes = tarefas.filter(t => t.data && t.data <= getDataHoje() && !t.concluida).length; const pendentesTexto = pendentes > 0 ? `Você tem ${pendentes} tarefa(s) pendente(s).` : 'Você não tem tarefas pendentes hoje! 🎉'; if (Notification.permission === 'granted') { new Notification('📋 FLUXO - Lembrete', { body: `${horario.mensagem}\n\n${pendentesTexto}`, icon: '🎯', tag: 'lembrete-diario' }); } } }); } const intervalo = setInterval(verificarHorario, 60000); intervalosNotificacoes.push(intervalo); verificarHorario(); }
   function editarMeta(id) { const meta = metas.find(m => m.id === id); if(!meta) return; const novoTexto = prompt('Editar meta:', meta.texto); if(novoTexto && novoTexto.trim()) { meta.texto = novoTexto.trim(); salvarDados(); } }
   function iniciarDragTarefa(id, cardNome, event) { tarefaArrastandoId = id; tarefaArrastandoOrigem = cardNome; event.dataTransfer.setData('text/plain', id); const el = event.target.closest('.tarefa-item'); if(el) el.classList.add('dragging'); }
@@ -812,6 +815,7 @@
   function soltarTarefa(event, cardNomeDestino, tarefaIdDestino) { event.preventDefault(); event.currentTarget.classList.remove('drag-over'); if(!tarefaArrastandoId) return; if(tarefaArrastandoOrigem === cardNomeDestino && tarefaIdDestino) { reordenarTarefas(cardNomeDestino, tarefaArrastandoId, tarefaIdDestino); } else if(tarefaArrastandoOrigem !== cardNomeDestino) { const tarefa = tarefas.find(t => t.id === tarefaArrastandoId); if(tarefa) { tarefa.bloco = cardNomeDestino; salvarDados(); mostrarIndicadorSync(`📦 Tarefa movida para "${cardNomeDestino}"`); } } tarefaArrastandoId = null; tarefaArrastandoOrigem = null; document.querySelectorAll('.tarefa-item').forEach(el => el.classList.remove('dragging')); }
   function reordenarTarefas(cardNome, tarefaIdOrigem, tarefaIdDestino) { const tarefasDoCard = tarefas.filter(t => t.bloco === cardNome && !t.concluida).sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); const indexOrigem = tarefasDoCard.findIndex(t => t.id === tarefaIdOrigem); const indexDestino = tarefasDoCard.findIndex(t => t.id === tarefaIdDestino); if(indexOrigem === -1 || indexDestino === -1) return; const [item] = tarefasDoCard.splice(indexOrigem, 1); tarefasDoCard.splice(indexDestino, 0, item); tarefasDoCard.forEach((t, idx) => { const tarefaGlobal = tarefas.find(gt => gt.id === t.id); if(tarefaGlobal) tarefaGlobal.ordem = idx; }); salvarDados(); mostrarIndicadorSync('📌 Ordem atualizada'); }
   
+  // ========== CORREÇÃO: salvarDados sem duplicação ==========
   function salvarDados() { 
     localStorage.setItem('tarefas', JSON.stringify(tarefas)); 
     localStorage.setItem('metas', JSON.stringify(metas)); 
@@ -823,7 +827,7 @@
     renderizarMetas(); 
     renderizarCalendario(); 
     atualizarDashboard(); 
-    renderizarMetasCompactas(); 
+    renderizarMetasCarrossel(); 
     atualizarRodape();
     if(window.currentUser && window.salvarTudoFirebase) { 
       if(syncTimeout) clearTimeout(syncTimeout); 
@@ -1223,7 +1227,7 @@
           div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); 
           
           // ========== FIX FLUXO - ESTADO VAZIO CENTRALIZADO ==========
-          div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}'); event.stopPropagation()" event-stop><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}'); event.stopPropagation()" event-stop><i class="fas fa-trash-alt"></i></button></div></div>
+          div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-trash-alt"></i></button></div></div>
           <div class="tarefa-lista">
             ${lista.length === 0 ? `
               <div class="estado-vazio-container">
@@ -1255,7 +1259,6 @@
           </div>`; 
           container.appendChild(div); 
       }); 
-      // ========== AJUSTE FLUXO - CARD NOVO ESPAÇO FANTASMA ==========
       const addCard = document.createElement('div'); 
       addCard.className = 'bloco-tarefa card-adicionar'; 
       addCard.onclick = () => adicionarCardTarefa(); 
@@ -1288,7 +1291,7 @@
     renderizarMetas(); 
     renderizarCalendario(); 
     atualizarDashboard(); 
-    renderizarMetasCompactas(); 
+    renderizarMetasCarrossel(); 
     configurarNotificacoesProgramadas(); 
     atualizarRodape();
     atualizarDataHeader();
@@ -1332,7 +1335,9 @@
   function updateConnectionStatus() { const statusDiv = document.getElementById('statusConnection'); if (navigator.onLine) { statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online'; statusDiv.classList.remove('status-offline'); } else { statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline'; statusDiv.classList.add('status-offline'); } }
   window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus); updateConnectionStatus();
   if ('Notification' in window && Notification.permission === 'granted') { setInterval(() => { const hoje = getDataHoje(); const agora = new Date(); const horaAtual = agora.getHours().toString().padStart(2,'0') + ':' + agora.getMinutes().toString().padStart(2,'0'); tarefas.forEach(t => { if (!t.concluida && t.data === hoje && t.hora === horaAtual && !t.notificado) { new Notification('⏰ Hora da tarefa!', { body: t.texto, icon: '🎯' }); t.notificado = true; salvarDados(); } }); }, 60000); }
-  recarregarSistema(); initLofiAudio(); setInterval(()=>{ verificarResetDiario(); verificarResetFocoDiario(); }, 60000);
+  recarregarSistema(); initLofiAudio(); 
+  // ========== CORREÇÃO: setInterval com limpeza ==========
+  window.dailyResetInterval = setInterval(()=>{ verificarResetDiario(); verificarResetFocoDiario(); }, 60000);
 </script>
 </body>
 </html>
