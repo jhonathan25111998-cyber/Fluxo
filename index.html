@@ -27,10 +27,11 @@
   .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
   .container { max-width: 1200px; margin: 0 auto; width: 100%; padding: 0; }
   
-  /* ========== AJUSTE FLUXO - HEADER COMPACTO ========== */
+  /* ========== FIX FLUXO V4 MOBILE - HEADER RESPONSIVO ========== */
   .header-fluxo {
-    height: 72px;
-    padding: 0 24px;
+    height: auto;
+    min-height: 72px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -39,23 +40,33 @@
     backdrop-filter: blur(24px);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.08);
+    flex-wrap: wrap;
+    gap: 12px;
   }
+  
   .header-logo {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
   }
+  
   .header-direita {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 14px;
+    font-size: 13px;
     color: rgba(255, 255, 255, 0.7);
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
+  
   .header-direita .data-hoje {
     margin-top: 0;
-    font-size: 13px;
+    font-size: 12px;
+    white-space: nowrap;
   }
+  
   .logo-img { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
   .logo-img img { width: 32px; height: 32px; object-fit: contain; }
   .logo-texto .logo-titulo { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff, #f0f0f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -74,6 +85,11 @@
   .register-link { color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 16px; display: block; cursor: pointer; }
   .password-container { position: relative; width: 100%; margin-bottom: 16px; }
   .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; }
+  
+  /* ========== FIX FLUXO V4 MOBILE - DATA EM CARD SEPARADO ========== */
+  .data-card-mobile {
+    display: none;
+  }
   
   /* ========== AJUSTE FLUXO - BANNER SHRINK-TO-FIT ========== */
   .top-section {
@@ -484,6 +500,59 @@
     }
   }
   
+  /* ========== FIX FLUXO V4 MOBILE - HEADER + DATA CARD MOBILE ========== */
+  @media (max-width: 640px) {
+    .header-fluxo {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 12px 16px;
+      gap: 16px;
+    }
+    
+    .header-logo {
+      justify-content: center;
+    }
+    
+    .header-direita {
+      justify-content: center;
+      width: 100%;
+    }
+    
+    .header-direita .data-hoje {
+      display: none;
+    }
+    
+    .data-card-mobile {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    
+    .data-card-mobile .data-badge {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    .data-card-mobile .data-badge i {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header-direita {
+      gap: 8px;
+    }
+  }
+  
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
   .modal-foco-overlay.show { display: flex; }
   .modal-foco-conteudo { background: rgba(26,27,38,0.95); backdrop-filter: blur(24px); padding: 24px; border-radius: 24px; max-width: 90%; width: 400px; text-align: center; }
@@ -601,6 +670,14 @@
     </div>
   </div>
   
+  <!-- ========== FIX FLUXO V4 MOBILE - DATA EM CARD SEPARADO ========== -->
+  <div class="data-card-mobile" id="dataCardMobile">
+    <div class="data-badge">
+      <i class="fas fa-calendar-alt"></i>
+      <span id="dataHojeMobile"></span>
+    </div>
+  </div>
+  
   <!-- ========== AJUSTE FLUXO - BANNER SHRINK-TO-FIT ========== -->
   <div class="top-section">
     <div class="banner-tarefas" id="dashboardAlerta" style="display: none;">
@@ -692,11 +769,26 @@
   let dataCalendario = new Date();
   let intervalosNotificacoes = [];
   
+  // ========== FIX FLUXO V4 MOBILE - DATA HEADER ATUALIZADA ==========
   function atualizarDataHeader() {
     const hoje = new Date();
-    const dataFormatada = hoje.toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const dataFormatada = hoje.toLocaleDateString('pt-BR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    const dataCurta = hoje.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+    
     const dataHeader = document.getElementById('dataHojeHeader');
+    const dataMobile = document.getElementById('dataHojeMobile');
+    
     if (dataHeader) dataHeader.textContent = dataFormatada;
+    if (dataMobile) dataMobile.textContent = dataCurta;
   }
   
   function atualizarRodape() {
