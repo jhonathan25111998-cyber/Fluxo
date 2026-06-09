@@ -247,7 +247,7 @@
   .add-meta-form input, .add-meta-form select { padding: 10px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 13px; outline: none; }
   .add-meta-form button { padding: 10px 20px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 10px; color: #1a1a2e; font-weight: 600; cursor: pointer; font-size: 13px; }
   
-  /* ========== AJUSTE FLUXO - CARDS MAIS DENSOS ========== */
+  /* ========== AJUSTE FLUXO - CARROS GRID ========== */
   .blocos-tarefas {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -260,6 +260,7 @@
     .blocos-tarefas { grid-template-columns: repeat(3, 1fr); }
   }
   
+  /* ========== FIX FLUXO V2.1 - CARD ESPAÇO COM ALTURA PERFEITA ========== */
   .bloco-tarefa {
     background: var(--card-bg);
     backdrop-filter: blur(24px);
@@ -269,13 +270,13 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-height: 320px;
   }
   .bloco-tarefa:hover {
     background: var(--card-bg-hover);
   }
   .bloco-tarefa.drag-over { border: 2px solid #667eea; background: rgba(102,126,234,0.2); }
   
-  /* ========== AJUSTE FLUXO - HEADER ESPAÇO SÓLIDO ========== */
   .bloco-header {
     height: 40px;
     padding: 0 12px;
@@ -303,7 +304,7 @@
   .bloco-header button:hover { background: rgba(255,255,255,0.25); }
   
   .tarefa-lista { 
-    padding: 12px; 
+    padding: 12px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -360,10 +361,44 @@
   .btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
   .btn-cancel { background: rgba(255, 255, 255, 0.1); color: white; }
   
-  /* ========== AJUSTE FLUXO - BOTÃO NOVA TAREFA ========== */
-  .btn-nova-tarefa {
-    width: 100%;
-    min-height: 40px;
+  /* ========== FIX FLUXO V2.1 - ESTADO VAZIO CENTRALIZADO PERFEITO ========== */
+  .estado-vazio-centralizado {
+    flex: 1;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+    min-height: 180px;
+  }
+  .estado-vazio-centralizado .icon-check {
+    width: 32px;
+    height: 32px;
+    color: rgba(168, 85, 247, 0.4);
+    margin-bottom: 0;
+  }
+  .estado-vazio-centralizado .icon-check i {
+    font-size: 32px;
+  }
+  .estado-vazio-centralizado .titulo {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    margin: 0;
+  }
+  .estado-vazio-centralizado .subtitulo {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+  }
+  
+  /* ========== FIX FLUXO V2.1 - BOTÃO NOVA TAREFA FORA DO FLEX ========== */
+  .btn-nova-tarefa-bottom {
+    height: 44px;
+    flex-shrink: 0;
+    margin: 12px;
+    width: calc(100% - 24px);
     background: linear-gradient(90deg, #7c3aed, #a855f7);
     border: none;
     border-radius: 12px;
@@ -376,76 +411,45 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 8px;
-    flex-shrink: 0;
   }
-  .btn-nova-tarefa:hover {
+  .btn-nova-tarefa-bottom:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
   }
   
-  /* ========== FIX FLUXO - ESTADO VAZIO CENTRALIZADO ========== */
-  .estado-vazio-container {
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    min-height: 200px;
-    padding: 24px 16px;
-    text-align: center;
-    gap: 12px;
-  }
-  .estado-vazio-container .icon-check {
-    width: 40px;
-    height: 40px;
-    color: rgba(168, 85, 247, 0.3);
-    margin-bottom: 4px;
-  }
-  .estado-vazio-container .icon-check i {
-    font-size: 32px;
-  }
-  .estado-vazio-container .titulo {
-    font-size: 16px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.85);
-    margin: 0;
-  }
-  .estado-vazio-container .subtitulo {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.55);
-    margin: 0;
-  }
-  
-  /* ========== AJUSTE FLUXO - CARD NOVO ESPAÇO FANTASMA ========== */
-  .card-adicionar {
-    background: transparent !important;
-    border: 2px dashed rgba(168, 85, 247, 0.3);
+  /* ========== FIX FLUXO V2.1 - CARD NOVO ESPAÇO FANTASMA ========== */
+  .card-novo-espaco {
+    background: rgba(30, 30, 46, 0.3);
+    border: 2px dashed rgba(168, 85, 247, 0.25);
+    backdrop-filter: blur(4px);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    color: rgba(255, 255, 255, 0.5);
-    min-height: 180px;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.4);
+    min-height: 320px;
     transition: all 0.3s;
     cursor: pointer;
   }
-  .card-adicionar:hover {
-    border-color: rgba(168, 85, 247, 0.6);
-    background: rgba(168, 85, 247, 0.05) !important;
-    color: rgba(255, 255, 255, 0.8);
+  .card-novo-espaco:hover {
+    border-color: rgba(168, 85, 247, 0.5);
+    background: rgba(30, 30, 46, 0.5);
+    color: rgba(255, 255, 255, 0.7);
     transform: translateY(-2px);
   }
-  .card-adicionar-conteudo {
-    text-align: center;
-    padding: 20px;
+  .card-novo-espaco .icon-plus {
+    width: 28px;
+    height: 28px;
+    opacity: 0.6;
   }
-  .card-adicionar-conteudo i {
-    font-size: 32px;
-    margin-bottom: 8px;
+  .card-novo-espaco .icon-plus i {
+    font-size: 28px;
   }
-  .card-adicionar-conteudo p {
+  .card-novo-espaco p {
     font-size: 14px;
+    margin: 0;
   }
   
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
@@ -1205,7 +1209,7 @@
   
   function marcarTodasHoje() { const hoje = getDataHoje(); const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida); if(alvos.length===0) return alert('🎉 Nenhuma tarefa pendente para hoje!'); if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){ alvos.forEach(t=>t.concluida=true); salvarDados(); alert(`✅ ${alvos.length} tarefa(s) concluída(s)!`); } }
   
-  // ========== FIX FLUXO - RENDERIZAR TAREFAS COM ESTADO VAZIO CENTRALIZADO ==========
+  // ========== FIX FLUXO V2.1 - RENDERIZAR TAREFAS COM ESTADO VAZIO CENTRALIZADO ==========
   function renderizarTarefas() { 
       const container = document.getElementById('blocosTarefas'); 
       if(!container) return; 
@@ -1226,43 +1230,75 @@
           div.setAttribute('ondragleave', 'removerDragOver(event)'); 
           div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); 
           
-          // ========== FIX FLUXO - ESTADO VAZIO CENTRALIZADO ==========
-          div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-trash-alt"></i></button></div></div>
-          <div class="tarefa-lista">
-            ${lista.length === 0 ? `
-              <div class="estado-vazio-container">
-                <div class="icon-check"><i class="fas fa-check-circle"></i></div>
-                <p class="titulo">Tudo certo por aqui</p>
-                <p class="subtitulo">Adicione uma tarefa</p>
+          // ========== FIX FLUXO V2.1 - ESTADO VAZIO COM BOTÃO FORA ==========
+          div.innerHTML = `<div class="bloco-header">
+              <span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span>
+              <div>
+                  <span>${ativas} ativas</span>
+                  <button onclick="editarCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-edit"></i></button>
+                  <button onclick="excluirCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-trash-alt"></i></button>
               </div>
-            ` : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`
-              <div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
-                  <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                  <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
-                  <div class="tarefa-conteudo">
-                      <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
-                      <div class="tarefa-meta">
-                          ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}
-                          ${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
-                          ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
+          </div>
+          <div class="tarefa-lista">
+              ${lista.length === 0 ? `
+                  <div class="estado-vazio-centralizado">
+                      <div class="icon-check"><i class="fas fa-check-circle"></i></div>
+                      <p class="titulo">Tudo certo por aqui</p>
+                      <p class="subtitulo">Adicione uma tarefa</p>
+                  </div>
+              ` : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`
+                  <div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
+                      <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                      <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
+                      <div class="tarefa-conteudo">
+                          <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
+                          <div class="tarefa-meta">
+                              ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}
+                              ${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
+                              ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
+                          </div>
                       </div>
-                  </div>
-                  <div class="card-actions">
-                      <button onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
-                      <button onclick="editarTarefaCompleta(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
-                      <button onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
-                      <button onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-                  </div>
-              </div>`).join('')}
-            <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button>
-            <div class="inline-form" id="form-${cardId}"><input type="text" id="texto-${cardId}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${cardId}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${cardId}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${cardId}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button></div></div>
+                      <div class="card-actions">
+                          <button onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
+                          <button onclick="editarTarefaCompleta(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
+                          <button onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
+                          <button onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                      </div>
+                  </div>`).join('')}
+          </div>
+          <button class="btn-nova-tarefa-bottom" onclick="mostrarFormAdicionar('${cardId}')">
+              <i class="fas fa-plus-circle"></i> Nova Tarefa
+          </button>
+          <div class="inline-form" id="form-${cardId}">
+              <input type="text" id="texto-${cardId}" placeholder="Descreva a tarefa..." maxlength="200">
+              <input type="date" id="data-${cardId}" placeholder="Data" value="${getDataHoje()}">
+              <select id="prioridade-${cardId}">
+                  <option value="p3">🟢 Baixa Prioridade</option>
+                  <option value="p2">🟡 Média Prioridade</option>
+                  <option value="p1">🔴 Alta Prioridade</option>
+              </select>
+              <select id="recorrencia-${cardId}">
+                  <option value="">Sem recorrência</option>
+                  <option value="diaria">🔄 Diária</option>
+                  <option value="dias_uteis">📅 Dias úteis</option>
+                  <option value="semanal">📆 Semanal</option>
+                  <option value="mensal">📅 Mensal</option>
+              </select>
+              <div class="inline-form-buttons">
+                  <button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button>
+                  <button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button>
+              </div>
           </div>`; 
           container.appendChild(div); 
       }); 
+      // ========== FIX FLUXO V2.1 - CARD NOVO ESPAÇO FANTASMA ==========
       const addCard = document.createElement('div'); 
-      addCard.className = 'bloco-tarefa card-adicionar'; 
+      addCard.className = 'card-novo-espaco'; 
       addCard.onclick = () => adicionarCardTarefa(); 
-      addCard.innerHTML = '<div class="card-adicionar-conteudo"><i class="fas fa-plus-circle"></i><p>Novo Espaço</p></div>'; 
+      addCard.innerHTML = `
+          <div class="icon-plus"><i class="fas fa-plus-circle"></i></div>
+          <p>Novo Espaço</p>
+      `; 
       container.appendChild(addCard);
   }
   
