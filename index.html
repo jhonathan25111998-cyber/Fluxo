@@ -19,7 +19,6 @@
   .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
   .container { max-width: 1200px; margin: 0 auto; width: 100%; padding: 16px 0; }
   
-  /* ========== AJUSTE HEADER ========== */
   .header {
     height: 72px;
     padding: 0 24px;
@@ -81,7 +80,6 @@
   .password-container { position: relative; width: 100%; margin-bottom: 16px; }
   .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; }
   
-  /* ========== AJUSTE BANNER E TOP SECTION ========== */
   .top-section {
     display: flex;
     justify-content: space-between;
@@ -91,7 +89,6 @@
     margin-bottom: 20px;
   }
   
-  /* BANNER TAREFAS - AJUSTADO PARA INLINE-FLEX */
   .banner-tarefas {
     display: inline-flex;
     width: fit-content;
@@ -104,7 +101,6 @@
     flex-wrap: wrap;
   }
   
-  /* Mobile: banner ocupa 100% */
   @media (max-width: 640px) {
     .banner-tarefas {
       width: 100%;
@@ -164,17 +160,6 @@
     justify-content: flex-end;
     gap: 12px;
   }
-  .top-bar {
-    margin-bottom: 0;
-  }
-  @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-  .alerta-conteudo { display: flex; align-items: center; gap: 12px; padding: 12px 16px; flex-wrap: wrap; }
-  .alerta-icone { position: relative; font-size: 24px; color: #fbbf24; }
-  .alerta-badge { position: absolute; top: -8px; right: -12px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 20px; min-width: 18px; text-align: center; }
-  .alerta-mensagem { flex: 1; }
-  .alerta-texto { font-size: 14px; font-weight: 600; color: white; display: block; }
-  .alerta-subtexto { font-size: 11px; color: rgba(255,255,255,0.6); display: block; margin-top: 2px; }
-  .alerta-acoes { display: none; }
   
   .view-toggle { display: flex; gap: 8px; }
   .view-btn { padding: 8px 20px; background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 40px; color: white; cursor: pointer; font-size: 13px; transition: all 0.3s; }
@@ -200,24 +185,18 @@
   .add-meta-form input, .add-meta-form select { padding: 10px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 13px; outline: none; }
   .add-meta-form button { padding: 10px 20px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 10px; color: #1a1a2e; font-weight: 600; cursor: pointer; font-size: 13px; }
   
-  /* ========== GRID DE CARDS RESPONSIVO ========== */
   .blocos-tarefas {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 16px;
   }
   @media (min-width: 768px) and (max-width: 1024px) {
-    .blocos-tarefas { 
-      grid-template-columns: repeat(2, 1fr); 
-    }
+    .blocos-tarefas { grid-template-columns: repeat(2, 1fr); }
   }
   @media (min-width: 1025px) {
-    .blocos-tarefas { 
-      grid-template-columns: repeat(3, 1fr); 
-    }
+    .blocos-tarefas { grid-template-columns: repeat(3, 1fr); }
   }
   
-  /* ========== CARD "ADICIONAR ESPAÇO" IGUAL AOS DEMAIS ========== */
   .bloco-tarefa.card-adicionar {
     min-width: auto !important;
     height: auto !important;
@@ -248,7 +227,6 @@
     font-size: 14px;
   }
   
-  /* ========== BOTÃO NOVA TAREFA ========== */
   .btn-nova-tarefa {
     width: 100%;
     min-height: 48px;
@@ -270,11 +248,7 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
   }
-  .btn-nova-tarefa:active {
-    transform: translateY(0);
-  }
   
-  /* ========== CARD DE TAREFA - REDUÇÃO DE RUÍDO ========== */
   .tarefa-item {
     position: relative;
     border-left: 4px solid transparent;
@@ -289,32 +263,18 @@
     border: 1px solid rgba(255, 255, 255, 0.05);
     cursor: grab;
   }
-  .tarefa-item.p1 {
-    border-left-color: #ef4444;
-  }
-  .tarefa-item.p2 {
-    border-left-color: #fbbf24;
-  }
+  .tarefa-item.p1 { border-left-color: #ef4444; }
+  .tarefa-item.p2 { border-left-color: #fbbf24; }
   
-  /* Esconder ícones de ação por padrão */
   .tarefa-item .item-actions {
     opacity: 0;
     transition: opacity 0.2s ease;
   }
-  
-  /* Mostrar ícones apenas em hover */
-  .tarefa-item:hover .item-actions {
-    opacity: 1;
-  }
-  
-  /* Para dispositivos touch: mostrar ao segurar */
-  .tarefa-item:active .item-actions {
-    opacity: 1;
-  }
+  .tarefa-item:hover .item-actions { opacity: 1; }
+  .tarefa-item:active .item-actions { opacity: 1; }
   
   .tarefa-item.dragging { opacity: 0.3; cursor: grabbing; }
   .tarefa-item:hover { background: rgba(255, 255, 255, 0.08); }
-  .tarefa-item.concluida { opacity: 0.5; text-decoration: line-through; }
   .tarefa-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
   
   .tarefa-conteudo { flex: 1; }
@@ -322,7 +282,6 @@
   .tarefa-meta { display: flex; flex-wrap: wrap; gap: 4px; }
   
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 20px; font-size: 9px; background: rgba(255, 255, 255, 0.1); color: white; }
-  .badge.p1, .badge.p2, .badge.p3 { background: transparent; padding-left: 0; }
   .badge.atrasada { background: rgba(239,68,68,0.3); color: #ff9999; border: 1px solid rgba(239,68,68,0.5); animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
   
@@ -339,7 +298,6 @@
   .btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
   .btn-cancel { background: rgba(255, 255, 255, 0.1); color: white; }
   
-  .add-tarefa-btn { display: none; }
   .bloco-tarefa { background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); }
   .bloco-tarefa.drag-over { border: 2px solid #667eea; background: rgba(102,126,234,0.2); }
   .bloco-header { padding: 14px 16px; font-weight: 600; color: white; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0; font-size: 14px; }
@@ -405,7 +363,6 @@
   .meta-compact-actions button { background: transparent; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 10px; padding: 2px; }
   .meta-compact-actions button:hover { color: white; }
   
-  /* ========== RODAPÉ FIXO COM ESTATÍSTICAS ========== */
   .footer-stats {
     position: sticky;
     bottom: 0;
@@ -439,27 +396,16 @@
   }
   
   @media (max-width: 1023px) {
-    .top-section {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .botoes-topo {
-      justify-content: flex-start;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-    .botoes-topo .action-buttons {
-      flex-wrap: nowrap;
-    }
+    .top-section { flex-direction: column; align-items: stretch; }
+    .botoes-topo { justify-content: flex-start; overflow-x: auto; padding-bottom: 4px; }
+    .botoes-topo .action-buttons { flex-wrap: nowrap; }
   }
   @media (max-width: 640px) { 
     .footer-stats-item { font-size: 11px; }
     .footer-stats-item i { font-size: 14px; }
     .blocos-tarefas { gap: 12px; }
   }
-  @media (max-width: 480px) { 
-    .blocos-tarefas { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 480px) { .blocos-tarefas { grid-template-columns: 1fr; } }
   .estatisticas { display: none !important; }
   .header .data-hoje { display: none; }
 </style>
@@ -468,7 +414,6 @@
 <div class="login-overlay" id="loginOverlay"><div class="login-container"><div class="logo-img" style="margin:0 auto 20px;"><img src="logo.png" alt="FLUXO" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div><h2>FLUXO</h2><p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p><div id="loginForm"><input type="email" id="loginEmail" placeholder="Email"><div class="password-container"><input type="password" id="loginPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword',this)"><i class="far fa-eye"></i></button></div><div id="loginErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerLogin()">Entrar</button><a class="register-link" onclick="mostrarCadastro()">Criar conta</a></div><div id="registerForm" style="display:none;"><input type="email" id="registerEmail" placeholder="Email"><div class="password-container"><input type="password" id="registerPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerPassword',this)"><i class="far fa-eye"></i></button></div><div class="password-container"><input type="password" id="registerConfirm" placeholder="Confirmar senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerConfirm',this)"><i class="far fa-eye"></i></button></div><div id="registerErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerCadastro()">Cadastrar</button><a class="register-link" onclick="mostrarLogin()">Já tenho conta</a></div></div></div>
 
 <div class="container" id="mainApp" style="display:none;">
-  <!-- AJUSTE HEADER -->
   <div class="header">
     <div class="header-content">
       <div class="header-logo">
@@ -490,7 +435,6 @@
     </div>
   </div>
   
-  <!-- AJUSTE BANNER E BOTÕES - com banner inline-flex -->
   <div class="top-section">
     <div class="banner-tarefas" id="dashboardAlerta" style="display: none;">
       <div class="banner-esquerda">
@@ -643,7 +587,59 @@
     } 
   }
   
-  function verificarConclusaoTotal() { const hoje = getDataHoje(); const totalPendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; const totalHoje = tarefas.filter(t => t.data === hoje).length; const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; if (totalPendentes === 0 && totalHoje > 0) { const horasFoco = Math.floor(tempoTotalFocado / 3600); const minutosFoco = Math.floor((tempoTotalFocado % 3600) / 60); let mensagem = '', subMensagem = ''; if (concluidasHoje === 1) { mensagem = `🎉 Parabéns! Você concluiu sua tarefa de hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco acumulado. Continue assim! 🌟`; } else if (concluidasHoje >= 3) { mensagem = `🏆 INCRÍVEL! Você concluiu TODAS as ${concluidasHoje} tarefas do dia!`; subMensagem = `🔥 ${horasFoco}h ${minutosFoco}m de foco intenso! Você é uma máquina! 🚀`; } else if (concluidasHoje > 0) { mensagem = `✨ Parabéns! Você concluiu ${concluidasHoje} de ${totalHoje} tarefas hoje!`; subMensagem = `⏱️ ${horasFoco}h ${minutosFoco}m de foco. Continue produtivo! 💪`; } const alertaDiv = document.getElementById('dashboardAlerta'); if (alertaDiv) { alertaDiv.style.display = 'flex'; document.getElementById('alertaTexto').innerHTML = mensagem; document.getElementById('alertaSubtexto').innerHTML = subMensagem; const alertaBtn = document.getElementById('alertaBtn'); if (alertaBtn) { alertaBtn.innerHTML = '<i class="fas fa-share-alt"></i> Compartilhar conquista'; alertaBtn.onclick = () => { if (navigator.share) { navigator.share({ title: 'Minha conquista no FLUXO', text: mensagem, }); } else { alert(mensagem + '\n\n' + subMensagem); } }; } setTimeout(() => { if (totalPendentes === 0) { document.getElementById('alertaTexto').innerHTML = 'Você não tem tarefas pendentes hoje!'; document.getElementById('alertaSubtexto').innerHTML = 'Aproveite seu dia 🎯'; if (alertaBtn) { alertaBtn.innerHTML = 'Ver agora'; alertaBtn.onclick = () => irParaHoje(); } } }, 8000); } if (Notification.permission === 'granted') { new Notification('🎯 FLUXO - Dia Concluído!', { body: mensagem, icon: '🏆' }); } } }
+  function verificarConclusaoTotal() { 
+    const hoje = getDataHoje(); 
+    const totalPendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length; 
+    const totalHoje = tarefas.filter(t => t.data === hoje).length; 
+    const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; 
+    if (totalPendentes === 0 && totalHoje > 0) { 
+      const horasFocoHoje = Math.floor(tempoFocadoHoje / 3600); 
+      const minutosFocoHoje = Math.floor((tempoFocadoHoje % 3600) / 60); 
+      let mensagem = '', subMensagem = ''; 
+      if (concluidasHoje === 1) { 
+        mensagem = `🎉 Parabéns! Você concluiu sua tarefa de hoje!`; 
+        subMensagem = `⏱️ ${horasFocoHoje}h ${minutosFocoHoje}m de foco hoje. Continue assim! 🌟`; 
+      } else if (concluidasHoje >= 3) { 
+        mensagem = `🏆 INCRÍVEL! Você concluiu TODAS as ${concluidasHoje} tarefas do dia!`; 
+        subMensagem = `🔥 ${horasFocoHoje}h ${minutosFocoHoje}m de foco hoje! Você é uma máquina! 🚀`; 
+      } else if (concluidasHoje > 0) { 
+        mensagem = `✨ Parabéns! Você concluiu ${concluidasHoje} de ${totalHoje} tarefas hoje!`; 
+        subMensagem = `⏱️ ${horasFocoHoje}h ${minutosFocoHoje}m de foco hoje. Continue produtivo! 💪`; 
+      } 
+      const alertaDiv = document.getElementById('dashboardAlerta'); 
+      if (alertaDiv) { 
+        alertaDiv.style.display = 'flex'; 
+        alertaDiv.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.3))'; 
+        document.getElementById('alertaTexto').innerHTML = mensagem; 
+        document.getElementById('alertaSubtexto').innerHTML = subMensagem; 
+        const alertaBtn = document.getElementById('alertaBtn'); 
+        if (alertaBtn) { 
+          alertaBtn.innerHTML = '<i class="fas fa-share-alt"></i> Compartilhar conquista'; 
+          alertaBtn.onclick = () => { 
+            if (navigator.share) { 
+              navigator.share({ title: 'Minha conquista no FLUXO', text: mensagem, }); 
+            } else { 
+              alert(mensagem + '\n\n' + subMensagem); 
+            } 
+          }; 
+        } 
+        setTimeout(() => { 
+          if (totalPendentes === 0) { 
+            alertaDiv.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25))'; 
+            document.getElementById('alertaTexto').innerHTML = 'Você não tem tarefas pendentes hoje!'; 
+            document.getElementById('alertaSubtexto').innerHTML = 'Aproveite seu dia 🎯'; 
+            if (alertaBtn) { 
+              alertaBtn.innerHTML = 'Ver agora'; 
+              alertaBtn.onclick = () => irParaHoje(); 
+            } 
+          } 
+        }, 8000); 
+      } 
+      if (Notification.permission === 'granted') { 
+        new Notification('🎯 FLUXO - Dia Concluído!', { body: mensagem, icon: '🏆' }); 
+      } 
+    } 
+  }
   
   function renderizarMetasCompactas() { const container = document.getElementById('metasCompactasGrid'); if (!container) return; const metasAtivas = metas.filter(m => !m.atingida); const metasConcluidas = metas.filter(m => m.atingida); const todasMetas = [...metasAtivas, ...metasConcluidas]; if (todasMetas.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:16px; color:rgba(255,255,255,0.5); font-size:12px;"><i class="fas fa-flag-checkered"></i> Nenhuma meta definida</div>'; return; } container.innerHTML = todasMetas.map(meta => `<div class="meta-compact-card ${meta.atingida ? 'atingida' : ''}"><div class="meta-compact-checkbox" onclick="toggleMeta(${meta.id})"><i class="fas fa-check"></i></div><div class="meta-compact-info"><div class="meta-compact-texto" title="${escapeHtml(meta.texto)}">${escapeHtml(meta.texto.length > 30 ? meta.texto.substring(0,30) + '...' : meta.texto)}</div><div class="meta-compact-categoria"><i class="fas fa-tag"></i> ${escapeHtml(meta.categoria)}</div></div><div class="meta-compact-actions"><button onclick="editarMeta(${meta.id})" title="Editar"><i class="fas fa-edit"></i></button><button onclick="excluirMeta(${meta.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button></div></div>`).join(''); }
   let metasExpandidas = false;
@@ -710,26 +706,31 @@
                           break;
                       case 'semanal': proximaData.setDate(proximaData.getDate() + 7); break;
                       case 'mensal': proximaData.setMonth(proximaData.getMonth() + 1); break;
+                      default: break;
                   }
                   const novaDataStr = proximaData.toISOString().split('T')[0];
                   const jaExiste = tarefas.some(t2 => t2.texto === t.texto && t2.data === novaDataStr && t2.recorrencia === t.recorrencia);
-                  if(!jaExiste) {
-                      novasTarefas.push({ ...t, concluida: false, data: novaDataStr, notificado: false, id: Date.now() + Math.random() });
-                  } else {
-                      const existente = tarefas.find(t2 => t2.texto === t.texto && t2.data === novaDataStr && t2.recorrencia === t.recorrencia);
-                      if(existente && existente.concluida) {
-                          existente.concluida = false;
-                          existente.notificado = false;
-                      }
+                  if(!jaExiste && novaDataStr >= hoje) {
+                      novasTarefas.push({ 
+                          ...t, 
+                          concluida: false, 
+                          data: novaDataStr, 
+                          notificado: false, 
+                          id: Date.now() + Math.random(),
+                          tempoGasto: 0
+                      });
+                      console.log(`🔄 Tarefa recorrente gerada: "${t.texto}" para ${novaDataStr}`);
                   }
-              } else {
-                  tarefasAtualizadas.push(t);
               }
+              tarefasAtualizadas.push(t);
           }
           tarefas = [...tarefasAtualizadas, ...novasTarefas];
           localStorage.setItem('ultimaDataReset', hoje);
           ultimaDataReset = hoje;
           salvarDados();
+          if(novasTarefas.length > 0) {
+              mostrarIndicadorSync(`🔄 ${novasTarefas.length} tarefa(s) recorrente(s) gerada(s)`);
+          }
       }
   }
   
@@ -745,10 +746,158 @@
   function concluirComDuplicatas(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; tarefa.concluida = true; tarefas.forEach(t => { if(t.id !== id && t.texto.toLowerCase().trim() === tarefa.texto.toLowerCase().trim() && t.data === tarefa.data && !t.concluida && t.bloco === tarefa.bloco) { t.concluida = true; t.notificado = true; } }); salvarDados(); }
   
   let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
-  function atualizarTimerDisplay() { const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`; const progresso = ((25*60 - tempoRestante)/(25*60))*100; const bar = document.getElementById('progressoFocoBar'); if(bar) bar.style.width = `${Math.min(100,Math.max(0,progresso))}%`; }
+  function atualizarTimerDisplay() { const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`; const progresso = (tempoRestante <= 5*60) ? ((5*60 - tempoRestante)/(5*60))*100 : 0; if(!emPausaEntrePomodoros) { const progresso = ((25*60 - tempoRestante)/(25*60))*100; const bar = document.getElementById('progressoFocoBar'); if(bar) bar.style.width = `${Math.min(100,Math.max(0,progresso))}%`; } else { const progresso = ((5*60 - tempoRestante)/(5*60))*100; const bar = document.getElementById('progressoFocoBar'); if(bar) bar.style.width = `${Math.min(100,Math.max(0,progresso))}%`; } }
   function prorrogarTempoFoco() { if(!pomodoroAtivo || emPausaEntrePomodoros) { alert('⏰ Só pode prorrogar durante o foco ativo!'); return; } tempoRestante += 10 * 60; atualizarTimerDisplay(); document.getElementById('cronometroInfo').innerHTML = '⏰ +10 minutos!'; setTimeout(() => { if(document.getElementById('cronometroInfo')) document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...'; }, 2000); }
-  function iniciarPomodoro() { if(pomodoroAtivo) return; emPausaEntrePomodoros = false; pomodoroAtivo = true; pomodoroPausado = false; tempoFocoInicio = Date.now(); if(pomodoroInterval) clearInterval(pomodoroInterval); pomodoroInterval = setInterval(() => { if(!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) { tempoRestante--; atualizarTimerDisplay(); if(tempoRestante <= 0) { clearInterval(pomodoroInterval); const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000); tempoTotalFocado += tempoGasto; tempoFocadoHoje += tempoGasto; if(tarefaFocoAtual) { tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto; } stopLofi(); tocarSino(); salvarDados(); alert('🎉 Pomodoro concluído! Pausa de 5 minutos.'); document.getElementById('cronometroInfo').innerHTML = '☕ Pausa de 5 minutos'; tempoRestante = 5 * 60; emPausaEntrePomodoros = true; pomodoroAtivo = true; atualizarTimerDisplay(); document.getElementById('btnIniciarFoco').style.display = 'inline-block'; document.getElementById('btnPausarFoco').style.display = 'none'; } } }, 1000); document.getElementById('btnIniciarFoco').style.display = 'none'; document.getElementById('btnPausarFoco').style.display = 'inline-block'; document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...'; setTimeout(() => { playLofi(); }, 100); }
-  function pausarPomodoro() { if(!pomodoroAtivo) return; if(!pomodoroPausado) { const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000); if(tempoDecorrido > 0) { tempoTotalFocado += tempoDecorrido; tempoFocadoHoje += tempoDecorrido; if(tarefaFocoAtual) { tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido; } salvarDados(); } tempoFocoInicio = Date.now(); } else { tempoFocoInicio = Date.now(); } pomodoroPausado = !pomodoroPausado; document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar'; document.getElementById('cronometroInfo').innerHTML = pomodoroPausado ? '⏸ Pausado' : (emPausaEntrePomodoros ? '☕ Pausa' : '🍅 Focando...'); if(pomodoroPausado) stopLofi(); else playLofi(); }
+  
+  function iniciarDescanso() {
+      if(pomodoroInterval) clearInterval(pomodoroInterval);
+      tempoRestante = 5 * 60;
+      emPausaEntrePomodoros = true;
+      pomodoroAtivo = true;
+      pomodoroPausado = false;
+      tempoFocoInicio = Date.now();
+      atualizarTimerDisplay();
+      document.getElementById('cronometroInfo').innerHTML = '☕ Pausa de 5 minutos';
+      document.getElementById('btnIniciarFoco').style.display = 'none';
+      document.getElementById('btnPausarFoco').style.display = 'inline-block';
+      document.getElementById('btnPausarFoco').innerHTML = '<i class="fas fa-pause"></i> Pausar';
+      
+      pomodoroInterval = setInterval(() => {
+          if(!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+              tempoRestante--;
+              atualizarTimerDisplay();
+              if(tempoRestante <= 0) {
+                  clearInterval(pomodoroInterval);
+                  tocarSino();
+                  alert('⏰ Pausa concluída! Hora de voltar ao foco!');
+                  document.getElementById('cronometroInfo').innerHTML = '🍅 Pomodoro 25 minutos';
+                  tempoRestante = 25 * 60;
+                  emPausaEntrePomodoros = false;
+                  atualizarTimerDisplay();
+                  document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+                  document.getElementById('btnPausarFoco').style.display = 'none';
+                  pomodoroAtivo = false;
+              }
+          }
+      }, 1000);
+  }
+  
+  function iniciarPomodoro() { 
+      if(pomodoroAtivo) return; 
+      if(emPausaEntrePomodoros) {
+          if(confirm('Você está em pausa. Deseja interromper a pausa e voltar ao foco?')) {
+              if(pomodoroInterval) clearInterval(pomodoroInterval);
+              tempoRestante = 25 * 60;
+              emPausaEntrePomodoros = false;
+              pomodoroAtivo = true;
+              pomodoroPausado = false;
+              tempoFocoInicio = Date.now();
+              atualizarTimerDisplay();
+              document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...';
+              document.getElementById('btnIniciarFoco').style.display = 'none';
+              document.getElementById('btnPausarFoco').style.display = 'inline-block';
+              
+              if(pomodoroInterval) clearInterval(pomodoroInterval);
+              pomodoroInterval = setInterval(() => {
+                  if(!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+                      tempoRestante--;
+                      atualizarTimerDisplay();
+                      if(tempoRestante <= 0) {
+                          clearInterval(pomodoroInterval);
+                          const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+                          tempoTotalFocado += tempoGasto;
+                          tempoFocadoHoje += tempoGasto;
+                          if(tarefaFocoAtual) {
+                              tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto;
+                          }
+                          stopLofi();
+                          tocarSino();
+                          salvarDados();
+                          const iniciarDescansoBtn = confirm('🎉 Pomodoro concluído! Deseja iniciar a pausa de 5 minutos?');
+                          if(iniciarDescansoBtn) {
+                              iniciarDescanso();
+                          } else {
+                              alert('Pausa ignorada. Você pode iniciar outro pomodoro quando quiser.');
+                              document.getElementById('cronometroInfo').innerHTML = '🍅 Pomodoro 25 minutos';
+                              tempoRestante = 25 * 60;
+                              emPausaEntrePomodoros = false;
+                              atualizarTimerDisplay();
+                              document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+                              document.getElementById('btnPausarFoco').style.display = 'none';
+                              pomodoroAtivo = false;
+                          }
+                      }
+                  }
+              }, 1000);
+              setTimeout(() => { playLofi(); }, 100);
+          }
+          return;
+      }
+      emPausaEntrePomodoros = false; 
+      pomodoroAtivo = true; 
+      pomodoroPausado = false; 
+      tempoFocoInicio = Date.now(); 
+      if(pomodoroInterval) clearInterval(pomodoroInterval); 
+      pomodoroInterval = setInterval(() => { 
+          if(!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) { 
+              tempoRestante--; 
+              atualizarTimerDisplay(); 
+              if(tempoRestante <= 0) { 
+                  clearInterval(pomodoroInterval); 
+                  const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000); 
+                  tempoTotalFocado += tempoGasto; 
+                  tempoFocadoHoje += tempoGasto; 
+                  if(tarefaFocoAtual) { 
+                      tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto; 
+                  } 
+                  stopLofi(); 
+                  tocarSino(); 
+                  salvarDados(); 
+                  const iniciarDescansoBtn = confirm('🎉 Pomodoro concluído! Deseja iniciar a pausa de 5 minutos?');
+                  if(iniciarDescansoBtn) {
+                      iniciarDescanso();
+                  } else {
+                      alert('Pausa ignorada. Você pode iniciar outro pomodoro quando quiser.');
+                      document.getElementById('cronometroInfo').innerHTML = '🍅 Pomodoro 25 minutos';
+                      tempoRestante = 25 * 60;
+                      emPausaEntrePomodoros = false;
+                      atualizarTimerDisplay();
+                      document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+                      document.getElementById('btnPausarFoco').style.display = 'none';
+                      pomodoroAtivo = false;
+                  }
+              } 
+          } 
+      }, 1000); 
+      document.getElementById('btnIniciarFoco').style.display = 'none'; 
+      document.getElementById('btnPausarFoco').style.display = 'inline-block'; 
+      document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...'; 
+      setTimeout(() => { playLofi(); }, 100); 
+  }
+  
+  function pausarPomodoro() { 
+      if(!pomodoroAtivo) return; 
+      if(!pomodoroPausado) { 
+          const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000); 
+          if(tempoDecorrido > 0) { 
+              tempoTotalFocado += tempoDecorrido; 
+              tempoFocadoHoje += tempoDecorrido; 
+              if(tarefaFocoAtual) { 
+                  tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido; 
+              } 
+              salvarDados(); 
+          } 
+          tempoFocoInicio = Date.now(); 
+      } else { 
+          tempoFocoInicio = Date.now(); 
+      } 
+      pomodoroPausado = !pomodoroPausado; 
+      document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar'; 
+      document.getElementById('cronometroInfo').innerHTML = pomodoroPausado ? '⏸ Pausado' : (emPausaEntrePomodoros ? '☕ Pausa' : '🍅 Focando...'); 
+      if(pomodoroPausado) stopLofi(); 
+      else playLofi(); 
+  }
+  
   function concluirTarefaFoco() { if(!tarefaFocoAtual) return; if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros) { const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000); if(tempoDecorrido > 0) { tempoTotalFocado += tempoDecorrido; tempoFocadoHoje += tempoDecorrido; tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido; salvarDados(); } } if(confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) { const idx = tarefas.findIndex(t => t.id === tarefaFocoAtual.id); if(idx !== -1) tarefas[idx].concluida = true; concluirComDuplicatas(tarefaFocoAtual.id); salvarDados(); fecharModoFoco(); } }
   function fecharModoFoco() { if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros && tarefaFocoAtual) { const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000); if(tempoDecorrido > 0) { tempoTotalFocado += tempoDecorrido; tempoFocadoHoje += tempoDecorrido; tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido; salvarDados(); } } if(pomodoroInterval) clearInterval(pomodoroInterval); pomodoroAtivo = false; stopLofi(); document.getElementById('modalFocoOverlay').classList.remove('show'); tarefaFocoAtual = null; emPausaEntrePomodoros = false; }
   function abrirModoFocoComTarefa(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; tarefaFocoAtual = tarefa; document.getElementById('tarefaFocoTexto').textContent = tarefa.texto; tempoRestante = 25 * 60; emPausaEntrePomodoros = false; pomodoroAtivo = false; if(pomodoroInterval) clearInterval(pomodoroInterval); atualizarTimerDisplay(); document.getElementById('btnIniciarFoco').style.display = 'inline-block'; document.getElementById('btnPausarFoco').style.display = 'none'; document.getElementById('cronometroInfo').innerHTML = '🍅 Pomodoro 25 minutos'; document.getElementById('modalFocoOverlay').classList.add('show'); if(lofiAudioElement) stopLofi(); }
