@@ -20,7 +20,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); background-attachment: fixed; padding: 16px; min-height: 100vh; transition: background 0.3s ease; }
   body.dark-theme { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
-  body.dark-theme .header, body.dark-theme .bloco-tarefa, body.dark-theme .estatisticas, body.dark-theme .metas-dashboard { background: rgba(10, 10, 20, 0.8); }
+  body.dark-theme .header-fluxo, body.dark-theme .bloco-tarefa, body.dark-theme .metas-dashboard { background: rgba(10, 10, 20, 0.8); }
   .status-online { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 8px 16px; border-radius: 40px; font-size: 12px; display: flex; align-items: center; gap: 8px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
   .status-offline { background: #ef4444; }
   .theme-toggle { background: rgba(255, 255, 255, 0.2); border: none; width: 36px; height: 36px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
@@ -177,7 +177,54 @@
   .action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; color: white; cursor: pointer; font-size: 12px; transition: all 0.3s; white-space: nowrap; }
   .action-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
   
-  /* ========== FIX FLUXO - METAS EM ANDAMENTO LEGÍVEIS ========== */
+  /* ========== FIX FLUXO V4 MOBILE - METAS CONTRASTE ========== */
+  .meta-card-mini {
+    min-width: 180px;
+    height: 48px;
+    padding: 6px 10px;
+    background: #242438 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    color: #ffffff !important;
+  }
+  
+  .meta-card-mini .circulo-pendente {
+    border: 2px solid rgba(255, 255, 255, 0.6) !important;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+  }
+  
+  .meta-card-mini .circulo-concluido {
+    background: #22c55e !important;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .meta-card-mini .circulo-concluido svg {
+    color: #ffffff;
+    stroke-width: 3;
+  }
+  
+  .meta-card-mini .titulo-meta {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  
   .metas-carousel {
     display: flex;
     gap: 8px;
@@ -188,46 +235,6 @@
   }
   .metas-carousel::-webkit-scrollbar {
     height: 4px;
-  }
-  .meta-card-mini {
-    min-width: 180px;
-    height: 48px;
-    padding: 6px 10px;
-    background: #242438 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-    color: rgba(255, 255, 255, 0.9) !important;
-  }
-  .meta-card-mini .titulo-meta {
-    color: rgba(255, 255, 255, 0.95) !important;
-    font-size: 13px;
-    font-weight: 500;
-  }
-  .meta-card-mini .tick-concluido {
-    color: #22c55e !important;
-    background: rgba(34, 197, 94, 0.15);
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .meta-card-mini .tick-pendente {
-    color: rgba(255, 255, 255, 0.4) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
   }
   
   .metas-dashboard { background: rgba(26, 27, 38, 0.6); backdrop-filter: blur(24px); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.08); display: none; }
@@ -260,24 +267,22 @@
     .blocos-tarefas { grid-template-columns: repeat(3, 1fr); }
   }
   
-  /* ========== FIX FLUXO V2.1 - CARD ESPAÇO COM ALTURA PERFEITA ========== */
-  .bloco-tarefa {
-    background: var(--card-bg);
-    backdrop-filter: blur(24px);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.3s;
+  /* ========== FIX FLUXO V4 MOBILE - CARD ESTRUTURA DESKTOP ========== */
+  .card-espaco {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: 320px;
+    background: #1e1e2e;
+    border-radius: 16px;
+    min-height: auto;
+    transition: all 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
-  .bloco-tarefa:hover {
-    background: var(--card-bg-hover);
+  .card-espaco:hover {
+    background: #242438;
   }
-  .bloco-tarefa.drag-over { border: 2px solid #667eea; background: rgba(102,126,234,0.2); }
+  .card-espaco.drag-over { border: 2px solid #667eea; background: rgba(102,126,234,0.2); }
   
-  .bloco-header {
+  .card-header {
     height: 40px;
     padding: 0 12px;
     background: #2a2a3e;
@@ -291,23 +296,113 @@
     border-radius: 16px 16px 0 0;
     flex-shrink: 0;
   }
-  .bloco-header .icon {
+  .card-header .icon {
     width: 16px;
     height: 16px;
     opacity: 0;
     transition: opacity 0.2s;
   }
-  .bloco-tarefa:hover .bloco-header .icon {
+  .card-espaco:hover .card-header .icon {
     opacity: 0.6;
   }
-  .bloco-header button { background: rgba(255,255,255,0.15); border: none; width: 28px; height: 28px; border-radius: 8px; color: white; cursor: pointer; margin-left: 4px; }
-  .bloco-header button:hover { background: rgba(255,255,255,0.25); }
+  .card-header button { background: rgba(255,255,255,0.15); border: none; width: 28px; height: 28px; border-radius: 8px; color: white; cursor: pointer; margin-left: 4px; }
+  .card-header button:hover { background: rgba(255,255,255,0.25); }
   
-  .tarefa-lista { 
-    padding: 12px;
+  .card-content { 
+    flex: 1;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* ========== FIX FLUXO V4 MOBILE - BOTÃO NOVA TAREFA ========== */
+  .btn-nova-tarefa {
+    margin: 0 16px 16px 16px;
+    height: 44px;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-nova-tarefa:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+  }
+  
+  /* ========== FIX FLUXO V4 MOBILE - ESTADO VAZIO ========== */
+  .estado-vazio {
     flex: 1;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    min-height: 180px;
+  }
+  .estado-vazio .icon-check {
+    width: 36px;
+    height: 36px;
+    color: rgba(168, 85, 247, 0.35);
+    margin-bottom: 6px;
+  }
+  .estado-vazio .icon-check i {
+    font-size: 32px;
+  }
+  .estado-vazio .titulo {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    text-align: center;
+  }
+  .estado-vazio .subtitulo {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    margin-top: -2px;
+  }
+  
+  /* ========== FIX FLUXO V4 MOBILE - CARD NOVO ESPAÇO ========== */
+  .card-novo-espaco {
+    background: rgba(30, 30, 46, 0.3);
+    border: 2px dashed rgba(168, 85, 247, 0.25);
+    backdrop-filter: blur(4px);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.4);
+    min-height: 320px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .card-novo-espaco:hover {
+    border-color: rgba(168, 85, 247, 0.5);
+    background: rgba(30, 30, 46, 0.5);
+    color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-2px);
+  }
+  .card-novo-espaco .icon-plus {
+    width: 28px;
+    height: 28px;
+    opacity: 0.6;
+  }
+  .card-novo-espaco .icon-plus i {
+    font-size: 28px;
+  }
+  .card-novo-espaco p {
+    font-size: 14px;
+    margin: 0;
   }
   
   /* ========== AJUSTE FLUXO - TASK ITEM COMPACTO ========== */
@@ -361,95 +456,32 @@
   .btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
   .btn-cancel { background: rgba(255, 255, 255, 0.1); color: white; }
   
-  /* ========== FIX FLUXO V2.1 - ESTADO VAZIO CENTRALIZADO PERFEITO ========== */
-  .estado-vazio-centralizado {
-    flex: 1;
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 16px;
-    min-height: 180px;
-  }
-  .estado-vazio-centralizado .icon-check {
-    width: 32px;
-    height: 32px;
-    color: rgba(168, 85, 247, 0.4);
-    margin-bottom: 0;
-  }
-  .estado-vazio-centralizado .icon-check i {
-    font-size: 32px;
-  }
-  .estado-vazio-centralizado .titulo {
-    font-size: 16px;
-    font-weight: 500;
-    color: #ffffff;
-    margin: 0;
-  }
-  .estado-vazio-centralizado .subtitulo {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 0;
-  }
-  
-  /* ========== FIX FLUXO V2.1 - BOTÃO NOVA TAREFA FORA DO FLEX ========== */
-  .btn-nova-tarefa-bottom {
-    height: 44px;
-    flex-shrink: 0;
-    margin: 12px;
-    width: calc(100% - 24px);
-    background: linear-gradient(90deg, #7c3aed, #a855f7);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-nova-tarefa-bottom:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
-  }
-  
-  /* ========== FIX FLUXO V2.1 - CARD NOVO ESPAÇO FANTASMA ========== */
-  .card-novo-espaco {
-    background: rgba(30, 30, 46, 0.3);
-    border: 2px dashed rgba(168, 85, 247, 0.25);
-    backdrop-filter: blur(4px);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 8px;
-    color: rgba(255, 255, 255, 0.4);
-    min-height: 320px;
-    transition: all 0.3s;
-    cursor: pointer;
-  }
-  .card-novo-espaco:hover {
-    border-color: rgba(168, 85, 247, 0.5);
-    background: rgba(30, 30, 46, 0.5);
-    color: rgba(255, 255, 255, 0.7);
-    transform: translateY(-2px);
-  }
-  .card-novo-espaco .icon-plus {
-    width: 28px;
-    height: 28px;
-    opacity: 0.6;
-  }
-  .card-novo-espaco .icon-plus i {
-    font-size: 28px;
-  }
-  .card-novo-espaco p {
-    font-size: 14px;
-    margin: 0;
+  /* ========== FIX FLUXO V4 MOBILE - RESPONSIVO MOBILE ========== */
+  @media (max-width: 768px) {
+    .card-espaco {
+      display: flex;
+      flex-direction: column;
+      min-height: 320px;
+    }
+    .card-espaco .card-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 16px;
+    }
+    
+    @supports (display: grid) {
+      .card-espaco {
+        display: grid !important;
+        grid-template-rows: 40px 1fr 52px;
+        min-height: 320px;
+      }
+      .card-espaco .card-header { grid-row: 1; }
+      .card-espaco .card-content { grid-row: 2; }
+      .card-espaco .btn-nova-tarefa { grid-row: 3; margin: 0 12px 12px 12px; }
+    }
   }
   
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
@@ -733,8 +765,8 @@
     }
     container.innerHTML = todasMetas.map(meta => `
       <div class="meta-card-mini ${meta.atingida ? 'atingida' : ''}" style="${meta.atingida ? 'opacity: 0.5;' : ''}">
-        <div class="${meta.atingida ? 'tick-concluido' : 'tick-pendente'}" onclick="toggleMeta(${meta.id})" style="cursor: pointer;">
-          ${meta.atingida ? '<i class="fas fa-check" style="font-size: 10px;"></i>' : ''}
+        <div class="${meta.atingida ? 'circulo-concluido' : 'circulo-pendente'}" onclick="toggleMeta(${meta.id})" style="cursor: pointer;">
+          ${meta.atingida ? '<i class="fas fa-check" style="font-size: 10px; color: white;"></i>' : ''}
         </div>
         <div style="flex:1; overflow:hidden;">
           <div class="titulo-meta">${escapeHtml(meta.texto.length > 25 ? meta.texto.substring(0,25) + '...' : meta.texto)}</div>
@@ -1209,7 +1241,7 @@
   
   function marcarTodasHoje() { const hoje = getDataHoje(); const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida); if(alvos.length===0) return alert('🎉 Nenhuma tarefa pendente para hoje!'); if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){ alvos.forEach(t=>t.concluida=true); salvarDados(); alert(`✅ ${alvos.length} tarefa(s) concluída(s)!`); } }
   
-  // ========== FIX FLUXO V2.1 - RENDERIZAR TAREFAS COM ESTADO VAZIO CENTRALIZADO ==========
+  // ========== FIX FLUXO V4 MOBILE - RENDERIZAR TAREFAS COM ESTRUTURA CORRETA ==========
   function renderizarTarefas() { 
       const container = document.getElementById('blocosTarefas'); 
       if(!container) return; 
@@ -1222,82 +1254,86 @@
           const cardId = card.id;
           const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'}; 
           const isAtrasada = (data) => data && data < hoje; 
+          
+          // ========== FIX FLUXO V4 MOBILE - ESTRUTURA CARD ESPAÇO ==========
           const div = document.createElement('div'); 
-          div.className='bloco-tarefa'; 
+          div.className = 'card-espaco'; 
           div.setAttribute('data-card-nome', card.nome); 
           div.setAttribute('data-card-id', cardId);
           div.setAttribute('ondragover', 'permitirDropCard(event)'); 
           div.setAttribute('ondragleave', 'removerDragOver(event)'); 
           div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); 
           
-          // ========== FIX FLUXO V2.1 - ESTADO VAZIO COM BOTÃO FORA ==========
-          div.innerHTML = `<div class="bloco-header">
+          div.innerHTML = `
+            <div class="card-header">
               <span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span>
               <div>
-                  <span>${ativas} ativas</span>
-                  <button onclick="editarCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-edit"></i></button>
-                  <button onclick="excluirCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-trash-alt"></i></button>
+                <span>${ativas} ativas</span>
+                <button onclick="editarCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-edit"></i></button>
+                <button onclick="excluirCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-trash-alt"></i></button>
               </div>
-          </div>
-          <div class="tarefa-lista">
+            </div>
+            <div class="card-content">
               ${lista.length === 0 ? `
-                  <div class="estado-vazio-centralizado">
-                      <div class="icon-check"><i class="fas fa-check-circle"></i></div>
-                      <p class="titulo">Tudo certo por aqui</p>
-                      <p class="subtitulo">Adicione uma tarefa</p>
-                  </div>
+                <div class="estado-vazio">
+                  <div class="icon-check"><i class="fas fa-check-circle"></i></div>
+                  <p class="titulo">Tudo certo por aqui</p>
+                  <p class="subtitulo">Adicione uma tarefa</p>
+                </div>
               ` : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`
-                  <div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
-                      <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                      <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
-                      <div class="tarefa-conteudo">
-                          <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
-                          <div class="tarefa-meta">
-                              ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}
-                              ${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
-                              ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
-                          </div>
-                      </div>
-                      <div class="card-actions">
-                          <button onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
-                          <button onclick="editarTarefaCompleta(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
-                          <button onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
-                          <button onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-                      </div>
-                  </div>`).join('')}
-          </div>
-          <button class="btn-nova-tarefa-bottom" onclick="mostrarFormAdicionar('${cardId}')">
+                <div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
+                  <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                  <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
+                  <div class="tarefa-conteudo">
+                    <div class="tarefa-texto">${escapeHtml(t.texto)}</div>
+                    <div class="tarefa-meta">
+                      ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}
+                      ${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
+                      ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
+                    </div>
+                  </div>
+                  <div class="card-actions">
+                    <button onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
+                    <button onclick="editarTarefaCompleta(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
+                    <button onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
+                    <button onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                  </div>
+                </div>`).join('')}
+            </div>
+            <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')">
               <i class="fas fa-plus-circle"></i> Nova Tarefa
-          </button>
-          <div class="inline-form" id="form-${cardId}">
+            </button>
+            <div class="inline-form" id="form-${cardId}">
               <input type="text" id="texto-${cardId}" placeholder="Descreva a tarefa..." maxlength="200">
               <input type="date" id="data-${cardId}" placeholder="Data" value="${getDataHoje()}">
               <select id="prioridade-${cardId}">
-                  <option value="p3">🟢 Baixa Prioridade</option>
-                  <option value="p2">🟡 Média Prioridade</option>
-                  <option value="p1">🔴 Alta Prioridade</option>
+                <option value="p3">🟢 Baixa Prioridade</option>
+                <option value="p2">🟡 Média Prioridade</option>
+                <option value="p1">🔴 Alta Prioridade</option>
               </select>
               <select id="recorrencia-${cardId}">
-                  <option value="">Sem recorrência</option>
-                  <option value="diaria">🔄 Diária</option>
-                  <option value="dias_uteis">📅 Dias úteis</option>
-                  <option value="semanal">📆 Semanal</option>
-                  <option value="mensal">📅 Mensal</option>
+                <option value="">Sem recorrência</option>
+                <option value="diaria">🔄 Diária</option>
+                <option value="dias_uteis">📅 Dias úteis</option>
+                <option value="semanal">📆 Semanal</option>
+                <option value="mensal">📅 Mensal</option>
               </select>
               <div class="inline-form-buttons">
-                  <button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button>
-                  <button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button>
+                <button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button>
+                <button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button>
               </div>
-          </div>`; 
+            </div>
+          `; 
           container.appendChild(div); 
       }); 
-      // ========== FIX FLUXO V2.1 - CARD NOVO ESPAÇO FANTASMA ==========
+      
+      // ========== FIX FLUXO V4 MOBILE - CARD NOVO ESPAÇO ==========
       const addCard = document.createElement('div'); 
       addCard.className = 'card-novo-espaco'; 
       addCard.onclick = () => adicionarCardTarefa(); 
       addCard.innerHTML = `
-          <div class="icon-plus"><i class="fas fa-plus-circle"></i></div>
-          <p>Novo Espaço</p>
+        <div class="icon-plus"><i class="fas fa-plus-circle"></i></div>
+        <p>Novo Espaço</p>
       `; 
       container.appendChild(addCard);
   }
@@ -1372,7 +1408,6 @@
   window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus); updateConnectionStatus();
   if ('Notification' in window && Notification.permission === 'granted') { setInterval(() => { const hoje = getDataHoje(); const agora = new Date(); const horaAtual = agora.getHours().toString().padStart(2,'0') + ':' + agora.getMinutes().toString().padStart(2,'0'); tarefas.forEach(t => { if (!t.concluida && t.data === hoje && t.hora === horaAtual && !t.notificado) { new Notification('⏰ Hora da tarefa!', { body: t.texto, icon: '🎯' }); t.notificado = true; salvarDados(); } }); }, 60000); }
   recarregarSistema(); initLofiAudio(); 
-  // ========== CORREÇÃO: setInterval com limpeza ==========
   window.dailyResetInterval = setInterval(()=>{ verificarResetDiario(); verificarResetFocoDiario(); }, 60000);
 </script>
 </body>
