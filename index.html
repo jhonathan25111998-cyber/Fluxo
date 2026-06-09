@@ -768,7 +768,6 @@
     renderizarCalendario(); 
     atualizarDashboard(); 
     renderizarMetasCompactas(); 
-    verificarConclusaoTotal(); 
     atualizarRodape();
     if(window.currentUser && window.salvarTudoFirebase) { 
       if(syncTimeout) clearTimeout(syncTimeout); 
@@ -848,7 +847,7 @@
   function marcarDuplicatasComoConcluidas(texto, data, cardNome, tarefaAtualId = null) { let marcadas = 0; tarefas.forEach(t => { if(tarefaAtualId && t.id === tarefaAtualId) return; if(t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && t.data === data && !t.concluida && t.bloco === cardNome) { t.concluida = true; t.notificado = true; marcadas++; } }); if(marcadas > 0) { salvarDados(); mostrarIndicadorSync(`⚠️ ${marcadas} duplicada(s) concluída(s)`); } return marcadas > 0; }
   function concluirComDuplicatas(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; tarefa.concluida = true; tarefas.forEach(t => { if(t.id !== id && t.texto.toLowerCase().trim() === tarefa.texto.toLowerCase().trim() && t.data === tarefa.data && !t.concluida && t.bloco === tarefa.bloco) { t.concluida = true; t.notificado = true; } }); salvarDados(); }
   
-  // ========== AJUSTE FLUXO - POMODORO COMPLETO COM OPÇÕES ==========
+  // ========== AJUSTE FLUXO - POMODORO CORRIGIDO ==========
   let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
   let aguardandoDecisao = false;
   
@@ -867,7 +866,11 @@
   }
   
   function prorrogarTempoFoco() { 
-    if(!pomodoroAtivo || emPausaEntrePomodoros || aguardandoDecisao) { 
+    if(aguardandoDecisao) {
+      alert('Aguardando decisão do pomodoro anterior. Feche o modal e reabra para continuar.');
+      return;
+    }
+    if(!pomodoroAtivo || emPausaEntrePomodoros) { 
       alert('⏰ Só pode prorrogar durante o foco ativo!'); 
       return; 
     } 
@@ -880,53 +883,58 @@
   }
   
   function finalizarPomodoro() {
-    if(pomodoroInterval) clearInterval(pomodoroInterval);
-    const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000);
-    tempoTotalFocado += tempoGasto;
-    tempoFocadoHoje += tempoGasto;
-    if(tarefaFocoAtual) {
-      tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto;
-    }
-    stopLofi();
-    tocarSino();
-    salvarDados();
-    
-    aguardandoDecisao = true;
-    pomodoroAtivo = false;
-    
-    // Mostrar opções para o usuário
-    const opcao = confirm('🎉 Pomodoro concluído!\n\nEscolha uma opção:\n• OK para iniciar PAUSA de 5 minutos\n• Cancelar para CONTINUAR com +10 minutos de foco');
-    
-    if (opcao) {
-      // Iniciar pausa
-      iniciarDescanso();
-    } else {
-      // Continuar com +10 minutos
-      tempoRestante = 10 * 60;
-      emPausaEntrePomodoros = false;
-      pomodoroAtivo = true;
-      pomodoroPausado = false;
-      tempoFocoInicio = Date.now();
-      atualizarTimerDisplay();
-      document.getElementById('cronometroInfo').innerHTML = '🍅 +10 minutos de foco!';
-      document.getElementById('btnIniciarFoco').style.display = 'none';
-      document.getElementById('btnPausarFoco').style.display = 'inline-block';
-      document.getElementById('btnPausarFoco').innerHTML = '<i class="fas fa-pause"></i> Pausar';
-      
+    try {
       if(pomodoroInterval) clearInterval(pomodoroInterval);
-      pomodoroInterval = setInterval(() => {
-        if(!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
-          tempoRestante--;
-          atualizarTimerDisplay();
-          if(tempoRestante <= 0) {
-            clearInterval(pomodoroInterval);
-            finalizarPomodoro();
-          }
+      const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+      if(tempoGasto > 0) {
+        tempoTotalFocado += tempoGasto;
+        tempoFocadoHoje += tempoGasto;
+        if(tarefaFocoAtual) {
+          tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto;
         }
-      }, 1000);
-      setTimeout(() => { playLofi(); }, 100);
+        salvarDados();
+      }
+      stopLofi();
+      tocarSino();
+      
+      aguardandoDecisao = true;
+      pomodoroAtivo = false;
+      
+      const opcao = confirm('🎉 Pomodoro concluído!\n\nEscolha uma opção:\n• OK para iniciar PAUSA de 5 minutos\n• Cancelar para CONTINUAR com +10 minutos de foco');
+      
+      if (opcao) {
+        iniciarDescanso();
+      } else {
+        tempoRestante = 10 * 60;
+        emPausaEntrePomodoros = false;
+        pomodoroAtivo = true;
+        pomodoroPausado = false;
+        tempoFocoInicio = Date.now();
+        atualizarTimerDisplay();
+        document.getElementById('cronometroInfo').innerHTML = '🍅 +10 minutos de foco!';
+        document.getElementById('btnIniciarFoco').style.display = 'none';
+        document.getElementById('btnPausarFoco').style.display = 'inline-block';
+        document.getElementById('btnPausarFoco').innerHTML = '<i class="fas fa-pause"></i> Pausar';
+        
+        if(pomodoroInterval) clearInterval(pomodoroInterval);
+        pomodoroInterval = setInterval(() => {
+          if(!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+            tempoRestante--;
+            atualizarTimerDisplay();
+            if(tempoRestante <= 0) {
+              clearInterval(pomodoroInterval);
+              finalizarPomodoro();
+            }
+          }
+        }, 1000);
+        setTimeout(() => { playLofi(); }, 100);
+      }
+      aguardandoDecisao = false;
+    } catch(e) {
+      console.error('Erro no finalizarPomodoro:', e);
+      aguardandoDecisao = false;
+      pomodoroAtivo = false;
     }
-    aguardandoDecisao = false;
   }
   
   function iniciarDescanso() {
@@ -1038,8 +1046,28 @@
   }
   
   function concluirTarefaFoco() { if(!tarefaFocoAtual) return; if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros && !aguardandoDecisao) { const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000); if(tempoDecorrido > 0) { tempoTotalFocado += tempoDecorrido; tempoFocadoHoje += tempoDecorrido; tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido; salvarDados(); } } if(confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) { const idx = tarefas.findIndex(t => t.id === tarefaFocoAtual.id); if(idx !== -1) tarefas[idx].concluida = true; concluirComDuplicatas(tarefaFocoAtual.id); salvarDados(); fecharModoFoco(); } }
-  function fecharModoFoco() { if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros && tarefaFocoAtual && !aguardandoDecisao) { const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000); if(tempoDecorrido > 0) { tempoTotalFocado += tempoDecorrido; tempoFocadoHoje += tempoDecorrido; tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido; salvarDados(); } } if(pomodoroInterval) clearInterval(pomodoroInterval); pomodoroAtivo = false; stopLofi(); document.getElementById('modalFocoOverlay').classList.remove('show'); tarefaFocoAtual = null; emPausaEntrePomodoros = false; aguardandoDecisao = false; }
+  
+  function fecharModoFoco() { 
+    if(pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros && tarefaFocoAtual && !aguardandoDecisao) { 
+      const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000); 
+      if(tempoDecorrido > 0) { 
+        tempoTotalFocado += tempoDecorrido; 
+        tempoFocadoHoje += tempoDecorrido; 
+        tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido; 
+        salvarDados(); 
+      } 
+    } 
+    if(pomodoroInterval) clearInterval(pomodoroInterval); 
+    pomodoroAtivo = false; 
+    stopLofi(); 
+    document.getElementById('modalFocoOverlay').classList.remove('show'); 
+    tarefaFocoAtual = null; 
+    emPausaEntrePomodoros = false; 
+    aguardandoDecisao = false; // RESET importante para não travar o prorrogar
+  }
+  
   function abrirModoFocoComTarefa(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; tarefaFocoAtual = tarefa; document.getElementById('tarefaFocoTexto').textContent = tarefa.texto; tempoRestante = 25 * 60; emPausaEntrePomodoros = false; pomodoroAtivo = false; aguardandoDecisao = false; if(pomodoroInterval) clearInterval(pomodoroInterval); atualizarTimerDisplay(); document.getElementById('btnIniciarFoco').style.display = 'inline-block'; document.getElementById('btnPausarFoco').style.display = 'none'; document.getElementById('cronometroInfo').innerHTML = '🍅 Pomodoro 25 minutos'; document.getElementById('modalFocoOverlay').classList.add('show'); if(lofiAudioElement) stopLofi(); }
+  
   function abrirModalReagendar(id) { tarefaReagendando = tarefas.find(t => t.id === id); if(tarefaReagendando) { document.getElementById('novaDataReagendar').value = tarefaReagendando.data || getDataHoje(); document.getElementById('modalReagendarOverlay').classList.add('show'); } }
   function fecharModalReagendar() { document.getElementById('modalReagendarOverlay').classList.remove('show'); tarefaReagendando = null; }
   function confirmarReagendamento() { const novaData = document.getElementById('novaDataReagendar').value; if(tarefaReagendando && novaData) { tarefaReagendando.data = novaData; tarefaReagendando.notificado = false; salvarDados(); alert(`✅ Tarefa reagendada para ${novaData}`); fecharModalReagendar(); } else { alert('Selecione uma data válida!'); } }
@@ -1055,12 +1083,16 @@
   function adicionarCardTarefa() { const nome = prompt('📋 Nome do novo espaço:'); if(nome && nome.trim()) { cardsTarefas.push({ id:'card_'+Date.now(), nome:nome.trim() }); salvarDados(); alert(`✅ Espaço "${nome}" criado!`); } }
   function editarCardTarefa(id) { const card = cardsTarefas.find(c=>c.id===id); if(card){ const novo = prompt('Editar nome:', card.nome); if(novo && novo.trim()){ card.nome=novo.trim(); salvarDados(); } } }
   
-  function adicionarTarefaInline(cardNome) { 
-      const texto = document.getElementById(`texto-${cardNome}`)?.value.trim(); 
+  // ========== AJUSTE FLUXO - ADICIONAR TAREFA COM ID DO CARD ==========
+  function adicionarTarefaInline(cardId) { 
+      const card = cardsTarefas.find(c => c.id === cardId);
+      if(!card) return;
+      const cardNome = card.nome;
+      const texto = document.getElementById(`texto-${cardId}`)?.value.trim(); 
       if(!texto) { alert('Digite uma tarefa!'); return; }
-      const data = document.getElementById(`data-${cardNome}`)?.value || getDataHoje(); 
-      const prioridade = document.getElementById(`prioridade-${cardNome}`)?.value || 'p3'; 
-      const recorrencia = document.getElementById(`recorrencia-${cardNome}`)?.value || ''; 
+      const data = document.getElementById(`data-${cardId}`)?.value || getDataHoje(); 
+      const prioridade = document.getElementById(`prioridade-${cardId}`)?.value || 'p3'; 
+      const recorrencia = document.getElementById(`recorrencia-${cardId}`)?.value || ''; 
       
       const duplicadaConcluida = tarefas.some(t => 
           t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && 
@@ -1083,8 +1115,8 @@
                   salvarDados();
                   alert('✅ Tarefa reativada!');
               }
-              document.getElementById(`texto-${cardNome}`).value = ''; 
-              document.getElementById(`form-${cardNome}`)?.classList.remove('show'); 
+              document.getElementById(`texto-${cardId}`).value = ''; 
+              document.getElementById(`form-${cardId}`)?.classList.remove('show'); 
               return;
           }
       }
@@ -1100,15 +1132,20 @@
       }
       
       tarefas.push({ id: Date.now(), texto, bloco: cardNome, data, prioridade, recorrencia, concluida: false, tempoGasto: 0, notificado: false, ordem: tarefas.filter(t=>t.bloco===cardNome && !t.concluida).length }); 
-      document.getElementById(`texto-${cardNome}`).value = ''; 
-      document.getElementById(`form-${cardNome}`)?.classList.remove('show'); 
+      document.getElementById(`texto-${cardId}`).value = ''; 
+      document.getElementById(`form-${cardId}`)?.classList.remove('show'); 
       salvarDados(); 
       alert('✅ Tarefa adicionada!');
   }
   
-  function mostrarFormAdicionar(cardNome) { const f = document.getElementById(`form-${cardNome.replace(/[^a-zA-Z0-9]/g, '')}`); if(f) f.classList.toggle('show'); }
+  function mostrarFormAdicionar(cardId) { 
+    const f = document.getElementById(`form-${cardId}`); 
+    if(f) f.classList.toggle('show'); 
+  }
+  
   function marcarTodasHoje() { const hoje = getDataHoje(); const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida); if(alvos.length===0) return alert('🎉 Nenhuma tarefa pendente para hoje!'); if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){ alvos.forEach(t=>t.concluida=true); salvarDados(); alert(`✅ ${alvos.length} tarefa(s) concluída(s)!`); } }
   
+  // ========== AJUSTE FLUXO - RENDERIZAR TAREFAS COM IDS CORRETOS ==========
   function renderizarTarefas() { 
       const container = document.getElementById('blocosTarefas'); 
       if(!container) return; 
@@ -1118,16 +1155,17 @@
           let lista = tarefas.filter(t=>t.bloco===card.nome); 
           lista = lista.filter(t => { if(!t.data || t.concluida) return false; return t.data === hoje || t.data < hoje; }); 
           const ativas = lista.filter(t=>!t.concluida).length; 
-          const formId = `form-${card.nome.replace(/[^a-zA-Z0-9]/g, '')}`; 
+          const cardId = card.id;
           const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'}; 
           const isAtrasada = (data) => data && data < hoje; 
           const div = document.createElement('div'); 
           div.className='bloco-tarefa'; 
           div.setAttribute('data-card-nome', card.nome); 
+          div.setAttribute('data-card-id', cardId);
           div.setAttribute('ondragover', 'permitirDropCard(event)'); 
           div.setAttribute('ondragleave', 'removerDragOver(event)'); 
           div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); 
-          div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button></div></div>
+          div.innerHTML = `<div class="bloco-header"><span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}')" event-stop><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}')" event-stop><i class="fas fa-trash-alt"></i></button></div></div>
           <div class="tarefa-lista">${lista.length === 0 ? '<div class="empty-state"><div class="icon"><i class="fas fa-check-circle"></i></div><p>Tudo certo por aqui</p><small>Adicione uma tarefa</small></div>' : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`
               <div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
                   <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
@@ -1141,14 +1179,14 @@
                       </div>
                   </div>
                   <div class="card-actions">
-                      <button onclick="abrirModalReagendar(${t.id})" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
-                      <button onclick="editarTarefaCompleta(${t.id})" title="Editar"><i class="fas fa-edit"></i></button>
-                      <button onclick="abrirModoFocoComTarefa(${t.id})" title="Modo Foco"><i class="fas fa-clock"></i></button>
-                      <button onclick="excluirTarefa(${t.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                      <button onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
+                      <button onclick="editarTarefaCompleta(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
+                      <button onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
+                      <button onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
                   </div>
               </div>`).join('')}
-          <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${escapeHtml(card.nome)}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button>
-          <div class="inline-form" id="${formId}"><input type="text" id="texto-${escapeHtml(card.nome)}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${escapeHtml(card.nome)}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${escapeHtml(card.nome)}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${escapeHtml(card.nome)}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${escapeHtml(card.nome)}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('${formId}').classList.remove('show')">Cancelar</button></div></div>
+          <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button>
+          <div class="inline-form" id="form-${cardId}"><input type="text" id="texto-${cardId}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${cardId}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${cardId}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${cardId}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button></div></div>
           </div>`; 
           container.appendChild(div); 
       }); 
