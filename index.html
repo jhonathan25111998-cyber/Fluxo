@@ -500,8 +500,8 @@
       localStorage.setItem('ultimaDataReagendamento', hoje);
       ultimaDataReagendamento = hoje;
       if(window.currentUser && window.salvarTudoFirebase) window.salvarTudoFirebase();
+      // REMOVIDO: atualizarRodape(); ← CAUSA DO LOOP
     }
-    atualizarRodape();
   }
   
   function reagendarTarefasPendentes() {
@@ -564,20 +564,24 @@
   }
   
   function atualizarRodape() {
-    resetarContadorReagendamento();
+    // REMOVIDO: resetarContadorReagendamento(); ← CAUSA DO LOOP
+    
     const hoje = getDataHoje();
-    const tarefasHoje = tarefas.filter(t => t.data === hoje);
+    const todasTarefas = tarefas;
+    const tarefasHoje = todasTarefas.filter(t => t.data === hoje);
     const concluidasHoje = tarefasHoje.filter(t => t.concluida).length;
     const totalHoje = tarefasHoje.length;
     const taxaHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
-    const pendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length;
+    const pendentes = todasTarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length;
     const horasFocoHoje = Math.floor(tempoFocadoHoje / 3600);
     const minutosFocoHoje = Math.floor((tempoFocadoHoje % 3600) / 60);
+    
     const footerConcluidas = document.getElementById('footerConcluidas');
     const footerTaxa = document.getElementById('footerTaxa');
     const footerPendentes = document.getElementById('footerPendentes');
     const footerTempo = document.getElementById('footerTempo');
     const footerReagendadasCount = document.getElementById('footerReagendadasCount');
+    
     if(footerConcluidas) footerConcluidas.textContent = concluidasHoje;
     if(footerTaxa) footerTaxa.textContent = `${taxaHoje}%`;
     if(footerPendentes) footerPendentes.textContent = pendentes;
