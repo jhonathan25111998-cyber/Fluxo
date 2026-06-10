@@ -27,7 +27,7 @@
   .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
   .container { max-width: 1200px; margin: 0 auto; width: 100%; padding: 0; }
   
-  /* ========== FIX FLUXO V4 MOBILE - HEADER RESPONSIVO ========== */
+  /* ========== FIX FLUXO - HEADER RESPONSIVO ========== */
   .header-fluxo {
     height: auto;
     min-height: 72px;
@@ -67,6 +67,41 @@
     white-space: nowrap;
   }
   
+  /* ========== FIX FLUXO - BOTÃO DE SINCRONIZAÇÃO DISCRETO ========== */
+  .sync-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    font-size: 14px;
+  }
+  
+  .sync-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: rotate(180deg);
+  }
+  
+  .sync-btn:active {
+    transform: rotate(360deg);
+  }
+  
+  .sync-btn.syncing i {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
   .logo-img { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
   .logo-img img { width: 32px; height: 32px; object-fit: contain; }
   .logo-texto .logo-titulo { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff, #f0f0f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -86,7 +121,7 @@
   .password-container { position: relative; width: 100%; margin-bottom: 16px; }
   .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; }
   
-  /* ========== FIX FLUXO V4 MOBILE - DATA EM CARD SEPARADO ========== */
+  /* ========== FIX FLUXO - DATA EM CARD SEPARADO ========== */
   .data-card-mobile {
     display: none;
   }
@@ -193,7 +228,7 @@
   .action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; color: white; cursor: pointer; font-size: 12px; transition: all 0.3s; white-space: nowrap; }
   .action-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
   
-  /* ========== FIX FLUXO V4 MOBILE - METAS CONTRASTE ========== */
+  /* ========== FIX FLUXO - METAS CONTRASTE ========== */
   .meta-card-mini {
     min-width: 180px;
     height: 48px;
@@ -283,7 +318,7 @@
     .blocos-tarefas { grid-template-columns: repeat(3, 1fr); }
   }
   
-  /* ========== FIX FLUXO V4 MOBILE - CARD ESTRUTURA DESKTOP ========== */
+  /* ========== FIX FLUXO - CARD ESTRUTURA DESKTOP ========== */
   .card-espaco {
     display: flex;
     flex-direction: column;
@@ -331,7 +366,7 @@
     flex-direction: column;
   }
   
-  /* ========== FIX FLUXO V4 MOBILE - BOTÃO NOVA TAREFA ========== */
+  /* ========== FIX FLUXO - BOTÃO NOVA TAREFA ========== */
   .btn-nova-tarefa {
     margin: 0 16px 16px 16px;
     height: 44px;
@@ -353,7 +388,7 @@
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
   }
   
-  /* ========== FIX FLUXO V4 MOBILE - ESTADO VAZIO ========== */
+  /* ========== FIX FLUXO - ESTADO VAZIO ========== */
   .estado-vazio {
     flex: 1;
     display: flex;
@@ -386,7 +421,7 @@
     margin-top: -2px;
   }
   
-  /* ========== FIX FLUXO V4 MOBILE - CARD NOVO ESPAÇO ========== */
+  /* ========== FIX FLUXO - CARD NOVO ESPAÇO ========== */
   .card-novo-espaco {
     background: rgba(30, 30, 46, 0.3);
     border: 2px dashed rgba(168, 85, 247, 0.25);
@@ -472,7 +507,7 @@
   .btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
   .btn-cancel { background: rgba(255, 255, 255, 0.1); color: white; }
   
-  /* ========== FIX FLUXO V4 MOBILE - RESPONSIVO MOBILE ========== */
+  /* ========== FIX FLUXO - RESPONSIVO MOBILE ========== */
   @media (max-width: 768px) {
     .card-espaco {
       display: flex;
@@ -500,7 +535,6 @@
     }
   }
   
-  /* ========== FIX FLUXO V4 MOBILE - HEADER + DATA CARD MOBILE ========== */
   @media (max-width: 640px) {
     .header-fluxo {
       flex-direction: column;
@@ -660,6 +694,9 @@
       </div>
     </div>
     <div class="header-direita">
+      <button class="sync-btn" id="syncNowBtn" title="Sincronizar tarefas recorrentes">
+        <i class="fas fa-sync-alt"></i>
+      </button>
       <span class="data-hoje" id="dataHojeHeader"></span>
       <div class="user-info">
         <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
@@ -670,7 +707,7 @@
     </div>
   </div>
   
-  <!-- ========== FIX FLUXO V4 MOBILE - DATA EM CARD SEPARADO ========== -->
+  <!-- ========== FIX FLUXO - DATA EM CARD SEPARADO ========== -->
   <div class="data-card-mobile" id="dataCardMobile">
     <div class="data-badge">
       <i class="fas fa-calendar-alt"></i>
@@ -769,7 +806,7 @@
   let dataCalendario = new Date();
   let intervalosNotificacoes = [];
   
-  // ========== FIX FLUXO V4 MOBILE - DATA HEADER ATUALIZADA ==========
+  // ========== FIX FLUXO - DATA HEADER ATUALIZADA ==========
   function atualizarDataHeader() {
     const hoje = new Date();
     const dataFormatada = hoje.toLocaleDateString('pt-BR', { 
@@ -943,7 +980,250 @@
   function soltarTarefa(event, cardNomeDestino, tarefaIdDestino) { event.preventDefault(); event.currentTarget.classList.remove('drag-over'); if(!tarefaArrastandoId) return; if(tarefaArrastandoOrigem === cardNomeDestino && tarefaIdDestino) { reordenarTarefas(cardNomeDestino, tarefaArrastandoId, tarefaIdDestino); } else if(tarefaArrastandoOrigem !== cardNomeDestino) { const tarefa = tarefas.find(t => t.id === tarefaArrastandoId); if(tarefa) { tarefa.bloco = cardNomeDestino; salvarDados(); mostrarIndicadorSync(`📦 Tarefa movida para "${cardNomeDestino}"`); } } tarefaArrastandoId = null; tarefaArrastandoOrigem = null; document.querySelectorAll('.tarefa-item').forEach(el => el.classList.remove('dragging')); }
   function reordenarTarefas(cardNome, tarefaIdOrigem, tarefaIdDestino) { const tarefasDoCard = tarefas.filter(t => t.bloco === cardNome && !t.concluida).sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); const indexOrigem = tarefasDoCard.findIndex(t => t.id === tarefaIdOrigem); const indexDestino = tarefasDoCard.findIndex(t => t.id === tarefaIdDestino); if(indexOrigem === -1 || indexDestino === -1) return; const [item] = tarefasDoCard.splice(indexOrigem, 1); tarefasDoCard.splice(indexDestino, 0, item); tarefasDoCard.forEach((t, idx) => { const tarefaGlobal = tarefas.find(gt => gt.id === t.id); if(tarefaGlobal) tarefaGlobal.ordem = idx; }); salvarDados(); mostrarIndicadorSync('📌 Ordem atualizada'); }
   
-  // ========== CORREÇÃO: salvarDados sem duplicação ==========
+  // ========== FIX FLUXO - TAREFAS RECORRENTES CORRIGIDAS ==========
+  
+  // Função para gerar próxima ocorrência de uma tarefa recorrente
+  function gerarProximaOcorrencia(tarefa) {
+    if (!tarefa.recorrencia || tarefa.recorrencia === '') return null;
+    if (!tarefa.concluida) return null;
+    
+    const hoje = getDataHoje();
+    let proximaData = new Date(tarefa.data);
+    let dataValida = false;
+    
+    switch(tarefa.recorrencia) {
+      case 'diaria':
+        proximaData.setDate(proximaData.getDate() + 1);
+        dataValida = true;
+        break;
+      case 'dias_uteis':
+        proximaData.setDate(proximaData.getDate() + 1);
+        while (proximaData.getDay() === 0 || proximaData.getDay() === 6) {
+          proximaData.setDate(proximaData.getDate() + 1);
+        }
+        dataValida = true;
+        break;
+      case 'semanal':
+        proximaData.setDate(proximaData.getDate() + 7);
+        dataValida = true;
+        break;
+      case 'mensal':
+        proximaData.setMonth(proximaData.getMonth() + 1);
+        dataValida = true;
+        break;
+      default:
+        return null;
+    }
+    
+    if (!dataValida) return null;
+    
+    const novaDataStr = proximaData.toISOString().split('T')[0];
+    
+    // Só gera se a nova data for >= hoje
+    if (novaDataStr < hoje) return null;
+    
+    // Verifica se já existe uma tarefa igual para essa data
+    const jaExiste = tarefas.some(t => 
+      t.texto === tarefa.texto && 
+      t.data === novaDataStr && 
+      t.recorrencia === tarefa.recorrencia
+    );
+    
+    if (jaExiste) return null;
+    
+    return {
+      id: Date.now() + Math.random(),
+      texto: tarefa.texto,
+      bloco: tarefa.bloco,
+      data: novaDataStr,
+      prioridade: tarefa.prioridade,
+      recorrencia: tarefa.recorrencia,
+      concluida: false,
+      tempoGasto: 0,
+      notificado: false,
+      ordem: tarefas.filter(t => t.bloco === tarefa.bloco && !t.concluida).length
+    };
+  }
+  
+  // Função de sincronização manual de tarefas recorrentes
+  function sincronizarTarefasRecorrentes() {
+    const syncBtn = document.getElementById('syncNowBtn');
+    
+    if (syncBtn) {
+      syncBtn.classList.add('syncing');
+      syncBtn.disabled = true;
+    }
+    
+    mostrarIndicadorSync('🔄 Verificando tarefas recorrentes...');
+    
+    const hoje = getDataHoje();
+    let tarefasGeradas = 0;
+    let tarefasAtualizadas = [];
+    
+    // Verificar tarefas recorrentes concluídas que precisam de nova ocorrência
+    for(let t of tarefas) {
+      if (t.recorrencia && t.recorrencia !== '' && t.concluida) {
+        const novaTarefa = gerarProximaOcorrencia(t);
+        if (novaTarefa && novaTarefa.data >= hoje) {
+          const jaExiste = tarefas.some(existente => 
+            existente.texto === novaTarefa.texto && 
+            existente.data === novaTarefa.data &&
+            existente.recorrencia === novaTarefa.recorrencia
+          );
+          
+          if (!jaExiste) {
+            tarefas.push(novaTarefa);
+            tarefasGeradas++;
+            console.log(`🔄 Tarefa recorrente gerada: "${novaTarefa.texto}" para ${novaTarefa.data}`);
+          }
+        }
+      }
+    }
+    
+    // Verificar tarefas não concluídas que estão atrasadas
+    for(let i = 0; i < tarefas.length; i++) {
+      const t = tarefas[i];
+      if (t.recorrencia && t.recorrencia !== '' && !t.concluida && t.data < hoje) {
+        t.concluida = true;
+        const novaTarefa = gerarProximaOcorrencia(t);
+        if (novaTarefa && novaTarefa.data === hoje) {
+          const jaExiste = tarefas.some(existente => 
+            existente.texto === novaTarefa.texto && 
+            existente.data === novaTarefa.data &&
+            existente.recorrencia === novaTarefa.recorrencia
+          );
+          
+          if (!jaExiste) {
+            tarefas.push(novaTarefa);
+            tarefasGeradas++;
+            console.log(`🔄 Tarefa atrasada reagendada: "${novaTarefa.texto}" para hoje`);
+          }
+        }
+        tarefasAtualizadas.push(t);
+      }
+    }
+    
+    // Atualizar a data de último reset
+    if (ultimaDataReset !== hoje) {
+      localStorage.setItem('ultimaDataReset', hoje);
+      ultimaDataReset = hoje;
+    }
+    
+    // Salvar e recarregar
+    if (tarefasGeradas > 0 || tarefasAtualizadas.length > 0) {
+      salvarDados();
+    }
+    
+    if (tarefasGeradas > 0) {
+      mostrarIndicadorSync(`✅ ${tarefasGeradas} tarefa(s) recorrente(s) gerada(s)`);
+    } else {
+      mostrarIndicadorSync('✅ Nenhuma tarefa recorrente pendente');
+    }
+    
+    if (syncBtn) {
+      setTimeout(() => {
+        syncBtn.classList.remove('syncing');
+        syncBtn.disabled = false;
+      }, 500);
+    }
+  }
+  
+  // Substituir a função concluirComDuplicatas
+  function concluirComDuplicatas(id) { 
+    const tarefa = tarefas.find(t => t.id === id); 
+    if(!tarefa) return; 
+    
+    tarefa.concluida = true; 
+    
+    // Marcar outras duplicadas como concluídas
+    tarefas.forEach(t => { 
+      if(t.id !== id && t.texto.toLowerCase().trim() === tarefa.texto.toLowerCase().trim() && 
+         t.data === tarefa.data && !t.concluida && t.bloco === tarefa.bloco) { 
+        t.concluida = true; 
+        t.notificado = true; 
+      } 
+    });
+    
+    // GERAR PRÓXIMA OCORRÊNCIA PARA TAREFA RECORRENTE
+    if (tarefa.recorrencia && tarefa.recorrencia !== '') {
+      const novaTarefa = gerarProximaOcorrencia(tarefa);
+      if (novaTarefa) {
+        tarefas.push(novaTarefa);
+        console.log(`🔄 Tarefa recorrente gerada: "${novaTarefa.texto}" para ${novaTarefa.data}`);
+        mostrarIndicadorSync(`🔄 Nova ocorrência gerada para ${novaTarefa.data}`);
+      }
+    }
+    
+    salvarDados(); 
+  }
+  
+  // Função para verificar tarefas do dia
+  function verificarTarefasDoDia() {
+    const hoje = getDataHoje();
+    let tarefasGeradas = 0;
+    
+    for(let t of tarefas) {
+      if (t.recorrencia && t.recorrencia !== '' && !t.concluida && t.data < hoje) {
+        t.concluida = true;
+        const novaTarefa = gerarProximaOcorrencia(t);
+        if (novaTarefa && novaTarefa.data === hoje) {
+          const jaExiste = tarefas.some(existente => 
+            existente.texto === novaTarefa.texto && 
+            existente.data === novaTarefa.data &&
+            existente.recorrencia === novaTarefa.recorrencia
+          );
+          
+          if (!jaExiste) {
+            tarefas.push(novaTarefa);
+            tarefasGeradas++;
+            console.log(`🔄 Tarefa atrasada reagendada: "${novaTarefa.texto}" para hoje`);
+          }
+        }
+      }
+    }
+    
+    if (tarefasGeradas > 0) {
+      mostrarIndicadorSync(`🔄 ${tarefasGeradas} tarefa(s) reagendada(s) para hoje`);
+      salvarDados();
+    }
+  }
+  
+  // Substituir a função verificarResetDiario
+  function verificarResetDiario() { 
+    const hoje = getDataHoje(); 
+    if (ultimaDataReset !== hoje) { 
+      console.log('🔄 Reset diário - Data:', hoje);
+      const novasTarefas = [];
+      
+      for(let t of tarefas) {
+        if (t.recorrencia && t.recorrencia !== '' && t.concluida) {
+          const temFutura = tarefas.some(t2 => 
+            t2.texto === t.texto && 
+            t2.data > t.data && 
+            t2.recorrencia === t.recorrencia
+          );
+          
+          if (!temFutura) {
+            const novaTarefa = gerarProximaOcorrencia(t);
+            if (novaTarefa && novaTarefa.data === hoje) {
+              novasTarefas.push(novaTarefa);
+              console.log(`🔄 Tarefa recorrente gerada no reset: "${novaTarefa.texto}" para hoje`);
+            }
+          }
+        }
+      }
+      
+      if (novasTarefas.length > 0) {
+        tarefas.push(...novasTarefas);
+        mostrarIndicadorSync(`🔄 ${novasTarefas.length} tarefa(s) recorrente(s) gerada(s) para hoje`);
+      }
+      
+      localStorage.setItem('ultimaDataReset', hoje);
+      ultimaDataReset = hoje;
+      salvarDados();
+    }
+  }
+  
   function salvarDados() { 
     localStorage.setItem('tarefas', JSON.stringify(tarefas)); 
     localStorage.setItem('metas', JSON.stringify(metas)); 
@@ -979,51 +1259,6 @@
   function ajustarVolumeFoco(val) { if(lofiAudioElement) lofiAudioElement.volume = val / 100; }
   function tocarSino() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const now = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'sine'; osc.frequency.value = 880; gain.gain.value = 0.25; osc.connect(gain); gain.connect(ctx.destination); osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, now + 10); osc.stop(now + 10); setTimeout(() => ctx.close(), 11000); } catch(e) {} }
   
-  function verificarResetDiario() { 
-      const hoje = getDataHoje(); 
-      if (ultimaDataReset !== hoje) { 
-          console.log('🔄 Reset diário - Data:', hoje);
-          const novasTarefas = [];
-          const tarefasAtualizadas = [];
-          for(let t of tarefas) {
-              if (t.recorrencia && t.recorrencia !== '' && t.concluida) {
-                  let proximaData = new Date(t.data);
-                  switch(t.recorrencia) {
-                      case 'diaria': proximaData.setDate(proximaData.getDate() + 1); break;
-                      case 'dias_uteis': 
-                          proximaData.setDate(proximaData.getDate() + 1);
-                          while (proximaData.getDay() === 0 || proximaData.getDay() === 6) proximaData.setDate(proximaData.getDate() + 1);
-                          break;
-                      case 'semanal': proximaData.setDate(proximaData.getDate() + 7); break;
-                      case 'mensal': proximaData.setMonth(proximaData.getMonth() + 1); break;
-                      default: break;
-                  }
-                  const novaDataStr = proximaData.toISOString().split('T')[0];
-                  const jaExiste = tarefas.some(t2 => t2.texto === t.texto && t2.data === novaDataStr && t2.recorrencia === t.recorrencia);
-                  if(!jaExiste && novaDataStr >= hoje) {
-                      novasTarefas.push({ 
-                          ...t, 
-                          concluida: false, 
-                          data: novaDataStr, 
-                          notificado: false, 
-                          id: Date.now() + Math.random(),
-                          tempoGasto: 0
-                      });
-                      console.log(`🔄 Tarefa recorrente gerada: "${t.texto}" para ${novaDataStr}`);
-                  }
-              }
-              tarefasAtualizadas.push(t);
-          }
-          tarefas = [...tarefasAtualizadas, ...novasTarefas];
-          localStorage.setItem('ultimaDataReset', hoje);
-          ultimaDataReset = hoje;
-          salvarDados();
-          if(novasTarefas.length > 0) {
-              mostrarIndicadorSync(`🔄 ${novasTarefas.length} tarefa(s) recorrente(s) gerada(s)`);
-          }
-      }
-  }
-  
   function verificarTarefaDuplicada(texto, data, cardNome, idIgnorar = null, incluirConcluidas = true) {
       return tarefas.some(t => {
           if(idIgnorar && t.id === idIgnorar) return false;
@@ -1033,7 +1268,6 @@
   }
   
   function marcarDuplicatasComoConcluidas(texto, data, cardNome, tarefaAtualId = null) { let marcadas = 0; tarefas.forEach(t => { if(tarefaAtualId && t.id === tarefaAtualId) return; if(t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && t.data === data && !t.concluida && t.bloco === cardNome) { t.concluida = true; t.notificado = true; marcadas++; } }); if(marcadas > 0) { salvarDados(); mostrarIndicadorSync(`⚠️ ${marcadas} duplicada(s) concluída(s)`); } return marcadas > 0; }
-  function concluirComDuplicatas(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; tarefa.concluida = true; tarefas.forEach(t => { if(t.id !== id && t.texto.toLowerCase().trim() === tarefa.texto.toLowerCase().trim() && t.data === tarefa.data && !t.concluida && t.bloco === tarefa.bloco) { t.concluida = true; t.notificado = true; } }); salvarDados(); }
   
   // ========== AJUSTE FLUXO - POMODORO CORRIGIDO ==========
   let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
@@ -1333,7 +1567,7 @@
   
   function marcarTodasHoje() { const hoje = getDataHoje(); const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida); if(alvos.length===0) return alert('🎉 Nenhuma tarefa pendente para hoje!'); if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){ alvos.forEach(t=>t.concluida=true); salvarDados(); alert(`✅ ${alvos.length} tarefa(s) concluída(s)!`); } }
   
-  // ========== FIX FLUXO V4 MOBILE - RENDERIZAR TAREFAS COM ESTRUTURA CORRETA ==========
+  // ========== FIX FLUXO - RENDERIZAR TAREFAS COM ESTRUTURA CORRETA ==========
   function renderizarTarefas() { 
       const container = document.getElementById('blocosTarefas'); 
       if(!container) return; 
@@ -1347,7 +1581,7 @@
           const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'}; 
           const isAtrasada = (data) => data && data < hoje; 
           
-          // ========== FIX FLUXO V4 MOBILE - ESTRUTURA CARD ESPAÇO ==========
+          // ========== FIX FLUXO - ESTRUTURA CARD ESPAÇO ==========
           const div = document.createElement('div'); 
           div.className = 'card-espaco'; 
           div.setAttribute('data-card-nome', card.nome); 
@@ -1419,7 +1653,7 @@
           container.appendChild(div); 
       }); 
       
-      // ========== FIX FLUXO V4 MOBILE - CARD NOVO ESPAÇO ==========
+      // ========== FIX FLUXO - CARD NOVO ESPAÇO ==========
       const addCard = document.createElement('div'); 
       addCard.className = 'card-novo-espaco'; 
       addCard.onclick = () => adicionarCardTarefa(); 
@@ -1449,8 +1683,11 @@
     tempoFocadoHoje = parseInt(localStorage.getItem('tempoFocadoHoje')||'0'); 
     ultimaDataFoco = localStorage.getItem('ultimaDataFoco') || ''; 
     if(cardsTarefas.length===0) cardsTarefas=[{id:"default",nome:"Minhas Tarefas"}]; 
+    
     verificarResetDiario(); 
-    verificarResetFocoDiario(); 
+    verificarResetFocoDiario();
+    verificarTarefasDoDia();
+    
     renderizarTarefas(); 
     renderizarMetas(); 
     renderizarCalendario(); 
@@ -1460,6 +1697,12 @@
     atualizarRodape();
     atualizarDataHeader();
   }
+  
+  // Event listener do botão de sincronização
+  document.getElementById('syncNowBtn')?.addEventListener('click', () => {
+    sincronizarTarefasRecorrentes();
+  });
+  
   window.recarregarSistema = recarregarSistema;
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
   window.iniciarDragTarefa = iniciarDragTarefa;
