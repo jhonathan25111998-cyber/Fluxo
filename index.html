@@ -295,11 +295,6 @@
     justify-content: center;
   }
   
-  .meta-card-mini .circulo-concluido svg {
-    color: #ffffff;
-    stroke-width: 3;
-  }
-  
   .meta-card-mini .titulo-meta {
     color: rgba(255, 255, 255, 0.95) !important;
     font-size: 13px;
@@ -713,7 +708,7 @@
 <body>
 <div class="login-overlay" id="loginOverlay"><div class="login-container"><div class="logo-img" style="margin:0 auto 20px;"><img src="logo.png" alt="FLUXO" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div><h2>FLUXO</h2><p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p><div id="loginForm"><input type="email" id="loginEmail" placeholder="Email"><div class="password-container"><input type="password" id="loginPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword',this)"><i class="far fa-eye"></i></button></div><div id="loginErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerLogin()">Entrar</button><a class="register-link" onclick="mostrarCadastro()">Criar conta</a></div><div id="registerForm" style="display:none;"><input type="email" id="registerEmail" placeholder="Email"><div class="password-container"><input type="password" id="registerPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerPassword',this)"><i class="far fa-eye"></i></button></div><div class="password-container"><input type="password" id="registerConfirm" placeholder="Confirmar senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerConfirm',this)"><i class="far fa-eye"></i></button></div><div id="registerErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerCadastro()">Cadastrar</button><a class="register-link" onclick="mostrarLogin()">Já tenho conta</a></div></div></div>
 
-<div class="container" id="mainApp" style="display:none;">
+<div class="container" id="mainApp" style="display:block;">
   <!-- ========== AJUSTE FLUXO - HEADER COMPACTO ========== -->
   <div class="header-fluxo">
     <div class="header-logo">
@@ -783,7 +778,7 @@
   
   <div id="statusConnection" class="status-online"><i class="fas fa-wifi"></i> Online</div>
   
-  <div id="cardsView"><div class="blocos-tarefas" id="blocosTarefas"></div></div>
+  <div id="cardsView" style="display:block;"><div class="blocos-tarefas" id="blocosTarefas"></div></div>
   
   <div id="calendarioView" style="display:none;"><div class="calendario-nav"><div class="calendario-nav-buttons"><button class="btn-glass" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button><button class="btn-glass" onclick="mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button></div><span id="calendarioMes" style="color:white;font-weight:600;font-size:18px;"></span><div class="calendario-nav-buttons"><button class="btn-glass" onclick="irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button><button class="btn-glass" onclick="irParaData()"><i class="fas fa-search"></i> Ir para data</button></div></div><div id="calendarioGrade" class="calendario-grade"></div></div>
   
@@ -907,6 +902,18 @@
   let tarefaArrastandoOrigem = null;
   let dataCalendario = new Date();
   let intervalosNotificacoes = [];
+  
+  // ========== FIX FLUXO - GARANTIR QUE TELA INICIAL MOSTRE CARDS ==========
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('cardsView').style.display = 'block';
+    document.getElementById('calendarioView').style.display = 'none';
+    if(typeof toggleView === 'function') {
+      const activeBtn = document.querySelector('.view-btn.active');
+      if(activeBtn && activeBtn.textContent.includes('Calendário')) {
+        toggleView('cards');
+      }
+    }
+  });
   
   // ========== MENSAGENS ALEATÓRIAS DE CONCLUSÃO ==========
   const mensagensConclusao = [
@@ -1096,11 +1103,12 @@
   function atualizarRodape() {
     resetarContadorReagendamento();
     const hoje = getDataHoje();
-    const tarefasHoje = tarefas.filter(t => t.data === hoje);
+    const todasTarefas = tarefas;
+    const tarefasHoje = todasTarefas.filter(t => t.data === hoje);
     const concluidasHoje = tarefasHoje.filter(t => t.concluida).length;
     const totalHoje = tarefasHoje.length;
     const taxaHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
-    const pendentes = tarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length;
+    const pendentes = todasTarefas.filter(t => t.data && t.data <= hoje && !t.concluida).length;
     const horasFocoHoje = Math.floor(tempoFocadoHoje / 3600);
     const minutosFocoHoje = Math.floor((tempoFocadoHoje % 3600) / 60);
     
@@ -1110,11 +1118,13 @@
     const footerTempo = document.getElementById('footerTempo');
     const footerReagendadasCount = document.getElementById('footerReagendadasCount');
     
-    if (footerConcluidas) footerConcluidas.textContent = concluidasHoje;
-    if (footerTaxa) footerTaxa.textContent = `${taxaHoje}%`;
-    if (footerPendentes) footerPendentes.textContent = pendentes;
-    if (footerTempo) footerTempo.textContent = `${horasFocoHoje}h ${minutosFocoHoje}m`;
-    if (footerReagendadasCount) footerReagendadasCount.textContent = tarefasReagendadasHoje;
+    if(footerConcluidas) footerConcluidas.textContent = concluidasHoje;
+    if(footerTaxa) footerTaxa.textContent = `${taxaHoje}%`;
+    if(footerPendentes) footerPendentes.textContent = pendentes;
+    if(footerTempo) footerTempo.textContent = `${horasFocoHoje}h ${minutosFocoHoje}m`;
+    if(footerReagendadasCount) footerReagendadasCount.textContent = tarefasReagendadasHoje;
+    
+    console.log(`📊 Rodapé atualizado: ${concluidasHoje}/${totalHoje} concluídas (${taxaHoje}%)`);
   }
   
   function verificarResetFocoDiario() { const hoje = getDataHoje(); if (ultimaDataFoco !== hoje) { tempoFocadoHoje = 0; localStorage.setItem('tempoFocadoHoje', '0'); localStorage.setItem('ultimaDataFoco', hoje); ultimaDataFoco = hoje; console.log('🔄 Tempo focado resetado para o novo dia:', hoje); salvarDados(); } }
@@ -1806,7 +1816,17 @@
   function adicionarTarefaCalendario(data) { const texto = prompt('📝 Digite a tarefa:'); if(!texto || !texto.trim()) return; const prioridade = prompt('Prioridade:\n1 - Alta 🔴\n2 - Média 🟡\n3 - Baixa 🟢', '3'); let prioridadeValue = 'p3'; if(prioridade === '1') prioridadeValue = 'p1'; else if(prioridade === '2') prioridadeValue = 'p2'; const cardNome = prompt('Qual espaço? (deixe em branco para "Minhas Tarefas")', 'Minhas Tarefas'); const cardDestino = cardNome && cardNome.trim() ? cardNome.trim() : 'Minhas Tarefas'; let cardExistente = cardsTarefas.find(c => c.nome === cardDestino); if(!cardExistente) { cardsTarefas.push({ id: 'card_' + Date.now(), nome: cardDestino }); cardExistente = cardsTarefas.find(c => c.nome === cardDestino); } const duplicadaConcluida = tarefas.some(t => t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && t.data === data && t.concluida && t.bloco === cardDestino); if(duplicadaConcluida) { if(confirm(`⚠️ Já existe uma tarefa CONCLUÍDA "${texto}" para ${data}.\n\nDeseja REATIVÁ-LA em vez de criar uma nova?`)) { const tarefaExistente = tarefas.find(t => t.texto.toLowerCase().trim() === texto.toLowerCase().trim() && t.data === data && t.concluida && t.bloco === cardDestino); if(tarefaExistente) { tarefaExistente.concluida = false; tarefaExistente.notificado = false; salvarDados(); alert('✅ Tarefa reativada!'); renderizarCalendario(); } return; } } if(verificarTarefaDuplicada(texto, data, cardDestino)) { if(!confirm(`⚠️ Já existe uma tarefa ATIVA "${texto}" para ${data}.\n\nDeseja criar mesmo assim?`)) return; } tarefas.push({ id: Date.now(), texto: texto.trim(), bloco: cardDestino, data: data, prioridade: prioridadeValue, recorrencia: '', concluida: false, tempoGasto: 0, notificado: false, ordem: tarefas.filter(t => t.bloco === cardDestino && !t.concluida).length }); salvarDados(); renderizarCalendario(); mostrarIndicadorSync(`✅ Tarefa adicionada em ${data}!`); }
   function abrirOpcoesTarefaCalendario(id, texto, data) { const opcao = prompt(`📋 Tarefa: ${texto}\n📅 Data: ${data}\n\nO que deseja fazer?\n1 - Concluir tarefa\n2 - Editar tarefa\n3 - Reagendar tarefa\n4 - Excluir tarefa\n\nDigite o número da opção:`); if(opcao === '1') { concluirTarefaCalendario(id); } else if(opcao === '2') { abrirEditarTarefaCalendario(id); } else if(opcao === '3') { abrirModalReagendar(id); setTimeout(() => renderizarCalendario(), 100); } else if(opcao === '4') { if(confirm(`Excluir tarefa "${texto}"?`)) { excluirTarefa(id); renderizarCalendario(); } } }
   function renderizarCalendario() { const ano = dataCalendario.getFullYear(), mes = dataCalendario.getMonth(); const primeiroDia = new Date(ano, mes, 1).getDay(); const diasNoMes = new Date(ano, mes + 1, 0).getDate(); const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`; let html = '<div class="calendario-grade">'; const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; for(let i = 0; i < 7; i++) { html += `<div class="calendario-dia-semana">${diasSemana[i]}</div>`; } let dia = 1; const hoje = getDataHoje(); const hojeObj = new Date(); const mesAtual = hojeObj.getMonth(); const anoAtual = hojeObj.getFullYear(); for(let i = 0; i < 42; i++) { if(i < primeiroDia || dia > diasNoMes) { html += `<div class="calendario-dia" style="opacity:0.3; min-height:100px;"></div>`; } else { const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`; const tarefasDia = tarefas.filter(t => t.data === dataStr && !t.concluida); const tarefasConcluidasDia = tarefas.filter(t => t.data === dataStr && t.concluida).length; const isHoje = (ano === anoAtual && mes === mesAtual && dia === hojeObj.getDate()); html += `<div class="calendario-dia ${isHoje ? 'hoje' : ''}"><div class="calendario-dia-header"><span class="calendario-dia-numero">${dia}</span>${tarefasConcluidasDia > 0 ? `<span class="calendario-dia-badge">✓${tarefasConcluidasDia}</span>` : ''}</div><div class="calendario-tarefas">${tarefasDia.slice(0, 3).map(t => `<div class="calendario-tarefa-item ${t.data && t.data < hoje ? 'atrasada' : ''}" onclick="abrirOpcoesTarefaCalendario(${t.id}, '${escapeHtml(t.texto).replace(/'/g, "\\'")}', '${t.data}')"><span class="calendario-tarefa-texto" title="${escapeHtml(t.texto)}">${escapeHtml(t.texto.substring(0, 25))}${t.texto.length > 25 ? '...' : ''}</span><div class="calendario-acoes"><button class="calendario-btn-edit" onclick="event.stopPropagation(); abrirEditarTarefaCalendario(${t.id})" title="Editar">✏️</button><button class="calendario-btn-check" onclick="event.stopPropagation(); concluirTarefaCalendario(${t.id})" title="Concluir">✓</button></div></div>`).join('')}${tarefasDia.length > 3 ? `<div style="font-size:9px; color:#667eea; text-align:center; margin-top:4px;">+${tarefasDia.length - 3} mais</div>` : ''}</div><button class="calendario-add-btn" onclick="adicionarTarefaCalendario('${dataStr}')"><i class="fas fa-plus"></i> Adicionar</button></div>`; dia++; } } html += '</div>'; document.getElementById('calendarioGrade').innerHTML = html; }
-  function toggleView(view) { document.getElementById('cardsView').style.display = view==='cards'?'block':'none'; document.getElementById('calendarioView').style.display = view==='calendario'?'block':'none'; document.querySelectorAll('.view-btn').forEach((btn,i)=>{ if((view==='cards' && i===0) || (view==='calendario' && i===1)) btn.classList.add('active'); else btn.classList.remove('active'); }); if(view==='calendario') renderizarCalendario(); else renderizarTarefas(); }
+  function toggleView(view) { 
+    document.getElementById('cardsView').style.display = view==='cards'?'block':'none'; 
+    document.getElementById('calendarioView').style.display = view==='calendario'?'block':'none'; 
+    document.querySelectorAll('.view-btn').forEach((btn,i)=>{ 
+      if((view==='cards' && i===0) || (view==='calendario' && i===1)) btn.classList.add('active'); 
+      else btn.classList.remove('active'); 
+    }); 
+    if(view==='calendario') renderizarCalendario(); 
+    else renderizarTarefas(); 
+  }
+  
   function exportarBackup() { const dados = { tarefas, metas, cardsTarefas, tempoTotalFocado, tempoFocadoHoje, ultimaDataFoco, tarefasReagendadasHoje, ultimaDataReagendamento }; const blob = new Blob([JSON.stringify(dados)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`fluxo-backup-${getDataHoje()}.json`; a.click(); alert('✅ Backup exportado!'); }
   function importarBackup(e) { const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=(ev)=>{ try{ const dados=JSON.parse(ev.target.result); if(dados.tarefas) tarefas=dados.tarefas; if(dados.metas) metas=dados.metas; if(dados.cardsTarefas) cardsTarefas=dados.cardsTarefas; if(dados.tempoTotalFocado) tempoTotalFocado=dados.tempoTotalFocado; if(dados.tempoFocadoHoje) tempoFocadoHoje=dados.tempoFocadoHoje; if(dados.ultimaDataFoco) ultimaDataFoco=dados.ultimaDataFoco; if(dados.tarefasReagendadasHoje !== undefined) tarefasReagendadasHoje = dados.tarefasReagendadasHoje; if(dados.ultimaDataReagendamento) ultimaDataReagendamento = dados.ultimaDataReagendamento; salvarDados(); alert('✅ Backup importado!'); }catch(err){ alert('Erro ao importar arquivo'); } }; reader.readAsText(file); e.target.value = ''; }
   
@@ -1833,6 +1853,11 @@
     configurarNotificacoesProgramadas(); 
     atualizarRodape();
     atualizarDataHeader();
+    
+    // Garantir que a aba Cards seja exibida ao carregar
+    setTimeout(() => {
+      toggleView('cards');
+    }, 100);
   }
   
   document.getElementById('rescheduleBtn')?.addEventListener('click', () => {
@@ -1875,14 +1900,25 @@
   window.abrirModalReagendar = abrirModalReagendar;
   window.fecharModalReagendar = fecharModalReagendar;
   window.confirmarReagendamento = confirmarReagendamento;
+  
   document.getElementById('themeToggle').addEventListener('click',()=>{ document.body.classList.toggle('dark-theme'); localStorage.setItem('theme',document.body.classList.contains('dark-theme')?'dark':'light'); });
   if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-theme');
+  
   const avatar = document.getElementById('userAvatar'); const tooltip = document.getElementById('userTooltip');
-  if(avatar && tooltip) { avatar.addEventListener('mouseenter', () => { tooltip.style.display = 'block'; }); avatar.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; }); avatar.addEventListener('click', (e) => { e.stopPropagation(); tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block'; setTimeout(() => { tooltip.style.display = 'none'; }, 3000); }); document.addEventListener('click', (e) => { if(!avatar.contains(e.target)) tooltip.style.display = 'none'; }); }
+  if(avatar && tooltip) { 
+    avatar.addEventListener('mouseenter', () => { tooltip.style.display = 'block'; }); 
+    avatar.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; }); 
+    avatar.addEventListener('click', (e) => { e.stopPropagation(); tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block'; setTimeout(() => { tooltip.style.display = 'none'; }, 3000); }); 
+    document.addEventListener('click', (e) => { if(!avatar.contains(e.target)) tooltip.style.display = 'none'; }); 
+  }
+  
   function updateConnectionStatus() { const statusDiv = document.getElementById('statusConnection'); if (navigator.onLine) { statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online'; statusDiv.classList.remove('status-offline'); } else { statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline'; statusDiv.classList.add('status-offline'); } }
   window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus); updateConnectionStatus();
+  
   if ('Notification' in window && Notification.permission === 'granted') { setInterval(() => { const hoje = getDataHoje(); const agora = new Date(); const horaAtual = agora.getHours().toString().padStart(2,'0') + ':' + agora.getMinutes().toString().padStart(2,'0'); tarefas.forEach(t => { if (!t.concluida && t.data === hoje && t.hora === horaAtual && !t.notificado) { new Notification('⏰ Hora da tarefa!', { body: t.texto, icon: '🎯' }); t.notificado = true; salvarDados(); } }); }, 60000); }
-  recarregarSistema(); initLofiAudio(); 
+  
+  recarregarSistema(); 
+  initLofiAudio(); 
   window.dailyResetInterval = setInterval(()=>{ verificarResetDiario(); verificarResetFocoDiario(); }, 60000);
 </script>
 </body>
