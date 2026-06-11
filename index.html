@@ -627,7 +627,7 @@
     if (pendentes > 0) { 
       alertaDiv.style.display = 'flex'; 
       document.getElementById('alertaBadgeNotif').style.display = 'block';
-      document.getElementById('alertaTexto').textContent = pendentes === 1 ? 'Você tem 1 tarefa pendente' : `Você tem ${pendentes} tarefas pendentes `;
+      document.getElementById('alertaTexto').textContent = pendentes === 1 ? 'Você tem 1 tarefa pendente' : `Você tem ${pendentes} tarefas pendentes`;
       document.getElementById('alertaSubtexto').textContent = pendentes === 1 ? 'Não deixe para depois! 🎯' : 'Organize seu dia e conclua suas metas! 💪';
     } else { 
       const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; 
