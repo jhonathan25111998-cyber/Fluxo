@@ -355,36 +355,12 @@
 </div>
 
 <!-- MODAL FOCO -->
-<div class="modal-foco-overlay" id="modalFocoOverlay">
-  <div class="modal-foco-conteudo">
-    <i class="fas fa-brain" style="font-size:40px;color:#667eea;"></i>
-    <h2 style="color:white;">🎯 Modo Foco</h2>
-    <div id="tarefaFocoTexto" class="tarefa-foco-grande" style="color:white;"></div>
-    <div class="progresso-foco">
-      <div class="progresso-foco-bar" id="progressoFocoBar"></div>
-    </div>
-    <div class="timer-foco-grande" id="timerFocoGrande" style="color:#667eea;">25:00</div>
-    <div class="controles-foco">
-      <button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button>
-      <button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button>
-      <button class="btn-glass btn-prorrogar" id="btnProrrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button>
-      <button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button>
-      <button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button>
-    </div>
-    <div style="margin-top:16px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.1);">
-      <button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button>
-      <span style="color:white; font-size:11px; margin-left:10px;">Volume</span>
-      <input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:100px;margin-left:6px;vertical-align:middle;">
-    </div>
-    <div id="cronometroInfo" class="cronometro-info" style="color:white;">🍅 Pomodoro 25 minutos</div>
-    <div style="margin-top:10px; font-size:10px; opacity:0.7; color:white;">
-      <i class="fas fa-headphones"></i> Música LoFi relaxante para foco
-    </div>
-  </div>
-</div>
+<div class="modal-foco-overlay" id="modalFocoOverlay"><div class="modal-foco-conteudo"><i class="fas fa-brain" style="font-size:40px;color:#667eea;"></i><h2 style="color:white;">🎯 Modo Foco</h2><div id="tarefaFocoTexto" class="tarefa-foco-grande" style="color:white;"></div><div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div><div class="timer-foco-grande" id="timerFocoGrande" style="color:#667eea;">25:00</div><div class="controles-foco"><button class="btn-glass" id="btnIniciarFoco" onclick="iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button><button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button><button class="btn-glass btn-prorrogar" id="btnProrrogar" onclick="prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button><button class="btn-glass" onclick="concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button><button class="btn-glass" onclick="fecharModoFoco()"><i class="fas fa-times"></i> Sair</button></div><div style="margin-top:16px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.1);"><button id="btnMusicaFoco" class="btn-musica" onclick="toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button><span style="color:white; font-size:11px; margin-left:10px;">Volume</span><input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="ajustarVolumeFoco(this.value)" style="width:100px;margin-left:6px;vertical-align:middle;"></div><div id="cronometroInfo" class="cronometro-info" style="color:white;">🍅 Pomodoro 25 minutos</div><div style="margin-top:10px; font-size:10px; opacity:0.7; color:white;"><i class="fas fa-headphones"></i> Música LoFi relaxante para foco</div></div></div>
 
 <!-- MODAL REAGENDAR -->
 <div class="modal-reagendar-overlay" id="modalReagendarOverlay"><div class="modal-reagendar-conteudo"><i class="fas fa-calendar-alt" style="font-size:28px;color:#667eea;"></i><h3>Reagendar Tarefa</h3><input type="date" id="novaDataReagendar"><div class="modal-botoes"><button class="btn-glass" onclick="confirmarReagendamento()">Confirmar</button><button class="btn-glass" onclick="fecharModalReagendar()" style="background:rgba(255,255,255,0.1);">Cancelar</button></div></div></div>
+
+<audio id="lofiAudio" loop preload="auto" style="display:none;"><source src="lofi.mp3" type="audio/mpeg"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
 
 <script type="importmap">{ "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js" } }</script>
 <script type="module">
@@ -472,131 +448,6 @@
   });
 </script>
 <script>
-  // ========== LOFI MUSIC LOCAL (OFFLINE) ==========
-  let lofiActive = false;
-  let lofiAudioElement = null;
-  let fallbackAudioRunning = false;
-  let fallbackContext = null;
-  let fallbackNoise = null;
-
-  function initLofiAudio() {
-      if (!lofiAudioElement) {
-          lofiAudioElement = new Audio();
-          lofiAudioElement.src = './lofi.mp3'; // Arquivo local na pasta do app
-          lofiAudioElement.loop = true;
-          lofiAudioElement.volume = 0.3;
-      }
-  }
-
-  function playLofi() {
-      initLofiAudio();
-      if (lofiAudioElement) {
-          lofiAudioElement.play().then(() => {
-              lofiActive = true;
-              atualizarBotaoMusica(true);
-          }).catch(() => {
-              gerarMusicaAmbiente();
-          });
-      } else {
-          gerarMusicaAmbiente();
-      }
-  }
-
-  function gerarMusicaAmbiente() {
-      if(fallbackAudioRunning) return;
-      fallbackAudioRunning = true;
-      try {
-          fallbackContext = new (window.AudioContext || window.webkitAudioContext)();
-          const bufferSize = fallbackContext.sampleRate * 5;
-          const buffer = fallbackContext.createBuffer(1, bufferSize, fallbackContext.sampleRate);
-          const data = buffer.getChannelData(0);
-          let lastOut = 0;
-          for (let i = 0; i < bufferSize; i++) {
-              const white = Math.random() * 2 - 1;
-              lastOut = (lastOut + (0.02 * white)) / 1.02;
-              data[i] = lastOut * 0.1;
-          }
-          fallbackNoise = fallbackContext.createBufferSource();
-          fallbackNoise.buffer = buffer;
-          fallbackNoise.loop = true;
-          const filter = fallbackContext.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.value = 700;
-          const gain = fallbackContext.createGain();
-          gain.gain.value = 0.2;
-          fallbackNoise.connect(filter);
-          filter.connect(gain);
-          gain.connect(fallbackContext.destination);
-          fallbackNoise.start();
-          lofiActive = true;
-          atualizarBotaoMusica(true);
-          if(fallbackContext.state === 'suspended') fallbackContext.resume();
-      } catch(e) {
-          fallbackAudioRunning = false;
-      }
-  }
-
-  function stopLofi() {
-      if (lofiAudioElement) {
-          lofiAudioElement.pause();
-          lofiAudioElement.currentTime = 0;
-      }
-      if (fallbackNoise) {
-          try { fallbackNoise.stop(); } catch(e) {}
-          fallbackNoise = null;
-      }
-      if (fallbackContext) {
-          fallbackContext.close();
-          fallbackContext = null;
-      }
-      lofiActive = false;
-      fallbackAudioRunning = false;
-      atualizarBotaoMusica(false);
-  }
-
-  function toggleMusicaFoco() {
-      if (lofiActive) {
-          stopLofi();
-      } else {
-          playLofi();
-      }
-  }
-
-  function atualizarBotaoMusica(ativo) {
-      const btn = document.getElementById('btnMusicaFoco');
-      if(btn) {
-          if(ativo) {
-              btn.style.background = '#28a745';
-              btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON ✓';
-          } else {
-              btn.style.background = '#17a2b8';
-              btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus';
-          }
-      }
-  }
-
-  function ajustarVolumeFoco(val) {
-      if (lofiAudioElement) lofiAudioElement.volume = val / 100;
-  }
-
-  function tocarSino() { 
-      try { 
-          const ctx = new (window.AudioContext || window.webkitAudioContext)(); 
-          const now = ctx.currentTime; 
-          const osc = ctx.createOscillator(); 
-          const gain = ctx.createGain(); 
-          osc.type = 'sine'; 
-          osc.frequency.value = 880; 
-          gain.gain.value = 0.25; 
-          osc.connect(gain); 
-          gain.connect(ctx.destination); 
-          osc.start(); 
-          gain.gain.exponentialRampToValueAtTime(0.00001, now + 10); 
-          osc.stop(now + 10); 
-          setTimeout(() => ctx.close(), 11000); 
-      } catch(e) {} 
-  }
-
   function getDataHoje() { const agora = new Date(); const ano = agora.getFullYear(); const mes = String(agora.getMonth() + 1).padStart(2, '0'); const dia = String(agora.getDate()).padStart(2, '0'); return `${ano}-${mes}-${dia}`; }
   let tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
   let metas = JSON.parse(localStorage.getItem('metas') || '[]');
@@ -649,6 +500,7 @@
       localStorage.setItem('ultimaDataReagendamento', hoje);
       ultimaDataReagendamento = hoje;
       if(window.currentUser && window.salvarTudoFirebase) window.salvarTudoFirebase();
+      // REMOVIDO: atualizarRodape(); ← CAUSA DO LOOP
     }
   }
   
@@ -712,6 +564,8 @@
   }
   
   function atualizarRodape() {
+    // REMOVIDO: resetarContadorReagendamento(); ← CAUSA DO LOOP
+    
     const hoje = getDataHoje();
     const todasTarefas = tarefas;
     const tarefasHoje = todasTarefas.filter(t => t.data === hoje);
@@ -773,7 +627,7 @@
     if (pendentes > 0) { 
       alertaDiv.style.display = 'flex'; 
       document.getElementById('alertaBadgeNotif').style.display = 'block';
-      document.getElementById('alertaTexto').textContent = pendentes === 1 ? 'Você tem 1 tarefa pendente' : `Você tem ${pendentes} tarefas pendentes`;
+      document.getElementById('alertaTexto').textContent = pendentes === 1 ? 'Você tem 1 tarefa pendente' : `Você tem ${pendentes} tarefas pendentes `;
       document.getElementById('alertaSubtexto').textContent = pendentes === 1 ? 'Não deixe para depois! 🎯' : 'Organize seu dia e conclua suas metas! 💪';
     } else { 
       const concluidasHoje = tarefas.filter(t => t.data === hoje && t.concluida).length; 
@@ -968,6 +822,17 @@
   
   function iniciarSincronizacaoPeriodica() { if(syncInterval) clearInterval(syncInterval); syncInterval = setInterval(() => { if(window.currentUser && window.salvarTudoFirebase) window.salvarTudoFirebase(); }, 30000); }
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
+  
+  // ========== LO FI AUDIO ==========
+  let lofiAudioElement = null, lofiActive = false, fallbackAudioRunning = false, fallbackContext = null, fallbackNoise = null;
+  function initLofiAudio() { if(!lofiAudioElement) { lofiAudioElement = document.getElementById('lofiAudio'); if(lofiAudioElement) { lofiAudioElement.volume = 0.3; lofiAudioElement.loop = true; } } }
+  function gerarMusicaAmbiente() { if(fallbackAudioRunning) return; fallbackAudioRunning = true; try { fallbackContext = new (window.AudioContext || window.webkitAudioContext)(); const bufferSize = fallbackContext.sampleRate * 5; const buffer = fallbackContext.createBuffer(1, bufferSize, fallbackContext.sampleRate); const data = buffer.getChannelData(0); let lastOut = 0; for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; lastOut = (lastOut + (0.02 * white)) / 1.02; data[i] = lastOut * 0.1; } fallbackNoise = fallbackContext.createBufferSource(); fallbackNoise.buffer = buffer; fallbackNoise.loop = true; const filter = fallbackContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 700; const gain = fallbackContext.createGain(); gain.gain.value = 0.2; fallbackNoise.connect(filter); filter.connect(gain); gain.connect(fallbackContext.destination); fallbackNoise.start(); lofiActive = true; atualizarBotaoMusica(true); if(fallbackContext.state === 'suspended') fallbackContext.resume(); } catch(e) { fallbackAudioRunning = false; } }
+  function playLofi() { initLofiAudio(); if(lofiAudioElement) { lofiAudioElement.play().then(() => { lofiActive = true; atualizarBotaoMusica(true); }).catch(() => gerarMusicaAmbiente()); } else { gerarMusicaAmbiente(); } }
+  function stopLofi() { if(lofiAudioElement) { lofiAudioElement.pause(); lofiAudioElement.currentTime = 0; } if(fallbackNoise) { try { fallbackNoise.stop(); } catch(e) {} fallbackNoise = null; } if(fallbackContext) { fallbackContext.close(); fallbackContext = null; } lofiActive = false; fallbackAudioRunning = false; atualizarBotaoMusica(false); }
+  function toggleMusicaFoco() { initLofiAudio(); if(lofiActive) stopLofi(); else playLofi(); }
+  function atualizarBotaoMusica(ativo) { const btn = document.getElementById('btnMusicaFoco'); if(btn) { if(ativo) { btn.style.background = '#28a745'; btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON ✓'; } else { btn.style.background = '#17a2b8'; btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus'; } } }
+  function ajustarVolumeFoco(val) { if(lofiAudioElement) lofiAudioElement.volume = val / 100; }
+  function tocarSino() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const now = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'sine'; osc.frequency.value = 880; gain.gain.value = 0.25; osc.connect(gain); gain.connect(ctx.destination); osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, now + 10); osc.stop(now + 10); setTimeout(() => ctx.close(), 11000); } catch(e) {} }
   
   // ========== POMODORO ==========
   let pomodoroInterval = null, tempoRestante = 25 * 60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
@@ -1194,30 +1059,10 @@
     setTimeout(() => { toggleView('cards'); }, 100);
   }
   
-  // ========== EXPOR FUNÇÕES GLOBALMENTE PARA ELECTRON ==========
-  window.iniciarPomodoro = iniciarPomodoro;
-  window.pausarPomodoro = pausarPomodoro;
-  window.concluirTarefaFoco = concluirTarefaFoco;
-  window.fecharModoFoco = fecharModoFoco;
-  window.prorrogarTempoFoco = prorrogarTempoFoco;
-  window.toggleMusicaFoco = toggleMusicaFoco;
-  window.ajustarVolumeFoco = ajustarVolumeFoco;
-  window.abrirModoFocoComTarefa = abrirModoFocoComTarefa;
-  window.toggleTarefa = toggleTarefa;
-  window.editarTarefaCompleta = editarTarefaCompleta;
-  window.excluirTarefa = excluirTarefa;
-  window.abrirModalReagendar = abrirModalReagendar;
-  window.irParaHoje = irParaHoje;
-  window.toggleView = toggleView;
-  window.mudarMes = mudarMes;
-  window.adicionarCardTarefa = adicionarCardTarefa;
-  window.marcarTodasHoje = marcarTodasHoje;
-  window.mostrarFormAdicionar = mostrarFormAdicionar;
-  window.adicionarTarefaInline = adicionarTarefaInline;
-  window.editarCardTarefa = editarCardTarefa;
-  window.excluirCardTarefa = excluirCardTarefa;
-  window.confirmarReagendamento = confirmarReagendamento;
-  window.fecharModalReagendar = fecharModalReagendar;
+  // ========== EVENT LISTENERS ==========
+  document.getElementById('rescheduleBtn')?.addEventListener('click', () => reagendarTarefasPendentes());
+  document.getElementById('syncNowBtn')?.addEventListener('click', () => sincronizarTarefasRecorrentes());
+  
   window.recarregarSistema = recarregarSistema;
   window.iniciarSincronizacaoPeriodica = iniciarSincronizacaoPeriodica;
   window.iniciarDragTarefa = iniciarDragTarefa;
@@ -1225,16 +1070,30 @@
   window.permitirDropCard = permitirDropCard;
   window.removerDragOver = removerDragOver;
   window.soltarTarefa = soltarTarefa;
+  window.excluirCardTarefa = excluirCardTarefa;
+  window.excluirTarefa = excluirTarefa;
+  window.mudarMes = mudarMes;
+  window.irParaHoje = irParaHoje;
+  window.irParaData = irParaData;
+  window.abrirOpcoesTarefaCalendario = abrirOpcoesTarefaCalendario;
+  window.abrirEditarTarefaCalendario = abrirEditarTarefaCalendario;
   window.concluirTarefaCalendario = concluirTarefaCalendario;
   window.adicionarTarefaCalendario = adicionarTarefaCalendario;
   window.editarMeta = editarMeta;
+  window.editarTarefaCompleta = editarTarefaCompleta;
   window.adicionarMeta = adicionarMeta;
+  window.toggleTarefa = toggleTarefa;
+  window.adicionarCardTarefa = adicionarCardTarefa;
+  window.editarCardTarefa = editarCardTarefa;
+  window.mostrarFormAdicionar = mostrarFormAdicionar;
+  window.adicionarTarefaInline = adicionarTarefaInline;
+  window.marcarTodasHoje = marcarTodasHoje;
+  window.toggleView = toggleView;
   window.exportarBackup = exportarBackup;
   window.importarBackup = importarBackup;
-  
-  // ========== EVENT LISTENERS ==========
-  document.getElementById('rescheduleBtn')?.addEventListener('click', () => reagendarTarefasPendentes());
-  document.getElementById('syncNowBtn')?.addEventListener('click', () => sincronizarTarefasRecorrentes());
+  window.abrirModalReagendar = abrirModalReagendar;
+  window.fecharModalReagendar = fecharModalReagendar;
+  window.confirmarReagendamento = confirmarReagendamento;
   
   document.getElementById('themeToggle').addEventListener('click',()=>{ document.body.classList.toggle('dark-theme'); localStorage.setItem('theme',document.body.classList.contains('dark-theme')?'dark':'light'); });
   if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-theme');
@@ -1253,6 +1112,7 @@
   if ('Notification' in window && Notification.permission === 'granted') setInterval(() => { const hoje = getDataHoje(); const agora = new Date(); const horaAtual = agora.getHours().toString().padStart(2,'0') + ':' + agora.getMinutes().toString().padStart(2,'0'); tarefas.forEach(t => { if (!t.concluida && t.data === hoje && t.hora === horaAtual && !t.notificado) { new Notification('⏰ Hora da tarefa!', { body: t.texto, icon: '🎯' }); t.notificado = true; salvarDados(); } }); }, 60000);
   
   recarregarSistema(); 
+  initLofiAudio(); 
   window.dailyResetInterval = setInterval(()=>{ verificarResetDiario(); verificarResetFocoDiario(); }, 60000);
 </script>
 </body>
