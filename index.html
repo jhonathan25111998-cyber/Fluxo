@@ -472,176 +472,131 @@
   });
 </script>
 <script>
-  // ========== LOFI PLAYLIST VIA YOUTUBE EMBED (SEM ARQUIVOS LOCAIS) ==========
+  // ========== LOFI MUSIC LOCAL (OFFLINE) ==========
   let lofiActive = false;
-  let lofiPlayer = null;
-  let lofiCurrentIndex = 0;
-  let lofiInterval = null;
+  let lofiAudioElement = null;
   let fallbackAudioRunning = false;
   let fallbackContext = null;
   let fallbackNoise = null;
-  
-  const lofiPlaylist = [
-    { name: "Lofi Girl - Beats to Relax/Study", id: "jfKfPfyJRdk" },
-    { name: "Chillhop - Lofi Hip Hop Mix", id: "5qap5aO4i9A" },
-    { name: "Lofi Fruits - Chill Vibes", id: "6C0U7C5zF2Q" },
-    { name: "Synthwave Lofi Mix", id: "8DXx2Fq5s0c" },
-    { name: "Rainy Lofi - Study Session", id: "DWcJFNfaw9c" },
-    { name: "Midnight Lofi Beats", id: "7NOSDKb0HlU" },
-    { name: "Cozy Lofi Cafe", id: "tDbVmO46P9A" },
-    { name: "Lofi Hip Hop Radio - 24/7", id: "DWcJFNfaw9c" }
-  ];
-  
-  function initLofiPlayer() {
-    if (!lofiPlayer) {
-      const container = document.createElement('div');
-      container.style.position = 'fixed';
-      container.style.bottom = '-9999px';
-      container.style.left = '-9999px';
-      container.style.width = '1px';
-      container.style.height = '1px';
-      container.style.opacity = '0';
-      container.style.pointerEvents = 'none';
-      
-      const iframe = document.createElement('iframe');
-      iframe.id = 'lofiIframe';
-      iframe.width = '1';
-      iframe.height = '1';
-      iframe.allow = 'autoplay';
-      iframe.style.border = 'none';
-      
-      container.appendChild(iframe);
-      document.body.appendChild(container);
-      lofiPlayer = iframe;
-    }
+
+  function initLofiAudio() {
+      if (!lofiAudioElement) {
+          lofiAudioElement = new Audio();
+          lofiAudioElement.src = './lofi.mp3'; // Arquivo local na pasta do app
+          lofiAudioElement.loop = true;
+          lofiAudioElement.volume = 0.3;
+      }
   }
-  
+
   function playLofi() {
-    initLofiPlayer();
-    if (lofiActive) return;
-    
-    lofiActive = true;
-    atualizarBotaoMusica(true);
-    
-    function tocarVideo() {
-      const video = lofiPlaylist[lofiCurrentIndex];
-      lofiPlayer.src = `https://www.youtube.com/embed/${video.id}?autoplay=1&loop=1&playlist=${video.id}&controls=0&disablekb=1&modestbranding=1`;
-      console.log(`🎵 Tocando: ${video.name}`);
-      
-      if (lofiInterval) clearInterval(lofiInterval);
-      lofiInterval = setInterval(() => {
-        if (lofiActive) {
-          lofiCurrentIndex = (lofiCurrentIndex + 1) % lofiPlaylist.length;
-          const nextVideo = lofiPlaylist[lofiCurrentIndex];
-          lofiPlayer.src = `https://www.youtube.com/embed/${nextVideo.id}?autoplay=1&loop=1&playlist=${nextVideo.id}&controls=0&disablekb=1&modestbranding=1`;
-          console.log(`🎵 Mudando para: ${nextVideo.name}`);
-        }
-      }, 180000);
-    }
-    
-    tocarVideo();
-  }
-  
-  function gerarMusicaAmbiente() {
-    if(fallbackAudioRunning) return;
-    fallbackAudioRunning = true;
-    try {
-      fallbackContext = new (window.AudioContext || window.webkitAudioContext)();
-      const bufferSize = fallbackContext.sampleRate * 5;
-      const buffer = fallbackContext.createBuffer(1, bufferSize, fallbackContext.sampleRate);
-      const data = buffer.getChannelData(0);
-      let lastOut = 0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        lastOut = (lastOut + (0.02 * white)) / 1.02;
-        data[i] = lastOut * 0.1;
-      }
-      fallbackNoise = fallbackContext.createBufferSource();
-      fallbackNoise.buffer = buffer;
-      fallbackNoise.loop = true;
-      const filter = fallbackContext.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 700;
-      const gain = fallbackContext.createGain();
-      gain.gain.value = 0.2;
-      fallbackNoise.connect(filter);
-      filter.connect(gain);
-      gain.connect(fallbackContext.destination);
-      fallbackNoise.start();
-      lofiActive = true;
-      atualizarBotaoMusica(true);
-      if(fallbackContext.state === 'suspended') fallbackContext.resume();
-    } catch(e) {
-      fallbackAudioRunning = false;
-      console.log('Erro ao gerar música ambiente:', e);
-    }
-  }
-  
-  function stopLofi() {
-    if (lofiPlayer) {
-      lofiPlayer.src = '';
-    }
-    if (lofiInterval) {
-      clearInterval(lofiInterval);
-      lofiInterval = null;
-    }
-    if(fallbackNoise) {
-      try { fallbackNoise.stop(); } catch(e) {}
-      fallbackNoise = null;
-    }
-    if(fallbackContext) {
-      fallbackContext.close();
-      fallbackContext = null;
-    }
-    lofiActive = false;
-    lofiCurrentIndex = 0;
-    fallbackAudioRunning = false;
-    atualizarBotaoMusica(false);
-  }
-  
-  function toggleMusicaFoco() {
-    if (lofiActive) {
-      stopLofi();
-    } else {
-      playLofi();
-    }
-  }
-  
-  function atualizarBotaoMusica(ativo) {
-    const btn = document.getElementById('btnMusicaFoco');
-    if(btn) {
-      if(ativo) {
-        btn.style.background = '#28a745';
-        btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON ✓';
+      initLofiAudio();
+      if (lofiAudioElement) {
+          lofiAudioElement.play().then(() => {
+              lofiActive = true;
+              atualizarBotaoMusica(true);
+          }).catch(() => {
+              gerarMusicaAmbiente();
+          });
       } else {
-        btn.style.background = '#17a2b8';
-        btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus';
+          gerarMusicaAmbiente();
       }
-    }
   }
-  
+
+  function gerarMusicaAmbiente() {
+      if(fallbackAudioRunning) return;
+      fallbackAudioRunning = true;
+      try {
+          fallbackContext = new (window.AudioContext || window.webkitAudioContext)();
+          const bufferSize = fallbackContext.sampleRate * 5;
+          const buffer = fallbackContext.createBuffer(1, bufferSize, fallbackContext.sampleRate);
+          const data = buffer.getChannelData(0);
+          let lastOut = 0;
+          for (let i = 0; i < bufferSize; i++) {
+              const white = Math.random() * 2 - 1;
+              lastOut = (lastOut + (0.02 * white)) / 1.02;
+              data[i] = lastOut * 0.1;
+          }
+          fallbackNoise = fallbackContext.createBufferSource();
+          fallbackNoise.buffer = buffer;
+          fallbackNoise.loop = true;
+          const filter = fallbackContext.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = 700;
+          const gain = fallbackContext.createGain();
+          gain.gain.value = 0.2;
+          fallbackNoise.connect(filter);
+          filter.connect(gain);
+          gain.connect(fallbackContext.destination);
+          fallbackNoise.start();
+          lofiActive = true;
+          atualizarBotaoMusica(true);
+          if(fallbackContext.state === 'suspended') fallbackContext.resume();
+      } catch(e) {
+          fallbackAudioRunning = false;
+      }
+  }
+
+  function stopLofi() {
+      if (lofiAudioElement) {
+          lofiAudioElement.pause();
+          lofiAudioElement.currentTime = 0;
+      }
+      if (fallbackNoise) {
+          try { fallbackNoise.stop(); } catch(e) {}
+          fallbackNoise = null;
+      }
+      if (fallbackContext) {
+          fallbackContext.close();
+          fallbackContext = null;
+      }
+      lofiActive = false;
+      fallbackAudioRunning = false;
+      atualizarBotaoMusica(false);
+  }
+
+  function toggleMusicaFoco() {
+      if (lofiActive) {
+          stopLofi();
+      } else {
+          playLofi();
+      }
+  }
+
+  function atualizarBotaoMusica(ativo) {
+      const btn = document.getElementById('btnMusicaFoco');
+      if(btn) {
+          if(ativo) {
+              btn.style.background = '#28a745';
+              btn.innerHTML = '<i class="fas fa-music"></i> LoFi ON ✓';
+          } else {
+              btn.style.background = '#17a2b8';
+              btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus';
+          }
+      }
+  }
+
   function ajustarVolumeFoco(val) {
-    console.log(`🎵 Volume: ${val}% (ajuste pelo sistema do Windows)`);
+      if (lofiAudioElement) lofiAudioElement.volume = val / 100;
   }
-  
+
   function tocarSino() { 
-    try { 
-      const ctx = new (window.AudioContext || window.webkitAudioContext)(); 
-      const now = ctx.currentTime; 
-      const osc = ctx.createOscillator(); 
-      const gain = ctx.createGain(); 
-      osc.type = 'sine'; 
-      osc.frequency.value = 880; 
-      gain.gain.value = 0.25; 
-      osc.connect(gain); 
-      gain.connect(ctx.destination); 
-      osc.start(); 
-      gain.gain.exponentialRampToValueAtTime(0.00001, now + 10); 
-      osc.stop(now + 10); 
-      setTimeout(() => ctx.close(), 11000); 
-    } catch(e) {} 
+      try { 
+          const ctx = new (window.AudioContext || window.webkitAudioContext)(); 
+          const now = ctx.currentTime; 
+          const osc = ctx.createOscillator(); 
+          const gain = ctx.createGain(); 
+          osc.type = 'sine'; 
+          osc.frequency.value = 880; 
+          gain.gain.value = 0.25; 
+          osc.connect(gain); 
+          gain.connect(ctx.destination); 
+          osc.start(); 
+          gain.gain.exponentialRampToValueAtTime(0.00001, now + 10); 
+          osc.stop(now + 10); 
+          setTimeout(() => ctx.close(), 11000); 
+      } catch(e) {} 
   }
-  
+
   function getDataHoje() { const agora = new Date(); const ano = agora.getFullYear(); const mes = String(agora.getMonth() + 1).padStart(2, '0'); const dia = String(agora.getDate()).padStart(2, '0'); return `${ano}-${mes}-${dia}`; }
   let tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
   let metas = JSON.parse(localStorage.getItem('metas') || '[]');
