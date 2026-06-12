@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* ========== VARIÁVEIS ========== */
   :root {
     --sidebar-width: 280px;
     --card-bg: #1e1e2e;
@@ -44,7 +43,6 @@
     background: rgba(10, 10, 20, 0.8);
   }
   
-  /* ========== LOADING ========== */
   .loading-overlay {
     position: fixed;
     top: 0;
@@ -61,9 +59,7 @@
     gap: 16px;
   }
   
-  .loading-overlay.show {
-    display: flex;
-  }
+  .loading-overlay.show { display: flex; }
   
   .loading-spinner {
     width: 48px;
@@ -74,17 +70,10 @@
     animation: spin 1s linear infinite;
   }
   
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
   
-  /* ========== LAYOUT COM SIDEBAR ========== */
-  .app-layout {
-    display: flex;
-    min-height: 100vh;
-  }
+  .app-layout { display: flex; min-height: 100vh; }
   
-  /* ========== SIDEBAR ========== */
   .sidebar {
     width: var(--sidebar-width);
     background: rgba(20, 20, 30, 0.95);
@@ -99,44 +88,12 @@
     z-index: 100;
   }
   
-  .sidebar-header {
-    padding: 24px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .sidebar-logo .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .sidebar-logo .logo-icon i {
-    color: white;
-    font-size: 18px;
-  }
-  
-  .sidebar-logo span {
-    font-size: 20px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #fff, #e0d4ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  .sidebar-nav {
-    flex: 1;
-    padding: 20px;
-  }
+  .sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  .sidebar-logo { display: flex; align-items: center; gap: 12px; }
+  .sidebar-logo .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .sidebar-logo .logo-icon i { color: white; font-size: 18px; }
+  .sidebar-logo span { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff, #e0d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-nav { flex: 1; padding: 20px; }
   
   .nav-item {
     display: flex;
@@ -150,35 +107,11 @@
     margin-bottom: 4px;
   }
   
-  .nav-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-  }
+  .nav-item:hover { background: rgba(255, 255, 255, 0.08); color: white; }
+  .nav-item.active { background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2)); color: white; border-left: 3px solid #667eea; }
+  .nav-item i { width: 20px; font-size: 18px; color: inherit; }
+  .nav-section { margin-top: 24px; margin-bottom: 12px; padding-left: 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255, 255, 255, 0.4); }
   
-  .nav-item.active {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-    color: white;
-    border-left: 3px solid #667eea;
-  }
-  
-  .nav-item i {
-    width: 20px;
-    font-size: 18px;
-    color: inherit;
-  }
-  
-  .nav-section {
-    margin-top: 24px;
-    margin-bottom: 12px;
-    padding-left: 16px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.4);
-  }
-  
-  /* Workspaces na sidebar */
   .workspace-item {
     display: flex;
     align-items: center;
@@ -190,47 +123,14 @@
     color: rgba(255, 255, 255, 0.7);
   }
   
-  .workspace-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-  }
+  .workspace-item:hover { background: rgba(255, 255, 255, 0.08); color: white; }
+  .workspace-item.active { background: rgba(102, 126, 234, 0.2); color: white; }
+  .workspace-color { width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; }
+  .add-workspace { padding: 8px 16px; margin-top: 8px; color: rgba(255, 255, 255, 0.5); font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .add-workspace:hover { color: white; }
   
-  .workspace-item.active {
-    background: rgba(102, 126, 234, 0.2);
-    color: white;
-  }
+  .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 20px; min-height: 100vh; }
   
-  .workspace-color {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-right: 10px;
-  }
-  
-  .add-workspace {
-    padding: 8px 16px;
-    margin-top: 8px;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .add-workspace:hover {
-    color: white;
-  }
-  
-  /* ========== MAIN CONTENT ========== */
-  .main-content {
-    flex: 1;
-    margin-left: var(--sidebar-width);
-    padding: 20px;
-    min-height: 100vh;
-  }
-  
-  /* ========== TOP BAR ========== */
   .top-bar {
     display: flex;
     justify-content: space-between;
@@ -243,17 +143,8 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
   
-  .page-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: white;
-  }
-  
-  .user-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .page-title { font-size: 24px; font-weight: 600; color: white; }
+  .user-actions { display: flex; align-items: center; gap: 12px; }
   
   .icon-btn {
     background: rgba(255, 255, 255, 0.1);
@@ -269,16 +160,9 @@
     justify-content: center;
   }
   
-  .icon-btn:hover {
-    background: rgba(168, 85, 247, 0.3);
-    transform: scale(1.05);
-  }
+  .icon-btn:hover { background: rgba(168, 85, 247, 0.3); transform: scale(1.05); }
+  .icon-btn i { color: white; }
   
-  .icon-btn i {
-    color: white;
-  }
-  
-  /* ========== DASHBOARD CARDS ========== */
   .dashboard-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -294,19 +178,9 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
   
-  .stat-value {
-    font-size: 32px;
-    font-weight: 700;
-    margin-top: 8px;
-    color: white;
-  }
+  .stat-value { font-size: 32px; font-weight: 700; margin-top: 8px; color: white; }
+  .stat-label { color: var(--text-muted); font-size: 13px; }
   
-  .stat-label {
-    color: var(--text-muted);
-    font-size: 13px;
-  }
-  
-  /* ========== PROJETOS SECTION ========== */
   .section-header {
     display: flex;
     justify-content: space-between;
@@ -314,11 +188,7 @@
     margin-bottom: 20px;
   }
   
-  .section-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
-  }
+  .section-title { font-size: 18px; font-weight: 600; color: white; }
   
   .btn-primary {
     background: linear-gradient(135deg, #667eea, #764ba2);
@@ -333,14 +203,8 @@
     gap: 8px;
   }
   
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-  }
-  
-  .btn-primary i {
-    color: white;
-  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+  .btn-primary i { color: white; }
   
   .projetos-grid {
     display: grid;
@@ -359,39 +223,12 @@
     transition: all 0.2s;
   }
   
-  .projeto-card:hover {
-    background: rgba(30, 30, 46, 0.9);
-    transform: translateY(-2px);
-  }
+  .projeto-card:hover { background: rgba(30, 30, 46, 0.9); transform: translateY(-2px); }
+  .projeto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .projeto-nome { font-size: 16px; font-weight: 600; color: white; }
+  .projeto-color { width: 12px; height: 12px; border-radius: 50%; }
+  .projeto-stats { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--text-muted); }
   
-  .projeto-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-  
-  .projeto-nome {
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-  }
-  
-  .projeto-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-  }
-  
-  .projeto-stats {
-    display: flex;
-    gap: 16px;
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-  
-  /* ========== TAREFAS ========== */
   .tarefa-item {
     display: flex;
     justify-content: space-between;
@@ -405,56 +242,18 @@
     transition: all 0.2s;
   }
   
-  .tarefa-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-  
+  .tarefa-item:hover { background: rgba(255, 255, 255, 0.08); }
   .tarefa-item.p1 { border-left: 3px solid var(--danger); }
   .tarefa-item.p2 { border-left: 3px solid var(--warning); }
   
-  .tarefa-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-  }
+  .tarefa-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+  .tarefa-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; }
+  .tarefa-info { flex: 1; }
+  .tarefa-titulo { font-size: 14px; font-weight: 500; color: white; }
+  .tarefa-meta { display: flex; gap: 8px; margin-top: 4px; font-size: 11px; color: var(--text-muted); }
   
-  .tarefa-checkbox {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #667eea;
-  }
-  
-  .tarefa-info {
-    flex: 1;
-  }
-  
-  .tarefa-titulo {
-    font-size: 14px;
-    font-weight: 500;
-    color: white;
-  }
-  
-  .tarefa-meta {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-    font-size: 11px;
-    color: var(--text-muted);
-  }
-  
-  .tarefa-actions {
-    display: flex;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  
-  .tarefa-item:hover .tarefa-actions {
-    opacity: 1;
-  }
-  
+  .tarefa-actions { display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; }
+  .tarefa-item:hover .tarefa-actions { opacity: 1; }
   .tarefa-action {
     background: rgba(255, 255, 255, 0.1);
     border: none;
@@ -464,16 +263,9 @@
     color: white;
     cursor: pointer;
   }
+  .tarefa-action:hover { background: rgba(168, 85, 247, 0.3); }
+  .tarefa-action i { color: white; }
   
-  .tarefa-action:hover {
-    background: rgba(168, 85, 247, 0.3);
-  }
-  
-  .tarefa-action i {
-    color: white;
-  }
-  
-  /* ========== MODAL ========== */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -488,9 +280,7 @@
     justify-content: center;
   }
   
-  .modal-overlay.show {
-    display: flex;
-  }
+  .modal-overlay.show { display: flex; }
   
   .modal-container {
     background: rgba(26, 27, 38, 0.98);
@@ -503,42 +293,13 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
-  .modal-header {
-    padding: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .modal-header { padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+  .modal-header h3 { color: white; }
+  .modal-body { padding: 20px; }
+  .modal-footer { padding: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: flex-end; gap: 12px; }
   
-  .modal-header h3 {
-    color: white;
-  }
-  
-  .modal-body {
-    padding: 20px;
-  }
-  
-  .modal-footer {
-    padding: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-  }
-  
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; color: var(--text-muted); }
   .form-input, .form-select, .form-textarea {
     width: 100%;
     padding: 12px;
@@ -548,95 +309,22 @@
     color: white;
     font-size: 14px;
   }
+  .form-input::placeholder, .form-textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
+  .form-textarea { resize: vertical; min-height: 100px; }
   
-  .form-input::placeholder, .form-textarea::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-  }
+  .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 16px; }
+  .calendario-dia { min-height: 100px; background: rgba(255, 255, 255, 0.04); border-radius: 12px; padding: 8px; }
+  .calendario-dia.hoje { border: 2px solid #667eea; background: rgba(102, 126, 234, 0.15); }
+  .btn-glass { background: linear-gradient(135deg, #667eea, #764ba2); border: none; padding: 8px 16px; border-radius: 40px; color: white; cursor: pointer; }
   
-  .form-textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
+  .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .chart-card { background: rgba(30, 30, 46, 0.6); backdrop-filter: blur(16px); border-radius: 20px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.08); }
+  .chart-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: white; }
+  .chart-bars { display: flex; justify-content: space-around; align-items: flex-end; height: 200px; gap: 12px; }
+  .chart-bar { flex: 1; background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 8px 8px 4px 4px; min-width: 30px; transition: height 0.3s; }
+  .streak-card { text-align: center; padding: 24px; }
+  .streak-value { font-size: 48px; font-weight: 700; color: var(--warning); }
   
-  /* ========== CALENDÁRIO ========== */
-  .calendario-grade {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 12px;
-    margin-top: 16px;
-  }
-  
-  .calendario-dia {
-    min-height: 100px;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 12px;
-    padding: 8px;
-  }
-  
-  .calendario-dia.hoje {
-    border: 2px solid #667eea;
-    background: rgba(102, 126, 234, 0.15);
-  }
-  
-  .btn-glass {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 40px;
-    color: white;
-    cursor: pointer;
-  }
-  
-  /* ========== ANALYTICS ========== */
-  .analytics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 24px;
-  }
-  
-  .chart-card {
-    background: rgba(30, 30, 46, 0.6);
-    backdrop-filter: blur(16px);
-    border-radius: 20px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  
-  .chart-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: white;
-  }
-  
-  .chart-bars {
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
-    height: 200px;
-    gap: 12px;
-  }
-  
-  .chart-bar {
-    flex: 1;
-    background: linear-gradient(180deg, #667eea, #764ba2);
-    border-radius: 8px 8px 4px 4px;
-    min-width: 30px;
-    transition: height 0.3s;
-  }
-  
-  .streak-card {
-    text-align: center;
-    padding: 24px;
-  }
-  
-  .streak-value {
-    font-size: 48px;
-    font-weight: 700;
-    color: var(--warning);
-  }
-  
-  /* ========== SYNC INDICATOR ========== */
   .sync-indicator {
     position: fixed;
     bottom: 20px;
@@ -654,12 +342,8 @@
     gap: 8px;
     pointer-events: none;
   }
+  .sync-indicator.show { opacity: 1; }
   
-  .sync-indicator.show {
-    opacity: 1;
-  }
-  
-  /* ========== STATUS ONLINE ========== */
   .status-online {
     position: fixed;
     bottom: 20px;
@@ -674,12 +358,8 @@
     gap: 8px;
     z-index: 100;
   }
+  .status-offline { background: var(--danger); }
   
-  .status-offline {
-    background: var(--danger);
-  }
-  
-  /* ========== LOGIN ========== */
   .login-overlay {
     display: flex;
     position: fixed;
@@ -704,201 +384,55 @@
     text-align: center;
   }
   
-  .login-logo {
-    width: 70px;
-    height: 70px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-  }
+  .login-logo { width: 70px; height: 70px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .login-logo i { font-size: 32px; color: white; }
+  .login-container h2 { color: white; margin-bottom: 8px; }
+  .login-container p { color: rgba(255, 255, 255, 0.7); margin-bottom: 30px; }
+  .login-container input { width: 100%; padding: 12px; margin-bottom: 16px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; }
+  .login-container input::placeholder { color: rgba(255, 255, 255, 0.5); }
+  .login-btn { background: linear-gradient(135deg, #667eea, #764ba2); border: none; padding: 12px; border-radius: 40px; color: white; cursor: pointer; width: 100%; font-weight: 600; }
+  .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: rgba(255, 255, 255, 0.5); }
+  .divider-line { flex: 1; height: 1px; background: rgba(255, 255, 255, 0.2); }
+  .google-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px; border-radius: 40px; color: white; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .register-link { color: rgba(255, 255, 255, 0.7); font-size: 13px; margin-top: 16px; display: block; cursor: pointer; }
   
-  .login-logo i {
-    font-size: 32px;
-    color: white;
-  }
+  .user-avatar { cursor: pointer; width: 36px; height: 36px; background: rgba(255, 255, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .user-avatar i { color: white; font-size: 18px; }
+  .user-tooltip { display: none; position: absolute; top: 45px; right: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); color: white; padding: 6px 12px; border-radius: 8px; font-size: 11px; white-space: nowrap; z-index: 1000; }
+  .user-avatar:hover .user-tooltip { display: block; }
   
-  .login-container h2 {
-    color: white;
-    margin-bottom: 8px;
-  }
+  .hidden { display: none !important; }
   
-  .login-container p {
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 30px;
-  }
-  
-  .login-container input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: white;
-  }
-  
-  .login-container input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
-  
-  .login-btn {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border: none;
-    padding: 12px;
-    border-radius: 40px;
-    color: white;
-    cursor: pointer;
-    width: 100%;
-    font-weight: 600;
-  }
-  
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 20px 0;
-    color: rgba(255, 255, 255, 0.5);
-  }
-  
-  .divider-line {
-    flex: 1;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.2);
-  }
-  
-  .google-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 10px;
-    border-radius: 40px;
-    color: white;
-    cursor: pointer;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  
-  .register-link {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 13px;
-    margin-top: 16px;
-    display: block;
-    cursor: pointer;
-  }
-  
-  .user-avatar {
-    cursor: pointer;
-    width: 36px;
-    height: 36px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  
-  .user-avatar i {
-    color: white;
-    font-size: 18px;
-  }
-  
-  .user-tooltip {
-    display: none;
-    position: absolute;
-    top: 45px;
-    right: 0;
-    background: rgba(0,0,0,0.9);
-    backdrop-filter: blur(8px);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: 1000;
-  }
-  
-  .user-avatar:hover .user-tooltip {
-    display: block;
-  }
-  
-  .hidden {
-    display: none !important;
-  }
-  
-  /* ========== RESPONSIVE ========== */
   @media (max-width: 768px) {
-    .sidebar {
-      transform: translateX(-100%);
-    }
-    
-    .sidebar.mobile-open {
-      transform: translateX(0);
-    }
-    
-    .main-content {
-      margin-left: 0;
-    }
-    
-    .menu-toggle {
-      display: flex;
-    }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.mobile-open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .menu-toggle { display: flex; }
   }
   
-  .menu-toggle {
-    display: none;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    color: white;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-  }
+  .menu-toggle { display: none; background: rgba(255, 255, 255, 0.1); border: none; width: 40px; height: 40px; border-radius: 10px; color: white; cursor: pointer; align-items: center; justify-content: center; }
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
   <div style="color: white;">Carregando...</div>
 </div>
 
-<!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-container">
-    <div class="login-logo">
-      <i class="fas fa-tasks"></i>
-    </div>
+    <div class="login-logo"><i class="fas fa-tasks"></i></div>
     <h2>FLUXO PRO</h2>
     <p>Organize. Execute. Flua.</p>
-    
     <div id="loginForm">
       <input type="email" id="loginEmail" placeholder="Email">
       <input type="password" id="loginPassword" placeholder="Senha">
       <button class="login-btn" onclick="window.fazerLogin()">Entrar</button>
-      
-      <div class="divider">
-        <span class="divider-line"></span>
-        <span>ou</span>
-        <span class="divider-line"></span>
-      </div>
-      
-      <button class="google-btn" onclick="window.loginComGoogle()">
-        <i class="fab fa-google"></i> Continuar com Google
-      </button>
-      
+      <div class="divider"><span class="divider-line"></span><span>ou</span><span class="divider-line"></span></div>
+      <button class="google-btn" onclick="window.loginComGoogle()"><i class="fab fa-google"></i> Continuar com Google</button>
       <a class="register-link" onclick="window.mostrarCadastro()">Criar conta</a>
     </div>
-    
     <div id="registerForm" style="display:none;">
       <input type="email" id="registerEmail" placeholder="Email">
       <input type="password" id="registerPassword" placeholder="Senha">
@@ -909,9 +443,7 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div class="app-layout" id="mainApp" style="display: none;">
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
@@ -919,109 +451,51 @@
         <span>FLUXO PRO</span>
       </div>
     </div>
-    
     <div class="sidebar-nav">
-      <div class="nav-item active" data-page="dashboard">
-        <i class="fas fa-chart-line"></i>
-        <span>Dashboard</span>
-      </div>
-      <div class="nav-item" data-page="workspace">
-        <i class="fas fa-layer-group"></i>
-        <span>Workspaces</span>
-      </div>
-      <div class="nav-item" data-page="calendar">
-        <i class="fas fa-calendar-alt"></i>
-        <span>Calendário</span>
-      </div>
-      <div class="nav-item" data-page="goals">
-        <i class="fas fa-trophy"></i>
-        <span>Metas</span>
-      </div>
-      <div class="nav-item" data-page="analytics">
-        <i class="fas fa-chart-bar"></i>
-        <span>Analytics</span>
-      </div>
-      <div class="nav-item" data-page="settings">
-        <i class="fas fa-cog"></i>
-        <span>Configurações</span>
-      </div>
-      
+      <div class="nav-item active" data-page="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+      <div class="nav-item" data-page="workspace"><i class="fas fa-layer-group"></i><span>Workspaces</span></div>
+      <div class="nav-item" data-page="calendar"><i class="fas fa-calendar-alt"></i><span>Calendário</span></div>
+      <div class="nav-item" data-page="goals"><i class="fas fa-trophy"></i><span>Metas</span></div>
+      <div class="nav-item" data-page="analytics"><i class="fas fa-chart-bar"></i><span>Analytics</span></div>
+      <div class="nav-item" data-page="settings"><i class="fas fa-cog"></i><span>Configurações</span></div>
       <div class="nav-section">WORKSPACES</div>
       <div id="workspaces-list"></div>
-      <div class="add-workspace" onclick="window.adicionarWorkspace()">
-        <i class="fas fa-plus-circle"></i>
-        <span>Novo Workspace</span>
-      </div>
+      <div class="add-workspace" onclick="window.adicionarWorkspace()"><i class="fas fa-plus-circle"></i><span>Novo Workspace</span></div>
     </div>
   </aside>
   
-  <!-- MAIN CONTENT -->
   <main class="main-content">
     <div class="top-bar">
-      <button class="menu-toggle" id="menuToggle" onclick="window.toggleSidebar()">
-        <i class="fas fa-bars"></i>
-      </button>
+      <button class="menu-toggle" id="menuToggle" onclick="window.toggleSidebar()"><i class="fas fa-bars"></i></button>
       <div class="page-title" id="pageTitle">Dashboard</div>
       <div class="user-actions">
         <button class="icon-btn" id="syncNowBtn"><i class="fas fa-sync-alt"></i></button>
         <button class="icon-btn" id="themeToggleBtn"><i class="fas fa-moon"></i></button>
-        <div class="user-avatar" id="userAvatar">
-          <i class="fas fa-user-circle"></i>
-          <div class="user-tooltip" id="userTooltip"><span id="userEmailTooltip"></span></div>
-        </div>
+        <div class="user-avatar" id="userAvatar"><i class="fas fa-user-circle"></i><div class="user-tooltip"><span id="userEmailTooltip"></span></div></div>
         <button class="icon-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
       </div>
     </div>
     
-    <!-- PÁGINA DASHBOARD -->
     <div id="page-dashboard" class="page-content">
       <div class="dashboard-stats">
-        <div class="stat-card">
-          <div class="stat-label">Tarefas para hoje</div>
-          <div class="stat-value" id="statHoje">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Tarefas atrasadas</div>
-          <div class="stat-value" id="statAtrasadas">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Metas em progresso</div>
-          <div class="stat-value" id="statMetas">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Horas focadas (mês)</div>
-          <div class="stat-value" id="statHoras">0</div>
-        </div>
+        <div class="stat-card"><div class="stat-label">Tarefas para hoje</div><div class="stat-value" id="statHoje">0</div></div>
+        <div class="stat-card"><div class="stat-label">Tarefas atrasadas</div><div class="stat-value" id="statAtrasadas">0</div></div>
+        <div class="stat-card"><div class="stat-label">Metas em progresso</div><div class="stat-value" id="statMetas">0</div></div>
+        <div class="stat-card"><div class="stat-label">Horas focadas (mês)</div><div class="stat-value" id="statHoras">0</div></div>
       </div>
-      
-      <div class="section-header">
-        <div class="section-title">Projetos Recentes</div>
-        <button class="btn-primary" onclick="window.abrirNovoProjeto()"><i class="fas fa-plus"></i> Novo Projeto</button>
-      </div>
+      <div class="section-header"><div class="section-title">Projetos Recentes</div><button class="btn-primary" onclick="window.abrirNovoProjeto()"><i class="fas fa-plus"></i> Novo Projeto</button></div>
       <div id="projetos-recentes" class="projetos-grid"></div>
-      
-      <div class="section-header">
-        <div class="section-title">Tarefas do Dia</div>
-        <button class="btn-primary" onclick="window.abrirNovaTarefa()"><i class="fas fa-plus"></i> Nova Tarefa</button>
-      </div>
+      <div class="section-header"><div class="section-title">Tarefas do Dia</div><button class="btn-primary" onclick="window.abrirNovaTarefa()"><i class="fas fa-plus"></i> Nova Tarefa</button></div>
       <div id="tarefas-hoje"></div>
     </div>
     
-    <!-- PÁGINA WORKSPACE -->
     <div id="page-workspace" class="page-content hidden">
-      <div class="section-header">
-        <div class="section-title" id="currentWorkspaceName">Minhas Tarefas</div>
-        <button class="btn-primary" onclick="window.abrirNovoProjeto()"><i class="fas fa-plus"></i> Novo Projeto</button>
-      </div>
+      <div class="section-header"><div class="section-title" id="currentWorkspaceName">Minhas Tarefas</div><button class="btn-primary" onclick="window.abrirNovoProjeto()"><i class="fas fa-plus"></i> Novo Projeto</button></div>
       <div id="projetos-container" class="projetos-grid"></div>
-      <div class="section-header" style="margin-top: 32px;">
-        <div class="section-title">Tarefas do Projeto Atual</div>
-        <button class="btn-primary" onclick="window.abrirNovaTarefa()"><i class="fas fa-plus"></i> Nova Tarefa</button>
-      </div>
+      <div class="section-header" style="margin-top: 32px;"><div class="section-title">Tarefas do Projeto Atual</div><button class="btn-primary" onclick="window.abrirNovaTarefa()"><i class="fas fa-plus"></i> Nova Tarefa</button></div>
       <div id="tarefas-projeto"></div>
     </div>
     
-    <!-- PÁGINA CALENDÁRIO -->
     <div id="page-calendar" class="page-content hidden">
       <div class="calendario-nav" style="display: flex; justify-content: center; gap: 16px; margin-bottom: 20px;">
         <button class="btn-glass" onclick="window.mudarMes(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -1032,61 +506,28 @@
       <div id="calendarioGrade" class="calendario-grade"></div>
     </div>
     
-    <!-- PÁGINA METAS -->
     <div id="page-goals" class="page-content hidden">
-      <div class="section-header">
-        <div class="section-title">Minhas Metas</div>
-        <button class="btn-primary" onclick="window.abrirNovaMeta()"><i class="fas fa-plus"></i> Nova Meta</button>
-      </div>
+      <div class="section-header"><div class="section-title">Minhas Metas</div><button class="btn-primary" onclick="window.abrirNovaMeta()"><i class="fas fa-plus"></i> Nova Meta</button></div>
       <div id="metas-list" class="projetos-grid"></div>
     </div>
     
-    <!-- PÁGINA ANALYTICS -->
     <div id="page-analytics" class="page-content hidden">
       <div class="analytics-grid">
-        <div class="chart-card">
-          <div class="chart-title">Produtividade Semanal</div>
-          <div class="chart-bars" id="chartBars"></div>
-        </div>
-        <div class="chart-card streak-card">
-          <div class="chart-title">Sequência Atual</div>
-          <div class="streak-value" id="streakValue">0</div>
-          <div class="stat-label">dias consecutivos</div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Tarefas por Projeto</div>
-          <div id="tasksByProject"></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Horas Focadas (últimos 7 dias)</div>
-          <div class="chart-bars" id="focusChart"></div>
-        </div>
+        <div class="chart-card"><div class="chart-title">Produtividade Semanal</div><div class="chart-bars" id="chartBars"></div></div>
+        <div class="chart-card streak-card"><div class="chart-title">Sequência Atual</div><div class="streak-value" id="streakValue">0</div><div class="stat-label">dias consecutivos</div></div>
+        <div class="chart-card"><div class="chart-title">Tarefas por Projeto</div><div id="tasksByProject"></div></div>
+        <div class="chart-card"><div class="chart-title">Horas Focadas (últimos 7 dias)</div><div class="chart-bars" id="focusChart"></div></div>
+        <div class="chart-card"><div class="chart-title">Tarefas Concluídas (últimos 7 dias)</div><div class="chart-bars" id="tasksCompletedChart"></div></div>
       </div>
     </div>
     
-    <!-- PÁGINA CONFIGURAÇÕES -->
     <div id="page-settings" class="page-content hidden">
-      <div class="section-header">
-        <div class="section-title">Configurações</div>
-      </div>
+      <div class="section-header"><div class="section-title">Configurações</div></div>
       <div class="chart-card" style="max-width: 500px;">
-        <div class="form-group">
-          <label class="form-label">Tema</label>
-          <select id="themeSelect" class="form-select" onchange="window.mudarTema(this.value)">
-            <option value="light">Claro</option>
-            <option value="dark">Escuro</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Notificações</label>
-          <button class="btn-primary" onclick="window.solicitarNotificacao()">Ativar Notificações</button>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Backup</label>
-          <button class="btn-primary" onclick="window.exportarBackup()">Exportar Dados (JSON)</button>
-          <input type="file" id="importBackup" accept=".json" style="display:none;" onchange="window.importarBackup(this)">
-          <button class="btn-primary" style="margin-top: 8px;" onclick="document.getElementById('importBackup').click()">Importar Backup</button>
-        </div>
+        <div class="form-group"><label class="form-label">Tema</label><select id="themeSelect" class="form-select" onchange="window.mudarTema(this.value)"><option value="light">Claro</option><option value="dark">Escuro</option></select></div>
+        <div class="form-group"><label class="form-label">Notificações</label><button class="btn-primary" onclick="window.solicitarNotificacao()">Ativar Notificações</button></div>
+        <div class="form-group"><label class="form-label">Backup</label><button class="btn-primary" onclick="window.exportarBackup()">Exportar Dados (JSON)</button><input type="file" id="importBackup" accept=".json" style="display:none;" onchange="window.importarBackup(this)"><button class="btn-primary" style="margin-top: 8px;" onclick="document.getElementById('importBackup').click()">Importar Backup</button></div>
+        <div class="form-group"><label class="form-label">Resetar Dados de Foco</label><button class="btn-primary" style="background: rgba(239,68,68,0.3);" onclick="window.resetarDadosFoco()">Resetar Sessões de Foco</button></div>
       </div>
     </div>
   </main>
@@ -1095,143 +536,73 @@
 <!-- MODAL TAREFA -->
 <div class="modal-overlay" id="modalTarefa">
   <div class="modal-container">
-    <div class="modal-header">
-      <h3 id="modalTarefaTitle">Nova Tarefa</h3>
-      <button class="icon-btn" onclick="window.fecharModalTarefa()"><i class="fas fa-times"></i></button>
-    </div>
+    <div class="modal-header"><h3 id="modalTarefaTitle">Nova Tarefa</h3><button class="icon-btn" onclick="window.fecharModalTarefa()"><i class="fas fa-times"></i></button></div>
     <div class="modal-body">
       <input type="hidden" id="tarefaId">
-      <div class="form-group">
-        <label class="form-label">Título</label>
-        <input type="text" id="tarefaTitulo" class="form-input" placeholder="Digite o título da tarefa">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Descrição</label>
-        <textarea id="tarefaDescricao" class="form-textarea" placeholder="Descrição detalhada..."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Projeto</label>
-        <select id="tarefaProjeto" class="form-select"></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Prioridade</label>
-        <select id="tarefaPrioridade" class="form-select">
-          <option value="p3">🟢 Baixa</option>
-          <option value="p2">🟡 Média</option>
-          <option value="p1">🔴 Alta</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Data de Vencimento</label>
-        <input type="date" id="tarefaData" class="form-input">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Recorrência</label>
-        <select id="tarefaRecorrencia" class="form-select">
-          <option value="">Sem recorrência</option>
-          <option value="diaria">🔄 Diária</option>
-          <option value="semanal">📆 Semanal</option>
-          <option value="mensal">📅 Mensal</option>
-        </select>
-      </div>
+      <div class="form-group"><label class="form-label">Título</label><input type="text" id="tarefaTitulo" class="form-input" placeholder="Digite o título da tarefa"></div>
+      <div class="form-group"><label class="form-label">Descrição</label><textarea id="tarefaDescricao" class="form-textarea" placeholder="Descrição detalhada..."></textarea></div>
+      <div class="form-group"><label class="form-label">Projeto</label><select id="tarefaProjeto" class="form-select"></select></div>
+      <div class="form-group"><label class="form-label">Prioridade</label><select id="tarefaPrioridade" class="form-select"><option value="p3">🟢 Baixa</option><option value="p2">🟡 Média</option><option value="p1">🔴 Alta</option></select></div>
+      <div class="form-group"><label class="form-label">Data de Vencimento</label><input type="date" id="tarefaData" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Recorrência</label><select id="tarefaRecorrencia" class="form-select"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-primary" onclick="window.salvarTarefa()">Salvar</button>
-      <button class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="window.fecharModalTarefa()">Cancelar</button>
-    </div>
+    <div class="modal-footer"><button class="btn-primary" onclick="window.salvarTarefa()">Salvar</button><button class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="window.fecharModalTarefa()">Cancelar</button></div>
   </div>
 </div>
 
 <!-- MODAL PROJETO -->
 <div class="modal-overlay" id="modalProjeto">
   <div class="modal-container">
-    <div class="modal-header">
-      <h3 id="modalProjetoTitle">Novo Projeto</h3>
-      <button class="icon-btn" onclick="window.fecharModalProjeto()"><i class="fas fa-times"></i></button>
-    </div>
+    <div class="modal-header"><h3 id="modalProjetoTitle">Novo Projeto</h3><button class="icon-btn" onclick="window.fecharModalProjeto()"><i class="fas fa-times"></i></button></div>
     <div class="modal-body">
       <input type="hidden" id="projetoId">
-      <div class="form-group">
-        <label class="form-label">Nome do Projeto</label>
-        <input type="text" id="projetoNome" class="form-input" placeholder="Ex: Marketing, Produto, Pessoal">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Cor</label>
-        <select id="projetoCor" class="form-select">
-          <option value="#667eea">💜 Roxo</option>
-          <option value="#ef4444">❤️ Vermelho</option>
-          <option value="#fbbf24">💛 Amarelo</option>
-          <option value="#10b981">💚 Verde</option>
-          <option value="#3b82f6">💙 Azul</option>
-        </select>
-      </div>
+      <div class="form-group"><label class="form-label">Nome do Projeto</label><input type="text" id="projetoNome" class="form-input" placeholder="Ex: Marketing, Produto, Pessoal"></div>
+      <div class="form-group"><label class="form-label">Cor</label><select id="projetoCor" class="form-select"><option value="#667eea">💜 Roxo</option><option value="#ef4444">❤️ Vermelho</option><option value="#fbbf24">💛 Amarelo</option><option value="#10b981">💚 Verde</option><option value="#3b82f6">💙 Azul</option></select></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-primary" onclick="window.salvarProjeto()">Salvar</button>
-      <button class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="window.fecharModalProjeto()">Cancelar</button>
-    </div>
+    <div class="modal-footer"><button class="btn-primary" onclick="window.salvarProjeto()">Salvar</button><button class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="window.fecharModalProjeto()">Cancelar</button></div>
   </div>
 </div>
 
 <!-- MODAL WORKSPACE -->
 <div class="modal-overlay" id="modalWorkspace">
   <div class="modal-container">
-    <div class="modal-header">
-      <h3>Novo Workspace</h3>
-      <button class="icon-btn" onclick="window.fecharModalWorkspace()"><i class="fas fa-times"></i></button>
-    </div>
+    <div class="modal-header"><h3>Novo Workspace</h3><button class="icon-btn" onclick="window.fecharModalWorkspace()"><i class="fas fa-times"></i></button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Nome do Workspace</label>
-        <input type="text" id="workspaceNome" class="form-input" placeholder="Ex: Pessoal, Trabalho, Estudos">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Cor</label>
-        <select id="workspaceCor" class="form-select">
-          <option value="#667eea">💜 Roxo</option>
-          <option value="#ef4444">❤️ Vermelho</option>
-          <option value="#fbbf24">💛 Amarelo</option>
-          <option value="#10b981">💚 Verde</option>
-          <option value="#3b82f6">💙 Azul</option>
-        </select>
-      </div>
+      <div class="form-group"><label class="form-label">Nome do Workspace</label><input type="text" id="workspaceNome" class="form-input" placeholder="Ex: Pessoal, Trabalho, Estudos"></div>
+      <div class="form-group"><label class="form-label">Cor</label><select id="workspaceCor" class="form-select"><option value="#667eea">💜 Roxo</option><option value="#ef4444">❤️ Vermelho</option><option value="#fbbf24">💛 Amarelo</option><option value="#10b981">💚 Verde</option><option value="#3b82f6">💙 Azul</option></select></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-primary" onclick="window.salvarWorkspace()">Salvar</button>
-      <button class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="window.fecharModalWorkspace()">Cancelar</button>
-    </div>
+    <div class="modal-footer"><button class="btn-primary" onclick="window.salvarWorkspace()">Salvar</button><button class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="window.fecharModalWorkspace()">Cancelar</button></div>
   </div>
 </div>
 
 <!-- MODAL META -->
 <div class="modal-overlay" id="modalMeta">
   <div class="modal-container">
-    <div class="modal-header">
-      <h3>Nova Meta</h3>
-      <button class="icon-btn" onclick="window.fecharModalMeta()"><i class="fas fa-times"></i></button>
-    </div>
+    <div class="modal-header"><h3>Nova Meta</h3><button class="icon-btn" onclick="window.fecharModalMeta()"><i class="fas fa-times"></i></button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Título da Meta</label>
-        <input type="text" id="metaTitulo" class="form-input" placeholder="Ex: Correr 5km, Ler 10 livros">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Categoria</label>
-        <select id="metaCategoria" class="form-select">
-          <option>Saúde</option>
-          <option>Desenvolvimento</option>
-          <option>Financeiro</option>
-          <option>Carreira</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Data Alvo</label>
-        <input type="date" id="metaData" class="form-input">
-      </div>
+      <div class="form-group"><label class="form-label">Título da Meta</label><input type="text" id="metaTitulo" class="form-input" placeholder="Ex: Correr 5km, Ler 10 livros"></div>
+      <div class="form-group"><label class="form-label">Categoria</label><select id="metaCategoria" class="form-select"><option>Saúde</option><option>Desenvolvimento</option><option>Financeiro</option><option>Carreira</option></select></div>
+      <div class="form-group"><label class="form-label">Data Alvo</label><input type="date" id="metaData" class="form-input"></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-primary" onclick="window.salvarMeta()">Salvar</button>
-      <button class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="window.fecharModalMeta()">Cancelar</button>
+    <div class="modal-footer"><button class="btn-primary" onclick="window.salvarMeta()">Salvar</button><button class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="window.fecharModalMeta()">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- MODAL FOCO -->
+<div class="modal-overlay" id="modalFoco">
+  <div class="modal-container" style="max-width: 450px; text-align: center;">
+    <div class="modal-header"><h3><i class="fas fa-brain"></i> Modo Foco</h3><button class="icon-btn" onclick="window.fecharModalFoco()"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div id="tarefaFocoTexto" style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 20px;"></div>
+      <div class="progresso-foco" style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 20px 0; overflow: hidden;"><div class="progresso-foco-bar" id="progressoFocoBar" style="height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); width: 0%;"></div></div>
+      <div class="timer-foco-grande" id="timerFocoGrande" style="font-size: 48px; font-weight: bold; margin: 16px 0; color: #667eea; font-family: monospace;">25:00</div>
+      <div class="controles-foco" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn-primary" id="btnIniciarFoco" onclick="window.iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button>
+        <button class="btn-primary" id="btnPausarFoco" style="display:none; background: rgba(255,255,255,0.1);" onclick="window.pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button>
+        <button class="btn-primary" id="btnProrrogar" style="background: #f59e0b;" onclick="window.prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button>
+        <button class="btn-primary" onclick="window.concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button>
+      </div>
+      <div id="cronometroInfo" style="color: white; font-size: 12px; margin-top: 16px;">🍅 Pomodoro 25 minutos</div>
     </div>
   </div>
 </div>
@@ -1242,8 +613,7 @@
 {
   "imports": {
     "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
-    "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"
   }
 }
 </script>
@@ -1265,7 +635,28 @@
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
   
-  // Funções globais
+  // ========== VARIÁVEIS GLOBAIS ==========
+  let workspaces = [];
+  let projetos = [];
+  let tarefas = [];
+  let metas = [];
+  let focusSessions = [];
+  let workspaceAtivo = null;
+  let projetoAtual = null;
+  
+  // Pomodoro
+  let pomodoroInterval = null;
+  let tempoRestante = 25 * 60;
+  let pomodoroAtivo = false;
+  let pomodoroPausado = false;
+  let tarefaFocoAtual = null;
+  let tempoFocoInicio = 0;
+  
+  // Totais
+  let tempoFocadoHoje = 0;
+  let tempoTotalFocado = 0;
+  
+  // ========== FUNÇÕES AUXILIARES ==========
   window.mostrarLoading = function(show) {
     const el = document.getElementById('loadingOverlay');
     if (show) el.classList.add('show');
@@ -1284,6 +675,87 @@
     indicator.classList.add('show');
     setTimeout(() => indicator.classList.remove('show'), 2000);
   };
+  
+  function getDataHoje() {
+    return new Date().toISOString().split('T')[0];
+  }
+  
+  function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+  
+  // ========== FOCUS SESSIONS ==========
+  function registrarSessaoFoco(tarefaId, duracaoSegundos) {
+    const agora = new Date();
+    const sessao = {
+      id: Date.now(),
+      tarefaId: tarefaId,
+      inicio: new Date(agora.getTime() - duracaoSegundos * 1000).toISOString(),
+      fim: agora.toISOString(),
+      duracao: duracaoSegundos,
+      data: getDataHoje()
+    };
+    focusSessions.push(sessao);
+    
+    // Atualizar tempo na tarefa
+    const tarefa = tarefas.find(t => t.id == tarefaId);
+    if (tarefa) {
+      tarefa.tempoGasto = (tarefa.tempoGasto || 0) + duracaoSegundos;
+    }
+    
+    salvarDados();
+  }
+  
+  function calcularHorasFocadas(dataInicio, dataFim) {
+    const inicio = new Date(dataInicio);
+    const fim = new Date(dataFim);
+    fim.setDate(fim.getDate() + 1);
+    
+    let totalSegundos = 0;
+    for (const sessao of focusSessions) {
+      const dataSessao = new Date(sessao.data);
+      if (dataSessao >= inicio && dataSessao < fim) {
+        totalSegundos += sessao.duracao;
+      }
+    }
+    return totalSegundos / 3600;
+  }
+  
+  function calcularHorasFocadasPorDia(data) {
+    let total = 0;
+    for (const sessao of focusSessions) {
+      if (sessao.data === data) {
+        total += sessao.duracao;
+      }
+    }
+    return total / 3600;
+  }
+  
+  function calcularStreak() {
+    let streak = 0;
+    let dataAtual = new Date();
+    
+    while (true) {
+      const dataStr = dataAtual.toISOString().split('T')[0];
+      const temSessao = focusSessions.some(s => s.data === dataStr);
+      const temTarefaConcluida = tarefas.some(t => t.concluida && t.dataConclusao === dataStr);
+      
+      if (!temSessao && !temTarefaConcluida) break;
+      streak++;
+      dataAtual.setDate(dataAtual.getDate() - 1);
+    }
+    return streak;
+  }
+  
+  function calcularTarefasConcluidasPorDia(data) {
+    return tarefas.filter(t => t.concluida && t.dataConclusao === data).length;
+  }
   
   // ========== AUTENTICAÇÃO ==========
   window.fazerLogin = async () => {
@@ -1342,30 +814,16 @@
     document.getElementById('sidebar').classList.toggle('mobile-open');
   };
   
-  // ========== ESTRUTURA DE DADOS ==========
-  let workspaces = [];
-  let projetos = [];
-  let tarefas = [];
-  let metas = [];
-  let workspaceAtivo = null;
-  let projetoAtual = null;
-  
-  function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
-  
+  // ========== SALVAR E CARREGAR DADOS ==========
   function salvarDados() {
     localStorage.setItem('workspaces', JSON.stringify(workspaces));
     localStorage.setItem('projetos', JSON.stringify(projetos));
     localStorage.setItem('tarefas', JSON.stringify(tarefas));
     localStorage.setItem('metas', JSON.stringify(metas));
+    localStorage.setItem('focusSessions', JSON.stringify(focusSessions));
     localStorage.setItem('workspaceAtivo', workspaceAtivo);
+    localStorage.setItem('tempoFocadoHoje', tempoFocadoHoje);
+    localStorage.setItem('tempoTotalFocado', tempoTotalFocado);
   }
   
   function carregarDados() {
@@ -1373,13 +831,28 @@
     const savedProjetos = localStorage.getItem('projetos');
     const savedTarefas = localStorage.getItem('tarefas');
     const savedMetas = localStorage.getItem('metas');
+    const savedFocusSessions = localStorage.getItem('focusSessions');
     const savedWorkspaceAtivo = localStorage.getItem('workspaceAtivo');
+    const savedTempoFocadoHoje = localStorage.getItem('tempoFocadoHoje');
+    const savedTempoTotalFocado = localStorage.getItem('tempoTotalFocado');
     
     if (savedWorkspaces) workspaces = JSON.parse(savedWorkspaces);
     if (savedProjetos) projetos = JSON.parse(savedProjetos);
     if (savedTarefas) tarefas = JSON.parse(savedTarefas);
     if (savedMetas) metas = JSON.parse(savedMetas);
+    if (savedFocusSessions) focusSessions = JSON.parse(savedFocusSessions);
     if (savedWorkspaceAtivo) workspaceAtivo = parseInt(savedWorkspaceAtivo);
+    if (savedTempoFocadoHoje) tempoFocadoHoje = parseInt(savedTempoFocadoHoje);
+    if (savedTempoTotalFocado) tempoTotalFocado = parseInt(savedTempoTotalFocado);
+    
+    // Reset diário do tempo focado
+    const ultimoReset = localStorage.getItem('ultimoResetFoco');
+    const hoje = getDataHoje();
+    if (ultimoReset !== hoje) {
+      tempoFocadoHoje = 0;
+      localStorage.setItem('ultimoResetFoco', hoje);
+      salvarDados();
+    }
     
     // Dados padrão
     if (workspaces.length === 0) {
@@ -1390,8 +863,8 @@
       projetos.push({ id: Date.now(), workspaceId: workspaceAtivo, nome: "Minhas Tarefas", cor: "#667eea" });
     }
     if (tarefas.length === 0) {
-      const hoje = new Date().toISOString().split('T')[0];
-      tarefas.push({ id: Date.now(), projetoId: projetos[0].id, titulo: "Bem-vindo ao FLUXO PRO!", descricao: "Clique no botão + para adicionar tarefas", prioridade: "p2", data: hoje, concluida: false, recorrencia: "" });
+      const hoje = getDataHoje();
+      tarefas.push({ id: Date.now(), projetoId: projetos[0].id, titulo: "Experimente o Modo Foco!", descricao: "Clique no relógio para iniciar uma sessão de foco", prioridade: "p2", data: hoje, concluida: false, recorrencia: "", tempoGasto: 0, dataConclusao: null });
     }
     if (metas.length === 0) {
       metas.push({ id: Date.now(), titulo: "Completar onboarding", categoria: "Desenvolvimento", dataAlvo: new Date().toISOString().split('T')[0], concluida: false });
@@ -1521,6 +994,7 @@
             </div>
             <div class="projeto-stats">
               <span><i class="fas fa-tasks"></i> ${tarefasProjeto.length} tarefas</span>
+              <span><i class="fas fa-clock"></i> ${Math.floor(tarefas.reduce((acc, t) => t.projetoId === p.id ? acc + (t.tempoGasto || 0) : acc, 0) / 60)} min</span>
             </div>
             <div style="display: flex; gap: 8px; margin-top: 12px;">
               <button class="btn-primary" style="padding: 4px 12px; font-size: 11px;" onclick="event.stopPropagation(); window.editarProjeto(${p.id})">Editar</button>
@@ -1574,10 +1048,12 @@
               <div class="tarefa-meta">
                 <span><i class="fas fa-calendar"></i> ${t.data || 'Sem data'}</span>
                 ${t.recorrencia ? `<span><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>` : ''}
+                ${t.tempoGasto ? `<span><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)} min</span>` : ''}
               </div>
             </div>
           </div>
           <div class="tarefa-actions">
+            <button class="tarefa-action" onclick="event.stopPropagation(); window.abrirModalFoco(${t.id})"><i class="fas fa-clock"></i></button>
             <button class="tarefa-action" onclick="event.stopPropagation(); window.abrirEditarTarefa(${t.id})"><i class="fas fa-edit"></i></button>
             <button class="tarefa-action" onclick="event.stopPropagation(); window.excluirTarefa(${t.id})"><i class="fas fa-trash-alt"></i></button>
           </div>
@@ -1591,7 +1067,7 @@
     document.getElementById('tarefaId').value = '';
     document.getElementById('tarefaTitulo').value = '';
     document.getElementById('tarefaDescricao').value = '';
-    document.getElementById('tarefaData').value = new Date().toISOString().split('T')[0];
+    document.getElementById('tarefaData').value = getDataHoje();
     document.getElementById('tarefaPrioridade').value = 'p3';
     document.getElementById('tarefaRecorrencia').value = '';
     
@@ -1610,7 +1086,7 @@
     document.getElementById('tarefaId').value = tarefa.id;
     document.getElementById('tarefaTitulo').value = tarefa.titulo;
     document.getElementById('tarefaDescricao').value = tarefa.descricao || '';
-    document.getElementById('tarefaData').value = tarefa.data || new Date().toISOString().split('T')[0];
+    document.getElementById('tarefaData').value = tarefa.data || getDataHoje();
     document.getElementById('tarefaPrioridade').value = tarefa.prioridade || 'p3';
     document.getElementById('tarefaRecorrencia').value = tarefa.recorrencia || '';
     
@@ -1634,7 +1110,9 @@
       prioridade: document.getElementById('tarefaPrioridade').value,
       data: document.getElementById('tarefaData').value,
       recorrencia: document.getElementById('tarefaRecorrencia').value,
-      concluida: false
+      concluida: false,
+      tempoGasto: 0,
+      dataConclusao: null
     };
     
     if (id) {
@@ -1657,6 +1135,7 @@
     const tarefa = tarefas.find(t => t.id == id);
     if (tarefa) {
       tarefa.concluida = !tarefa.concluida;
+      tarefa.dataConclusao = tarefa.concluida ? getDataHoje() : null;
       salvarDados();
       if (projetoAtual) renderizarTarefasDoProjeto(projetoAtual);
       renderizarDashboard();
@@ -1676,6 +1155,131 @@
   
   window.fecharModalTarefa = function() {
     document.getElementById('modalTarefa').classList.remove('show');
+  };
+  
+  // ========== POMODORO / FOCO ==========
+  window.abrirModalFoco = function(tarefaId) {
+    const tarefa = tarefas.find(t => t.id == tarefaId);
+    if (!tarefa) return;
+    tarefaFocoAtual = tarefa;
+    document.getElementById('tarefaFocoTexto').innerText = tarefa.titulo;
+    tempoRestante = 25 * 60;
+    pomodoroAtivo = false;
+    pomodoroPausado = false;
+    atualizarTimerDisplay();
+    document.getElementById('btnIniciarFoco').style.display = 'inline-block';
+    document.getElementById('btnPausarFoco').style.display = 'none';
+    document.getElementById('cronometroInfo').innerHTML = '🍅 Pomodoro 25 minutos';
+    document.getElementById('modalFoco').classList.add('show');
+  };
+  
+  window.fecharModalFoco = function() {
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroAtivo = false;
+    document.getElementById('modalFoco').classList.remove('show');
+    tarefaFocoAtual = null;
+  };
+  
+  function atualizarTimerDisplay() {
+    const min = Math.floor(tempoRestante / 60);
+    const seg = tempoRestante % 60;
+    document.getElementById('timerFocoGrande').innerHTML = `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
+    const progresso = ((25 * 60 - tempoRestante) / (25 * 60)) * 100;
+    document.getElementById('progressoFocoBar').style.width = `${Math.min(100, Math.max(0, progresso))}%`;
+  }
+  
+  window.iniciarPomodoro = function() {
+    if (pomodoroAtivo) return;
+    pomodoroAtivo = true;
+    pomodoroPausado = false;
+    tempoFocoInicio = Date.now();
+    
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
+    pomodoroInterval = setInterval(() => {
+      if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+        tempoRestante--;
+        atualizarTimerDisplay();
+        if (tempoRestante === 0) {
+          clearInterval(pomodoroInterval);
+          finalizarPomodoro();
+        }
+      }
+    }, 1000);
+    
+    document.getElementById('btnIniciarFoco').style.display = 'none';
+    document.getElementById('btnPausarFoco').style.display = 'inline-block';
+    document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...';
+  };
+  
+  window.pausarPomodoro = function() {
+    if (!pomodoroAtivo) return;
+    pomodoroPausado = !pomodoroPausado;
+    document.getElementById('btnPausarFoco').innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
+    document.getElementById('cronometroInfo').innerHTML = pomodoroPausado ? '⏸ Pausado' : '🍅 Focando...';
+  };
+  
+  window.prorrogarTempoFoco = function() {
+    if (!pomodoroAtivo) return;
+    tempoRestante += 10 * 60;
+    atualizarTimerDisplay();
+    document.getElementById('cronometroInfo').innerHTML = '⏰ +10 minutos!';
+    setTimeout(() => {
+      if (document.getElementById('cronometroInfo')) {
+        document.getElementById('cronometroInfo').innerHTML = '🍅 Focando...';
+      }
+    }, 2000);
+  };
+  
+  function finalizarPomodoro() {
+    const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+    
+    if (tempoGasto > 0 && tarefaFocoAtual) {
+      // Registrar sessão de foco
+      registrarSessaoFoco(tarefaFocoAtual.id, tempoGasto);
+      
+      // Atualizar totais
+      tempoFocadoHoje += tempoGasto;
+      tempoTotalFocado += tempoGasto;
+      
+      // Atualizar tempo na tarefa
+      tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto;
+      
+      salvarDados();
+    }
+    
+    window.fecharModalFoco();
+    if (projetoAtual) renderizarTarefasDoProjeto(projetoAtual);
+    renderizarDashboard();
+    
+    // Tocar som de sino
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.value = 0.25;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 10);
+      osc.stop(ctx.currentTime + 10);
+      setTimeout(() => ctx.close(), 11000);
+    } catch(e) {}
+    
+    window.mostrarIndicadorSync(`🎉 Pomodoro concluído! ${Math.floor(tempoGasto / 60)} minutos de foco!`);
+  }
+  
+  window.concluirTarefaFoco = function() {
+    if (tarefaFocoAtual) {
+      tarefaFocoAtual.concluida = true;
+      tarefaFocoAtual.dataConclusao = getDataHoje();
+      salvarDados();
+      if (projetoAtual) renderizarTarefasDoProjeto(projetoAtual);
+      renderizarDashboard();
+      window.mostrarIndicadorSync('✅ Tarefa concluída via Foco!');
+    }
+    window.fecharModalFoco();
   };
   
   // ========== METAS ==========
@@ -1710,6 +1314,7 @@
       meta.concluida = !meta.concluida;
       salvarDados();
       renderizarMetas();
+      renderizarDashboard();
     }
   };
   
@@ -1718,6 +1323,7 @@
       metas = metas.filter(m => m.id != id);
       salvarDados();
       renderizarMetas();
+      renderizarDashboard();
     }
   };
   
@@ -1751,7 +1357,7 @@
   
   // ========== DASHBOARD ==========
   function renderizarDashboard() {
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = getDataHoje();
     const tarefasHoje = tarefas.filter(t => t.data === hoje && !t.concluida).length;
     const tarefasAtrasadas = tarefas.filter(t => t.data && t.data < hoje && !t.concluida).length;
     const metasProgresso = metas.filter(m => !m.concluida).length;
@@ -1759,7 +1365,11 @@
     document.getElementById('statHoje').innerText = tarefasHoje;
     document.getElementById('statAtrasadas').innerText = tarefasAtrasadas;
     document.getElementById('statMetas').innerText = metasProgresso;
-    document.getElementById('statHoras').innerText = Math.floor(Math.random() * 50);
+    
+    // Horas focadas no mês REAL
+    const inicioMes = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-01';
+    const horasMes = calcularHorasFocadas(inicioMes, hoje);
+    document.getElementById('statHoras').innerText = Math.floor(horasMes);
     
     // Tarefas do dia
     const tarefasDoDia = tarefas.filter(t => t.data === hoje && !t.concluida).slice(0, 5);
@@ -1802,7 +1412,7 @@
     const primeiroDia = new Date(ano, mes, 1).getDay();
     const diasNoMes = new Date(ano, mes + 1, 0).getDate();
     const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = getDataHoje();
     
     document.getElementById('calendarioMes').innerHTML = `${meses[mes]} ${ano}`;
     
@@ -1836,51 +1446,94 @@
     document.getElementById('calendarioGrade').innerHTML = html;
   }
   
-  // ========== ANALYTICS ==========
+  // ========== ANALYTICS REAL ==========
   function renderizarAnalytics() {
-    const dias = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-    const tarefasPorDia = [4, 6, 3, 8, 5, 2, 1];
-    const maxTarefas = Math.max(...tarefasPorDia);
+    const dias = [];
+    const horasPorDia = [];
+    const tarefasConcluidasPorDia = [];
     
-    const chartBars = document.getElementById('chartBars');
-    chartBars.innerHTML = tarefasPorDia.map((v, i) => `
+    for (let i = 6; i >= 0; i--) {
+      const data = new Date();
+      data.setDate(data.getDate() - i);
+      const dataStr = data.toISOString().split('T')[0];
+      const horas = calcularHorasFocadasPorDia(dataStr);
+      const tarefasConcluidas = calcularTarefasConcluidasPorDia(dataStr);
+      
+      dias.push(data.toLocaleDateString('pt-BR', { weekday: 'short' }));
+      horasPorDia.push(horas);
+      tarefasConcluidasPorDia.push(tarefasConcluidas);
+    }
+    
+    // Gráfico de horas focadas
+    const maxHoras = Math.max(...horasPorDia, 1);
+    const focusChart = document.getElementById('focusChart');
+    focusChart.innerHTML = horasPorDia.map((h, i) => `
       <div style="flex:1; text-align:center;">
-        <div class="chart-bar" style="height: ${(v / maxTarefas) * 150}px;"></div>
+        <div class="chart-bar" style="height: ${(h / maxHoras) * 150}px;"></div>
         <div style="font-size:11px; margin-top:8px; color:white;">${dias[i]}</div>
-        <div style="font-size:10px; color:#a1a1aa;">${v}</div>
+        <div style="font-size:10px; color:#a1a1aa;">${h.toFixed(1)}h</div>
       </div>
     `).join('');
     
-    document.getElementById('streakValue').innerText = Math.floor(Math.random() * 20) + 1;
+    // Gráfico de tarefas concluídas
+    const maxTarefas = Math.max(...tarefasConcluidasPorDia, 1);
+    const tasksChart = document.getElementById('tasksCompletedChart');
+    if (tasksChart) {
+      tasksChart.innerHTML = tarefasConcluidasPorDia.map((t, i) => `
+        <div style="flex:1; text-align:center;">
+          <div class="chart-bar" style="height: ${(t / maxTarefas) * 150}px;"></div>
+          <div style="font-size:11px; margin-top:8px; color:white;">${dias[i]}</div>
+          <div style="font-size:10px; color:#a1a1aa;">${t}</div>
+        </div>
+      `).join('');
+    }
     
+    // Gráfico de produtividade semanal (tarefas pendentes)
+    const pendentesPorDia = [];
+    for (let i = 6; i >= 0; i--) {
+      const data = new Date();
+      data.setDate(data.getDate() - i);
+      const dataStr = data.toISOString().split('T')[0];
+      const pendentes = tarefas.filter(t => t.data === dataStr && !t.concluida).length;
+      pendentesPorDia.push(pendentes);
+    }
+    const maxPendentes = Math.max(...pendentesPorDia, 1);
+    const chartBars = document.getElementById('chartBars');
+    chartBars.innerHTML = pendentesPorDia.map((p, i) => `
+      <div style="flex:1; text-align:center;">
+        <div class="chart-bar" style="height: ${(p / maxPendentes) * 150}px;"></div>
+        <div style="font-size:11px; margin-top:8px; color:white;">${dias[i]}</div>
+        <div style="font-size:10px; color:#a1a1aa;">${p}</div>
+      </div>
+    `).join('');
+    
+    // Streak real
+    const streak = calcularStreak();
+    document.getElementById('streakValue').innerText = streak;
+    
+    // Tarefas por projeto
     const projetosComTarefas = projetos.map(p => {
       const count = tarefas.filter(t => t.projetoId === p.id && !t.concluida).length;
       return { nome: p.nome, count };
     }).filter(p => p.count > 0);
     
     const tasksByProject = document.getElementById('tasksByProject');
-    tasksByProject.innerHTML = projetosComTarefas.map(p => `
-      <div style="margin-bottom:12px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:white;">
-          <span>${escapeHtml(p.nome)}</span>
-          <span>${p.count}</span>
+    if (projetosComTarefas.length === 0) {
+      tasksByProject.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);">Nenhuma tarefa ativa</div>';
+    } else {
+      const maxCount = Math.max(...projetosComTarefas.map(p => p.count));
+      tasksByProject.innerHTML = projetosComTarefas.map(p => `
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:white;">
+            <span>${escapeHtml(p.nome)}</span>
+            <span>${p.count}</span>
+          </div>
+          <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+            <div style="width:${(p.count / maxCount) * 100}%; height:100%; background:linear-gradient(90deg,#667eea,#764ba2); border-radius:3px;"></div>
+          </div>
         </div>
-        <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
-          <div style="width:${(p.count / Math.max(...projetosComTarefas.map(p => p.count), 1)) * 100}%; height:100%; background:linear-gradient(90deg,#667eea,#764ba2); border-radius:3px;"></div>
-        </div>
-      </div>
-    `).join('');
-    
-    const focusData = [2, 3, 1, 4, 2, 5, 3];
-    const maxFocus = Math.max(...focusData);
-    const focusChart = document.getElementById('focusChart');
-    focusChart.innerHTML = focusData.map((v, i) => `
-      <div style="flex:1; text-align:center;">
-        <div class="chart-bar" style="height: ${(v / maxFocus) * 150}px;"></div>
-        <div style="font-size:11px; margin-top:8px; color:white;">${dias[i]}</div>
-        <div style="font-size:10px; color:#a1a1aa;">${v}h</div>
-      </div>
-    `).join('');
+      `).join('');
+    }
   }
   
   // ========== CONFIGURAÇÕES ==========
@@ -1902,7 +1555,7 @@
   };
   
   window.exportarBackup = function() {
-    const backup = { workspaces, projetos, tarefas, metas };
+    const backup = { workspaces, projetos, tarefas, metas, focusSessions };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -1922,6 +1575,7 @@
         if (data.projetos) projetos = data.projetos;
         if (data.tarefas) tarefas = data.tarefas;
         if (data.metas) metas = data.metas;
+        if (data.focusSessions) focusSessions = data.focusSessions;
         salvarDados();
         window.mostrarIndicadorSync('Backup importado! Recarregando...');
         setTimeout(() => location.reload(), 1500);
@@ -1930,6 +1584,17 @@
       }
     };
     reader.readAsText(file);
+  };
+  
+  window.resetarDadosFoco = function() {
+    if (confirm('Resetar todas as sessões de foco? Isso não afeta suas tarefas.')) {
+      focusSessions = [];
+      tempoFocadoHoje = 0;
+      tempoTotalFocado = 0;
+      salvarDados();
+      renderizarDashboard();
+      window.mostrarIndicadorSync('Dados de foco resetados!');
+    }
   };
   
   // ========== NAVEGAÇÃO ==========
