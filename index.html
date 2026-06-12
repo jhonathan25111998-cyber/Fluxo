@@ -22,11 +22,6 @@
   body.dark-theme { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
   body.dark-theme .header-fluxo, body.dark-theme .card-espaco, body.dark-theme .metas-dashboard { background: rgba(10, 10, 20, 0.8); }
   
-  /* ========== CORES GLOBAIS - TUDO BRANCO ========== */
-  body, .container, .header-fluxo, .card-espaco, .metas-dashboard, .footer-stats {
-    color: #ffffff;
-  }
-  
   .status-online { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 8px 16px; border-radius: 40px; font-size: 12px; display: flex; align-items: center; gap: 8px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
   .status-offline { background: #ef4444; }
   .theme-toggle { background: rgba(255, 255, 255, 0.2); border: none; width: 36px; height: 36px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
@@ -320,7 +315,7 @@
   .estado-vazio .titulo { font-size: 16px; font-weight: 500; color: #ffffff; }
   .estado-vazio .subtitulo { font-size: 13px; color: rgba(255, 255, 255, 0.6); }
   
-  /* ========== HEADER ========== */
+  /* ========== HEADER COM LOGO ORIGINAL ========== */
   .header-fluxo {
     padding: 12px 20px;
     display: flex;
@@ -338,14 +333,26 @@
   .logo-img {
     width: 44px;
     height: 44px;
-    background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(168,85,247,0.2));
-    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
   }
-  .logo-img i { font-size: 24px; color: white; }
+  .logo-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .logo-fallback {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-fallback i { color: white; font-size: 20px; }
   .logo-texto .logo-titulo {
     font-size: 20px;
     font-weight: 700;
@@ -731,12 +738,15 @@
 </style>
 </head>
 <body>
-<div class="login-overlay" id="loginOverlay"><div class="login-container"><div class="logo-img" style="margin:0 auto 20px;"><i class="fas fa-tasks" style="font-size: 32px; color: #667eea;"></i></div><h2>FLUXO</h2><p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p><div id="loginForm"><input type="email" id="loginEmail" placeholder="Email"><div class="password-container"><input type="password" id="loginPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword',this)"><i class="far fa-eye"></i></button></div><div id="loginErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerLogin()">Entrar</button><a class="register-link" onclick="mostrarCadastro()">Criar conta</a></div><div id="registerForm" style="display:none;"><input type="email" id="registerEmail" placeholder="Email"><div class="password-container"><input type="password" id="registerPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerPassword',this)"><i class="far fa-eye"></i></button></div><div class="password-container"><input type="password" id="registerConfirm" placeholder="Confirmar senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerConfirm',this)"><i class="far fa-eye"></i></button></div><div id="registerErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerCadastro()">Cadastrar</button><a class="register-link" onclick="mostrarLogin()">Já tenho conta</a></div></div></div>
+<div class="login-overlay" id="loginOverlay"><div class="login-container"><div class="logo-img" style="margin:0 auto 20px; justify-content: center;"><img src="logo.png" alt="FLUXO" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:60px;height:60px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto;\'><i class=\'fas fa-tasks\' style=\'font-size:28px;color:white;\'></i></div>'"></div><h2>FLUXO</h2><p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p><div id="loginForm"><input type="email" id="loginEmail" placeholder="Email"><div class="password-container"><input type="password" id="loginPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword',this)"><i class="far fa-eye"></i></button></div><div id="loginErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerLogin()">Entrar</button><a class="register-link" onclick="mostrarCadastro()">Criar conta</a></div><div id="registerForm" style="display:none;"><input type="email" id="registerEmail" placeholder="Email"><div class="password-container"><input type="password" id="registerPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerPassword',this)"><i class="far fa-eye"></i></button></div><div class="password-container"><input type="password" id="registerConfirm" placeholder="Confirmar senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerConfirm',this)"><i class="far fa-eye"></i></button></div><div id="registerErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerCadastro()">Cadastrar</button><a class="register-link" onclick="mostrarLogin()">Já tenho conta</a></div></div></div>
 
 <div class="container" id="mainApp" style="display:block;">
   <div class="header-fluxo">
     <div class="header-logo">
-      <div class="logo-img"><i class="fas fa-tasks"></i></div>
+      <div class="logo-img">
+        <img src="logo.png" alt="FLUXO" onerror="this.style.display='none'; this.nextSibling.style.display='flex'">
+        <div class="logo-fallback" style="display: none;"><i class="fas fa-tasks"></i></div>
+      </div>
       <div class="logo-texto">
         <div class="logo-titulo">FLUXO</div>
         <div class="logo-subtitulo">Organize. Execute. Flua.</div>
@@ -850,7 +860,7 @@
   window.mostrarLogin = () => { document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; };
   window.togglePasswordVisibility = (id, btn) => { const inp = document.getElementById(id); if(inp.type === 'password'){ inp.type='text'; btn.innerHTML='<i class="far fa-eye-slash"></i>'; } else { inp.type='password'; btn.innerHTML='<i class="far fa-eye"></i>'; } };
   
-  // ========== INDEXEDDB BACKUP SYSTEM (SEPARADO POR USUÁRIO) ==========
+  // ========== INDEXEDDB BACKUP SYSTEM ==========
   let dbBackup = null;
   let usuarioAtual = null;
   
@@ -869,7 +879,6 @@
       };
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
-        // Não criar store agora, será criada dinamicamente por usuário
       };
     });
   }
@@ -975,7 +984,7 @@
         <div class="backup-item">
           <div class="backup-info">
             <div class="backup-data"><i class="far fa-calendar-alt"></i> ${new Date(b.timestamp).toLocaleString('pt-BR')}</div>
-            <div class="backup-tarefas">📋 ${b.tarefas ? JSON.parse(b.tarefas || '[]').length : 0} tarefas | 👤 ${b.usuario || 'usuário'}</div>
+            <div class="backup-tarefas">📋 ${b.tarefas ? JSON.parse(b.tarefas || '[]').length : 0} tarefas</div>
           </div>
           <div class="backup-actions">
             <button onclick="restaurarBackupIndexedDB(${b.id})" title="Restaurar"><i class="fas fa-undo-alt"></i></button>
@@ -1081,7 +1090,6 @@
   let tempoFocadoHoje = parseInt(localStorage.getItem('tempoFocadoHoje') || '0');
   let ultimaDataReset = localStorage.getItem('ultimaDataReset') || '';
   let tarefasReagendadasHoje = parseInt(localStorage.getItem('tarefasReagendadasHoje') || '0');
-  let ultimaDataReagendamento = localStorage.getItem('ultimaDataReagendamento') || '';
   let tarefaReagendando = null;
   let tarefaArrastandoId = null;
   let tarefaArrastandoOrigem = null;
