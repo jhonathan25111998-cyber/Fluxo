@@ -35,6 +35,74 @@
   ::-webkit-scrollbar-corner { background: transparent; }
   * { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.15) transparent; }
   
+  /* ========== TOOLTIP PARA DESCRIÇÃO COMPLETA ========== */
+  .tarefa-texto {
+    position: relative;
+    cursor: help;
+    display: inline-block;
+    max-width: 100%;
+  }
+  .tarefa-texto.truncated {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+  }
+  .tarefa-texto[data-fulltext]::after {
+    content: attr(data-fulltext);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e1e2e;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: normal;
+    word-break: break-word;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-weight: normal;
+    max-width: 280px;
+    min-width: 150px;
+  }
+  .tarefa-texto:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: calc(100% + 8px);
+  }
+  
+  /* ========== BANNER CORRIGIDO - ESPAÇO ENTRE FRASES ========== */
+  .banner-esquerda {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .banner-textos {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .alerta-texto {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    display: block;
+  }
+  .alerta-subtexto {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    display: block;
+    margin-top: 0;
+  }
+  
   /* ========== HEADER RESPONSIVO ========== */
   .header-fluxo {
     height: auto;
@@ -56,7 +124,7 @@
   .header-direita .data-hoje { margin-top: 0; font-size: 12px; white-space: nowrap; }
   
   /* ========== BOTÕES DISCRETOS ========== */
-  .sync-btn, .reschedule-btn {
+  .sync-btn, .reschedule-btn, .backup-btn {
     background: rgba(255, 255, 255, 0.1);
     border: none;
     width: 32px;
@@ -72,6 +140,7 @@
   }
   .sync-btn:hover { background: rgba(255, 255, 255, 0.2); color: white; transform: rotate(180deg); }
   .reschedule-btn:hover { background: rgba(245, 158, 11, 0.3); color: #fbbf24; transform: scale(1.05); }
+  .backup-btn:hover { background: rgba(34, 197, 94, 0.3); color: #22c55e; transform: scale(1.05); }
   .sync-btn:active { transform: rotate(360deg); }
   .sync-btn.syncing i { animation: spin 1s linear infinite; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -102,15 +171,12 @@
   
   /* ========== BANNER SHRINK-TO-FIT ========== */
   .top-section { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
-  .banner-tarefas { display: inline-flex; width: fit-content; max-width: 100%; background: linear-gradient(90deg, #7c3aed 0%, #1e1e2e 100%); border-radius: 12px; padding: 14px 18px; gap: 12px; align-items: center; }
-  .alerta-texto, .alerta-subtexto { color: white !important; }
+  .banner-tarefas { display: inline-flex; width: fit-content; max-width: 100%; background: linear-gradient(90deg, #7c3aed 0%, #1e1e2e 100%); border-radius: 12px; padding: 12px 20px; gap: 16px; align-items: center; }
   @media (max-width: 640px) { .banner-tarefas { width: 100%; flex-wrap: wrap; } .top-section { flex-direction: column; align-items: stretch; } .botoes-topo { justify-content: flex-start; overflow-x: auto; } }
-  .banner-esquerda { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   
-  /* ========== ÍCONE NOTIFICAÇÃO MINIMALISTA ========== */
   .icon-notif { width: 20px; height: 20px; color: rgba(255, 255, 255, 0.7); stroke-width: 1.5; display: inline-flex; align-items: center; justify-content: center; position: relative; }
   .badge-notif { width: 8px; height: 8px; background: #ef4444; border: 2px solid #1e1e2e; border-radius: 50%; position: absolute; top: -2px; right: -2px; }
-  .btn-ver-agora { height: 32px; padding: 0 14px; font-size: 13px; background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.4); border-radius: 6px; color: #a855f7; cursor: pointer; font-weight: 500; transition: all 0.2s; white-space: nowrap; margin-left: 8px; }
+  .btn-ver-agora { height: 32px; padding: 0 14px; font-size: 13px; background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.4); border-radius: 6px; color: #a855f7; cursor: pointer; font-weight: 500; transition: all 0.2s; white-space: nowrap; }
   .btn-ver-agora:hover { background: rgba(124, 58, 237, 0.35); }
   .botoes-topo { display: flex; justify-content: flex-end; gap: 12px; }
   .view-toggle { display: flex; gap: 8px; }
@@ -189,7 +255,7 @@
   .tarefa-item:hover { background: rgba(255, 255, 255, 0.08); }
   .tarefa-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
   .tarefa-conteudo { flex: 1; }
-  .tarefa-texto { font-size: 12px; line-height: 1.4; color: white; word-break: break-word; margin-bottom: 4px; }
+  .tarefa-texto { font-size: 12px; line-height: 1.4; color: white; word-break: break-word; margin-bottom: 4px; cursor: help; }
   .tarefa-meta { display: flex; flex-wrap: wrap; gap: 4px; }
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 20px; font-size: 9px; background: rgba(255, 255, 255, 0.1); color: white; }
   .badge.atrasada { background: rgba(239,68,68,0.3); color: #ff9999; border: 1px solid rgba(239,68,68,0.5); animation: pulse 2s infinite; }
@@ -296,6 +362,7 @@
     <div class="header-direita">
       <button class="sync-btn" id="syncNowBtn" title="Sincronizar tarefas recorrentes"><i class="fas fa-sync-alt"></i></button>
       <button class="reschedule-btn" id="rescheduleBtn" title="Reagendar tarefas pendentes para amanhã"><i class="fas fa-calendar-plus"></i></button>
+      <button class="backup-btn" id="backupBtn" title="Backup manual"><i class="fas fa-download"></i></button>
       <span class="data-hoje" id="dataHojeHeader"></span>
       <div class="user-info">
         <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
@@ -311,12 +378,15 @@
     <div class="data-badge"><i class="fas fa-calendar-alt"></i><span id="dataHojeMobile"></span></div>
   </div>
   
-  <!-- BANNER E BOTÕES -->
+  <!-- BANNER E BOTÕES - CORRIGIDO COM ESPAÇO ENTRE FRASES -->
   <div class="top-section">
     <div class="banner-tarefas" id="dashboardAlerta" style="display: none;">
       <div class="banner-esquerda">
         <span class="icon-notif"><i class="fas fa-bell" style="font-size: 18px;"></i><span class="badge-notif" id="alertaBadgeNotif" style="display: none;"></span></span>
-        <div><span class="alerta-texto" id="alertaTexto">Você tem tarefas pendentes!</span><span class="alerta-subtexto" id="alertaSubtexto">Organize seu dia 🎯</span></div>
+        <div class="banner-textos">
+          <span class="alerta-texto" id="alertaTexto">Você tem tarefas pendentes!</span>
+          <span class="alerta-subtexto" id="alertaSubtexto">Organize seu dia 🎯</span>
+        </div>
         <button class="btn-ver-agora" id="alertaBtn" onclick="irParaHoje()">Ver agora</button>
       </div>
     </div>
@@ -375,6 +445,99 @@
   window.fazerLogout = () => signOut(auth); window.mostrarCadastro = () => { document.getElementById('loginForm').style.display='none'; document.getElementById('registerForm').style.display='block'; }; window.mostrarLogin = () => { document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; };
   let isSyncing = false;
   
+  // ========== BACKUP AUTOMÁTICO ==========
+  let autoBackupInterval = null;
+  
+  function realizarBackupAutomatico() {
+    const backup = {
+      timestamp: new Date().toISOString(),
+      tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'),
+      metas: JSON.parse(localStorage.getItem('metas') || '[]'),
+      cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'),
+      tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0'),
+      tempoFocadoHoje: parseInt(localStorage.getItem('tempoFocadoHoje') || '0'),
+      ultimaDataFoco: localStorage.getItem('ultimaDataFoco') || '',
+      tarefasReagendadasHoje: parseInt(localStorage.getItem('tarefasReagendadasHoje') || '0'),
+      ultimaDataReagendamento: localStorage.getItem('ultimaDataReagendamento') || ''
+    };
+    
+    // Salvar no localStorage como backup
+    localStorage.setItem('auto_backup', JSON.stringify(backup));
+    localStorage.setItem('ultimo_backup', backup.timestamp);
+    console.log('💾 Backup automático realizado às', backup.timestamp);
+    
+    // Manter apenas os últimos 5 backups
+    const backupsKey = 'backup_history';
+    let history = JSON.parse(localStorage.getItem(backupsKey) || '[]');
+    history.unshift(backup.timestamp);
+    if(history.length > 5) history.pop();
+    localStorage.setItem(backupsKey, JSON.stringify(history));
+  }
+  
+  function exportarBackupManual() {
+    const backup = {
+      timestamp: new Date().toISOString(),
+      tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'),
+      metas: JSON.parse(localStorage.getItem('metas') || '[]'),
+      cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'),
+      tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0'),
+      tempoFocadoHoje: parseInt(localStorage.getItem('tempoFocadoHoje') || '0'),
+      ultimaDataFoco: localStorage.getItem('ultimaDataFoco') || '',
+      tarefasReagendadasHoje: parseInt(localStorage.getItem('tarefasReagendadasHoje') || '0'),
+      ultimaDataReagendamento: localStorage.getItem('ultimaDataReagendamento') || ''
+    };
+    
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `fluxo-backup-${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    mostrarIndicadorSync('💾 Backup exportado com sucesso!');
+  }
+  
+  function restaurarBackup(file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const backup = JSON.parse(ev.target.result);
+        if(backup.tarefas) localStorage.setItem('tarefas', JSON.stringify(backup.tarefas));
+        if(backup.metas) localStorage.setItem('metas', JSON.stringify(backup.metas));
+        if(backup.cardsTarefas) localStorage.setItem('cardsTarefas', JSON.stringify(backup.cardsTarefas));
+        if(backup.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', backup.tempoTotalFocado);
+        if(backup.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', backup.tempoFocadoHoje);
+        if(backup.ultimaDataFoco) localStorage.setItem('ultimaDataFoco', backup.ultimaDataFoco);
+        if(backup.tarefasReagendadasHoje) localStorage.setItem('tarefasReagendadasHoje', backup.tarefasReagendadasHoje);
+        if(backup.ultimaDataReagendamento) localStorage.setItem('ultimaDataReagendamento', backup.ultimaDataReagendamento);
+        
+        mostrarIndicadorSync('✅ Backup restaurado! Recarregando...');
+        setTimeout(() => location.reload(), 1500);
+      } catch(e) {
+        alert('Erro ao restaurar backup: arquivo inválido');
+      }
+    };
+    reader.readAsText(file);
+  }
+  
+  function restaurarUltimoBackup() {
+    const ultimoBackup = localStorage.getItem('auto_backup');
+    if(ultimoBackup) {
+      if(confirm('Restaurar último backup automático? Isso irá substituir todos os dados atuais.')) {
+        const backup = JSON.parse(ultimoBackup);
+        if(backup.tarefas) localStorage.setItem('tarefas', JSON.stringify(backup.tarefas));
+        if(backup.metas) localStorage.setItem('metas', JSON.stringify(backup.metas));
+        if(backup.cardsTarefas) localStorage.setItem('cardsTarefas', JSON.stringify(backup.cardsTarefas));
+        if(backup.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', backup.tempoTotalFocado);
+        if(backup.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', backup.tempoFocadoHoje);
+        if(backup.ultimaDataFoco) localStorage.setItem('ultimaDataFoco', backup.ultimaDataFoco);
+        mostrarIndicadorSync('✅ Backup restaurado! Recarregando...');
+        setTimeout(() => location.reload(), 1500);
+      }
+    } else {
+      alert('Nenhum backup automático encontrado');
+    }
+  }
+  
   async function salvarTudoFirebase() { 
     if(!currentUser) return; 
     if(isSyncing) { console.log('⚠️ Sincronização em andamento...'); return; }
@@ -393,6 +556,7 @@
       }; 
       await setDoc(doc(db, "usuarios", currentUser.uid), dados); 
       console.log('✅ Firebase sincronizado'); 
+      realizarBackupAutomatico(); // Backup após sincronizar
     } catch(err) { 
       console.error('❌ Erro no Firebase:', err); 
     } finally { 
@@ -423,9 +587,26 @@
   }
   
   window.salvarTudoFirebase = salvarTudoFirebase;
-  document.getElementById('logoutBtn').onclick = () => window.fazerLogout(); 
+  document.getElementById('logoutBtn').onclick = () => { 
+    realizarBackupAutomatico(); // Backup antes de sair
+    window.fazerLogout(); 
+  };
   document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); else alert('Notificações já ativadas!'); };
   window.togglePasswordVisibility = (id, btn) => { const inp = document.getElementById(id); if(inp.type === 'password'){ inp.type='text'; btn.innerHTML='<i class="far fa-eye-slash"></i>'; } else { inp.type='password'; btn.innerHTML='<i class="far fa-eye"></i>'; } };
+  
+  // Botão de backup
+  document.getElementById('backupBtn')?.addEventListener('click', () => {
+    const opcao = prompt('💾 BACKUP\n\n1 - Exportar backup\n2 - Restaurar último backup automático\n3 - Importar arquivo de backup\n\nDigite o número da opção:');
+    if(opcao === '1') exportarBackupManual();
+    else if(opcao === '2') restaurarUltimoBackup();
+    else if(opcao === '3') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = (e) => restaurarBackup(e.target.files[0]);
+      input.click();
+    }
+  });
   
   onAuthStateChanged(auth, async (user) => { 
     if(user) { 
@@ -437,13 +618,21 @@
       await carregarDadosFirebase(); 
       if(window.recarregarSistema) window.recarregarSistema(); 
       if(window.iniciarSincronizacaoPeriodica) window.iniciarSincronizacaoPeriodica(); 
+      
+      // Iniciar backup automático a cada 5 minutos
+      if(autoBackupInterval) clearInterval(autoBackupInterval);
+      autoBackupInterval = setInterval(() => {
+        realizarBackupAutomatico();
+        if(window.currentUser && window.salvarTudoFirebase) window.salvarTudoFirebase();
+      }, 300000); // 5 minutos
     } else { 
       currentUser = null; 
       window.currentUser = null; 
       document.getElementById('loginOverlay').style.display='flex'; 
       document.getElementById('mainApp').style.display='none'; 
       if(window.syncInterval) clearInterval(window.syncInterval); 
-      if(window.dailyResetInterval) clearInterval(window.dailyResetInterval); 
+      if(window.dailyResetInterval) clearInterval(window.dailyResetInterval);
+      if(autoBackupInterval) clearInterval(autoBackupInterval);
     } 
   });
 </script>
@@ -500,7 +689,6 @@
       localStorage.setItem('ultimaDataReagendamento', hoje);
       ultimaDataReagendamento = hoje;
       if(window.currentUser && window.salvarTudoFirebase) window.salvarTudoFirebase();
-      // REMOVIDO: atualizarRodape(); ← CAUSA DO LOOP
     }
   }
   
@@ -564,8 +752,6 @@
   }
   
   function atualizarRodape() {
-    // REMOVIDO: resetarContadorReagendamento(); ← CAUSA DO LOOP
-    
     const hoje = getDataHoje();
     const todasTarefas = tarefas;
     const tarefasHoje = todasTarefas.filter(t => t.data === hoje);
@@ -720,6 +906,28 @@
     tarefasDoCard.forEach((t, idx) => { const tarefaGlobal = tarefas.find(gt => gt.id === t.id); if(tarefaGlobal) tarefaGlobal.ordem = idx; }); 
     salvarDados(); 
     mostrarIndicadorSync('📌 Ordem atualizada'); 
+  }
+  
+  // ========== EDITAR CARD SEM PERDER TAREFAS ==========
+  function editarCardTarefa(id) { 
+    const card = cardsTarefas.find(c => c.id === id); 
+    if(card){ 
+      const novoNome = prompt('Editar nome do espaço:', card.nome); 
+      if(novoNome && novoNome.trim() && novoNome !== card.nome){ 
+        const nomeAntigo = card.nome;
+        card.nome = novoNome.trim(); 
+        
+        // Atualizar bloco de todas as tarefas deste card
+        tarefas.forEach(t => {
+          if(t.bloco === nomeAntigo) {
+            t.bloco = card.nome;
+          }
+        });
+        
+        salvarDados(); 
+        alert(`✅ Espaço "${nomeAntigo}" renomeado para "${card.nome}"\n📦 ${tarefas.filter(t => t.bloco === card.nome).length} tarefas movidas`);
+      } 
+    } 
   }
   
   function concluirComDuplicatas(id) { 
@@ -924,16 +1132,75 @@
   function confirmarReagendamento() { const novaData = document.getElementById('novaDataReagendar').value; if(tarefaReagendando && novaData) { tarefaReagendando.data = novaData; tarefaReagendando.notificado = false; salvarDados(); alert(`✅ Tarefa reagendada para ${novaData}`); fecharModalReagendar(); } else alert('Selecione uma data válida!'); }
   
   // ========== EDITAR TAREFAS ==========
-  function editarTarefaCompleta(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; const novoTexto = prompt('Editar texto da tarefa:', tarefa.texto); if(novoTexto && novoTexto.trim()) tarefa.texto = novoTexto.trim(); const novaData = prompt('Editar data (YYYY-MM-DD):', tarefa.data || ''); if(novaData && novaData.trim()) tarefa.data = novaData.trim(); const novaHora = prompt('Editar hora (HH:MM):', tarefa.hora || ''); if(novaHora && novaHora.trim()) tarefa.hora = novaHora.trim(); const prioridades = { 'p1': 'Alta', 'p2': 'Média', 'p3': 'Baixa' }; const prioridadeAtual = prioridades[tarefa.prioridade] || 'Baixa'; const novaPrioridade = prompt(`Editar prioridade (1=Alta, 2=Média, 3=Baixa):\nAtual: ${prioridadeAtual}`, tarefa.prioridade === 'p1' ? '1' : (tarefa.prioridade === 'p2' ? '2' : '3')); if(novaPrioridade === '1') tarefa.prioridade = 'p1'; else if(novaPrioridade === '2') tarefa.prioridade = 'p2'; else if(novaPrioridade === '3') tarefa.prioridade = 'p3'; const opcoesRecorrencia = { '': 'Sem recorrência', 'diaria': '🔄 Diária', 'dias_uteis': '📅 Dias úteis', 'semanal': '📆 Semanal', 'mensal': '📅 Mensal' }; let msgRecorrencia = 'Editar recorrência:\n'; for(let [key, value] of Object.entries(opcoesRecorrencia)) msgRecorrencia += `- ${key || '(vazio)'}: ${value}\n`; msgRecorrencia += `\nAtual: ${opcoesRecorrencia[tarefa.recorrencia || '']}`; const novaRecorrencia = prompt(msgRecorrencia, tarefa.recorrencia || ''); if(novaRecorrencia !== null) tarefa.recorrencia = novaRecorrencia; salvarDados(); alert('✅ Tarefa editada com sucesso!'); }
+  function editarTarefaCompleta(id) { 
+    const tarefa = tarefas.find(t => t.id === id); 
+    if(!tarefa) return; 
+    const novoTexto = prompt('Editar texto da tarefa:', tarefa.texto); 
+    if(novoTexto && novoTexto.trim()) tarefa.texto = novoTexto.trim(); 
+    const novaData = prompt('Editar data (YYYY-MM-DD):', tarefa.data || ''); 
+    if(novaData && novaData.trim()) tarefa.data = novaData.trim(); 
+    const novaHora = prompt('Editar hora (HH:MM):', tarefa.hora || ''); 
+    if(novaHora && novaHora.trim()) tarefa.hora = novaHora.trim(); 
+    const prioridades = { 'p1': 'Alta', 'p2': 'Média', 'p3': 'Baixa' }; 
+    const prioridadeAtual = prioridades[tarefa.prioridade] || 'Baixa'; 
+    const novaPrioridade = prompt(`Editar prioridade (1=Alta, 2=Média, 3=Baixa):\nAtual: ${prioridadeAtual}`, tarefa.prioridade === 'p1' ? '1' : (tarefa.prioridade === 'p2' ? '2' : '3')); 
+    if(novaPrioridade === '1') tarefa.prioridade = 'p1'; 
+    else if(novaPrioridade === '2') tarefa.prioridade = 'p2'; 
+    else if(novaPrioridade === '3') tarefa.prioridade = 'p3'; 
+    const opcoesRecorrencia = { '': 'Sem recorrência', 'diaria': '🔄 Diária', 'dias_uteis': '📅 Dias úteis', 'semanal': '📆 Semanal', 'mensal': '📅 Mensal' }; 
+    let msgRecorrencia = 'Editar recorrência:\n'; 
+    for(let [key, value] of Object.entries(opcoesRecorrencia)) msgRecorrencia += `- ${key || '(vazio)'}: ${value}\n`; 
+    msgRecorrencia += `\nAtual: ${opcoesRecorrencia[tarefa.recorrencia || '']}`; 
+    const novaRecorrencia = prompt(msgRecorrencia, tarefa.recorrencia || ''); 
+    if(novaRecorrencia !== null) tarefa.recorrencia = novaRecorrencia; 
+    salvarDados(); 
+    alert('✅ Tarefa editada com sucesso!'); 
+  }
   
   function toggleTarefa(id) { const t = tarefas.find(t=>t.id===id); if(t) { if(!t.concluida) concluirComDuplicatas(id); else { t.concluida = false; salvarDados(); } } }
   
-  function excluirCardTarefa(id) { const card = cardsTarefas.find(c => c.id === id); if(!card) return; const tarefasDoCard = tarefas.filter(t => t.bloco === card.nome); const tarefasAtivas = tarefasDoCard.filter(t => !t.concluida).length; const tarefasConcluidas = tarefasDoCard.filter(t => t.concluida).length; if(tarefasDoCard.length === 0) { if(confirm(`Excluir o card "${card.nome}"?`)) { cardsTarefas = cardsTarefas.filter(c => c.id !== id); salvarDados(); alert(`✅ Card "${card.nome}" excluído!`); } return; } let mensagem = `🗑️ EXCLUIR CARD: "${card.nome}"\n\n📊 Este card contém:\n   📋 ${tarefasAtivas} tarefa(s) ATIVA(S)\n   ✅ ${tarefasConcluidas} tarefa(s) CONCLUÍDA(S)\n\nEscolha uma opção:\n1 - Mover tarefas para outro card\n2 - Excluir TODAS as tarefas junto com o card\n3 - Cancelar`; const opcao = prompt(mensagem); if(opcao === '1') { const outrosCards = cardsTarefas.filter(c => c.id !== id); if(outrosCards.length === 0) { alert('❌ Não há outro card para mover as tarefas! Crie um novo card primeiro.'); return; } let listaCards = "Escolha o card de destino:\n"; outrosCards.forEach((c, idx) => listaCards += `${idx + 1} - ${c.nome}\n`); const destinoIdx = prompt(listaCards); if(destinoIdx && destinoIdx >= 1 && destinoIdx <= outrosCards.length) { const cardDestino = outrosCards[destinoIdx - 1]; tarefasDoCard.forEach(t => t.bloco = cardDestino.nome); cardsTarefas = cardsTarefas.filter(c => c.id !== id); salvarDados(); alert(`✅ Card "${card.nome}" excluído!\n📦 ${tarefasDoCard.length} tarefa(s) movidas para "${cardDestino.nome}"`); } else alert('❌ Operação cancelada.'); } else if(opcao === '2') { if(confirm(`⚠️ ATENÇÃO: Isso irá excluir PERMANENTEMENTE o card "${card.nome}" e TODAS as ${tarefasDoCard.length} tarefas associadas.\n\nTem certeza?`)) { tarefas = tarefas.filter(t => t.bloco !== card.nome); cardsTarefas = cardsTarefas.filter(c => c.id !== id); salvarDados(); alert(`✅ Card "${card.nome}" e ${tarefasDoCard.length} tarefa(s) excluídos!`); } } }
+  function excluirCardTarefa(id) { 
+    const card = cardsTarefas.find(c => c.id === id); 
+    if(!card) return; 
+    const tarefasDoCard = tarefas.filter(t => t.bloco === card.nome); 
+    const tarefasAtivas = tarefasDoCard.filter(t => !t.concluida).length; 
+    const tarefasConcluidas = tarefasDoCard.filter(t => t.concluida).length; 
+    if(tarefasDoCard.length === 0) { 
+      if(confirm(`Excluir o card "${card.nome}"?`)) { 
+        cardsTarefas = cardsTarefas.filter(c => c.id !== id); 
+        salvarDados(); 
+        alert(`✅ Card "${card.nome}" excluído!`); 
+      } 
+      return; 
+    } 
+    let mensagem = `🗑️ EXCLUIR CARD: "${card.nome}"\n\n📊 Este card contém:\n   📋 ${tarefasAtivas} tarefa(s) ATIVA(S)\n   ✅ ${tarefasConcluidas} tarefa(s) CONCLUÍDA(S)\n\nEscolha uma opção:\n1 - Mover tarefas para outro card\n2 - Excluir TODAS as tarefas junto com o card\n3 - Cancelar`; 
+    const opcao = prompt(mensagem); 
+    if(opcao === '1') { 
+      const outrosCards = cardsTarefas.filter(c => c.id !== id); 
+      if(outrosCards.length === 0) { alert('❌ Não há outro card para mover as tarefas! Crie um novo card primeiro.'); return; } 
+      let listaCards = "Escolha o card de destino:\n"; 
+      outrosCards.forEach((c, idx) => listaCards += `${idx + 1} - ${c.nome}\n`); 
+      const destinoIdx = prompt(listaCards); 
+      if(destinoIdx && destinoIdx >= 1 && destinoIdx <= outrosCards.length) { 
+        const cardDestino = outrosCards[destinoIdx - 1]; 
+        tarefasDoCard.forEach(t => { t.bloco = cardDestino.nome; }); 
+        cardsTarefas = cardsTarefas.filter(c => c.id !== id); 
+        salvarDados(); 
+        alert(`✅ Card "${card.nome}" excluído!\n📦 ${tarefasDoCard.length} tarefa(s) movidas para "${cardDestino.nome}"`); 
+      } else alert('❌ Operação cancelada.'); 
+    } else if(opcao === '2') { 
+      if(confirm(`⚠️ ATENÇÃO: Isso irá excluir PERMANENTEMENTE o card "${card.nome}" e TODAS as ${tarefasDoCard.length} tarefas associadas.\n\nTem certeza?`)) { 
+        tarefas = tarefas.filter(t => t.bloco !== card.nome); 
+        cardsTarefas = cardsTarefas.filter(c => c.id !== id); 
+        salvarDados(); 
+        alert(`✅ Card "${card.nome}" e ${tarefasDoCard.length} tarefa(s) excluídos!`); 
+      } 
+    } 
+  }
   
   function excluirTarefa(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; const temRecorrencia = tarefa.recorrencia && tarefa.recorrencia !== ''; if(temRecorrencia) { const tarefasRecorrentes = tarefas.filter(t => t.texto === tarefa.texto && t.recorrencia === tarefa.recorrencia && !t.concluida).sort((a, b) => (a.data || '').localeCompare(b.data || '')); const totalRecorrentes = tarefasRecorrentes.length; let mensagem = `🗑️ EXCLUIR TAREFA RECORRENTE\n\n"${tarefa.texto}"\n🔄 Recorrência: ${tarefa.recorrencia}\n📅 Data: ${tarefa.data || 'sem data'}\n\nExistem ${totalRecorrentes} ocorrência(s) desta tarefa.\n\nEscolha uma opção:\n1 - Excluir APENAS esta ocorrência\n2 - Excluir TODAS as ocorrências (${totalRecorrentes} tarefas)\n3 - Cancelar`; const opcao = prompt(mensagem); if(opcao === '1') { if(confirm(`Confirmar exclusão da tarefa "${tarefa.texto}"?`)) { tarefas = tarefas.filter(t => t.id !== id); salvarDados(); alert(`✅ Tarefa excluída!`); } } else if(opcao === '2') { if(confirm(`⚠️ ATENÇÃO: Isso irá excluir TODAS as ${totalRecorrentes} ocorrências da tarefa "${tarefa.texto}".\n\nTem certeza?`)) { const idsParaExcluir = tarefasRecorrentes.map(t => t.id); tarefas = tarefas.filter(t => !idsParaExcluir.includes(t.id)); salvarDados(); alert(`✅ ${totalRecorrentes} tarefa(s) recorrente(s) excluída(s)!`); } } } else { if(confirm(`Excluir tarefa "${tarefa.texto}"?`)) { tarefas = tarefas.filter(t => t.id !== id); salvarDados(); alert(`✅ Tarefa excluída!`); } } }
   
   function adicionarCardTarefa() { const nome = prompt('📋 Nome do novo espaço:'); if(nome && nome.trim()) { cardsTarefas.push({ id:'card_'+Date.now(), nome:nome.trim() }); salvarDados(); alert(`✅ Espaço "${nome}" criado!`); } }
-  function editarCardTarefa(id) { const card = cardsTarefas.find(c=>c.id===id); if(card){ const novo = prompt('Editar nome:', card.nome); if(novo && novo.trim()){ card.nome=novo.trim(); salvarDados(); } } }
   
   function adicionarTarefaInline(cardId) { 
     const card = cardsTarefas.find(c => c.id === cardId);
@@ -965,7 +1232,7 @@
   
   function escapeHtml(t) { if(!t) return ''; return t.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
   
-  // ========== RENDERIZAR TAREFAS ==========
+  // ========== RENDERIZAR TAREFAS COM TOOLTIP ==========
   function renderizarTarefas() { 
     const container = document.getElementById('blocosTarefas'); 
     if(!container) return; 
@@ -985,7 +1252,32 @@
       div.setAttribute('ondragover', 'permitirDropCard(event)'); 
       div.setAttribute('ondragleave', 'removerDragOver(event)'); 
       div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); 
-      div.innerHTML = `<div class="card-header"><span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-trash-alt"></i></button></div></div><div class="card-content">${lista.length === 0 ? `<div class="estado-vazio"><div class="icon-check"><i class="fas fa-check-circle"></i></div><p class="titulo">Tudo certo por aqui</p><p class="subtitulo">Adicione uma tarefa</p></div>` : lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t=>`<div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})"><div class="drag-handle"><i class="fas fa-grip-vertical"></i></div><input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})"><div class="tarefa-conteudo"><div class="tarefa-texto">${escapeHtml(t.texto)}</div><div class="tarefa-meta">${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}</div></div><div class="card-actions"><button onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button><button onclick="editarTarefaCompleta(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button><button onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button><button onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button></div></div>`).join('')}</div><button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button><div class="inline-form" id="form-${cardId}"><input type="text" id="texto-${cardId}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${cardId}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${cardId}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${cardId}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button></div></div></div>`; 
+      
+      const tarefasHtml = lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t => {
+        const textoOriginal = escapeHtml(t.texto);
+        const textoExibido = textoOriginal.length > 60 ? textoOriginal.substring(0, 60) + '...' : textoOriginal;
+        const temTooltip = textoOriginal.length > 60;
+        return `<div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
+          <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+          <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
+          <div class="tarefa-conteudo">
+            <div class="tarefa-texto" ${temTooltip ? `data-fulltext="${textoOriginal}"` : ''}>${textoExibido}</div>
+            <div class="tarefa-meta">
+              ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️ ATRASADA' : ''}</span>`:''}
+              ${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
+              ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
+            </div>
+          </div>
+          <div class="card-actions">
+            <button onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
+            <button onclick="editarTarefaCompleta(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
+            <button onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
+            <button onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>`;
+      }).join('');
+      
+      div.innerHTML = `<div class="card-header"><span><i class="fas fa-list-ul icon"></i> ${escapeHtml(card.nome)}</span><div><span>${ativas} ativas</span><button onclick="editarCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-edit"></i></button><button onclick="excluirCardTarefa('${card.id}'); event.stopPropagation()"><i class="fas fa-trash-alt"></i></button></div></div><div class="card-content">${lista.length === 0 ? `<div class="estado-vazio"><div class="icon-check"><i class="fas fa-check-circle"></i></div><p class="titulo">Tudo certo por aqui</p><p class="subtitulo">Adicione uma tarefa</p></div>` : tarefasHtml}</div><button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button><div class="inline-form" id="form-${cardId}"><input type="text" id="texto-${cardId}" placeholder="Descreva a tarefa..." maxlength="200"><input type="date" id="data-${cardId}" placeholder="Data" value="${getDataHoje()}"><select id="prioridade-${cardId}"><option value="p3">🟢 Baixa Prioridade</option><option value="p2">🟡 Média Prioridade</option><option value="p1">🔴 Alta Prioridade</option></select><select id="recorrencia-${cardId}"><option value="">Sem recorrência</option><option value="diaria">🔄 Diária</option><option value="dias_uteis">📅 Dias úteis</option><option value="semanal">📆 Semanal</option><option value="mensal">📅 Mensal</option></select><div class="inline-form-buttons"><button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button><button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button></div></div></div>`; 
       container.appendChild(div); 
     }); 
     const addCard = document.createElement('div'); addCard.className = 'card-novo-espaco'; addCard.onclick = () => adicionarCardTarefa(); addCard.innerHTML = `<div class="icon-plus"><i class="fas fa-plus-circle"></i></div><p>Novo Espaço</p>`; container.appendChild(addCard);
@@ -1032,8 +1324,38 @@
     if(view==='calendario') renderizarCalendario(); else renderizarTarefas(); 
   }
   
-  function exportarBackup() { const dados = { tarefas, metas, cardsTarefas, tempoTotalFocado, tempoFocadoHoje, ultimaDataFoco, tarefasReagendadasHoje, ultimaDataReagendamento }; const blob = new Blob([JSON.stringify(dados)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`fluxo-backup-${getDataHoje()}.json`; a.click(); alert('✅ Backup exportado!'); }
-  function importarBackup(e) { const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=(ev)=>{ try{ const dados=JSON.parse(ev.target.result); if(dados.tarefas) tarefas=dados.tarefas; if(dados.metas) metas=dados.metas; if(dados.cardsTarefas) cardsTarefas=dados.cardsTarefas; if(dados.tempoTotalFocado) tempoTotalFocado=dados.tempoTotalFocado; if(dados.tempoFocadoHoje) tempoFocadoHoje=dados.tempoFocadoHoje; if(dados.ultimaDataFoco) ultimaDataFoco=dados.ultimaDataFoco; if(dados.tarefasReagendadasHoje !== undefined) tarefasReagendadasHoje = dados.tarefasReagendadasHoje; if(dados.ultimaDataReagendamento) ultimaDataReagendamento = dados.ultimaDataReagendamento; salvarDados(); alert('✅ Backup importado!'); }catch(err){ alert('Erro ao importar arquivo'); } }; reader.readAsText(file); e.target.value = ''; }
+  function exportarBackup() { 
+    const dados = { tarefas, metas, cardsTarefas, tempoTotalFocado, tempoFocadoHoje, ultimaDataFoco, tarefasReagendadasHoje, ultimaDataReagendamento }; 
+    const blob = new Blob([JSON.stringify(dados)], {type:'application/json'}); 
+    const a=document.createElement('a'); 
+    a.href=URL.createObjectURL(blob); 
+    a.download=`fluxo-backup-${getDataHoje()}.json`; 
+    a.click(); 
+    alert('✅ Backup exportado!'); 
+  }
+  
+  function importarBackup(e) { 
+    const file=e.target.files[0]; 
+    if(!file) return; 
+    const reader=new FileReader(); 
+    reader.onload=(ev)=>{ 
+      try{ 
+        const dados=JSON.parse(ev.target.result); 
+        if(dados.tarefas) tarefas=dados.tarefas; 
+        if(dados.metas) metas=dados.metas; 
+        if(dados.cardsTarefas) cardsTarefas=dados.cardsTarefas; 
+        if(dados.tempoTotalFocado) tempoTotalFocado=dados.tempoTotalFocado; 
+        if(dados.tempoFocadoHoje) tempoFocadoHoje=dados.tempoFocadoHoje; 
+        if(dados.ultimaDataFoco) ultimaDataFoco=dados.ultimaDataFoco; 
+        if(dados.tarefasReagendadasHoje !== undefined) tarefasReagendadasHoje = dados.tarefasReagendadasHoje; 
+        if(dados.ultimaDataReagendamento) ultimaDataReagendamento = dados.ultimaDataReagendamento; 
+        salvarDados(); 
+        alert('✅ Backup importado!'); 
+      }catch(err){ alert('Erro ao importar arquivo'); } 
+    }; 
+    reader.readAsText(file); 
+    e.target.value = ''; 
+  }
   
   function recarregarSistema() { 
     tarefas = JSON.parse(localStorage.getItem('tarefas')||'[]'); 
@@ -1084,7 +1406,6 @@
   window.adicionarMeta = adicionarMeta;
   window.toggleTarefa = toggleTarefa;
   window.adicionarCardTarefa = adicionarCardTarefa;
-  window.editarCardTarefa = editarCardTarefa;
   window.mostrarFormAdicionar = mostrarFormAdicionar;
   window.adicionarTarefaInline = adicionarTarefaInline;
   window.marcarTodasHoje = marcarTodasHoje;
