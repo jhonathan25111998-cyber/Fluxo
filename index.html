@@ -467,7 +467,7 @@
     </div>
     
     <div id="page-workspace" class="page-content hidden">
-      <div class="section-header"><div class="section-title" id="currentWorkspaceName">Minhas Tarefas</div><button class="btn-primary" onclick="window.abrirNovoProjeto()"><i class="fas fa-plus"></i> Novo Projeto</button></div>
+      <div class="section-header"><div class="section-title" id="currentWorkspaceName">Meus Espaços</div><button class="btn-primary" onclick="window.abrirNovoProjeto()"><i class="fas fa-plus"></i> Novo Projeto</button></div>
       <div id="projetos-container" class="projetos-grid"></div>
       <div class="section-header" style="margin-top: 32px;"><div class="section-title">Tarefas do Projeto</div><button class="btn-primary" onclick="window.abrirNovaTarefa()"><i class="fas fa-plus"></i> Nova Tarefa</button></div>
       <div id="tarefas-projeto"></div>
@@ -630,6 +630,9 @@
   let tempoFocadoHoje = 0;
   let tempoTotalFocado = 0;
   
+  // Flag para saber se a migração já foi feita
+  let migracaoRealizada = false;
+  
   // ========== FUNÇÕES AUXILIARES ==========
   window.mostrarLoading = function(show) {
     const el = document.getElementById('loadingOverlay');
@@ -662,6 +665,105 @@
       if (m === '>') return '&gt;';
       return m;
     });
+  }
+  
+  // ========== MIGRAÇÃO AUTOMÁTICA DOS CARDS ANTIGOS ==========
+  function migrarCardsAntigos() {
+    // Verificar se já foi migrado
+    const migracaoJaFeita = localStorage.getItem('migracao_cards_realizada');
+    if (migracaoJaFeita === 'true') {
+      console.log('Migração já foi realizada anteriormente');
+      return false;
+    }
+    
+    const cardsAntigos = localStorage.getItem('cardsTarefas');
+    const tarefasAntigas = localStorage.getItem('tarefas');
+    const metasAntigas = localStorage.getItem('metas');
+    
+    // Se não tem cards antigos, não precisa migrar
+    if (!cardsAntigos) {
+      console.log('Nenhum card antigo encontrado');
+      return false;
+    }
+    
+    try {
+      const cards = JSON.parse(cardsAntigos);
+      
+      if (cards.length === 0) {
+        return false;
+      }
+      
+      console.log(`🔄 Iniciando migração de ${cards.length} cards antigos...`);
+      window.mostrarIndicadorSync(`🔄 Migrando ${cards.length} cards para a nova estrutura...`);
+      
+      // Criar um workspace principal
+      const workspaceId = Date.now();
+      workspaces = [{ id: workspaceId, nome: "Meus Espaços", cor: "#667eea" }];
+      workspaceAtivo = workspaceId;
+      
+      // CADA CARD VIRA UM PROJETO - preservando seus nomes originais
+      projetos = cards.map((card, index) => ({
+        id: workspaceId + index + 1,
+        workspaceId: workspaceId,
+        nome: card.nome,  // "Pessoal", "WAW", "AT Inovvatte", "JW"
+        cor: "#667eea"
+      }));
+      
+      // Migrar tarefas para os projetos correspondentes
+      if (tarefasAntigas) {
+        const tarefasOld = JSON.parse(tarefasAntigas);
+        tarefas = tarefasOld.map(t => {
+          const projetoCorrespondente = projetos.find(p => p.nome === t.bloco);
+          return {
+            id: t.id,
+            titulo: t.texto,
+            descricao: t.descricao || "",
+            projetoId: projetoCorrespondente ? projetoCorrespondente.id : projetos[0].id,
+            prioridade: t.prioridade || "p3",
+            data: t.data || getDataHoje(),
+            recorrencia: t.recorrencia || "",
+            concluida: t.concluida || false,
+            tempoGasto: t.tempoGasto || 0,
+            dataConclusao: t.dataConclusao || null
+          };
+        });
+        console.log(`📋 ${tarefas.length} tarefas migradas`);
+      }
+      
+      // Migrar metas se existirem
+      if (metasAntigas) {
+        const metasOld = JSON.parse(metasAntigas);
+        metas = metasOld.map(m => ({
+          id: m.id,
+          titulo: m.texto || m.titulo,
+          categoria: m.categoria || "Desenvolvimento",
+          dataAlvo: m.dataAlvo || new Date().toISOString().split('T')[0],
+          concluida: m.atingida || m.concluida || false
+        }));
+        console.log(`🏆 ${metas.length} metas migradas`);
+      }
+      
+      // Selecionar o primeiro projeto como ativo
+      if (projetos.length > 0) {
+        projetoAtual = projetos[0].id;
+      }
+      
+      // Marcar migração como concluída
+      localStorage.setItem('migracao_cards_realizada', 'true');
+      
+      // Limpar dados antigos para não duplicar (opcional - mantém backup)
+      // localStorage.removeItem('cardsTarefas');
+      // localStorage.removeItem('tarefas');
+      // localStorage.removeItem('metas');
+      
+      console.log('✅ Migração concluída com sucesso!');
+      window.mostrarIndicadorSync(`✅ ${projetos.length} projetos criados a partir dos seus cards!`);
+      
+      return true;
+    } catch (e) {
+      console.error('Erro na migração:', e);
+      return false;
+    }
   }
   
   // ========== FOCUS SESSIONS ==========
@@ -796,6 +898,7 @@
   }
   
   function carregarDados() {
+    // Primeiro, tentar carregar dados existentes
     const savedWorkspaces = localStorage.getItem('workspaces');
     const savedProjetos = localStorage.getItem('projetos');
     const savedTarefas = localStorage.getItem('tarefas');
@@ -805,40 +908,46 @@
     const savedTempoFocadoHoje = localStorage.getItem('tempoFocadoHoje');
     const savedTempoTotalFocado = localStorage.getItem('tempoTotalFocado');
     
-    if (savedWorkspaces) workspaces = JSON.parse(savedWorkspaces);
-    if (savedProjetos) projetos = JSON.parse(savedProjetos);
-    if (savedTarefas) tarefas = JSON.parse(savedTarefas);
-    if (savedMetas) metas = JSON.parse(savedMetas);
-    if (savedFocusSessions) focusSessions = JSON.parse(savedFocusSessions);
-    if (savedWorkspaceAtivo) workspaceAtivo = parseInt(savedWorkspaceAtivo);
-    if (savedTempoFocadoHoje) tempoFocadoHoje = parseInt(savedTempoFocadoHoje);
-    if (savedTempoTotalFocado) tempoTotalFocado = parseInt(savedTempoTotalFocado);
+    // Se já existe estrutura nova, carregar normalmente
+    if (savedWorkspaces && JSON.parse(savedWorkspaces).length > 0) {
+      workspaces = JSON.parse(savedWorkspaces);
+      projetos = JSON.parse(savedProjetos || '[]');
+      tarefas = JSON.parse(savedTarefas || '[]');
+      metas = JSON.parse(savedMetas || '[]');
+      focusSessions = JSON.parse(savedFocusSessions || '[]');
+      if (savedWorkspaceAtivo) workspaceAtivo = parseInt(savedWorkspaceAtivo);
+      if (savedTempoFocadoHoje) tempoFocadoHoje = parseInt(savedTempoFocadoHoje);
+      if (savedTempoTotalFocado) tempoTotalFocado = parseInt(savedTempoTotalFocado);
+      
+      if (projetos.length > 0 && !projetoAtual) {
+        projetoAtual = projetos[0].id;
+      }
+      return;
+    }
+    
+    // Tentar migrar cards antigos
+    const migrou = migrarCardsAntigos();
+    
+    if (!migrou) {
+      // Dados padrão se não houver nada
+      const workspaceId = Date.now();
+      workspaces = [{ id: workspaceId, nome: "Meus Espaços", cor: "#667eea" }];
+      workspaceAtivo = workspaceId;
+      projetos = [{ id: workspaceId + 1, workspaceId: workspaceId, nome: "Minhas Tarefas", cor: "#667eea" }];
+      projetoAtual = projetos[0].id;
+      
+      const hoje = getDataHoje();
+      tarefas = [{ id: Date.now(), projetoId: projetoAtual, titulo: "Experimente o Modo Foco!", descricao: "Clique no relógio para iniciar uma sessão de foco", prioridade: "p2", data: hoje, concluida: false, recorrencia: "", tempoGasto: 0, dataConclusao: null }];
+      metas = [{ id: Date.now(), titulo: "Completar onboarding", categoria: "Desenvolvimento", dataAlvo: hoje, concluida: false }];
+    }
     
     const ultimoReset = localStorage.getItem('ultimoResetFoco');
     const hoje = getDataHoje();
     if (ultimoReset !== hoje) {
       tempoFocadoHoje = 0;
       localStorage.setItem('ultimoResetFoco', hoje);
-      salvarDados();
     }
     
-    if (workspaces.length === 0) {
-      workspaces.push({ id: Date.now(), nome: "Pessoal", cor: "#667eea" });
-      workspaceAtivo = workspaces[0].id;
-    }
-    if (projetos.length === 0) {
-      projetos.push({ id: Date.now(), workspaceId: workspaceAtivo, nome: "Minhas Tarefas", cor: "#667eea" });
-      projetoAtual = projetos[0].id;
-    } else if (projetoAtual === null && projetos.length > 0) {
-      projetoAtual = projetos[0].id;
-    }
-    if (tarefas.length === 0) {
-      const hoje = getDataHoje();
-      tarefas.push({ id: Date.now(), projetoId: projetoAtual || projetos[0].id, titulo: "Experimente o Modo Foco!", descricao: "Clique no relógio para iniciar uma sessão de foco", prioridade: "p2", data: hoje, concluida: false, recorrencia: "", tempoGasto: 0, dataConclusao: null });
-    }
-    if (metas.length === 0) {
-      metas.push({ id: Date.now(), titulo: "Completar onboarding", categoria: "Desenvolvimento", dataAlvo: new Date().toISOString().split('T')[0], concluida: false });
-    }
     salvarDados();
   }
   
@@ -1643,7 +1752,7 @@
       renderizarProjetos();
       renderizarDashboard();
       renderizarMetas();
-      renderizarTarefasDoProjeto(projetoAtual);
+      if (projetoAtual) renderizarTarefasDoProjeto(projetoAtual);
       mudarPagina('dashboard');
     } else {
       document.getElementById('loginOverlay').style.display = 'flex';
