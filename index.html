@@ -166,23 +166,238 @@
     border-color: #667eea;
   }
   
-  /* ========== ÍCONE DESCRIÇÃO ========== */
-  .descricao-icon {
-    cursor: pointer;
-    color: rgba(255,255,255,0.5);
-    font-size: 12px;
-    margin-left: 6px;
+  /* ========== FIX V5 - ESTILOS DA TAREFA COM GRID 2x2 ========== */
+  /* FIX V5: Task card container com flex e espaçamento adequado */
+  .tarefa-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: rgba(30, 30, 46, 0.6);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: grab;
     transition: all 0.2s;
-    vertical-align: middle;
   }
-  .descricao-icon:hover {
-    color: #fbbf24;
-    transform: scale(1.1);
+  .tarefa-item:hover {
+    background: rgba(255, 255, 255, 0.08);
   }
-  .descricao-icon.tem-descricao {
-    color: #fbbf24;
+  .tarefa-item.dragging {
+    opacity: 0.3;
+    cursor: grabbing;
+  }
+  .tarefa-item.p1 {
+    border-left: 3px solid #ef4444;
+  }
+  .tarefa-item.p2 {
+    border-left: 3px solid #fbbf24;
   }
   
+  /* FIX V5: Lado esquerdo (drag + checkbox + info) */
+  .task-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  /* FIX V5: Handle de arrastar */
+  .drag-handle {
+    cursor: grab;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .tarefa-item:active .drag-handle {
+    cursor: grabbing;
+  }
+  
+  /* FIX V5: Checkbox */
+  .task-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #667eea;
+    flex-shrink: 0;
+    margin: 0;
+  }
+  
+  /* FIX V5: Container de informações da tarefa */
+  .task-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  /* FIX V5: Título com ellipsis */
+  .task-title {
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+  }
+  
+  /* FIX V5: Meta tags (data, recorrência, etc) */
+  .task-meta {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+  
+  .meta-date, .meta-tag, .task-meta .badge {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.7);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .task-meta .badge.atrasada {
+    background: rgba(239,68,68,0.3);
+    color: #ff9999;
+    border: 1px solid rgba(239,68,68,0.5);
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  
+  /* FIX V5: GRID 2x2 - CHAVE DA SOLUÇÃO CONTRA POLUIÇÃO VISUAL */
+  .task-actions-2x2 {
+    display: grid;
+    grid-template-columns: 32px 32px;
+    grid-template-rows: 32px 32px;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+  
+  /* FIX V5: Botões do grid 2x2 */
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+  }
+  
+  .action-btn i, .action-btn svg {
+    font-size: 14px;
+    color: inherit;
+  }
+  
+  .action-btn:hover {
+    background: rgba(168, 85, 247, 0.2);
+    transform: scale(1.05);
+  }
+  
+  .action-btn.danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+  .action-btn.danger:hover i {
+    color: #ef4444;
+  }
+  
+  /* FIX V5: Esconder card-actions antigo - não será mais usado */
+  .card-actions {
+    display: none !important;
+  }
+  
+  /* FIX V5: Ajuste do container de conteúdo do card para não quebrar */
+  .card-content {
+    flex: 1;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* FIX V5: Ícone de descrição removido do fluxo principal - agora canetinha está no grid 2x2 */
+  .descricao-icon {
+    display: none;
+  }
+  
+  /* FIX V5: Responsivo para mobile < 480px */
+  @media (max-width: 480px) {
+    .task-actions-2x2 {
+      grid-template-columns: 28px 28px;
+      grid-template-rows: 28px 28px;
+      gap: 3px;
+    }
+    .action-btn {
+      width: 28px;
+      height: 28px;
+    }
+    .action-btn i {
+      font-size: 12px;
+    }
+    .task-title {
+      font-size: 13px;
+    }
+    .drag-handle {
+      font-size: 12px;
+    }
+    .task-checkbox {
+      width: 16px;
+      height: 16px;
+    }
+    .task-left {
+      gap: 8px;
+    }
+  }
+  
+  /* FIX V5: Estado vazio mantém o estilo original */
+  .estado-vazio {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    min-height: 180px;
+  }
+  .estado-vazio .icon-check {
+    width: 36px;
+    height: 36px;
+    color: rgba(168, 85, 247, 0.35);
+    margin-bottom: 6px;
+  }
+  .estado-vazio .icon-check i {
+    font-size: 32px;
+  }
+  .estado-vazio .titulo {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    text-align: center;
+  }
+  .estado-vazio .subtitulo {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    margin-top: -2px;
+  }
+  
+  /* ========== ÍCONE DESCRIÇÃO (mantido apenas para modal, mas hidden no card) ========== */
   /* ========== BANNER CORRIGIDO ========== */
   .banner-esquerda {
     display: flex;
@@ -329,15 +544,8 @@
   .card-espaco:hover .card-header .icon { opacity: 0.6; }
   .card-header button { background: rgba(255,255,255,0.15); border: none; width: 28px; height: 28px; border-radius: 8px; color: white; cursor: pointer; margin-left: 4px; }
   .card-header button:hover { background: rgba(255,255,255,0.25); }
-  .card-content { flex: 1; padding: 12px 16px; display: flex; flex-direction: column; }
   .btn-nova-tarefa { margin: 0 16px 16px 16px; height: 44px; background: linear-gradient(90deg, #7c3aed, #a855f7); border: none; border-radius: 12px; color: white; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .btn-nova-tarefa:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
-  
-  .estado-vazio { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; min-height: 180px; }
-  .estado-vazio .icon-check { width: 36px; height: 36px; color: rgba(168, 85, 247, 0.35); margin-bottom: 6px; }
-  .estado-vazio .icon-check i { font-size: 32px; }
-  .estado-vazio .titulo { font-size: 16px; font-weight: 500; color: #ffffff; text-align: center; }
-  .estado-vazio .subtitulo { font-size: 13px; color: rgba(255, 255, 255, 0.6); text-align: center; margin-top: -2px; }
   
   /* ========== CARD NOVO ========== */
   .card-novo-espaco { background: rgba(30, 30, 46, 0.3); border: 2px dashed rgba(168, 85, 247, 0.25); backdrop-filter: blur(4px); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: rgba(255, 255, 255, 0.4); min-height: 320px; transition: all 0.3s; cursor: pointer; }
@@ -345,26 +553,6 @@
   .card-novo-espaco .icon-plus { width: 28px; height: 28px; opacity: 0.6; }
   .card-novo-espaco .icon-plus i { font-size: 28px; }
   .card-novo-espaco p { font-size: 14px; margin: 0; }
-  
-  /* ========== TASK ========== */
-  .tarefa-item { padding: 12px; height: auto; min-height: 48px; margin-bottom: 8px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: flex-start; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.05); cursor: grab; position: relative; }
-  .tarefa-item.p1 { border-left: 3px solid #ef4444; }
-  .tarefa-item.p2 { border-left: 3px solid #fbbf24; }
-  .tarefa-conteudo { flex: 1; }
-  .tarefa-texto { font-size: 12px; line-height: 1.4; color: white; word-break: break-word; margin-bottom: 4px; }
-  .tarefa-meta { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-  .tarefa-titulo-linha { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 20px; font-size: 9px; background: rgba(255, 255, 255, 0.1); color: white; }
-  .badge.atrasada { background: rgba(239,68,68,0.3); color: #ff9999; border: 1px solid rgba(239,68,68,0.5); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-  .drag-handle { cursor: grab; color: rgba(255,255,255,0.3); margin-right: 4px; font-size: 14px; margin-top: 2px; }
-  .card-actions { opacity: 0; transition: opacity 0.2s; display: flex; gap: 4px; flex-shrink: 0; }
-  .tarefa-item:hover .card-actions { opacity: 1; }
-  .tarefa-item.dragging { opacity: 0.3; cursor: grabbing; }
-  .tarefa-item:hover { background: rgba(255, 255, 255, 0.08); }
-  .tarefa-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; margin-top: 2px; }
-  .card-actions button { background: transparent; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; color: rgba(255,255,255,0.5); font-size: 12px; }
-  .card-actions button:hover { background: rgba(255,255,255,0.1); color: white; }
   
   .inline-form { margin-top: 10px; padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 10px; display: none; }
   .inline-form.show { display: block; }
@@ -395,7 +583,6 @@
     .data-card-mobile .data-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); padding: 8px 20px; border-radius: 40px; font-size: 13px; color: rgba(255, 255, 255, 0.9); display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.15); }
     .data-card-mobile .data-badge i { font-size: 14px; opacity: 0.8; }
   }
-  @media (max-width: 480px) { .header-direita { gap: 8px; } }
   
   /* ========== MODAIS ========== */
   .modal-foco-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; align-items: center; justify-content: center; }
@@ -1352,6 +1539,7 @@
   
   function escapeHtml(t) { if(!t) return ''; return t.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
   
+  // FIX V5: Função renderizarTarefas completamente reescrita com novo layout 2x2
   function renderizarTarefas() { 
     const container = document.getElementById('blocosTarefas'); 
     if(!container) return; 
@@ -1364,6 +1552,7 @@
       const cardId = card.id;
       const prioridadeLabel = (p) => p==='p1'?{class:'p1',text:'Alta'}:p==='p2'?{class:'p2',text:'Média'}:{class:'',text:'Baixa'}; 
       const isAtrasada = (data) => data && data < hoje; 
+      
       const div = document.createElement('div'); 
       div.className = 'card-espaco'; 
       div.setAttribute('data-card-nome', card.nome); 
@@ -1372,27 +1561,34 @@
       div.setAttribute('ondragleave', 'removerDragOver(event)'); 
       div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`); 
       
+      // FIX V5: HTML da tarefa com novo layout 2x2
       const tarefasHtml = lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t => {
         const temDescricao = t.descricao && t.descricao.trim();
-        return `<div class="tarefa-item ${prioridadeLabel(t.prioridade).class}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
-          <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-          <input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
-          <div class="tarefa-conteudo">
-            <div class="tarefa-titulo-linha">
-              <span class="tarefa-texto">${escapeHtml(t.texto.length > 50 ? t.texto.substring(0,50) + '...' : t.texto)}</span>
-              ${temDescricao ? `<i class="fas fa-pen-alt descricao-icon tem-descricao" onclick="event.stopPropagation(); abrirModalDescricao(${t.id})" title="Ver descrição"></i>` : `<i class="fas fa-pen-alt descricao-icon" onclick="event.stopPropagation(); abrirModalDescricao(${t.id})" title="Adicionar descrição"></i>`}
-            </div>
-            <div class="tarefa-meta">
-              ${t.data?`<span class="badge ${isAtrasada(t.data) ? 'atrasada' : ''}"><i class="fas fa-calendar"></i> ${t.data} ${isAtrasada(t.data) ? '⚠️' : ''}</span>`:''}
-              ${t.recorrencia?`<span class="badge"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>`:''}
-              ${t.tempoGasto?`<span class="badge"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>`:''}
+        const prioridadeClass = prioridadeLabel(t.prioridade).class;
+        const atrasadaClass = isAtrasada(t.data) ? 'atrasada' : '';
+        
+        return `<div class="tarefa-item ${prioridadeClass}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
+          
+          <!-- FIX V5: Lado esquerdo -->
+          <div class="task-left">
+            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+            <input type="checkbox" class="task-checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
+            <div class="task-info">
+              <div class="task-title">${escapeHtml(t.texto)}</div>
+              <div class="task-meta">
+                ${t.data ? `<span class="meta-date ${atrasadaClass}"><i class="fas fa-calendar"></i> ${t.data} ${atrasadaClass ? '⚠️' : ''}</span>` : ''}
+                ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>` : ''}
+                ${t.tempoGasto ? `<span class="meta-tag"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>` : ''}
+              </div>
             </div>
           </div>
-          <div class="card-actions">
-            <button onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
-            <button onclick="editarTarefaCompleta(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
-            <button onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
-            <button onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+          
+          <!-- FIX V5: GRID 2x2 de ações -->
+          <div class="task-actions-2x2">
+            <button class="action-btn" onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Reagendar"><i class="fas fa-calendar-alt"></i></button>
+            <button class="action-btn" onclick="abrirModalDescricao(${t.id}); event.stopPropagation()" title="Descrição"><i class="fas fa-pen-alt"></i></button>
+            <button class="action-btn" onclick="abrirModoFocoComTarefa(${t.id}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
+            <button class="action-btn danger" onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>`;
       }).join('');
