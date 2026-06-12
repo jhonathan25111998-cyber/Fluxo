@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* ========== AJUSTE FLUXO - VARIÁVEIS ========== */
+  /* ========== VARIÁVEIS ========== */
   :root {
     --card-bg: #1e1e2e;
     --card-bg-hover: #242438;
@@ -18,12 +18,88 @@
     --success: #10b981;
     --danger: #ef4444;
     --warning: #fbbf24;
+    --bg-gradient-start: #667eea;
+    --bg-gradient-mid: #764ba2;
+    --bg-gradient-end: #f093fb;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255,255,255,0.7);
+    --card-bg-light: rgba(30,30,46,0.6);
+    --header-bg: rgba(26,27,38,0.6);
   }
   
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); background-attachment: fixed; padding: 16px; min-height: 100vh; transition: background 0.3s ease; color: #ffffff; }
-  body.dark-theme { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
-  body.dark-theme .header-fluxo, body.dark-theme .card-espaco, body.dark-theme .metas-dashboard { background: rgba(10, 10, 20, 0.8); }
+  
+  body { 
+    font-family: 'Poppins', sans-serif; 
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%); 
+    background-attachment: fixed; 
+    padding: 16px; 
+    min-height: 100vh; 
+    transition: all 0.3s ease; 
+    color: var(--text-primary); 
+  }
+  
+  /* ========== MODO ESCURO CORRIGIDO ========== */
+  body.dark-theme {
+    --bg-gradient-start: #0f0f1a;
+    --bg-gradient-mid: #1a1a2e;
+    --bg-gradient-end: #16213e;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255,255,255,0.6);
+    --card-bg-light: rgba(20,20,35,0.8);
+    --header-bg: rgba(10,10,20,0.8);
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+  }
+  
+  body.dark-theme .header-fluxo,
+  body.dark-theme .card-espaco,
+  body.dark-theme .metas-dashboard {
+    background: rgba(10, 10, 20, 0.9);
+    border-color: rgba(255,255,255,0.05);
+  }
+  
+  body.dark-theme .card-header {
+    background: #2a2a3e;
+    color: #fff;
+  }
+  
+  body.dark-theme .tarefa-item {
+    background: rgba(40, 40, 55, 0.8);
+    border-color: rgba(255,255,255,0.08);
+  }
+  
+  body.dark-theme .task-title {
+    color: #ffffff;
+  }
+  
+  body.dark-theme .footer-stats {
+    background: rgba(10, 10, 20, 0.95);
+    border-color: rgba(255,255,255,0.05);
+  }
+  
+  body.dark-theme .modal-conteudo {
+    background: rgba(20, 20, 35, 0.98);
+    border-color: rgba(255,255,255,0.1);
+  }
+  
+  body.dark-theme .modal-input,
+  body.dark-theme .modal-select {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
+  
+  body.dark-theme .backup-item {
+    background: rgba(255,255,255,0.05);
+  }
+  
+  body.dark-theme .meta-card-mini {
+    background: #2a2a3e !important;
+  }
+  
+  body.dark-theme .btn-secondary {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.15);
+  }
   
   /* ========== BARRA DE ROLAGEM ========== */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -53,10 +129,23 @@
   }
   .sync-indicator.show { opacity: 1; }
   
-  .status-online { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 8px 16px; border-radius: 40px; font-size: 12px; display: flex; align-items: center; gap: 8px; z-index: 1000; }
+  .status-online { 
+    position: fixed; 
+    bottom: 20px; 
+    right: 20px; 
+    background: var(--success); 
+    color: white; 
+    padding: 8px 16px; 
+    border-radius: 40px; 
+    font-size: 12px; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    z-index: 1000; 
+  }
   .status-offline { background: var(--danger); }
   
-  /* ========== MODAL DESCRIÇÃO ========== */
+  /* ========== MODAIS ========== */
   .modal-descricao-overlay, .modal-backup-overlay, .modal-foco-overlay, .modal-reagendar-overlay, .modal-edicao-overlay {
     display: none;
     position: fixed;
@@ -166,7 +255,7 @@
     cursor: pointer;
   }
   
-  /* ========== TAREFAS GRID 2x2 ========== */
+  /* ========== TAREFAS GRID ========== */
   .tarefa-item {
     display: flex;
     justify-content: space-between;
@@ -267,7 +356,7 @@
   .header-direita { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .data-hoje { color: rgba(255,255,255,0.8); font-size: 12px; }
   
-  .sync-btn, .reschedule-btn, .backup-btn, .indexedb-btn, .google-btn {
+  .sync-btn, .reschedule-btn, .backup-btn, .indexedb-btn, .google-btn, .import-btn {
     background: rgba(255,255,255,0.1);
     border: none;
     width: 36px;
@@ -277,6 +366,8 @@
     cursor: pointer;
     transition: all 0.3s;
   }
+  .import-btn { background: rgba(52,168,83,0.3); color: #34a853; }
+  .import-btn:hover { background: rgba(52,168,83,0.5); color: white; transform: scale(1.05); }
   .google-btn { background: rgba(66,133,244,0.3); color: #4285f4; width: auto; border-radius: 20px; padding: 0 12px; display: flex; gap: 8px; align-items: center; }
   .google-btn:hover { background: rgba(66,133,244,0.5); color: white; transform: scale(1.02); }
   .indexedb-btn { background: rgba(52,168,83,0.3); color: #34a853; }
@@ -290,6 +381,7 @@
   .user-avatar i { color: white; font-size: 18px; }
   .user-tooltip { display: none; position: absolute; top: 40px; right: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); color: white; padding: 6px 12px; border-radius: 8px; font-size: 11px; white-space: nowrap; z-index: 1000; }
   .logout-btn, .notify-btn { background: rgba(255,255,255,0.2); border: none; padding: 5px 10px; border-radius: 30px; color: white; cursor: pointer; font-size: 11px; }
+  .theme-toggle { background: rgba(255,255,255,0.2); border: none; width: 36px; height: 36px; border-radius: 50%; color: white; cursor: pointer; }
   
   /* ========== LOGIN ========== */
   .login-overlay {
@@ -353,6 +445,8 @@
     gap: 10px;
     font-size: 14px;
   }
+  .password-container { position: relative; }
+  .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; }
   
   .top-section { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
   .banner-tarefas { background: linear-gradient(90deg, #7c3aed 0%, #1e1e2e 100%); border-radius: 12px; padding: 12px 20px; display: inline-flex; align-items: center; gap: 16px; }
@@ -382,7 +476,7 @@
   .circulo-concluido { background: #22c55e; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
   
   .blocos-tarefas { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
-  .card-espaco { background: var(--card-bg); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; }
+  .card-espaco { background: var(--card-bg-light); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; }
   .card-header { height: 40px; padding: 0 12px; background: #2a2a3e; border-top: 3px solid #7c3aed; font-size: 14px; font-weight: 600; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0; }
   .card-header button { background: rgba(255,255,255,0.15); border: none; width: 28px; height: 28px; border-radius: 8px; color: white; cursor: pointer; margin-left: 4px; }
   .card-content { flex: 1; padding: 12px 16px; }
@@ -494,6 +588,7 @@
       <button class="reschedule-btn" id="rescheduleBtn" title="Reagendar pendentes"><i class="fas fa-calendar-plus"></i></button>
       <button class="indexedb-btn" id="indexedbBtn" title="Backup IndexedDB"><i class="fas fa-database"></i></button>
       <button class="backup-btn" id="backupBtn" title="Exportar JSON"><i class="fas fa-download"></i></button>
+      <button class="import-btn" id="importBackupBtn" title="Importar JSON"><i class="fas fa-upload"></i></button>
       <button class="google-btn" id="googleBackupBtn" title="Backup Google Drive" style="display:none;"><i class="fab fa-google-drive"></i> Drive</button>
       <span class="data-hoje" id="dataHojeHeader"></span>
       <div class="user-info">
@@ -560,7 +655,7 @@
   </div>
 </div>
 
-<!-- MODAL EDIÇÃO (substitui o prompt) -->
+<!-- MODAL EDIÇÃO -->
 <div class="modal-edicao-overlay" id="modalEdicaoOverlay">
   <div class="modal-conteudo">
     <div class="modal-header"><h3><i class="fas fa-edit"></i> Editar Tarefa</h3><button class="modal-close" onclick="window.fecharModalEdicao()"><i class="fas fa-times"></i></button></div>
@@ -701,7 +796,7 @@
     setTimeout(() => indicator.classList.remove('show'), 2000);
   };
   
-  // ========== INDEXEDDB BACKUP (CORRIGIDO) ==========
+  // ========== INDEXEDDB BACKUP ==========
   let dbBackup = null;
   let usuarioAtual = null;
   
@@ -808,7 +903,50 @@
   window.fecharModalBackup = () => document.getElementById('modalBackupOverlay').classList.remove('show');
   window.restaurarBackupIndexedDB = restaurarBackupIndexedDB;
   window.excluirBackupIndexedDB = excluirBackupIndexedDB;
+  
+  // ========== FUNÇÃO DE IMPORTAR BACKUP JSON ==========
+  window.importarBackupJSON = function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const backup = JSON.parse(e.target.result);
+          
+          if (backup.tarefas) localStorage.setItem('tarefas', backup.tarefas);
+          if (backup.metas) localStorage.setItem('metas', backup.metas);
+          if (backup.cardsTarefas) localStorage.setItem('cardsTarefas', backup.cardsTarefas);
+          if (backup.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', backup.tempoTotalFocado);
+          if (backup.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', backup.tempoFocadoHoje);
+          if (backup.tarefasReagendadasHoje) localStorage.setItem('tarefasReagendadasHoje', backup.tarefasReagendadasHoje);
+          
+          window.mostrarIndicadorSync('✅ Backup importado com sucesso!');
+          
+          setTimeout(() => {
+            if (window.recarregarSistema) window.recarregarSistema();
+            else location.reload();
+          }, 1000);
+        } catch (error) {
+          console.error('Erro ao importar backup:', error);
+          window.mostrarIndicadorSync('❌ Erro ao importar backup - arquivo inválido', 'error');
+          alert('Arquivo de backup inválido. Certifique-se de importar um arquivo JSON válido exportado pelo FLUXO.');
+        }
+      };
+      reader.onerror = function() {
+        window.mostrarIndicadorSync('❌ Erro ao ler o arquivo', 'error');
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+  
   document.getElementById('indexedbBtn').onclick = () => window.abrirModalBackup();
+  document.getElementById('importBackupBtn').onclick = () => window.importarBackupJSON();
   
   // ========== FIREBASE SYNC ==========
   async function salvarTudoFirebase() { 
@@ -867,7 +1005,7 @@
   
   document.getElementById('logoutBtn').onclick = () => window.fazerLogout();
   document.getElementById('backupBtn').onclick = () => { 
-    const backup = { usuario: usuarioAtual, data: new Date().toISOString(), tarefas: localStorage.getItem('tarefas'), metas: localStorage.getItem('metas'), cardsTarefas: localStorage.getItem('cardsTarefas') };
+    const backup = { usuario: usuarioAtual, data: new Date().toISOString(), tarefas: localStorage.getItem('tarefas'), metas: localStorage.getItem('metas'), cardsTarefas: localStorage.getItem('cardsTarefas'), tempoTotalFocado: localStorage.getItem('tempoTotalFocado'), tempoFocadoHoje: localStorage.getItem('tempoFocadoHoje'), tarefasReagendadasHoje: localStorage.getItem('tarefasReagendadasHoje') };
     const a = document.createElement('a'); 
     a.href = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)])); 
     a.download = `fluxo_${usuarioAtual}_${new Date().toISOString().slice(0,19)}.json`; 
@@ -935,7 +1073,7 @@
     if(novaDescricao !== null) { tarefaDescricaoAtual.descricao = novaDescricao; salvarDados(); window.fecharModalDescricao(); window.mostrarIndicadorSync('📝 Descrição atualizada!'); }
   };
   
-  // ========== MODAL EDIÇÃO (substitui prompt) ==========
+  // ========== MODAL EDIÇÃO ==========
   window.abrirModalEdicao = function(tarefaId) {
     const tarefa = tarefas.find(t => t.id === tarefaId);
     if(!tarefa) return;
@@ -1352,8 +1490,23 @@
     setTimeout(() => { window.toggleView('cards'); }, 100);
   };
   
-  // ========== EVENTOS ==========
-  document.getElementById('themeToggle').addEventListener('click',()=>{ document.body.classList.toggle('dark-theme'); });
+  // ========== EVENTOS E INICIALIZAÇÃO ==========
+  
+  // Theme Toggle com persistência
+  const themeToggle = document.getElementById('themeToggle');
+  const savedTheme = localStorage.getItem('themePreference');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-theme');
+    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+  }
+  
+  themeToggle.addEventListener('click', () => { 
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    localStorage.setItem('themePreference', isDark ? 'dark' : 'light');
+    themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+  });
+  
   document.getElementById('rescheduleBtn').onclick = () => reagendarTarefasPendentes();
   document.getElementById('syncNowBtn').onclick = () => sincronizarTarefasRecorrentes();
   document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); };
