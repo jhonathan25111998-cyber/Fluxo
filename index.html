@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <meta name="theme-color" content="#667eea">
-<title>FLUXO - Backup na Nuvem | Google Drive</title>
+<title>FLUXO - Organize. Execute. Flua.</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* ========== VARIÁVEIS E RESET ========== */
+  /* ========== AJUSTE FLUXO - VARIÁVEIS ========== */
   :root {
     --card-bg: #1e1e2e;
     --card-bg-hover: #242438;
@@ -115,8 +115,8 @@
     font-size: 13px;
   }
   
-  /* ========== MODAL GOOGLE DRIVE ========== */
-  .modal-gdrive-overlay {
+  /* ========== MODAL BACKUP ========== */
+  .modal-backup-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -129,45 +129,62 @@
     align-items: center;
     justify-content: center;
   }
-  .modal-gdrive-overlay.show { display: flex; }
-  .modal-gdrive-conteudo {
+  .modal-backup-overlay.show { display: flex; }
+  .modal-backup-conteudo {
     background: rgba(26, 27, 38, 0.98);
     backdrop-filter: blur(24px);
     border-radius: 24px;
     max-width: 90%;
-    width: 400px;
+    width: 450px;
     border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 24px;
-    text-align: center;
   }
-  .modal-gdrive-conteudo h3 { color: white; margin-bottom: 16px; }
-  .modal-gdrive-conteudo p { color: rgba(255,255,255,0.7); margin-bottom: 20px; font-size: 14px; }
-  .btn-gdrive {
-    background: linear-gradient(135deg, #4285f4, #34a853);
+  .modal-backup-conteudo h3 { color: white; margin-bottom: 16px; text-align: center; }
+  .backup-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 16px 0;
+  }
+  .backup-item {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .backup-item:hover { background: rgba(168,85,247,0.2); }
+  .backup-info { flex: 1; }
+  .backup-data { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .backup-tarefas { font-size: 10px; color: #a855f7; margin-top: 4px; }
+  .backup-actions { display: flex; gap: 8px; }
+  .backup-actions button {
+    background: rgba(255,255,255,0.1);
     border: none;
-    padding: 12px 24px;
-    border-radius: 40px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-size: 10px;
+  }
+  .btn-backup {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
     color: white;
     cursor: pointer;
     font-weight: 600;
-    margin: 8px;
-    transition: all 0.2s;
+    width: 100%;
+    margin-top: 12px;
   }
-  .btn-gdrive:hover { transform: scale(1.02); opacity: 0.9; }
-  .btn-gdrive-secondary {
+  .btn-backup-secondary {
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.2);
   }
-  .status-gdrive {
-    margin-top: 16px;
-    padding: 8px;
-    border-radius: 8px;
-    font-size: 12px;
-    color: white;
-  }
-  .status-gdrive.success { background: rgba(52, 168, 83, 0.3); }
-  .status-gdrive.error { background: rgba(234, 67, 53, 0.3); }
-  .status-gdrive.info { background: rgba(66, 133, 244, 0.3); }
   
   /* FIX V5 - ESTILOS DA TAREFA COM GRID 2x2 */
   .tarefa-item {
@@ -240,7 +257,6 @@
   .task-meta .badge.atrasada {
     background: rgba(239,68,68,0.3);
     color: #ff9999;
-    border: 1px solid rgba(239,68,68,0.5);
     animation: pulse 2s infinite;
   }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
@@ -282,6 +298,7 @@
     .task-action-btn { width: 28px; height: 28px; }
     .task-action-btn i { font-size: 12px; }
     .task-title { font-size: 13px; }
+    .meta-date, .meta-tag { font-size: 9px; }
   }
   
   .estado-vazio {
@@ -298,7 +315,7 @@
   .estado-vazio .titulo { font-size: 16px; font-weight: 500; color: #ffffff; }
   .estado-vazio .subtitulo { font-size: 13px; color: rgba(255, 255, 255, 0.6); }
   
-  /* ========== HEADER ========== */
+  /* ========== HEADER - LOGO CORRIGIDA ========== */
   .header-fluxo {
     padding: 12px 20px;
     display: flex;
@@ -312,27 +329,57 @@
     flex-wrap: wrap;
     gap: 12px;
   }
-  .header-logo { display: flex; align-items: center; gap: 10px; }
-  .header-direita { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .logo-img { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-  .logo-texto .logo-titulo { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff, #f0f0f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .logo-texto .logo-subtitulo { font-size: 9px; opacity: 0.7; color: white; }
+  .header-logo { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    flex-shrink: 0;
+  }
+  .logo-img { 
+    width: 44px; 
+    height: 44px; 
+    background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(168,85,247,0.2));
+    border-radius: 14px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-img i { 
+    font-size: 24px; 
+    color: white;
+  }
+  .logo-texto .logo-titulo { 
+    font-size: 20px; 
+    font-weight: 700; 
+    background: linear-gradient(135deg, #fff, #e0d4ff); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+  }
+  .logo-texto .logo-subtitulo { 
+    font-size: 9px; 
+    opacity: 0.7; 
+    color: white; 
+    letter-spacing: 1px; 
+  }
   
-  .sync-btn, .reschedule-btn, .backup-btn, .gdrive-btn {
+  .header-direita { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  
+  .sync-btn, .reschedule-btn, .backup-btn, .indexedb-btn {
     background: rgba(255, 255, 255, 0.1);
     border: none;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     transition: all 0.3s;
   }
-  .gdrive-btn { background: rgba(66, 133, 244, 0.3); color: #4285f4; }
-  .gdrive-btn:hover { background: rgba(66, 133, 244, 0.5); color: white; transform: scale(1.05); }
+  .indexedb-btn { background: rgba(52, 168, 83, 0.3); color: #34a853; }
+  .indexedb-btn:hover { background: rgba(52, 168, 83, 0.5); color: white; transform: scale(1.05); }
   .sync-btn:hover { background: rgba(255, 255, 255, 0.2); color: white; transform: rotate(180deg); }
   .reschedule-btn:hover { background: rgba(245, 158, 11, 0.3); color: #fbbf24; }
-  .backup-btn:hover { background: rgba(34, 197, 94, 0.3); color: #22c55e; }
+  .backup-btn:hover { background: rgba(66, 133, 244, 0.3); color: #4285f4; }
   
   .user-info { display: flex; align-items: center; gap: 8px; }
   .user-avatar { cursor: pointer; width: 34px; height: 34px; background: rgba(255, 255, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -454,6 +501,8 @@
     align-items: center;
     gap: 8px;
   }
+  .circulo-pendente { border: 2px solid rgba(255,255,255,0.6); border-radius: 50%; width: 18px; height: 18px; }
+  .circulo-concluido { background: #22c55e; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
   
   .blocos-tarefas { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
   .card-espaco {
@@ -519,7 +568,11 @@
   .btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); color: white; flex: 1; padding: 6px; border-radius: 8px; cursor: pointer; }
   .btn-cancel { background: rgba(255,255,255,0.1); color: white; flex: 1; padding: 6px; border-radius: 8px; cursor: pointer; }
   
-  /* ========== RODAPÉ ========== */
+  .metas-dashboard { background: rgba(26,27,38,0.6); backdrop-filter: blur(24px); border-radius: 20px; padding: 20px; margin-bottom: 20px; display: none; }
+  .metas-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
+  .add-meta-form { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .add-meta-form input, .add-meta-form select { padding: 8px 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; }
+  
   .footer-stats {
     position: sticky;
     bottom: 0;
@@ -548,7 +601,6 @@
     transition: opacity 0.3s;
   }
   
-  /* MODAIS FOCO E REAGENDAR */
   .modal-foco-overlay, .modal-reagendar-overlay {
     display: none;
     position: fixed;
@@ -584,18 +636,26 @@
     cursor: pointer;
     margin: 4px;
   }
-  .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
-  .calendario-dia { min-height: 130px; background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border-radius: 12px; padding: 8px; }
-  .calendario-dia.hoje { border: 2px solid #667eea; background: rgba(102,126,234,0.15); }
+  .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 16px; }
+  .calendario-dia { min-height: 100px; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 8px; }
+  .calendario-nav { display: flex; justify-content: center; gap: 16px; margin-bottom: 16px; }
+  
+  @media (max-width: 640px) {
+    .header-fluxo { flex-direction: column; }
+    .header-logo { justify-content: center; }
+    .header-direita { justify-content: center; }
+    .footer-stats { flex-wrap: wrap; height: auto; padding: 8px; gap: 8px; }
+    .footer-stats-item { font-size: 11px; }
+  }
 </style>
 </head>
 <body>
-<div class="login-overlay" id="loginOverlay"><div class="login-container"><div class="logo-img" style="margin:0 auto 20px;"><img src="logo.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div><h2>FLUXO</h2><p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p><div id="loginForm"><input type="email" id="loginEmail" placeholder="Email"><div class="password-container"><input type="password" id="loginPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword',this)"><i class="far fa-eye"></i></button></div><div id="loginErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerLogin()">Entrar</button><a class="register-link" onclick="mostrarCadastro()">Criar conta</a></div><div id="registerForm" style="display:none;"><input type="email" id="registerEmail" placeholder="Email"><div class="password-container"><input type="password" id="registerPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerPassword',this)"><i class="far fa-eye"></i></button></div><div class="password-container"><input type="password" id="registerConfirm" placeholder="Confirmar senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerConfirm',this)"><i class="far fa-eye"></i></button></div><div id="registerErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerCadastro()">Cadastrar</button><a class="register-link" onclick="mostrarLogin()">Já tenho conta</a></div></div></div>
+<div class="login-overlay" id="loginOverlay"><div class="login-container"><div class="logo-img" style="margin:0 auto 20px;"><i class="fas fa-tasks" style="font-size: 32px; color: #667eea;"></i></div><h2>FLUXO</h2><p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p><div id="loginForm"><input type="email" id="loginEmail" placeholder="Email"><div class="password-container"><input type="password" id="loginPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword',this)"><i class="far fa-eye"></i></button></div><div id="loginErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerLogin()">Entrar</button><a class="register-link" onclick="mostrarCadastro()">Criar conta</a></div><div id="registerForm" style="display:none;"><input type="email" id="registerEmail" placeholder="Email"><div class="password-container"><input type="password" id="registerPassword" placeholder="Senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerPassword',this)"><i class="far fa-eye"></i></button></div><div class="password-container"><input type="password" id="registerConfirm" placeholder="Confirmar senha"><button type="button" class="toggle-password" onclick="togglePasswordVisibility('registerConfirm',this)"><i class="far fa-eye"></i></button></div><div id="registerErrorMessage" class="error-message"></div><button class="login-btn" onclick="fazerCadastro()">Cadastrar</button><a class="register-link" onclick="mostrarLogin()">Já tenho conta</a></div></div></div>
 
 <div class="container" id="mainApp" style="display:block;">
   <div class="header-fluxo">
     <div class="header-logo">
-      <div class="logo-img"><img src="logo.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'white\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' fill=\'%23667eea\' font-size=\'40\' font-weight=\'bold\'%3EF%3C/text%3E%3C/svg%3E'"></div>
+      <div class="logo-img"><i class="fas fa-tasks"></i></div>
       <div class="logo-texto">
         <div class="logo-titulo">FLUXO</div>
         <div class="logo-subtitulo">Organize. Execute. Flua.</div>
@@ -604,8 +664,8 @@
     <div class="header-direita">
       <button class="sync-btn" id="syncNowBtn" title="Sincronizar recorrentes"><i class="fas fa-sync-alt"></i></button>
       <button class="reschedule-btn" id="rescheduleBtn" title="Reagendar pendentes"><i class="fas fa-calendar-plus"></i></button>
-      <button class="backup-btn" id="backupBtn" title="Backup manual"><i class="fas fa-download"></i></button>
-      <button class="gdrive-btn" id="gdriveBtn" title="Backup Google Drive"><i class="fab fa-google-drive"></i></button>
+      <button class="indexedb-btn" id="indexedbBtn" title="Backup IndexedDB"><i class="fas fa-database"></i></button>
+      <button class="backup-btn" id="backupBtn" title="Exportar JSON"><i class="fas fa-download"></i></button>
       <span class="data-hoje" id="dataHojeHeader"></span>
       <div class="user-info">
         <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
@@ -638,7 +698,7 @@
   </div>
   
   <div class="metas-carousel" id="metasCarousel"></div>
-  <div class="metas-dashboard" id="metasCompletas" style="display: none;">
+  <div class="metas-dashboard" id="metasCompletas">
     <div class="metas-header"><h2><i class="fas fa-trophy"></i> Minhas Metas</h2><div class="metas-stats"><span>🎯 <strong id="totalMetas">0</strong> total</span><span>✅ <strong id="concluidasMetas">0</strong> concluídas</span><span>📈 <strong id="progressoMetas">0</strong>%</span></div></div>
     <div class="metas-grid" id="metasGrid"></div>
     <div class="add-meta-form"><input type="text" id="novaMetaTexto" placeholder="Nova meta..."><select id="novaMetaCategoria"><option>Saúde</option><option>Desenvolvimento</option><option>Financeiro</option><option>Espiritual</option><option>Carreira</option><option>Relacionamentos</option></select><button onclick="adicionarMeta()"><i class="fas fa-plus"></i> Adicionar Meta</button></div>
@@ -671,17 +731,13 @@
   </div>
 </div>
 
-<!-- MODAL GOOGLE DRIVE -->
-<div class="modal-gdrive-overlay" id="modalGDriveOverlay">
-  <div class="modal-gdrive-conteudo">
-    <i class="fab fa-google-drive" style="font-size: 48px; color: #4285f4; margin-bottom: 16px;"></i>
-    <h3>Backup Google Drive</h3>
-    <p>Seus dados serão salvos na nuvem do Google com segurança</p>
-    <div id="gdriveStatus" class="status-gdrive info">🔐 Clique em "Fazer Login" para autorizar</div>
-    <button class="btn-gdrive" id="gdriveLoginBtn" onclick="loginGoogleDrive()"><i class="fab fa-google"></i> Fazer Login no Google</button>
-    <button class="btn-gdrive" id="gdriveBackupBtn" onclick="backupParaGoogleDrive()" style="display:none;"><i class="fas fa-cloud-upload-alt"></i> Backup Manual</button>
-    <button class="btn-gdrive btn-gdrive-secondary" id="gdriveRestoreBtn" onclick="restaurarDoGoogleDrive()" style="display:none;"><i class="fas fa-cloud-download-alt"></i> Restaurar Backup</button>
-    <button class="btn-gdrive btn-gdrive-secondary" onclick="fecharModalGDrive()">Fechar</button>
+<!-- MODAL BACKUP INDEXEDDB -->
+<div class="modal-backup-overlay" id="modalBackupOverlay">
+  <div class="modal-backup-conteudo">
+    <h3><i class="fas fa-database"></i> Gerenciar Backups</h3>
+    <div id="backupList" class="backup-list"></div>
+    <button class="btn-backup" onclick="fazerBackupManual()"><i class="fas fa-save"></i> Fazer Backup Agora</button>
+    <button class="btn-backup btn-backup-secondary" onclick="fecharModalBackup()">Fechar</button>
   </div>
 </div>
 
@@ -693,8 +749,6 @@
 
 <audio id="lofiAudio" loop preload="auto" style="display:none;"><source src="lofi.mp3" type="audio/mpeg"></audio>
 
-<!-- Google Drive API Script -->
-<script src="https://apis.google.com/js/api.js"></script>
 <script type="importmap">{ "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js" } }</script>
 <script type="module">
   import { initializeApp } from "firebase/app";
@@ -708,7 +762,6 @@
   let currentUser = null;
   window.currentUser = null;
   
-  // ========== FUNÇÕES DE LOGIN ==========
   window.fazerLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); } catch(e) { document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!'; } };
   window.fazerCadastro = async () => { const pwd = document.getElementById('registerPassword').value; if(pwd !== document.getElementById('registerConfirm').value) { document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem'; return; } try { await createUserWithEmailAndPassword(auth, document.getElementById('registerEmail').value, pwd); alert('✅ Conta criada!'); } catch(e) { document.getElementById('registerErrorMessage').textContent = e.message; } };
   window.fazerLogout = () => signOut(auth);
@@ -716,215 +769,135 @@
   window.mostrarLogin = () => { document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; };
   window.togglePasswordVisibility = (id, btn) => { const inp = document.getElementById(id); if(inp.type === 'password'){ inp.type='text'; btn.innerHTML='<i class="far fa-eye-slash"></i>'; } else { inp.type='password'; btn.innerHTML='<i class="far fa-eye"></i>'; } };
   
-  // ========== BACKUP GOOGLE DRIVE ==========
-  let gdriveToken = null;
-  let gdriveUser = null;
+  // ========== INDEXEDDB BACKUP SYSTEM ==========
+  let dbBackup = null;
   
-  // Carregar Google API
-  function carregarGoogleAPI() {
-    if (typeof gapi !== 'undefined') {
-      gapi.load('client:auth2', iniciarGoogleClient);
-    } else {
-      setTimeout(carregarGoogleAPI, 500);
-    }
+  function initIndexedDB() {
+    return new Promise((resolve) => {
+      const request = indexedDB.open('FLUXO_Backup', 3);
+      request.onerror = () => console.log('Erro IndexedDB');
+      request.onsuccess = (event) => {
+        dbBackup = event.target.result;
+        resolve();
+      };
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains('backups')) {
+          const store = db.createObjectStore('backups', { keyPath: 'id', autoIncrement: true });
+          store.createIndex('timestamp', 'timestamp');
+        }
+      };
+    });
   }
   
-  function iniciarGoogleClient() {
-    gapi.client.init({
-      apiKey: 'AIzaSyDWUCRDmwf5_332izdNMCRsrjTG5z4Ho9g',
-      clientId: '942507349330-6v4v5jv5jv5jv5jv5jv5jv5jv5jv5jv5.apps.googleusercontent.com',
-      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-      scope: 'https://www.googleapis.com/auth/drive.file'
-    }).then(() => {
-      const auth = gapi.auth2.getAuthInstance();
-      const user = auth.currentUser.get();
-      if (user && user.isSignedIn()) {
-        gdriveToken = auth.currentUser.get().getAuthResponse().access_token;
-        gdriveUser = user;
-        atualizarInterfaceGDrive(true);
+  async function salvarBackupIndexedDB() {
+    if (!dbBackup) await initIndexedDB();
+    
+    const backup = {
+      timestamp: Date.now(),
+      data: new Date().toISOString(),
+      tarefas: localStorage.getItem('tarefas'),
+      metas: localStorage.getItem('metas'),
+      cardsTarefas: localStorage.getItem('cardsTarefas'),
+      tempoTotalFocado: localStorage.getItem('tempoTotalFocado'),
+      tempoFocadoHoje: localStorage.getItem('tempoFocadoHoje'),
+      tarefasReagendadasHoje: localStorage.getItem('tarefasReagendadasHoje')
+    };
+    
+    const transaction = dbBackup.transaction(['backups'], 'readwrite');
+    const store = transaction.objectStore('backups');
+    store.add(backup);
+    
+    // Limpar backups antigos (manter últimos 30)
+    const index = store.index('timestamp');
+    const getAll = index.getAll();
+    getAll.onsuccess = () => {
+      const backups = getAll.result;
+      if (backups.length > 30) {
+        const toDelete = backups.slice(0, backups.length - 30);
+        toDelete.forEach(b => store.delete(b.id));
       }
-    }).catch(erro => console.log('Erro GDrive:', erro));
-  }
-  
-  window.loginGoogleDrive = () => {
-    const auth = gapi.auth2.getAuthInstance();
-    auth.signIn().then(user => {
-      gdriveToken = user.getAuthResponse().access_token;
-      gdriveUser = user;
-      atualizarInterfaceGDrive(true);
-      mostrarIndicadorSync('✅ Conectado ao Google Drive!');
-      fecharModalGDrive();
-    }).catch(erro => {
-      document.getElementById('gdriveStatus').innerHTML = '❌ Erro no login: ' + erro;
-    });
-  };
-  
-  function atualizarInterfaceGDrive(conectado) {
-    const loginBtn = document.getElementById('gdriveLoginBtn');
-    const backupBtn = document.getElementById('gdriveBackupBtn');
-    const restoreBtn = document.getElementById('gdriveRestoreBtn');
-    const statusDiv = document.getElementById('gdriveStatus');
-    
-    if (conectado) {
-      loginBtn.style.display = 'none';
-      backupBtn.style.display = 'inline-block';
-      restoreBtn.style.display = 'inline-block';
-      statusDiv.innerHTML = '✅ Conectado ao Google Drive! Seus backups serão salvos na pasta "FLUXO_Backups"';
-      statusDiv.className = 'status-gdrive success';
-    } else {
-      loginBtn.style.display = 'inline-block';
-      backupBtn.style.display = 'none';
-      restoreBtn.style.display = 'none';
-      statusDiv.innerHTML = '🔐 Clique em "Fazer Login" para autorizar o acesso ao Google Drive';
-      statusDiv.className = 'status-gdrive info';
-    }
-  }
-  
-  window.backupParaGoogleDrive = async () => {
-    if (!gdriveToken) {
-      alert('Conecte-se ao Google Drive primeiro!');
-      return;
-    }
-    
-    mostrarIndicadorSync('☁️ Salvando no Google Drive...');
-    const backup = {
-      timestamp: new Date().toISOString(),
-      userEmail: currentUser?.email || 'anonimo',
-      tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'),
-      metas: JSON.parse(localStorage.getItem('metas') || '[]'),
-      cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'),
-      tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0'),
-      tempoFocadoHoje: parseInt(localStorage.getItem('tempoFocadoHoje') || '0'),
-      ultimaDataFoco: localStorage.getItem('ultimaDataFoco') || '',
-      tarefasReagendadasHoje: parseInt(localStorage.getItem('tarefasReagendadasHoje') || '0'),
-      ultimaDataReagendamento: localStorage.getItem('ultimaDataReagendamento') || ''
     };
     
-    const fileName = `fluxo_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
-    const content = JSON.stringify(backup, null, 2);
-    const blob = new Blob([content], { type: 'application/json' });
-    
-    // Criar ou encontrar pasta FLUXO_Backups
-    const query = "name='FLUXO_Backups' and mimeType='application/vnd.google-apps.folder' and trashed=false";
-    const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
-      headers: { 'Authorization': `Bearer ${gdriveToken}` }
-    });
-    const data = await response.json();
-    let folderId = null;
-    
-    if (data.files && data.files.length > 0) {
-      folderId = data.files[0].id;
-    } else {
-      const createFolder = await fetch('https://www.googleapis.com/drive/v3/files', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${gdriveToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: 'FLUXO_Backups',
-          mimeType: 'application/vnd.google-apps.folder'
-        })
-      });
-      const folderData = await createFolder.json();
-      folderId = folderData.id;
-    }
-    
-    // Upload do arquivo
-    const metadata = {
-      name: fileName,
-      parents: [folderId]
-    };
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('file', blob);
-    
-    const uploadResponse = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${gdriveToken}` },
-      body: form
-    });
-    
-    if (uploadResponse.ok) {
-      mostrarIndicadorSync('✅ Backup salvo no Google Drive!');
-      document.getElementById('gdriveStatus').innerHTML = '✅ Backup salvo com sucesso!';
-      document.getElementById('gdriveStatus').className = 'status-gdrive success';
-      setTimeout(() => fecharModalGDrive(), 1500);
-    } else {
-      throw new Error('Falha no upload');
-    }
-  };
+    mostrarIndicadorSync('💾 Backup automático salvo!');
+  }
   
-  window.restaurarDoGoogleDrive = async () => {
-    if (!gdriveToken) {
-      alert('Conecte-se ao Google Drive primeiro!');
-      return;
-    }
-    
-    mostrarIndicadorSync('☁️ Buscando backups no Google Drive...');
-    const query = "name contains 'fluxo_backup' and trashed=false";
-    const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=createdTime desc&pageSize=10`, {
-      headers: { 'Authorization': `Bearer ${gdriveToken}` }
+  async function listarBackups() {
+    if (!dbBackup) await initIndexedDB();
+    return new Promise((resolve) => {
+      const transaction = dbBackup.transaction(['backups'], 'readonly');
+      const store = transaction.objectStore('backups');
+      const index = store.index('timestamp');
+      const getAll = index.getAll();
+      getAll.onsuccess = () => resolve(getAll.result.reverse());
     });
-    const data = await response.json();
-    
-    if (!data.files || data.files.length === 0) {
-      alert('Nenhum backup encontrado no Google Drive!');
-      return;
-    }
-    
-    let listaArquivos = 'Selecione um backup para restaurar:\n\n';
-    data.files.forEach((file, idx) => {
-      listaArquivos += `${idx + 1} - ${file.name}\n`;
+  }
+  
+  async function restaurarBackupIndexedDB(backupId) {
+    if (!dbBackup) await initIndexedDB();
+    const transaction = dbBackup.transaction(['backups'], 'readonly');
+    const store = transaction.objectStore('backups');
+    const backup = await new Promise((resolve) => {
+      const request = store.get(backupId);
+      request.onsuccess = () => resolve(request.result);
     });
-    const escolha = prompt(listaArquivos + '\n\nDigite o número do backup:');
-    const idx = parseInt(escolha) - 1;
     
-    if (idx >= 0 && idx < data.files.length) {
-      const file = data.files[idx];
-      const downloadResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
-        headers: { 'Authorization': `Bearer ${gdriveToken}` }
-      });
-      const backup = await downloadResponse.json();
-      
-      if (backup.tarefas) localStorage.setItem('tarefas', JSON.stringify(backup.tarefas));
-      if (backup.metas) localStorage.setItem('metas', JSON.stringify(backup.metas));
-      if (backup.cardsTarefas) localStorage.setItem('cardsTarefas', JSON.stringify(backup.cardsTarefas));
+    if (backup) {
+      if (backup.tarefas) localStorage.setItem('tarefas', backup.tarefas);
+      if (backup.metas) localStorage.setItem('metas', backup.metas);
+      if (backup.cardsTarefas) localStorage.setItem('cardsTarefas', backup.cardsTarefas);
       if (backup.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', backup.tempoTotalFocado);
-      if (backup.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', backup.tempoFocadoHoje);
-      
-      mostrarIndicadorSync('✅ Backup restaurado! Recarregando...');
-      setTimeout(() => location.reload(), 1500);
+      mostrarIndicadorSync('✅ Backup restaurado!');
+      setTimeout(() => location.reload(), 1000);
     }
-  };
-  
-  window.abrirModalGDrive = () => {
-    document.getElementById('modalGDriveOverlay').classList.add('show');
-  };
-  window.fecharModalGDrive = () => {
-    document.getElementById('modalGDriveOverlay').classList.remove('show');
-  };
-  
-  document.getElementById('gdriveBtn').onclick = () => abrirModalGDrive();
-  carregarGoogleAPI();
-  
-  // ========== BACKUP AUTOMÁTICO LOCAL ==========
-  function realizarBackupAutomaticoLocal() {
-    const backup = {
-      timestamp: new Date().toISOString(),
-      tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'),
-      metas: JSON.parse(localStorage.getItem('metas') || '[]'),
-      cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'),
-      tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0'),
-      tempoFocadoHoje: parseInt(localStorage.getItem('tempoFocadoHoje') || '0'),
-      ultimaDataFoco: localStorage.getItem('ultimaDataFoco') || '',
-      tarefasReagendadasHoje: parseInt(localStorage.getItem('tarefasReagendadasHoje') || '0'),
-      ultimaDataReagendamento: localStorage.getItem('ultimaDataReagendamento') || ''
-    };
-    localStorage.setItem('auto_backup', JSON.stringify(backup));
-    localStorage.setItem('ultimo_backup_local', backup.timestamp);
-    console.log('💾 Backup local automático realizado');
   }
+  
+  async function excluirBackupIndexedDB(backupId) {
+    if (!dbBackup) await initIndexedDB();
+    const transaction = dbBackup.transaction(['backups'], 'readwrite');
+    const store = transaction.objectStore('backups');
+    store.delete(backupId);
+    mostrarIndicadorSync('🗑️ Backup removido');
+    abrirModalBackup();
+  }
+  
+  window.fazerBackupManual = async () => {
+    await salvarBackupIndexedDB();
+    mostrarIndicadorSync('✅ Backup manual salvo!');
+    abrirModalBackup();
+  };
+  
+  window.abrirModalBackup = async () => {
+    const backups = await listarBackups();
+    const container = document.getElementById('backupList');
+    
+    if (backups.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">Nenhum backup encontrado</div>';
+    } else {
+      container.innerHTML = backups.map(b => `
+        <div class="backup-item">
+          <div class="backup-info">
+            <div><i class="far fa-calendar-alt"></i> ${new Date(b.timestamp).toLocaleString('pt-BR')}</div>
+            <div class="backup-tarefas">📋 ${b.tarefas ? JSON.parse(b.tarefas || '[]').length : 0} tarefas</div>
+          </div>
+          <div class="backup-actions">
+            <button onclick="restaurarBackupIndexedDB(${b.id})" title="Restaurar"><i class="fas fa-undo-alt"></i></button>
+            <button onclick="excluirBackupIndexedDB(${b.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+      `).join('');
+    }
+    document.getElementById('modalBackupOverlay').classList.add('show');
+  };
+  
+  window.fecharModalBackup = () => {
+    document.getElementById('modalBackupOverlay').classList.remove('show');
+  };
+  
+  window.restaurarBackupIndexedDB = restaurarBackupIndexedDB;
+  window.excluirBackupIndexedDB = excluirBackupIndexedDB;
+  
+  document.getElementById('indexedbBtn').onclick = () => abrirModalBackup();
   
   async function salvarTudoFirebase() { 
     if(!currentUser) return; 
@@ -935,17 +908,12 @@
         cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'), 
         tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0'), 
         tempoFocadoHoje: parseInt(localStorage.getItem('tempoFocadoHoje') || '0'), 
-        ultimaDataFoco: localStorage.getItem('ultimaDataFoco') || '',
         tarefasReagendadasHoje: parseInt(localStorage.getItem('tarefasReagendadasHoje') || '0'),
-        ultimaDataReagendamento: localStorage.getItem('ultimaDataReagendamento') || '',
         ultimaAtualizacao: new Date().toISOString() 
       }; 
       await setDoc(doc(db, "usuarios", currentUser.uid), dados); 
       console.log('✅ Firebase sincronizado'); 
-      realizarBackupAutomaticoLocal();
-    } catch(err) { 
-      console.error('❌ Erro no Firebase:', err); 
-    } 
+    } catch(err) { console.error('❌ Erro no Firebase:', err); } 
   }
   
   async function carregarDadosFirebase() { 
@@ -959,15 +927,9 @@
         if(d.metas) localStorage.setItem('metas', JSON.stringify(d.metas)); 
         if(d.cardsTarefas && d.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(d.cardsTarefas)); 
         if(d.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', d.tempoTotalFocado); 
-        if(d.tempoFocadoHoje) localStorage.setItem('tempoFocadoHoje', d.tempoFocadoHoje); 
-        if(d.ultimaDataFoco) localStorage.setItem('ultimaDataFoco', d.ultimaDataFoco);
-        if(d.tarefasReagendadasHoje !== undefined) localStorage.setItem('tarefasReagendadasHoje', d.tarefasReagendadasHoje);
-        if(d.ultimaDataReagendamento) localStorage.setItem('ultimaDataReagendamento', d.ultimaDataReagendamento);
         console.log('✅ Dados carregados do Firebase'); 
       } 
-    } catch(err) { 
-      console.error('❌ Erro ao carregar:', err); 
-    } 
+    } catch(err) { console.error('❌ Erro ao carregar:', err); } 
   }
   
   window.salvarTudoFirebase = salvarTudoFirebase;
@@ -981,8 +943,9 @@
       document.getElementById('userEmailTooltip').textContent = user.email; 
       await carregarDadosFirebase(); 
       if(window.recarregarSistema) window.recarregarSistema(); 
-      setInterval(() => { salvarTudoFirebase(); }, 300000);
-      setInterval(() => { realizarBackupAutomaticoLocal(); }, 600000);
+      await initIndexedDB();
+      setInterval(() => { salvarTudoFirebase(); salvarBackupIndexedDB(); }, 300000);
+      setInterval(() => salvarBackupIndexedDB(), 600000);
     } else { 
       currentUser = null; 
       window.currentUser = null; 
@@ -991,10 +954,18 @@
     } 
   });
   
-  document.getElementById('logoutBtn').onclick = () => { realizarBackupAutomaticoLocal(); window.fazerLogout(); };
+  document.getElementById('logoutBtn').onclick = () => { window.fazerLogout(); };
+  document.getElementById('notifyBtn').onclick = () => { if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission(); };
+  document.getElementById('backupBtn').onclick = () => { 
+    const backup = { tarefas: localStorage.getItem('tarefas'), metas: localStorage.getItem('metas'), cardsTarefas: localStorage.getItem('cardsTarefas') };
+    const a = document.createElement('a'); 
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(backup)])); 
+    a.download = `fluxo_${new Date().toISOString().slice(0,19)}.json`; 
+    a.click(); 
+    mostrarIndicadorSync('📥 Backup exportado!');
+  };
 </script>
 <script>
-  // ========== VARIÁVEIS GLOBAIS ==========
   function getDataHoje() { const agora = new Date(); return `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(agora.getDate()).padStart(2,'0')}`; }
   let tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
   let metas = JSON.parse(localStorage.getItem('metas') || '[]');
@@ -1011,11 +982,10 @@
   let tarefaArrastandoId = null;
   let tarefaArrastandoOrigem = null;
   let dataCalendario = new Date();
-  
   let tarefaDescricaoAtual = null;
   let pomodoroInterval = null, tempoRestante = 25*60, pomodoroAtivo = false, pomodoroPausado = false, tarefaFocoAtual = null, emPausaEntrePomodoros = false, tempoFocoInicio = 0;
+  let lofiAudioElement = null, lofiActive = false;
   
-  // ========== FUNÇÕES AUXILIARES ==========
   function mostrarIndicadorSync(mensagem) { 
     let indicator = document.getElementById('syncIndicator'); 
     if(!indicator) { indicator = document.createElement('div'); indicator.id = 'syncIndicator'; indicator.className = 'sync-indicator'; document.body.appendChild(indicator); } 
@@ -1031,9 +1001,7 @@
     localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas)); 
     localStorage.setItem('tempoTotalFocado', tempoTotalFocado); 
     localStorage.setItem('tempoFocadoHoje', tempoFocadoHoje); 
-    localStorage.setItem('ultimaDataFoco', ultimaDataFoco);
     localStorage.setItem('tarefasReagendadasHoje', tarefasReagendadasHoje);
-    localStorage.setItem('ultimaDataReagendamento', ultimaDataReagendamento);
     renderizarTarefas(); 
     renderizarMetas(); 
     renderizarCalendario(); 
@@ -1043,7 +1011,6 @@
     if(window.currentUser) setTimeout(() => window.salvarTudoFirebase(), 500); 
   }
   
-  // ========== MODAL DESCRIÇÃO ==========
   function abrirModalDescricao(tarefaId) {
     const tarefa = tarefas.find(t => t.id === tarefaId);
     if(!tarefa) return;
@@ -1051,44 +1018,26 @@
     document.getElementById('modalDescricaoTitulo').textContent = tarefa.texto || "Sem título";
     const descricaoTexto = tarefa.descricao && tarefa.descricao.trim() ? tarefa.descricao : "Nenhuma descrição adicionada";
     document.getElementById('modalDescricaoTexto').textContent = descricaoTexto;
-    if(!tarefa.descricao || !tarefa.descricao.trim()) {
-      document.getElementById('modalDescricaoTexto').classList.add('vazio');
-    } else {
-      document.getElementById('modalDescricaoTexto').classList.remove('vazio');
-    }
+    document.getElementById('modalDescricaoTexto').classList.toggle('vazio', !tarefa.descricao || !tarefa.descricao.trim());
     document.getElementById('modalDescricaoOverlay').classList.add('show');
   }
   
-  function fecharModalDescricao() {
-    document.getElementById('modalDescricaoOverlay').classList.remove('show');
-    tarefaDescricaoAtual = null;
-  }
+  function fecharModalDescricao() { document.getElementById('modalDescricaoOverlay').classList.remove('show'); tarefaDescricaoAtual = null; }
   
   function editarDescricaoModal() {
     if(!tarefaDescricaoAtual) return;
-    const novaDescricao = prompt("Editar descrição da tarefa:", tarefaDescricaoAtual.descricao || "");
-    if(novaDescricao !== null) {
-      tarefaDescricaoAtual.descricao = novaDescricao;
-      salvarDados();
-      mostrarIndicadorSync('📝 Descrição atualizada!');
-      fecharModalDescricao();
-    }
+    const novaDescricao = prompt("Editar descrição:", tarefaDescricaoAtual.descricao || "");
+    if(novaDescricao !== null) { tarefaDescricaoAtual.descricao = novaDescricao; salvarDados(); fecharModalDescricao(); }
   }
   
-  // ========== FUNÇÕES DE METAS ==========
   function renderizarMetasCarrossel() {
     const container = document.getElementById('metasCarousel');
     if (!container) return;
     if (metas.length === 0) { container.innerHTML = '<div class="meta-card-mini" style="min-width: auto; background: transparent; color: rgba(255,255,255,0.5);"><i class="fas fa-flag-checkered"></i> Nenhuma meta definida</div>'; return; }
     container.innerHTML = metas.map(meta => `
-      <div class="meta-card-mini ${meta.atingida ? 'atingida' : ''}">
-        <div class="${meta.atingida ? 'circulo-concluido' : 'circulo-pendente'}" onclick="toggleMeta(${meta.id})">
-          ${meta.atingida ? '<i class="fas fa-check" style="font-size: 10px; color: white;"></i>' : ''}
-        </div>
-        <div style="flex:1; overflow:hidden;">
-          <div class="titulo-meta">${escapeHtml(meta.texto.length > 25 ? meta.texto.substring(0,25) + '...' : meta.texto)}</div>
-          <div style="font-size: 9px; color: #fbbf24;"><i class="fas fa-tag"></i> ${escapeHtml(meta.categoria)}</div>
-        </div>
+      <div class="meta-card-mini">
+        <div class="${meta.atingida ? 'circulo-concluido' : 'circulo-pendente'}" onclick="toggleMeta(${meta.id})">${meta.atingida ? '<i class="fas fa-check" style="font-size: 8px; color: white;"></i>' : ''}</div>
+        <div style="flex:1; overflow:hidden;"><div class="titulo-meta">${escapeHtml(meta.texto.length > 25 ? meta.texto.substring(0,25) + '...' : meta.texto)}</div><div style="font-size: 9px; color: #fbbf24;">${escapeHtml(meta.categoria)}</div></div>
       </div>
     `).join('');
   }
@@ -1101,14 +1050,13 @@
     const container = document.getElementById('metasGrid'); 
     if(!container) return; 
     if(total===0){ container.innerHTML='<div style="text-align:center;padding:40px;color:white;"><i class="fas fa-flag-checkered" style="font-size:48px;"></i><p>Nenhuma meta definida</p></div>'; return; } 
-    container.innerHTML = metas.map(m => `<div class="meta-item ${m.atingida ? 'atingida' : ''}"><div class="meta-checkbox" onclick="toggleMeta(${m.id})"><i class="fas fa-check"></i></div><div class="meta-content"><div class="meta-texto">${escapeHtml(m.texto)}</div><div class="meta-categoria">${escapeHtml(m.categoria)}</div></div><button onclick="excluirMeta(${m.id})">🗑️</button></div>`).join(''); 
+    container.innerHTML = metas.map(m => `<div class="meta-item" style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;"><div><div class="meta-texto">${escapeHtml(m.texto)}</div><div class="meta-categoria" style="font-size:10px;color:#fbbf24;">${escapeHtml(m.categoria)}</div></div><div><button class="meta-checkbox" onclick="toggleMeta(${m.id})" style="background:${m.atingida ? '#22c55e' : 'rgba(255,255,255,0.1)'};border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;">${m.atingida ? '✓' : ''}</button><button onclick="excluirMeta(${m.id})" style="background:none;border:none;color:red;cursor:pointer;margin-left:8px;">🗑️</button></div></div>`).join(''); 
   }
   
   function adicionarMeta() { const texto = document.getElementById('novaMetaTexto').value.trim(); if(!texto) return; metas.push({ id:Date.now(), texto, categoria:document.getElementById('novaMetaCategoria').value, atingida:false }); document.getElementById('novaMetaTexto').value=''; salvarDados(); }
   window.toggleMeta = (id) => { const m = metas.find(m=>m.id===id); if(m) m.atingida = !m.atingida; salvarDados(); };
   window.excluirMeta = (id) => { if(confirm('Excluir meta?')) { metas = metas.filter(m=>m.id!==id); salvarDados(); } };
   
-  // ========== FUNÇÕES DE TAREFAS ==========
   function concluirComDuplicatas(id) { 
     const tarefa = tarefas.find(t => t.id === id); 
     if(!tarefa) return; 
@@ -1118,7 +1066,6 @@
   }
   
   function toggleTarefa(id) { const t = tarefas.find(t=>t.id===id); if(t) { t.concluida = !t.concluida; salvarDados(); } }
-  
   function excluirTarefa(id) { if(confirm('Excluir tarefa?')) { tarefas = tarefas.filter(t=>t.id!==id); salvarDados(); } }
   
   function editarTarefaCompleta(id) { 
@@ -1164,7 +1111,6 @@
   
   function marcarTodasHoje() { const hoje = getDataHoje(); const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida); if(alvos.length===0) return; if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){ alvos.forEach(t=>t.concluida=true); salvarDados(); } }
   
-  // ========== FUNÇÕES DE DRAG & DROP ==========
   function iniciarDragTarefa(id, cardNome, event) { tarefaArrastandoId = id; tarefaArrastandoOrigem = cardNome; event.dataTransfer.setData('text/plain', id); const el = event.target.closest('.tarefa-item'); if(el) el.classList.add('dragging'); }
   function permitirDropTarefa(event) { event.preventDefault(); }
   function permitirDropCard(event) { event.preventDefault(); event.currentTarget.classList.add('drag-over'); }
@@ -1191,7 +1137,6 @@
     document.querySelectorAll('.tarefa-item').forEach(el => el.classList.remove('dragging')); 
   }
   
-  // ========== RENDERIZAÇÃO PRINCIPAL ==========
   function renderizarTarefas() { 
     const container = document.getElementById('blocosTarefas'); 
     if(!container) return; 
@@ -1212,7 +1157,7 @@
             <div class="task-info">
               <div class="task-title">${escapeHtml(t.texto)}</div>
               <div class="task-meta">
-                <span class="meta-date ${atrasada ? 'atrasada' : ''}" onclick="abrirModalReagendar(${t.id}); event.stopPropagation()" title="Clique para reagendar"><i class="fas fa-calendar"></i> ${t.data} ${atrasada ? '⚠️' : ''}</span>
+                <span class="meta-date ${atrasada ? 'badge atrasada' : ''}" onclick="abrirModalReagendar(${t.id}); event.stopPropagation()"><i class="fas fa-calendar"></i> ${t.data} ${atrasada ? '⚠️' : ''}</span>
                 ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${t.recorrencia}</span>` : ''}
                 ${t.tempoGasto ? `<span class="meta-tag"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>` : ''}
               </div>
@@ -1227,7 +1172,7 @@
         </div>`;
       }).join('');
       
-      div = document.createElement('div'); 
+      let div = document.createElement('div'); 
       div.className = 'card-espaco'; 
       div.setAttribute('data-card-nome', card.nome); 
       div.setAttribute('data-card-id', cardId);
@@ -1239,9 +1184,7 @@
     }); 
     const addCard = document.createElement('div'); addCard.className = 'card-novo-espaco'; addCard.onclick = () => adicionarCardTarefa(); addCard.innerHTML = `<div class="icon-plus"><i class="fas fa-plus-circle"></i></div><p>Novo Espaço</p>`; container.appendChild(addCard);
   }
-  var div; // para escopo da variável
   
-  // ========== CALENDÁRIO ==========
   function mudarMes(d) { dataCalendario.setMonth(dataCalendario.getMonth() + d); renderizarCalendario(); }
   function irParaHoje() { dataCalendario = new Date(); renderizarCalendario(); }
   function renderizarCalendario() { 
@@ -1252,14 +1195,14 @@
     document.getElementById('calendarioMes').textContent = `${meses[mes]} ${ano}`; 
     let html = '<div class="calendario-grade">'; 
     const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; 
-    for(let i = 0; i < 7; i++) html += `<div class="calendario-dia-semana">${diasSemana[i]}</div>`; 
+    for(let i = 0; i < 7; i++) html += `<div class="calendario-dia-semana" style="text-align:center;padding:8px;color:white;">${diasSemana[i]}</div>`; 
     let dia = 1; const hoje = getDataHoje(); 
     for(let i = 0; i < 42; i++) { 
       if(i < primeiroDia || dia > diasNoMes) html += `<div class="calendario-dia" style="opacity:0.3;"></div>`; 
       else { 
         const dataStr = `${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`; 
         const tarefasDia = tarefas.filter(t => t.data === dataStr && !t.concluida); 
-        html += `<div class="calendario-dia"><div class="calendario-dia-header"><span>${dia}</span></div><div class="calendario-tarefas">${tarefasDia.slice(0,3).map(t => `<div class="calendario-tarefa-item" onclick="abrirModalReagendar(${t.id})"><span>${escapeHtml(t.texto.substring(0,20))}</span></div>`).join('')}</div><button class="calendario-add-btn" onclick="alert('Use o formulário no card')">+</button></div>`; 
+        html += `<div class="calendario-dia"><div class="calendario-dia-header"><span style="color:white;">${dia}</span></div><div class="calendario-tarefas">${tarefasDia.slice(0,3).map(t => `<div class="calendario-tarefa-item" style="background:rgba(102,126,234,0.2);border-radius:6px;padding:4px;margin-bottom:4px;cursor:pointer;" onclick="abrirModalReagendar(${t.id})"><span style="color:white;font-size:11px;">${escapeHtml(t.texto.substring(0,20))}</span></div>`).join('')}</div></div>`; 
         dia++; 
       } 
     } 
@@ -1267,19 +1210,15 @@
     document.getElementById('calendarioGrade').innerHTML = html; 
   }
   
-  // ========== POMODORO ==========
-  function abrirModoFocoComTarefa(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; tarefaFocoAtual = tarefa; document.getElementById('tarefaFocoTexto').textContent = tarefa.texto; tempoRestante = 25*60; document.getElementById('modalFocoOverlay').classList.add('show'); }
-  function fecharModoFoco() { if(pomodoroInterval) clearInterval(pomodoroInterval); pomodoroAtivo = false; document.getElementById('modalFocoOverlay').classList.remove('show'); tarefaFocoAtual = null; }
-  function atualizarTimerDisplay() { const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; document.getElementById('timerFocoGrande').textContent = `${min}:${seg.toString().padStart(2,'0')}`; }
-  function iniciarPomodoro() { if(pomodoroAtivo) return; pomodoroAtivo = true; tempoFocoInicio = Date.now(); if(pomodoroInterval) clearInterval(pomodoroInterval); pomodoroInterval = setInterval(() => { if(tempoRestante > 0) { tempoRestante--; atualizarTimerDisplay(); if(tempoRestante === 0) { clearInterval(pomodoroInterval); alert('Pomodoro concluído!'); fecharModoFoco(); } } }, 1000); document.getElementById('btnIniciarFoco').style.display = 'none'; document.getElementById('btnPausarFoco').style.display = 'inline-block'; }
-  function pausarPomodoro() { if(pomodoroInterval) { clearInterval(pomodoroInterval); pomodoroInterval = null; pomodoroAtivo = false; document.getElementById('btnIniciarFoco').style.display = 'inline-block'; document.getElementById('btnPausarFoco').style.display = 'none'; } }
+  function abrirModoFocoComTarefa(id) { const tarefa = tarefas.find(t => t.id === id); if(!tarefa) return; tarefaFocoAtual = tarefa; document.getElementById('tarefaFocoTexto').textContent = tarefa.texto; tempoRestante = 25*60; atualizarTimerDisplay(); document.getElementById('modalFocoOverlay').classList.add('show'); }
+  function fecharModoFoco() { if(pomodoroInterval) clearInterval(pomodoroInterval); pomodoroAtivo = false; document.getElementById('modalFocoOverlay').classList.remove('show'); tarefaFocoAtual = null; if(lofiActive) toggleMusicaFoco(); }
+  function atualizarTimerDisplay() { const min = Math.floor(tempoRestante/60), seg = tempoRestante%60; document.getElementById('timerFocoGrande').textContent = `${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`; const progresso = ((25*60 - tempoRestante)/(25*60))*100; document.getElementById('progressoFocoBar').style.width = `${Math.min(100,Math.max(0,progresso))}%`; }
+  function iniciarPomodoro() { if(pomodoroAtivo) return; pomodoroAtivo = true; tempoFocoInicio = Date.now(); if(pomodoroInterval) clearInterval(pomodoroInterval); pomodoroInterval = setInterval(() => { if(tempoRestante > 0) { tempoRestante--; atualizarTimerDisplay(); if(tempoRestante === 0) { clearInterval(pomodoroInterval); alert('Pomodoro concluído!'); fecharModoFoco(); } } }, 1000); document.getElementById('btnIniciarFoco').style.display = 'none'; document.getElementById('btnPausarFoco').style.display = 'inline-block'; if(!lofiActive) toggleMusicaFoco(); }
+  function pausarPomodoro() { if(pomodoroInterval) { clearInterval(pomodoroInterval); pomodoroInterval = null; pomodoroAtivo = false; document.getElementById('btnIniciarFoco').style.display = 'inline-block'; document.getElementById('btnPausarFoco').style.display = 'none'; if(lofiActive) toggleMusicaFoco(); } }
   function concluirTarefaFoco() { if(tarefaFocoAtual) { const tempoGasto = Math.floor((Date.now() - tempoFocoInicio)/1000); if(tempoGasto>0) tempoTotalFocado += tempoGasto; tarefaFocoAtual.concluida = true; salvarDados(); fecharModoFoco(); } }
   
-  // ========== MÚSICA ==========
-  let lofiAudioElement = null, lofiActive = false;
-  function toggleMusicaFoco() { if(!lofiAudioElement) { lofiAudioElement = document.getElementById('lofiAudio'); if(lofiAudioElement) lofiAudioElement.volume = 0.3; } if(lofiActive) { lofiAudioElement.pause(); lofiActive = false; } else { lofiAudioElement.play(); lofiActive = true; } }
+  function toggleMusicaFoco() { if(!lofiAudioElement) { lofiAudioElement = document.getElementById('lofiAudio'); if(lofiAudioElement) lofiAudioElement.volume = 0.3; } if(lofiActive) { lofiAudioElement.pause(); lofiActive = false; } else { lofiAudioElement.play().catch(() => {}); lofiActive = true; } }
   
-  // ========== ATUALIZAÇÕES DE UI ==========
   function atualizarDataHeader() {
     const hoje = new Date();
     document.getElementById('dataHojeHeader').textContent = hoje.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -1309,9 +1248,7 @@
     if (pendentes > 0) { 
       alertaDiv.style.display = 'flex'; 
       document.getElementById('alertaTexto').textContent = pendentes === 1 ? 'Você tem 1 tarefa pendente' : `Você tem ${pendentes} tarefas pendentes`;
-    } else { 
-      alertaDiv.style.display = 'none'; 
-    } 
+    } else { alertaDiv.style.display = 'none'; } 
   }
   
   function toggleView(view) { 
@@ -1335,11 +1272,17 @@
     atualizarDataHeader();
   }
   
-  // ========== EVENTOS E INICIALIZAÇÃO ==========
+  function verificarResetDiario() { 
+    const hoje = getDataHoje(); 
+    if (ultimaDataReset !== hoje) { 
+      ultimaDataReset = hoje; 
+      localStorage.setItem('ultimaDataReset', hoje);
+    } 
+  }
+  
   document.getElementById('themeToggle').addEventListener('click',()=>{ document.body.classList.toggle('dark-theme'); });
   document.getElementById('rescheduleBtn').onclick = () => { const amanha = new Date(); amanha.setDate(amanha.getDate()+1); const amanhaStr = amanha.toISOString().split('T')[0]; tarefas.filter(t=>!t.concluida && t.data===getDataHoje()).forEach(t=>t.data=amanhaStr); salvarDados(); };
   document.getElementById('syncNowBtn').onclick = () => { mostrarIndicadorSync('🔄 Sincronizando...'); salvarDados(); };
-  document.getElementById('backupBtn').onclick = () => { const backup = JSON.stringify({ tarefas, metas, cardsTarefas }, null, 2); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([backup])); a.download = `fluxo_backup_${new Date().toISOString().slice(0,19)}.json`; a.click(); mostrarIndicadorSync('💾 Backup exportado!'); };
   
   window.recarregarSistema = recarregarSistema;
   window.iniciarDragTarefa = iniciarDragTarefa;
@@ -1372,26 +1315,16 @@
   window.fecharModalReagendar = fecharModalReagendar;
   
   recarregarSistema();
-  setInterval(() => { verificarResetDiario(); verificarResetFocoDiario(); }, 60000);
+  setInterval(() => { verificarResetDiario(); }, 60000);
   
-  function verificarResetDiario() { 
-    const hoje = getDataHoje(); 
-    if (ultimaDataReset !== hoje) { 
-      ultimaDataReset = hoje; 
-      localStorage.setItem('ultimaDataReset', hoje);
-      salvarDados();
-    } 
+  const avatar = document.getElementById('userAvatar'); const tooltip = document.getElementById('userTooltip');
+  if(avatar && tooltip) { 
+    avatar.addEventListener('mouseenter', () => tooltip.style.display = 'block'); 
+    avatar.addEventListener('mouseleave', () => tooltip.style.display = 'none'); 
   }
-  function verificarResetFocoDiario() { 
-    const hoje = getDataHoje(); 
-    if (ultimaDataFoco !== hoje) { 
-      tempoFocadoHoje = 0; 
-      localStorage.setItem('tempoFocadoHoje', '0'); 
-      localStorage.setItem('ultimaDataFoco', hoje); 
-      ultimaDataFoco = hoje; 
-      salvarDados(); 
-    } 
-  }
+  
+  function updateConnectionStatus() { const statusDiv = document.getElementById('statusConnection'); if (navigator.onLine) { statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online'; statusDiv.classList.remove('status-offline'); } else { statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline'; statusDiv.classList.add('status-offline'); } }
+  window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus); updateConnectionStatus();
 </script>
 </body>
 </html>
