@@ -352,7 +352,7 @@
     </div>
   </div>
 
-  <!-- NOVO: MODAL DIA DO CALENDÁRIO -->
+  <!-- MODAL DIA DO CALENDÁRIO -->
   <div class="modal-dia-overlay" id="modalDiaOverlay">
     <div class="modal-conteudo modal-dia-conteudo">
       <div class="modal-header">
@@ -363,10 +363,39 @@
       <div class="modal-body">
         <div id="modalDiaResumo" style="color:rgba(255,255,255,0.75); font-size:12px; margin-bottom:12px;"></div>
 
+        <!-- NOVO: form rápido para adicionar tarefa no dia selecionado -->
+        <div class="modal-dia-add">
+          <div class="modal-dia-add-title"><i class="fas fa-plus-circle"></i> Nova tarefa neste dia</div>
+
+          <input type="text" id="modalDiaNovoTexto" class="modal-input" placeholder="Título da tarefa">
+          <textarea id="modalDiaNovaDescricao" class="modal-input" rows="2" placeholder="Descrição (opcional)"></textarea>
+
+          <div class="modal-dia-add-row">
+            <select id="modalDiaNovaPrioridade" class="modal-select">
+              <option value="p3">🟢 Baixa</option>
+              <option value="p2" selected>🟡 Média</option>
+              <option value="p1">🔴 Alta</option>
+            </select>
+
+            <select id="modalDiaNovaRecorrencia" class="modal-select">
+              <option value="">Sem recorrência</option>
+              <option value="diaria">Diária</option>
+              <option value="dias_uteis">Dias úteis</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensal">Mensal</option>
+            </select>
+          </div>
+
+          <div class="modal-actions" style="margin-top:8px;">
+            <button class="btn-primary" onclick="window.adicionarTarefaNoDiaModal()">
+              <i class="fas fa-plus"></i> Adicionar tarefa
+            </button>
+          </div>
+        </div>
+
         <!-- Lista completa das tarefas do dia -->
         <div id="modalDiaLista" class="modal-dia-lista"></div>
 
-        <!-- Ações rápidas opcionais -->
         <div class="modal-actions" style="margin-top:14px;">
           <button class="btn-secondary" onclick="window.fecharDiaCalendario()">Fechar</button>
         </div>
