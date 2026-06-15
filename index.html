@@ -4,15 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fluxo</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <div id="mainApp" class="container">
-    <!-- Header -->
     <header class="header-fluxo">
       <div class="header-logo">
         <div class="logo-fallback">📌</div>
@@ -27,7 +25,6 @@
       </div>
     </header>
 
-    <!-- Topo -->
     <section class="top-section">
       <div class="view-toggle">
         <button id="btnCards" class="view-btn active" type="button">Cards</button>
@@ -39,9 +36,10 @@
       </div>
     </section>
 
-    <!-- VIEW: CARDS -->
+    <!-- CARDS -->
     <section id="cardsView" class="view-section active">
       <div class="blocos-tarefas">
+        <!-- Card Trabalho -->
         <article class="card-espaco" data-espaco="trabalho">
           <div class="card-header">
             <span>Trabalho</span>
@@ -67,6 +65,7 @@
           </div>
         </article>
 
+        <!-- Card Pessoal -->
         <article class="card-espaco" data-espaco="pessoal">
           <div class="card-header">
             <span>Pessoal</span>
@@ -94,7 +93,7 @@
       </div>
     </section>
 
-    <!-- VIEW: CALENDÁRIO -->
+    <!-- CALENDÁRIO -->
     <section id="calendarioView" class="view-section">
       <div class="calendario-nav">
         <button id="btnMesAnterior" class="top-action-btn" type="button">◀ Anterior</button>
@@ -107,6 +106,6 @@
     </section>
   </div>
 
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
