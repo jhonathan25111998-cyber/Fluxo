@@ -215,13 +215,17 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
   border-radius: 12px;
   margin-bottom: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 2px solid #22c55e; /* padrão: normal/baixa = verde */
   cursor: grab;
   transition: all 0.2s;
 }
 .tarefa-item:hover { background: rgba(255, 255, 255, 0.08); }
 .tarefa-item.dragging { opacity: 0.3; cursor: grabbing; }
-.tarefa-item.p1 { border-left: 3px solid var(--danger); }
-.tarefa-item.p2 { border-left: 3px solid var(--warning); }
+
+/* prioridade */
+.tarefa-item.p1 { border-left-color: var(--danger); }   /* urgente = vermelho */
+.tarefa-item.p2 { border-left-color: var(--warning); }  /* média = amarelo */
+.tarefa-item.p3 { border-left-color: #22c55e; }         /* baixa/normal = verde */
 
 .task-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
 .drag-handle { cursor: grab; color: rgba(255,255,255,0.4); font-size: 14px; flex-shrink: 0; }
