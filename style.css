@@ -46,7 +46,15 @@ body.dark-theme .metas-dashboard {
 }
 
 body.dark-theme .card-header { background: #2a2a3e; color: #fff; }
-body.dark-theme .tarefa-item { background: rgba(40, 40, 55, 0.8); border-color: rgba(255,255,255,0.08); }
+
+/* IMPORTANTE: não usar border-color aqui para não sobrescrever border-left de prioridade */
+body.dark-theme .tarefa-item {
+  background: rgba(40, 40, 55, 0.8);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
 body.dark-theme .task-title { color: #ffffff; }
 body.dark-theme .footer-stats { background: rgba(10, 10, 20, 0.95); border-color: rgba(255,255,255,0.05); }
 body.dark-theme .modal-conteudo { background: rgba(20, 20, 35, 0.98); border-color: rgba(255,255,255,0.1); }
@@ -531,4 +539,30 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
 
 @media (max-width: 480px) {
   .blocos-tarefas { grid-template-columns: 1fr; }
+}
+
+/* ===== FORÇA VISUAL DA PRIORIDADE (override final) ===== */
+.tarefa-item {
+  border-left: 2px solid #22c55e !important; /* padrão: normal/baixa */
+}
+
+.tarefa-item.p2 {
+  border-left-color: #fbbf24 !important; /* média */
+}
+
+.tarefa-item.p1 {
+  border-left-color: #ef4444 !important; /* urgente */
+}
+
+/* ===== Prioridade também no modo escuro ===== */
+body.dark-theme .tarefa-item {
+  border-left: 2px solid #22c55e !important; /* padrão normal/baixa */
+}
+
+body.dark-theme .tarefa-item.p2 {
+  border-left-color: #fbbf24 !important; /* média */
+}
+
+body.dark-theme .tarefa-item.p1 {
+  border-left-color: #ef4444 !important; /* urgente */
 }
