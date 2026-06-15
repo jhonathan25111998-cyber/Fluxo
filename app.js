@@ -169,7 +169,7 @@ window.fazerLogin = async () => {
     const email = document.getElementById("loginEmail")?.value?.trim();
     const senha = document.getElementById("loginPassword")?.value;
     await signInWithEmailAndPassword(auth, email, senha);
-  } catch (e) {
+  } catch {
     const err = document.getElementById("loginErrorMessage");
     if (err) err.textContent = "Email ou senha inválidos!";
   }
@@ -197,7 +197,7 @@ window.loginComGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     mostrarIndicadorSync(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!`);
-  } catch (error) {
+  } catch {
     mostrarIndicadorSync("❌ Erro no login com Google", "error");
   }
 };
@@ -256,10 +256,7 @@ function initIndexedDB() {
   return new Promise((resolve) => {
     const request = indexedDB.open("FLUXO_Backup_V3", 2);
 
-    request.onerror = () => {
-      console.log("Erro IndexedDB");
-      resolve();
-    };
+    request.onerror = () => resolve();
 
     request.onsuccess = (event) => {
       dbBackup = event.target.result;
@@ -401,7 +398,7 @@ window.abrirModalBackup = async function () {
       <div class="backup-item">
         <div class="backup-info">
           <div class="backup-data">${new Date(b.timestamp).toLocaleString("pt-BR")}</div>
-          <div class="backup-tarefas">${(JSON.parse(b.tarefas || "[]").length)} tarefas</div>
+          <div class="backup-tarefas">${JSON.parse(b.tarefas || "[]").length} tarefas</div>
         </div>
         <div class="backup-actions">
           <button onclick="restaurarBackupIndexedDB(${b.id})" title="Restaurar"><i class="fas fa-undo"></i></button>
@@ -831,8 +828,10 @@ function atualizarTimerUI() {
 window.iniciarPomodoro = function () {
   if (timerPomodoro) return;
   emPausa = false;
-  document.getElementById("btnIniciarFoco")?.style && (document.getElementById("btnIniciarFoco").style.display = "none");
-  document.getElementById("btnPausarFoco")?.style && (document.getElementById("btnPausarFoco").style.display = "inline-flex");
+  const b1 = document.getElementById("btnIniciarFoco");
+  const b2 = document.getElementById("btnPausarFoco");
+  if (b1) b1.style.display = "none";
+  if (b2) b2.style.display = "inline-flex";
 
   timerPomodoro = setInterval(() => {
     if (emPausa) return;
@@ -852,8 +851,8 @@ window.iniciarPomodoro = function () {
 
       salvarDados();
       mostrarIndicadorSync("🍅 Pomodoro concluído!");
-      document.getElementById("btnIniciarFoco")?.style && (document.getElementById("btnIniciarFoco").style.display = "inline-flex");
-      document.getElementById("btnPausarFoco")?.style && (document.getElementById("btnPausarFoco").style.display = "none");
+      if (b1) b1.style.display = "inline-flex";
+      if (b2) b2.style.display = "none";
     }
   }, 1000);
 };
@@ -1060,7 +1059,6 @@ function setView(view, persist = true) {
   }
 
   setActiveViewButton(view);
-
   if (persist) localStorage.setItem(VIEW_STORAGE_KEY, view);
 }
 
@@ -1080,45 +1078,75 @@ window.irParaHoje = function () {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
+/* ===== CORREÇÃO AQUI: calendário mostra tarefas do dia ===== */
 function renderizarCalendario() {
   const grade = document.getElementById("calendarioGrade");
+  const mesLabel = document.getElementById("calendarioMes");
   if (!grade) return;
 
   const ano = dataCalendario.getFullYear();
   const mes = dataCalendario.getMonth();
 
+  if (mesLabel) {
+    mesLabel.textContent = dataCalendario.toLocaleDateString("pt-BR", {
+      month: "long",
+      year: "numeric"
+    });
+  }
+
   const primeiroDia = new Date(ano, mes, 1);
   const ultimoDia = new Date(ano, mes + 1, 0);
-  const inicioSemana = (primeiroDia.getDay() + 6) % 7; // segunda = 0
+  const inicioSemana = (primeiroDia.getDay() + 6) % 7; // segunda=0
   const totalDias = ultimoDia.getDate();
 
   const hoje = getDataHoje();
   const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
-  let html = `<div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:white;">
-    <strong>${dataCalendario.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</strong>
-  </div>`;
+  const tarefasMes = tarefas.filter((t) => {
+    if (!t?.data || t.concluida) return false;
+    const [y, m] = t.data.split("-").map(Number);
+    return y === ano && m - 1 === mes;
+  });
 
-  html += diasSemana.map((d) => `<div style="font-size:12px;opacity:.7;text-align:center;padding:6px 0;">${d}</div>`).join("");
+  let html = diasSemana
+    .map((d) => `<div style="font-size:12px;opacity:.75;text-align:center;padding:6px 0;color:white;">${d}</div>`)
+    .join("");
 
   for (let i = 0; i < inicioSemana; i++) html += `<div></div>`;
 
   for (let dia = 1; dia <= totalDias; dia++) {
     const dataStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-    const qtd = tarefas.filter((t) => t.data === dataStr && !t.concluida).length;
+    const tarefasDia = tarefasMes
+      .filter((t) => t.data === dataStr)
+      .sort((a, b) => {
+        const ordem = { p1: 1, p2: 2, p3: 3 };
+        return (ordem[a.prioridade || "p3"] - ordem[b.prioridade || "p3"]);
+      });
+
     const isHoje = dataStr === hoje;
+    const visiveis = tarefasDia.slice(0, 3);
+    const restantes = tarefasDia.length - visiveis.length;
+
+    const tarefasHtml = visiveis
+      .map((t) => {
+        const cls = t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : "p3";
+        return `
+          <div class="cal-task ${cls}" title="${escapeHtml(t.texto)}">
+            <span>${escapeHtml(t.texto)}</span>
+          </div>
+        `;
+      })
+      .join("");
 
     html += `
-      <div style="
-        min-height:72px;
-        border:1px solid rgba(255,255,255,0.08);
-        border-radius:10px;
-        padding:8px;
-        background:${isHoje ? "rgba(124,58,237,0.25)" : "rgba(255,255,255,0.03)"};
-      ">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:13px;font-weight:600;">${dia}</span>
-          ${qtd > 0 ? `<span style="font-size:11px;background:rgba(239,68,68,.25);padding:2px 6px;border-radius:999px;">${qtd}</span>` : ""}
+      <div class="cal-dia ${isHoje ? "hoje" : ""}">
+        <div class="cal-dia-topo">
+          <span class="cal-dia-num">${dia}</span>
+          ${tarefasDia.length > 0 ? `<span class="cal-dia-badge">${tarefasDia.length}</span>` : ""}
+        </div>
+        <div class="cal-dia-lista">
+          ${tarefasHtml}
+          ${restantes > 0 ? `<div class="cal-task-more">+${restantes} mais</div>` : ""}
         </div>
       </div>
     `;
@@ -1128,7 +1156,7 @@ function renderizarCalendario() {
 }
 
 /* =========================
-   RENDER TAREFAS
+   RENDER TAREFAS (CARDS)
 ========================= */
 function renderizarTarefas() {
   const container = document.getElementById("blocosTarefas");
@@ -1151,15 +1179,12 @@ function renderizarTarefas() {
       .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
       .map((t) => {
         const atrasada = t.data && t.data < hoje;
-
-        // Sem emojis de calendário: só texto + ícone de setinha no span
-        const recorrenciaLabel =
-          {
-            diaria: "Diária",
-            dias_uteis: "Dias úteis",
-            semanal: "Semanal",
-            mensal: "Mensal"
-          }[t.recorrencia] || "";
+        const recorrenciaLabel = {
+          diaria: "Diária",
+          dias_uteis: "Dias úteis",
+          semanal: "Semanal",
+          mensal: "Mensal"
+        }[t.recorrencia] || "";
 
         const classePrioridade = t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : "p3";
 
