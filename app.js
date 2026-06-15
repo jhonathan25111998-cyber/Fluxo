@@ -10,9 +10,9 @@ import {
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
-/* =========================
+/* =========================================================
    FIREBASE
-========================= */
+========================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDWUCRDmwf5_332izdNMCRsrjTG5z4Ho9g",
   authDomain: "fluxo-app-c71ec.firebaseapp.com",
@@ -27,9 +27,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
-/* =========================
+/* =========================================================
    ESTADO GLOBAL
-========================= */
+========================================================= */
 let currentUser = null;
 window.currentUser = null;
 
@@ -43,30 +43,51 @@ if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), no
 
 let tempoTotalFocado = parseInt(localStorage.getItem("tempoTotalFocado") || "0", 10);
 let tempoFocadoHoje = parseInt(localStorage.getItem("tempoFocadoHoje") || "0", 10);
+
 let ultimaDataFoco = localStorage.getItem("ultimaDataFoco") || "";
 let ultimaDataReset = localStorage.getItem("ultimaDataReset") || "";
+
 let tarefasReagendadasHoje = parseInt(localStorage.getItem("tarefasReagendadasHoje") || "0", 10);
 let ultimaDataReagendamento = localStorage.getItem("ultimaDataReagendamento") || "";
 
 let tarefaReagendando = null;
 let tarefaArrastandoId = null;
 let tarefaArrastandoOrigem = null;
+let dataCalendario = new Date();
 let tarefaDescricaoAtual = null;
 let tarefaEditandoAtual = null;
 
-let dataCalendario = new Date();
+let pomodoroInterval = null;
+let tempoRestante = 25 * 60;
+let pomodoroAtivo = false;
+let pomodoroPausado = false;
+let tarefaFocoAtual = null;
+let emPausaEntrePomodoros = false;
+let tempoFocoInicio = 0;
 
-/* =========================
-   UTILS
-========================= */
-function escapeHtml(t) {
-  if (!t) return "";
-  return t.replace(/[&<>]/g, (m) => (m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;"));
+let lofiAudioElement = null;
+let lofiActive = false;
+
+/* =========================================================
+   HELPERS
+========================================================= */
+function uid() {
+  return Date.now() + Math.random();
 }
 
 function getDataHoje() {
   const agora = new Date();
   return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}-${String(agora.getDate()).padStart(2, "0")}`;
+}
+
+function escapeHtml(t) {
+  if (!t) return "";
+  return t.replace(/[&<>]/g, (m) => {
+    if (m === "&") return "&amp;";
+    if (m === "<") return "&lt;";
+    if (m === ">") return "&gt;";
+    return m;
+  });
 }
 
 function getProximoDiaUtil(dataStr) {
@@ -96,22 +117,30 @@ function getProximaData(recorrencia, dataAtualStr) {
   return data.toISOString().split("T")[0];
 }
 
-function formatarDataHeader(d = new Date()) {
-  return d.toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-    year: "numeric"
-  });
+function atualizarDataHeader() {
+  const hoje = new Date();
+  const dataHeader = document.getElementById("dataHojeHeader");
+  const dataMobile = document.getElementById("dataHojeMobile");
+  if (dataHeader) {
+    dataHeader.textContent = hoje.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+  }
+  if (dataMobile) {
+    dataMobile.textContent = hoje.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  }
 }
 
-function uid() {
-  return Date.now() + Math.random();
-}
-
-/* =========================
-   FEEDBACK UI
-========================= */
+/* =========================================================
+   FEEDBACK
+========================================================= */
 window.mostrarIndicadorSync = function (mensagem, tipo = "success") {
   let indicator = document.getElementById("syncIndicator");
   if (!indicator) {
@@ -123,12 +152,12 @@ window.mostrarIndicadorSync = function (mensagem, tipo = "success") {
   const icon = tipo === "success" ? "✅" : tipo === "error" ? "❌" : "🔄";
   indicator.innerHTML = `${icon} ${mensagem}`;
   indicator.classList.add("show");
-  setTimeout(() => indicator.classList.remove("show"), 2200);
+  setTimeout(() => indicator.classList.remove("show"), 2000);
 };
 
-/* =========================
-   LOGIN
-========================= */
+/* =========================================================
+   AUTH UI
+========================================================= */
 window.togglePasswordVisibility = (id, btn) => {
   const inp = document.getElementById(id);
   if (!inp) return;
@@ -142,62 +171,55 @@ window.togglePasswordVisibility = (id, btn) => {
 };
 
 window.mostrarCadastro = () => {
-  const l = document.getElementById("loginForm");
-  const r = document.getElementById("registerForm");
-  if (l) l.style.display = "none";
-  if (r) r.style.display = "block";
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("registerForm").style.display = "block";
 };
 
 window.mostrarLogin = () => {
-  const l = document.getElementById("loginForm");
-  const r = document.getElementById("registerForm");
-  if (l) l.style.display = "block";
-  if (r) r.style.display = "none";
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("registerForm").style.display = "none";
 };
 
 window.fazerLogin = async () => {
   try {
-    const email = document.getElementById("loginEmail")?.value?.trim();
-    const senha = document.getElementById("loginPassword")?.value;
-    await signInWithEmailAndPassword(auth, email, senha);
-  } catch (e) {
-    const err = document.getElementById("loginErrorMessage");
-    if (err) err.textContent = "Email ou senha inválidos!";
+    await signInWithEmailAndPassword(
+      auth,
+      document.getElementById("loginEmail").value,
+      document.getElementById("loginPassword").value
+    );
+  } catch {
+    document.getElementById("loginErrorMessage").textContent = "Email ou senha inválidos!";
   }
 };
 
 window.fazerCadastro = async () => {
-  const email = document.getElementById("registerEmail")?.value?.trim();
-  const pwd = document.getElementById("registerPassword")?.value;
-  const conf = document.getElementById("registerConfirm")?.value;
-  const err = document.getElementById("registerErrorMessage");
-
-  if (pwd !== conf) {
-    if (err) err.textContent = "Senhas não coincidem";
+  const pwd = document.getElementById("registerPassword").value;
+  if (pwd !== document.getElementById("registerConfirm").value) {
+    document.getElementById("registerErrorMessage").textContent = "Senhas não coincidem";
     return;
   }
   try {
-    await createUserWithEmailAndPassword(auth, email, pwd);
-    mostrarIndicadorSync("✅ Conta criada!");
+    await createUserWithEmailAndPassword(auth, document.getElementById("registerEmail").value, pwd);
+    window.mostrarIndicadorSync("✅ Conta criada!");
   } catch (e) {
-    if (err) err.textContent = e.message || "Erro ao cadastrar";
+    document.getElementById("registerErrorMessage").textContent = e.message;
   }
 };
 
 window.loginComGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
-    mostrarIndicadorSync(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!`);
-  } catch (error) {
-    mostrarIndicadorSync("❌ Erro no login com Google", "error");
+    window.mostrarIndicadorSync(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!`);
+  } catch {
+    window.mostrarIndicadorSync("❌ Erro no login com Google", "error");
   }
 };
 
 window.fazerLogout = () => signOut(auth);
 
-/* =========================
+/* =========================================================
    FIRESTORE SYNC
-========================= */
+========================================================= */
 async function salvarTudoFirebase() {
   if (!currentUser) return;
   try {
@@ -225,39 +247,32 @@ async function carregarDadosFirebase() {
       const d = docSnap.data();
       if (d.tarefas) localStorage.setItem("tarefas", JSON.stringify(d.tarefas));
       if (d.metas) localStorage.setItem("metas", JSON.stringify(d.metas));
-      if (d.cardsTarefas?.length > 0) localStorage.setItem("cardsTarefas", JSON.stringify(d.cardsTarefas));
+      if (d.cardsTarefas && d.cardsTarefas.length > 0) localStorage.setItem("cardsTarefas", JSON.stringify(d.cardsTarefas));
       if (typeof d.tempoTotalFocado === "number") localStorage.setItem("tempoTotalFocado", String(d.tempoTotalFocado));
       if (typeof d.tempoFocadoHoje === "number") localStorage.setItem("tempoFocadoHoje", String(d.tempoFocadoHoje));
       if (typeof d.tarefasReagendadasHoje === "number") localStorage.setItem("tarefasReagendadasHoje", String(d.tarefasReagendadasHoje));
+      window.mostrarIndicadorSync("☁️ Dados carregados!");
     }
-
-    // reidrata estado após pull
-    tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
-    metas = JSON.parse(localStorage.getItem("metas") || "[]");
-    cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
-    if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
   } catch (err) {
     console.error(err);
   }
 }
+window.salvarTudoFirebase = salvarTudoFirebase;
 
-/* =========================
-   INDEXEDDB BACKUP
-========================= */
+/* =========================================================
+   BACKUP (INDEXEDDB + JSON)
+========================================================= */
 function initIndexedDB() {
   return new Promise((resolve) => {
     const request = indexedDB.open("FLUXO_Backup_V3", 2);
-
     request.onerror = () => {
       console.log("Erro IndexedDB");
       resolve();
     };
-
     request.onsuccess = (event) => {
       dbBackup = event.target.result;
       resolve();
     };
-
     request.onupgradeneeded = (event) => {
       const dbi = event.target.result;
       if (!dbi.objectStoreNames.contains("backups")) {
@@ -284,6 +299,7 @@ async function salvarBackupIndexedDB() {
   };
   const tx = dbBackup.transaction(["backups"], "readwrite");
   tx.objectStore("backups").add(backup);
+  window.mostrarIndicadorSync("💾 Backup salvo!");
 }
 
 async function listarBackups() {
@@ -302,7 +318,6 @@ async function restaurarBackupIndexedDB(backupId) {
   if (!dbBackup) return;
   const tx = dbBackup.transaction(["backups"], "readonly");
   const request = tx.objectStore("backups").get(backupId);
-
   request.onsuccess = async () => {
     const backup = request.result;
     if (backup && backup.usuario === usuarioAtual) {
@@ -312,8 +327,8 @@ async function restaurarBackupIndexedDB(backupId) {
       if (backup.tempoTotalFocado) localStorage.setItem("tempoTotalFocado", backup.tempoTotalFocado);
       if (backup.tempoFocadoHoje) localStorage.setItem("tempoFocadoHoje", backup.tempoFocadoHoje);
       if (backup.tarefasReagendadasHoje) localStorage.setItem("tarefasReagendadasHoje", backup.tarefasReagendadasHoje);
-      mostrarIndicadorSync("✅ Backup restaurado!");
-      setTimeout(() => location.reload(), 900);
+      window.mostrarIndicadorSync("✅ Backup restaurado!");
+      setTimeout(() => location.reload(), 1000);
     }
   };
 }
@@ -322,14 +337,43 @@ async function excluirBackupIndexedDB(backupId) {
   if (!dbBackup) return;
   const tx = dbBackup.transaction(["backups"], "readwrite");
   tx.objectStore("backups").delete(backupId);
-  mostrarIndicadorSync("🗑 Backup removido");
+  window.mostrarIndicadorSync("🗑️ Backup removido");
+  window.abrirModalBackup();
 }
 
 window.fazerBackupManual = async () => {
   await salvarBackupIndexedDB();
-  mostrarIndicadorSync("✅ Backup local salvo");
+  window.abrirModalBackup();
 };
 
+window.abrirModalBackup = async () => {
+  const backups = await listarBackups();
+  const container = document.getElementById("backupList");
+  if (!container) return;
+  if (backups.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">Nenhum backup encontrado</div>';
+  } else {
+    container.innerHTML = backups
+      .map(
+        (b) => `
+      <div class="backup-item">
+        <div class="backup-info">
+          <div class="backup-data"><i class="far fa-calendar-alt"></i> ${new Date(b.timestamp).toLocaleString("pt-BR")}</div>
+          <div class="backup-tarefas">📋 ${b.tarefas ? JSON.parse(b.tarefas || "[]").length : 0} tarefas</div>
+        </div>
+        <div class="backup-actions">
+          <button onclick="window.restaurarBackupIndexedDB(${b.id})" title="Restaurar"><i class="fas fa-undo-alt"></i></button>
+          <button onclick="window.excluirBackupIndexedDB(${b.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+    `
+      )
+      .join("");
+  }
+  document.getElementById("modalBackupOverlay")?.classList.add("show");
+};
+
+window.fecharModalBackup = () => document.getElementById("modalBackupOverlay")?.classList.remove("show");
 window.restaurarBackupIndexedDB = restaurarBackupIndexedDB;
 window.excluirBackupIndexedDB = excluirBackupIndexedDB;
 
@@ -340,6 +384,7 @@ window.importarBackupJSON = function () {
   input.onchange = function (event) {
     const file = event.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = function (e) {
       try {
@@ -350,12 +395,20 @@ window.importarBackupJSON = function () {
         if (backup.tempoTotalFocado) localStorage.setItem("tempoTotalFocado", backup.tempoTotalFocado);
         if (backup.tempoFocadoHoje) localStorage.setItem("tempoFocadoHoje", backup.tempoFocadoHoje);
         if (backup.tarefasReagendadasHoje) localStorage.setItem("tarefasReagendadasHoje", backup.tarefasReagendadasHoje);
-        mostrarIndicadorSync("✅ Backup importado com sucesso!");
-        setTimeout(() => location.reload(), 900);
-      } catch {
-        mostrarIndicadorSync("❌ Erro ao importar backup", "error");
-        alert("Arquivo de backup inválido.");
+
+        window.mostrarIndicadorSync("✅ Backup importado com sucesso!");
+        setTimeout(() => {
+          if (window.recarregarSistema) window.recarregarSistema();
+          else location.reload();
+        }, 1000);
+      } catch (error) {
+        console.error("Erro ao importar backup:", error);
+        window.mostrarIndicadorSync("❌ Erro ao importar backup - arquivo inválido", "error");
+        alert("Arquivo de backup inválido. Certifique-se de importar um JSON válido exportado pelo FLUXO.");
       }
+    };
+    reader.onerror = function () {
+      window.mostrarIndicadorSync("❌ Erro ao ler o arquivo", "error");
     };
     reader.readAsText(file);
   };
@@ -363,29 +416,28 @@ window.importarBackupJSON = function () {
 };
 
 window.exportarBackupJSON = function () {
-  const payload = {
-    tarefas: localStorage.getItem("tarefas") || "[]",
-    metas: localStorage.getItem("metas") || "[]",
-    cardsTarefas: localStorage.getItem("cardsTarefas") || "[]",
-    tempoTotalFocado: localStorage.getItem("tempoTotalFocado") || "0",
-    tempoFocadoHoje: localStorage.getItem("tempoFocadoHoje") || "0",
-    tarefasReagendadasHoje: localStorage.getItem("tarefasReagendadasHoje") || "0",
-    data: new Date().toISOString()
+  const backup = {
+    usuario: usuarioAtual,
+    data: new Date().toISOString(),
+    tarefas: localStorage.getItem("tarefas"),
+    metas: localStorage.getItem("metas"),
+    cardsTarefas: localStorage.getItem("cardsTarefas"),
+    tempoTotalFocado: localStorage.getItem("tempoTotalFocado"),
+    tempoFocadoHoje: localStorage.getItem("tempoFocadoHoje"),
+    tarefasReagendadasHoje: localStorage.getItem("tarefasReagendadasHoje")
   };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `fluxo-backup-${getDataHoje()}.json`;
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
+  a.download = `fluxo_${(usuarioAtual || "user").replace(/[^\w.-]/g, "_")}_${new Date().toISOString().slice(0, 19)}.json`;
   a.click();
-  URL.revokeObjectURL(a.href);
+  window.mostrarIndicadorSync("📥 Backup exportado!");
 };
 
-/* =========================
-   LÓGICA PRINCIPAL
-========================= */
+/* =========================================================
+   REGRAS DE RESET / RECORRÊNCIA
+========================================================= */
 function verificarResetDiario() {
   const hoje = getDataHoje();
-
   if (ultimaDataReset !== hoje) {
     ultimaDataReset = hoje;
     localStorage.setItem("ultimaDataReset", hoje);
@@ -403,43 +455,50 @@ function verificarResetDiario() {
     localStorage.setItem("tempoFocadoHoje", "0");
     localStorage.setItem("ultimaDataFoco", hoje);
     ultimaDataFoco = hoje;
+    salvarDados();
   }
 }
 
 function sincronizarTarefasRecorrentes() {
+  const syncBtn = document.getElementById("syncNowBtn");
+  if (syncBtn) {
+    syncBtn.classList.add("syncing");
+    syncBtn.disabled = true;
+  }
+
+  window.mostrarIndicadorSync("🔄 Verificando tarefas recorrentes...");
   const hoje = getDataHoje();
   let tarefasGeradas = 0;
-  const novasTarefas = [];
 
-  const tarefasMae = tarefas.filter((t) => t.recorrencia && t.recorrencia !== "" && t.concluida === true);
+  const tarefasConcluidasRecorrentes = tarefas.filter((t) => t.recorrencia && t.recorrencia !== "" && t.concluida);
 
-  for (const tarefaMae of tarefasMae) {
-    let proximaData = getProximaData(tarefaMae.recorrencia, tarefaMae.data);
+  for (const t of tarefasConcluidasRecorrentes) {
+    let proximaData = getProximaData(t.recorrencia, t.data);
     if (!proximaData) continue;
 
     while (proximaData < hoje) {
-      proximaData = getProximaData(tarefaMae.recorrencia, proximaData);
-      if (!proximaData) break;
+      const p = getProximaData(t.recorrencia, proximaData);
+      if (!p) break;
+      proximaData = p;
     }
 
-    if (proximaData && proximaData >= hoje) {
-      const jaExiste = tarefas.some(
-        (t) => t.texto === tarefaMae.texto && t.data === proximaData && t.recorrencia === tarefaMae.recorrencia
+    if (proximaData >= hoje) {
+      const existe = tarefas.some(
+        (e) => e.texto === t.texto && e.data === proximaData && e.recorrencia === t.recorrencia && e.bloco === t.bloco
       );
-
-      if (!jaExiste) {
-        novasTarefas.push({
+      if (!existe) {
+        tarefas.push({
           id: uid(),
-          texto: tarefaMae.texto,
-          descricao: tarefaMae.descricao || "",
-          bloco: tarefaMae.bloco,
+          texto: t.texto,
+          descricao: t.descricao || "",
+          bloco: t.bloco,
           data: proximaData,
-          prioridade: tarefaMae.prioridade || "p2",
-          recorrencia: tarefaMae.recorrencia,
+          prioridade: t.prioridade || "p3",
+          recorrencia: t.recorrencia,
           concluida: false,
           tempoGasto: 0,
           notificado: false,
-          ordem: tarefas.filter((t) => t.bloco === tarefaMae.bloco && !t.concluida).length
+          ordem: tarefas.filter((x) => x.bloco === t.bloco && !x.concluida).length
         });
         tarefasGeradas++;
       }
@@ -447,45 +506,23 @@ function sincronizarTarefasRecorrentes() {
   }
 
   if (tarefasGeradas > 0) {
-    tarefas.push(...novasTarefas);
-    mostrarIndicadorSync(`✅ ${tarefasGeradas} nova(s) tarefa(s) gerada(s)`);
-    return true;
+    salvarDados();
+    window.mostrarIndicadorSync(`✅ ${tarefasGeradas} tarefa(s) recorrente(s) gerada(s)`);
+  } else {
+    window.mostrarIndicadorSync("✅ Nenhuma tarefa recorrente pendente");
   }
-  return false;
-}
 
-function concluirComDuplicatas(id) {
-  const tarefa = tarefas.find((t) => t.id === id);
-  if (!tarefa) return;
-
-  tarefa.concluida = true;
-
-  if (tarefa.recorrencia && tarefa.recorrencia !== "") {
-    const proximaData = getProximaData(tarefa.recorrencia, tarefa.data);
-    if (proximaData) {
-      const existe = tarefas.some(
-        (t) => t.texto === tarefa.texto && t.data === proximaData && t.recorrencia === tarefa.recorrencia
-      );
-      if (!existe) {
-        tarefas.push({
-          id: uid(),
-          texto: tarefa.texto,
-          descricao: tarefa.descricao || "",
-          bloco: tarefa.bloco,
-          data: proximaData,
-          prioridade: tarefa.prioridade || "p3",
-          recorrencia: tarefa.recorrencia,
-          concluida: false,
-          tempoGasto: 0,
-          notificado: false,
-          ordem: tarefas.filter((t) => t.bloco === tarefa.bloco && !t.concluida).length
-        });
-        mostrarIndicadorSync(`🔄 Nova tarefa gerada: ${tarefa.texto}`);
-      }
-    }
+  if (syncBtn) {
+    setTimeout(() => {
+      syncBtn.classList.remove("syncing");
+      syncBtn.disabled = false;
+    }, 500);
   }
 }
 
+/* =========================================================
+   DADOS / RENDER
+========================================================= */
 function salvarDados() {
   localStorage.setItem("tarefas", JSON.stringify(tarefas));
   localStorage.setItem("metas", JSON.stringify(metas));
@@ -496,73 +533,211 @@ function salvarDados() {
 
   renderizarTarefas();
   renderizarMetas();
-  renderizarMetasCarrossel();
   renderizarCalendario();
   atualizarDashboard();
+  renderizarMetasCarrossel(); // oculto, sem competir com tarefas
   atualizarRodape();
 
-  if (window.currentUser) setTimeout(() => salvarTudoFirebase(), 400);
+  if (window.currentUser) setTimeout(() => window.salvarTudoFirebase(), 500);
 }
 
-/* =========================
+window.recarregarSistema = function () {
+  tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
+  metas = JSON.parse(localStorage.getItem("metas") || "[]");
+  cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
+  tempoTotalFocado = parseInt(localStorage.getItem("tempoTotalFocado") || "0", 10);
+  tempoFocadoHoje = parseInt(localStorage.getItem("tempoFocadoHoje") || "0", 10);
+  ultimaDataFoco = localStorage.getItem("ultimaDataFoco") || "";
+  tarefasReagendadasHoje = parseInt(localStorage.getItem("tarefasReagendadasHoje") || "0", 10);
+  ultimaDataReagendamento = localStorage.getItem("ultimaDataReagendamento") || "";
+
+  if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+
+  verificarResetDiario();
+  renderizarTarefas();
+  renderizarMetas();
+  renderizarCalendario();
+  atualizarDashboard();
+  renderizarMetasCarrossel();
+  atualizarRodape();
+  atualizarDataHeader();
+
+  setTimeout(() => window.toggleView("cards"), 100);
+};
+
+/* =========================================================
+   METAS (DISCRETO)
+========================================================= */
+window.togglePainelMetas = function () {
+  const painel = document.getElementById("metasCompletas");
+  const btn = document.getElementById("metasToggleBtn");
+  if (!painel || !btn) return;
+
+  const aberto = painel.style.display === "block";
+  painel.style.display = aberto ? "none" : "block";
+  btn.textContent = aberto ? "Ver metas" : "Ocultar metas";
+};
+
+function renderizarMetasCarrossel() {
+  // escondido para deixar tarefas como foco principal
+  const container = document.getElementById("metasCarousel");
+  if (!container) return;
+  container.style.display = "none";
+  container.innerHTML = "";
+}
+
+function renderizarMetas() {
+  const total = metas.length;
+  const concluidas = metas.filter((m) => m.atingida).length;
+  const prog = total ? Math.round((concluidas / total) * 100) : 0;
+
+  const elTotal = document.getElementById("totalMetas");
+  const elConcluidas = document.getElementById("concluidasMetas");
+  const elProg = document.getElementById("progressoMetas");
+
+  if (elTotal) elTotal.textContent = String(total);
+  if (elConcluidas) elConcluidas.textContent = String(concluidas);
+  if (elProg) elProg.textContent = String(prog);
+
+  const container = document.getElementById("metasGrid");
+  if (!container) return;
+
+  if (total === 0) {
+    container.innerHTML =
+      '<div style="text-align:center;padding:40px;"><i class="fas fa-flag-checkered" style="font-size:48px;opacity:0.5;"></i><p style="color:white;">Nenhuma meta definida</p></div>';
+    return;
+  }
+
+  container.innerHTML = metas
+    .map(
+      (m) => `
+      <div class="meta-item" style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;">
+        <div>
+          <div style="color:white;">${escapeHtml(m.texto)}</div>
+          <div style="color:#fbbf24;font-size:11px;">${escapeHtml(m.categoria || "")}</div>
+        </div>
+        <div>
+          <button onclick="window.toggleMeta(${m.id})" style="background:${m.atingida ? "#22c55e" : "rgba(255,255,255,0.1)"};border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;color:white;">${m.atingida ? "✓" : ""}</button>
+          <button onclick="window.excluirMeta(${m.id})" style="background:none;border:none;color:#ef4444;cursor:pointer;margin-left:8px;"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+    `
+    )
+    .join("");
+}
+
+window.adicionarMeta = function () {
+  const texto = document.getElementById("novaMetaTexto").value.trim();
+  if (!texto) return;
+  metas.push({
+    id: Date.now(),
+    texto,
+    categoria: document.getElementById("novaMetaCategoria").value,
+    atingida: false
+  });
+  document.getElementById("novaMetaTexto").value = "";
+  salvarDados();
+  window.mostrarIndicadorSync("🎯 Meta adicionada!");
+};
+
+window.toggleMeta = function (id) {
+  const m = metas.find((x) => x.id === id);
+  if (!m) return;
+  m.atingida = !m.atingida;
+  salvarDados();
+};
+
+window.excluirMeta = function (id) {
+  if (!confirm("Excluir meta?")) return;
+  metas = metas.filter((m) => m.id !== id);
+  salvarDados();
+  window.mostrarIndicadorSync("🗑️ Meta excluída!");
+};
+
+/* =========================================================
    TAREFAS
-========================= */
+========================================================= */
+function concluirComDuplicatas(id) {
+  const tarefa = tarefas.find((t) => t.id === id);
+  if (!tarefa) return;
+
+  tarefa.concluida = true;
+
+  // marca duplicatas simples no mesmo dia/bloco/texto
+  tarefas.forEach((t) => {
+    if (
+      t.id !== id &&
+      t.texto?.toLowerCase().trim() === tarefa.texto?.toLowerCase().trim() &&
+      t.data === tarefa.data &&
+      !t.concluida &&
+      t.bloco === tarefa.bloco
+    ) {
+      t.concluida = true;
+    }
+  });
+
+  // gera próxima ocorrência
+  if (tarefa.recorrencia && tarefa.recorrencia !== "") {
+    const novaDataStr = getProximaData(tarefa.recorrencia, tarefa.data);
+    if (novaDataStr) {
+      const existe = tarefas.some(
+        (t) =>
+          t.texto === tarefa.texto &&
+          t.data === novaDataStr &&
+          t.recorrencia === tarefa.recorrencia &&
+          t.bloco === tarefa.bloco
+      );
+      if (!existe) {
+        tarefas.push({
+          id: uid(),
+          texto: tarefa.texto,
+          descricao: tarefa.descricao || "",
+          bloco: tarefa.bloco,
+          data: novaDataStr,
+          prioridade: tarefa.prioridade || "p3",
+          recorrencia: tarefa.recorrencia,
+          concluida: false,
+          tempoGasto: 0,
+          notificado: false,
+          ordem: tarefas.filter((x) => x.bloco === tarefa.bloco && !x.concluida).length
+        });
+      }
+    }
+  }
+
+  salvarDados();
+  window.mostrarIndicadorSync("✅ Tarefa concluída!");
+}
+
 window.toggleTarefa = function (id) {
   const t = tarefas.find((x) => x.id === id);
   if (!t) return;
-
-  if (!t.concluida) {
-    concluirComDuplicatas(id);
-    mostrarIndicadorSync("✅ Tarefa concluída!");
-  } else {
+  if (!t.concluida) concluirComDuplicatas(id);
+  else {
     t.concluida = false;
-    mostrarIndicadorSync("🔄 Tarefa reativada!");
+    salvarDados();
+    window.mostrarIndicadorSync("🔄 Tarefa reativada!");
   }
-  salvarDados();
 };
 
 window.excluirTarefa = function (id) {
   if (!confirm("Excluir tarefa?")) return;
   tarefas = tarefas.filter((t) => t.id !== id);
   salvarDados();
-  mostrarIndicadorSync("🗑 Tarefa excluída!");
+  window.mostrarIndicadorSync("🗑️ Tarefa excluída!");
 };
 
-window.abrirModalEdicao = function (id) {
-  const tarefa = tarefas.find((t) => t.id === id);
-  if (!tarefa) return;
-  tarefaEditandoAtual = tarefa;
-  document.getElementById("edicaoTitulo").value = tarefa.texto || "";
-  document.getElementById("edicaoDescricao").value = tarefa.descricao || "";
-  document.getElementById("edicaoData").value = tarefa.data || getDataHoje();
-  document.getElementById("edicaoPrioridade").value = tarefa.prioridade || "p3";
-  document.getElementById("edicaoRecorrencia").value = tarefa.recorrencia || "";
-  document.getElementById("modalEdicaoOverlay").classList.add("show");
+window.editarTarefaCompleta = function (id) {
+  window.abrirModalEdicao(id);
 };
 
-window.fecharModalEdicao = function () {
-  document.getElementById("modalEdicaoOverlay")?.classList.remove("show");
-  tarefaEditandoAtual = null;
-};
-
-window.salvarEdicaoTarefa = function () {
-  if (!tarefaEditandoAtual) return;
-  tarefaEditandoAtual.texto = document.getElementById("edicaoTitulo").value.trim();
-  tarefaEditandoAtual.descricao = document.getElementById("edicaoDescricao").value;
-  tarefaEditandoAtual.data = document.getElementById("edicaoData").value;
-  tarefaEditandoAtual.prioridade = document.getElementById("edicaoPrioridade").value;
-  tarefaEditandoAtual.recorrencia = document.getElementById("edicaoRecorrencia").value;
-  salvarDados();
-  fecharModalEdicao();
-  mostrarIndicadorSync("✏️ Tarefa editada!");
-};
-
-window.abrirModalDescricao = function (id) {
-  const tarefa = tarefas.find((t) => t.id === id);
+window.abrirModalDescricao = function (tarefaId) {
+  const tarefa = tarefas.find((t) => t.id === tarefaId);
   if (!tarefa) return;
   tarefaDescricaoAtual = tarefa;
   document.getElementById("modalDescricaoTitulo").textContent = tarefa.texto || "Sem título";
-  document.getElementById("modalDescricaoTexto").textContent = tarefa.descricao || "Nenhuma descrição adicionada";
+  const descricaoTexto = tarefa.descricao && tarefa.descricao.trim() ? tarefa.descricao : "Nenhuma descrição adicionada";
+  document.getElementById("modalDescricaoTexto").textContent = descricaoTexto;
   document.getElementById("modalDescricaoOverlay").classList.add("show");
 };
 
@@ -573,20 +748,54 @@ window.fecharModalDescricao = function () {
 
 window.editarDescricaoModal = function () {
   if (!tarefaDescricaoAtual) return;
-  const nova = prompt("Editar descrição:", tarefaDescricaoAtual.descricao || "");
-  if (nova !== null) {
-    tarefaDescricaoAtual.descricao = nova;
+  const novaDescricao = prompt("Editar descrição:", tarefaDescricaoAtual.descricao || "");
+  if (novaDescricao !== null) {
+    tarefaDescricaoAtual.descricao = novaDescricao;
     salvarDados();
-    fecharModalDescricao();
-    mostrarIndicadorSync("📝 Descrição atualizada!");
+    window.fecharModalDescricao();
+    window.mostrarIndicadorSync("📝 Descrição atualizada!");
   }
+};
+
+window.abrirModalEdicao = function (tarefaId) {
+  const tarefa = tarefas.find((t) => t.id === tarefaId);
+  if (!tarefa) return;
+  tarefaEditandoAtual = tarefa;
+
+  document.getElementById("edicaoTitulo").value = tarefa.texto;
+  document.getElementById("edicaoDescricao").value = tarefa.descricao || "";
+  document.getElementById("edicaoData").value = tarefa.data || getDataHoje();
+  document.getElementById("edicaoPrioridade").value = tarefa.prioridade || "p3";
+  document.getElementById("edicaoRecorrencia").value = tarefa.recorrencia || "";
+
+  document.getElementById("modalEdicaoOverlay").classList.add("show");
+};
+
+window.fecharModalEdicao = function () {
+  document.getElementById("modalEdicaoOverlay")?.classList.remove("show");
+  tarefaEditandoAtual = null;
+};
+
+window.salvarEdicaoTarefa = function () {
+  if (!tarefaEditandoAtual) return;
+
+  tarefaEditandoAtual.texto = document.getElementById("edicaoTitulo").value.trim();
+  tarefaEditandoAtual.descricao = document.getElementById("edicaoDescricao").value;
+  tarefaEditandoAtual.data = document.getElementById("edicaoData").value;
+  tarefaEditandoAtual.prioridade = document.getElementById("edicaoPrioridade").value;
+  tarefaEditandoAtual.recorrencia = document.getElementById("edicaoRecorrencia").value;
+
+  salvarDados();
+  window.fecharModalEdicao();
+  window.mostrarIndicadorSync("✏️ Tarefa editada!");
 };
 
 window.abrirModalReagendar = function (id) {
   tarefaReagendando = tarefas.find((t) => t.id === id);
-  if (!tarefaReagendando) return;
-  document.getElementById("novaDataReagendar").value = tarefaReagendando.data || getDataHoje();
-  document.getElementById("modalReagendarOverlay").classList.add("show");
+  if (tarefaReagendando) {
+    document.getElementById("novaDataReagendar").value = tarefaReagendando.data || getDataHoje();
+    document.getElementById("modalReagendarOverlay").classList.add("show");
+  }
 };
 
 window.fecharModalReagendar = function () {
@@ -596,46 +805,50 @@ window.fecharModalReagendar = function () {
 
 window.confirmarReagendamento = function () {
   const novaData = document.getElementById("novaDataReagendar").value;
-  if (!tarefaReagendando || !novaData) return;
-  tarefaReagendando.data = novaData;
-  tarefaReagendando.notificado = false;
-  tarefasReagendadasHoje++;
-  salvarDados();
-  fecharModalReagendar();
-  mostrarIndicadorSync("📅 Tarefa reagendada!");
+  if (tarefaReagendando && novaData) {
+    tarefaReagendando.data = novaData;
+    tarefaReagendando.notificado = false;
+    salvarDados();
+    window.fecharModalReagendar();
+    window.mostrarIndicadorSync("📅 Tarefa reagendada!");
+  }
 };
 
 window.adicionarCardTarefa = function () {
   const nome = prompt("Nome do novo espaço:");
-  if (!nome || !nome.trim()) return;
-  cardsTarefas.push({ id: "card_" + Date.now(), nome: nome.trim() });
-  salvarDados();
-  mostrarIndicadorSync(`📁 Espaço "${nome.trim()}" criado!`);
+  if (nome && nome.trim()) {
+    cardsTarefas.push({ id: "card_" + Date.now(), nome: nome.trim() });
+    salvarDados();
+    window.mostrarIndicadorSync(`📁 Espaço "${nome}" criado!`);
+  }
 };
 
 window.editarCardTarefa = function (id) {
   const card = cardsTarefas.find((c) => c.id === id);
   if (!card) return;
   const novoNome = prompt("Editar nome:", card.nome);
-  if (!novoNome || !novoNome.trim()) return;
-  const antigo = card.nome;
-  card.nome = novoNome.trim();
-  tarefas.forEach((t) => {
-    if (t.bloco === antigo) t.bloco = card.nome;
-  });
-  salvarDados();
-  mostrarIndicadorSync("✏️ Espaço renomeado!");
+  if (novoNome && novoNome.trim()) {
+    const antigoNome = card.nome;
+    card.nome = novoNome.trim();
+    tarefas.forEach((t) => {
+      if (t.bloco === antigoNome) t.bloco = card.nome;
+    });
+    salvarDados();
+    window.mostrarIndicadorSync("✏️ Espaço renomeado!");
+  }
 };
 
 window.excluirCardTarefa = function (id) {
   if (!confirm("Excluir este espaço?")) return;
   const card = cardsTarefas.find((c) => c.id === id);
-  if (!card) return;
-  tarefas = tarefas.filter((t) => t.bloco !== card.nome);
   cardsTarefas = cardsTarefas.filter((c) => c.id !== id);
+
+  // remove tarefas do card excluído
+  if (card) tarefas = tarefas.filter((t) => t.bloco !== card.nome);
+
   if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
   salvarDados();
-  mostrarIndicadorSync("🗑 Espaço excluído!");
+  window.mostrarIndicadorSync("🗑️ Espaço excluído!");
 };
 
 window.mostrarFormAdicionar = function (cardId) {
@@ -668,14 +881,14 @@ window.adicionarTarefaInline = function (cardId) {
     ordem: tarefas.filter((t) => t.bloco === card.nome && !t.concluida).length
   });
 
-  const txt = document.getElementById(`texto-${cardId}`);
-  const desc = document.getElementById(`descricao-${cardId}`);
-  if (txt) txt.value = "";
-  if (desc) desc.value = "";
-
+  const campoTexto = document.getElementById(`texto-${cardId}`);
+  const campoDesc = document.getElementById(`descricao-${cardId}`);
+  if (campoTexto) campoTexto.value = "";
+  if (campoDesc) campoDesc.value = "";
   document.getElementById(`form-${cardId}`)?.classList.remove("show");
+
   salvarDados();
-  mostrarIndicadorSync("✅ Tarefa adicionada!");
+  window.mostrarIndicadorSync("✅ Tarefa adicionada!");
 };
 
 window.marcarTodasHoje = function () {
@@ -688,25 +901,34 @@ window.marcarTodasHoje = function () {
   if (confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)) {
     alvos.forEach((t) => (t.concluida = true));
     salvarDados();
-    mostrarIndicadorSync(`🎉 ${alvos.length} tarefa(s) concluída(s)!`);
+    alert(`✅ ${alvos.length} tarefa(s) concluída(s)!`);
+    window.mostrarIndicadorSync(`🎉 ${alvos.length} tarefas concluídas!`);
   }
 };
 
-/* Drag and Drop */
+/* =========================================================
+   DRAG & DROP
+========================================================= */
 window.iniciarDragTarefa = function (id, cardNome, event) {
   tarefaArrastandoId = id;
   tarefaArrastandoOrigem = cardNome;
-  event.dataTransfer.setData("text/plain", String(id));
+  event.dataTransfer.setData("text/plain", id);
   const el = event.target.closest(".tarefa-item");
   if (el) el.classList.add("dragging");
 };
 
-window.permitirDropTarefa = (event) => event.preventDefault();
-window.permitirDropCard = (event) => {
+window.permitirDropTarefa = function (event) {
+  event.preventDefault();
+};
+
+window.permitirDropCard = function (event) {
   event.preventDefault();
   event.currentTarget.classList.add("drag-over");
 };
-window.removerDragOver = (event) => event.currentTarget.classList.remove("drag-over");
+
+window.removerDragOver = function (event) {
+  event.currentTarget.classList.remove("drag-over");
+};
 
 window.soltarTarefa = function (event, cardNomeDestino, tarefaIdDestino) {
   event.preventDefault();
@@ -725,8 +947,8 @@ window.soltarTarefa = function (event, cardNomeDestino, tarefaIdDestino) {
       const [item] = tarefasDoCard.splice(indexOrigem, 1);
       tarefasDoCard.splice(indexDestino, 0, item);
       tarefasDoCard.forEach((t, idx) => {
-        const g = tarefas.find((gt) => gt.id === t.id);
-        if (g) g.ordem = idx;
+        const tarefaGlobal = tarefas.find((gt) => gt.id === t.id);
+        if (tarefaGlobal) tarefaGlobal.ordem = idx;
       });
       salvarDados();
     }
@@ -735,7 +957,7 @@ window.soltarTarefa = function (event, cardNomeDestino, tarefaIdDestino) {
     if (tarefa) {
       tarefa.bloco = cardNomeDestino;
       salvarDados();
-      mostrarIndicadorSync("📦 Tarefa movida");
+      window.mostrarIndicadorSync("📦 Tarefa movida");
     }
   }
 
@@ -744,224 +966,9 @@ window.soltarTarefa = function (event, cardNomeDestino, tarefaIdDestino) {
   document.querySelectorAll(".tarefa-item").forEach((el) => el.classList.remove("dragging"));
 };
 
-/* =========================
-   METAS (DISCRETO)
-========================= */
-window.togglePainelMetas = function () {
-  const painel = document.getElementById("metasCompletas");
-  const btn = document.getElementById("metasToggleBtn");
-  if (!painel || !btn) return;
-
-  const aberto = painel.style.display === "block";
-  painel.style.display = aberto ? "none" : "block";
-  btn.textContent = aberto ? "Ver metas" : "Ocultar metas";
-};
-
-function renderizarMetas() {
-  const container = document.getElementById("metasGrid");
-  if (!container) return;
-
-  container.innerHTML = metas
-    .map(
-      (m) => `
-      <div class="meta-card-mini" style="background:rgba(255,255,255,0.08); padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="display:flex; align-items:center; gap:10px; flex:1;">
-          <div class="${m.concluida ? "circulo-concluido" : "circulo-pendente"}" onclick="toggleMeta(${m.id})">
-            ${m.concluida ? '<i class="fas fa-check" style="color:white;font-size:12px;"></i>' : ""}
-          </div>
-          <div>
-            <div class="titulo-meta">${escapeHtml(m.texto)}</div>
-            <small style="color:rgba(255,255,255,0.5); font-size:11px;">${escapeHtml(m.categoria || "")}</small>
-          </div>
-        </div>
-        <button onclick="excluirMeta(${m.id})" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;">
-          <i class="fas fa-trash-alt"></i>
-        </button>
-      </div>
-    `
-    )
-    .join("");
-
-  const total = metas.length;
-  const concl = metas.filter((m) => m.concluida).length;
-  const progresso = total ? Math.round((concl / total) * 100) : 0;
-
-  const t = document.getElementById("totalMetas");
-  const c = document.getElementById("concluidasMetas");
-  const p = document.getElementById("progressoMetas");
-  if (t) t.textContent = String(total);
-  if (c) c.textContent = String(concl);
-  if (p) p.textContent = String(progresso);
-}
-
-// deixa sem protagonismo
-function renderizarMetasCarrossel() {
-  const container = document.getElementById("metasCarousel");
-  if (!container) return;
-  container.style.display = "none";
-  container.innerHTML = "";
-}
-
-window.adicionarMeta = function () {
-  const texto = document.getElementById("novaMetaTexto")?.value?.trim();
-  const categoria = document.getElementById("novaMetaCategoria")?.value || "Geral";
-  if (!texto) return;
-  metas.push({ id: Date.now(), texto, categoria, concluida: false });
-  const inp = document.getElementById("novaMetaTexto");
-  if (inp) inp.value = "";
-  salvarDados();
-  mostrarIndicadorSync("🎯 Meta adicionada!");
-};
-
-window.toggleMeta = function (id) {
-  const m = metas.find((x) => x.id === id);
-  if (!m) return;
-  m.concluida = !m.concluida;
-  salvarDados();
-  mostrarIndicadorSync(m.concluida ? "✅ Meta concluída!" : "🔄 Meta reativada!");
-};
-
-window.excluirMeta = function (id) {
-  if (!confirm("Excluir meta?")) return;
-  metas = metas.filter((m) => m.id !== id);
-  salvarDados();
-  mostrarIndicadorSync("🗑 Meta excluída!");
-};
-
-/* =========================
-   DASHBOARD / RODAPÉ
-========================= */
-function atualizarDashboard() {
-  const hoje = getDataHoje();
-  const tarefasHoje = tarefas.filter((t) => t.data === hoje && !t.concluida);
-  const tarefasAtrasadas = tarefas.filter((t) => t.data && t.data < hoje && !t.concluida);
-
-  const alerta = document.getElementById("dashboardAlerta");
-  if (!alerta) return;
-
-  const alertaTexto = document.getElementById("alertaTexto");
-  const alertaSubtexto = document.getElementById("alertaSubtexto");
-  const alertaBtn = document.getElementById("alertaBtn");
-
-  if (tarefasAtrasadas.length > 0) {
-    alerta.style.display = "inline-flex";
-    if (alertaTexto) alertaTexto.textContent = `Você tem ${tarefasAtrasadas.length} tarefa(s) atrasada(s)!`;
-    if (alertaSubtexto) alertaSubtexto.textContent = "Reagende ou conclua agora";
-    if (alertaBtn) alertaBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
-  } else if (tarefasHoje.length > 0) {
-    alerta.style.display = "inline-flex";
-    if (alertaTexto) alertaTexto.textContent = `Você tem ${tarefasHoje.length} tarefa(s) para hoje!`;
-    if (alertaSubtexto) alertaSubtexto.textContent = "Organize seu dia 🎯";
-    if (alertaBtn) alertaBtn.onclick = () => irParaHoje();
-  } else {
-    alerta.style.display = "none";
-  }
-}
-
-function atualizarRodape() {
-  const hoje = getDataHoje();
-  const concluidas = tarefas.filter((t) => t.concluida && t.data === hoje).length;
-  const pendentes = tarefas.filter((t) => !t.concluida && t.data === hoje).length;
-  const total = concluidas + pendentes;
-  const taxa = total > 0 ? Math.round((concluidas / total) * 100) : 0;
-
-  const footerConcluidas = document.getElementById("footerConcluidas");
-  const footerTaxa = document.getElementById("footerTaxa");
-  const footerPendentes = document.getElementById("footerPendentes");
-  const footerTempo = document.getElementById("footerTempo");
-  const footerReagendadas = document.getElementById("footerReagendadasCount");
-
-  if (footerConcluidas) footerConcluidas.textContent = String(concluidas);
-  if (footerTaxa) footerTaxa.textContent = `${taxa}%`;
-  if (footerPendentes) footerPendentes.textContent = String(pendentes);
-  if (footerTempo) footerTempo.textContent = `${Math.floor(tempoFocadoHoje / 60)}h ${tempoFocadoHoje % 60}m`;
-  if (footerReagendadas) footerReagendadas.textContent = String(tarefasReagendadasHoje);
-}
-
-/* =========================
-   CALENDÁRIO / VIEW
-========================= */
-window.toggleView = function (view) {
-  const cards = document.getElementById("cardsView");
-  const cal = document.getElementById("calendarioView");
-  const btns = document.querySelectorAll(".view-btn");
-  btns.forEach((b) => b.classList.remove("active"));
-
-  if (view === "calendario") {
-    if (cards) cards.style.display = "none";
-    if (cal) cal.style.display = "block";
-    btns[1]?.classList.add("active");
-    renderizarCalendario();
-  } else {
-    if (cards) cards.style.display = "block";
-    if (cal) cal.style.display = "none";
-    btns[0]?.classList.add("active");
-  }
-};
-
-window.mudarMes = function (delta) {
-  dataCalendario.setMonth(dataCalendario.getMonth() + delta);
-  renderizarCalendario();
-};
-
-window.irParaHoje = function () {
-  dataCalendario = new Date();
-  renderizarCalendario();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-
-function renderizarCalendario() {
-  const grade = document.getElementById("calendarioGrade");
-  if (!grade) return;
-
-  const ano = dataCalendario.getFullYear();
-  const mes = dataCalendario.getMonth();
-
-  const primeiroDia = new Date(ano, mes, 1);
-  const ultimoDia = new Date(ano, mes + 1, 0);
-  const inicioSemana = (primeiroDia.getDay() + 6) % 7; // segunda=0
-  const totalDias = ultimoDia.getDate();
-
-  const hoje = getDataHoje();
-
-  const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-  let html = `<div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:white;">
-    <strong>${dataCalendario.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</strong>
-  </div>`;
-
-  html += diasSemana
-    .map((d) => `<div style="font-size:12px;opacity:.7;text-align:center;padding:6px 0;">${d}</div>`)
-    .join("");
-
-  for (let i = 0; i < inicioSemana; i++) html += `<div></div>`;
-
-  for (let dia = 1; dia <= totalDias; dia++) {
-    const dataStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-    const qtd = tarefas.filter((t) => t.data === dataStr && !t.concluida).length;
-    const isHoje = dataStr === hoje;
-
-    html += `
-      <div style="
-        min-height:72px;
-        border:1px solid rgba(255,255,255,0.08);
-        border-radius:10px;
-        padding:8px;
-        background:${isHoje ? "rgba(124,58,237,0.25)" : "rgba(255,255,255,0.03)"};
-      ">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:13px;font-weight:600;">${dia}</span>
-          ${qtd > 0 ? `<span style="font-size:11px;background:rgba(239,68,68,.25);padding:2px 6px;border-radius:999px;">${qtd}</span>` : ""}
-        </div>
-      </div>
-    `;
-  }
-
-  grade.innerHTML = html;
-}
-
-/* =========================
+/* =========================================================
    RENDER TAREFAS
-========================= */
+========================================================= */
 function renderizarTarefas() {
   const container = document.getElementById("blocosTarefas");
   if (!container) return;
@@ -983,42 +990,40 @@ function renderizarTarefas() {
       .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
       .map((t) => {
         const atrasada = t.data && t.data < hoje;
-        const recorrenciaIcon =
+        const recorrenciaLabel =
           {
-            diaria: "🔄 Diária",
-            dias_uteis: "📅 Dias úteis",
-            semanal: "📆 Semanal",
-            mensal: "📅 Mensal"
-          }[t.recorrencia] || "";
+            diaria: "Diária",
+            dias_uteis: "Dias úteis",
+            semanal: "Semanal",
+            mensal: "Mensal"
+          }[t.recorrencia] || t.recorrencia || "";
 
-        return `<div class="tarefa-item ${t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : ""}"
-          draggable="true"
-          ondragstart="iniciarDragTarefa(${JSON.stringify(t.id)}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)"
+        return `<div class="tarefa-item ${t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : ""}" draggable="true"
+          ondragstart="window.iniciarDragTarefa(${JSON.stringify(t.id)}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)"
           ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))"
-          ondragover="permitirDropTarefa(event)"
-          ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${JSON.stringify(t.id)})">
+          ondragover="window.permitirDropTarefa(event)"
+          ondrop="window.soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${JSON.stringify(t.id)})">
 
           <div class="task-left">
             <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-            <input type="checkbox" class="task-checkbox" ${t.concluida ? "checked" : ""} onchange="toggleTarefa(${JSON.stringify(t.id)})">
+            <input type="checkbox" class="task-checkbox" ${t.concluida ? "checked" : ""} onchange="window.toggleTarefa(${JSON.stringify(t.id)})">
             <div class="task-info">
               <div class="task-title">${escapeHtml(t.texto)}</div>
               <div class="task-meta">
-                <span class="meta-date ${atrasada ? "badge atrasada" : ""}"
-                  onclick="abrirModalReagendar(${JSON.stringify(t.id)}); event.stopPropagation()">
-                  <i class="fas fa-calendar"></i> ${t.data} ${atrasada ? "⚠" : ""}
+                <span class="meta-date ${atrasada ? "badge atrasada" : ""}" onclick="window.abrirModalReagendar(${JSON.stringify(t.id)}); event.stopPropagation()">
+                  <i class="fas fa-calendar"></i> ${t.data} ${atrasada ? "⚠️" : ""}
                 </span>
-                ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaIcon}</span>` : ""}
+                ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaLabel}</span>` : ""}
                 ${t.tempoGasto ? `<span class="meta-tag"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ""}
               </div>
             </div>
           </div>
 
           <div class="task-actions-2x2">
-            <button class="task-action-btn" onclick="abrirModalEdicao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
-            <button class="task-action-btn" onclick="abrirModalDescricao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Descrição"><i class="fas fa-pen-alt"></i></button>
-            <button class="task-action-btn" title="Modo Foco"><i class="fas fa-clock"></i></button>
-            <button class="task-action-btn danger" onclick="excluirTarefa(${JSON.stringify(t.id)}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+            <button class="task-action-btn" onclick="window.editarTarefaCompleta(${JSON.stringify(t.id)}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
+            <button class="task-action-btn" onclick="window.abrirModalDescricao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Descrição"><i class="fas fa-pen-alt"></i></button>
+            <button class="task-action-btn" onclick="window.abrirModoFocoComTarefa(${JSON.stringify(t.id)}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
+            <button class="task-action-btn danger" onclick="window.excluirTarefa(${JSON.stringify(t.id)}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>`;
       })
@@ -1026,36 +1031,27 @@ function renderizarTarefas() {
 
     const div = document.createElement("div");
     div.className = "card-espaco";
-    div.setAttribute("ondragover", "permitirDropCard(event)");
-    div.setAttribute("ondragleave", "removerDragOver(event)");
-    div.setAttribute("ondrop", `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`);
+    div.setAttribute("ondragover", "window.permitirDropCard(event)");
+    div.setAttribute("ondragleave", "window.removerDragOver(event)");
+    div.setAttribute("ondrop", `window.soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`);
 
     div.innerHTML = `
       <div class="card-header">
         <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
         <div>
           <span style="color:white;">${ativas} ativas</span>
-          <button onclick="editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button>
-          <button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
+          <button onclick="window.editarCardTarefa('${card.id}')"><i class="fas fa-edit"></i></button>
+          <button onclick="window.excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
         </div>
       </div>
-
       <div class="card-content">
         ${
           lista.length === 0
-            ? `<div class="estado-vazio" style="text-align:center;padding:40px;">
-                <i class="fas fa-check-circle" style="font-size:32px;opacity:0.5;"></i>
-                <p style="color:white;">Tudo certo</p>
-                <small style="color:rgba(255,255,255,0.5);">Adicione uma tarefa</small>
-              </div>`
+            ? `<div class="estado-vazio" style="text-align:center;padding:40px;"><i class="fas fa-check-circle" style="font-size:32px;opacity:0.5;"></i><p style="color:white;">Tudo certo</p><small style="color:rgba(255,255,255,0.5);">Adicione uma tarefa</small></div>`
             : tarefasHtml
         }
       </div>
-
-      <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')">
-        <i class="fas fa-plus-circle"></i> Nova Tarefa
-      </button>
-
+      <button class="btn-nova-tarefa" onclick="window.mostrarFormAdicionar('${cardId}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button>
       <div class="inline-form" id="form-${cardId}">
         <input type="text" id="texto-${cardId}" placeholder="Título...">
         <textarea id="descricao-${cardId}" placeholder="Descrição..." rows="2"></textarea>
@@ -1073,147 +1069,601 @@ function renderizarTarefas() {
           <option value="mensal">📅 Mensal</option>
         </select>
         <div class="inline-form-buttons">
-          <button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button>
+          <button class="btn-confirm" onclick="window.adicionarTarefaInline('${cardId}')">Adicionar</button>
           <button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button>
         </div>
       </div>
     `;
-
     container.appendChild(div);
   });
 
   const addCard = document.createElement("div");
   addCard.className = "card-novo-espaco";
-  addCard.onclick = () => adicionarCardTarefa();
-  addCard.innerHTML = `<div><i class="fas fa-plus-circle"></i><p>Novo Espaço</p></div>`;
+  addCard.onclick = () => window.adicionarCardTarefa();
+  addCard.innerHTML = `<div><i class="fas fa-plus-circle"></i></div><p>Novo Espaço</p>`;
   container.appendChild(addCard);
 }
 
-/* =========================
-   STATUS / TEMA / EVENTOS
-========================= */
-function atualizarStatusConexao() {
-  const el = document.getElementById("statusConnection");
-  if (!el) return;
-  if (navigator.onLine) {
-    el.classList.remove("status-offline");
-    el.classList.add("status-online");
-    el.innerHTML = `<i class="fas fa-wifi"></i> Online`;
+/* =========================================================
+   CALENDÁRIO / VIEWS
+========================================================= */
+window.toggleView = function (view) {
+  const cardsView = document.getElementById("cardsView");
+  const calendarioView = document.getElementById("calendarioView");
+  if (!cardsView || !calendarioView) return;
+
+  cardsView.style.display = view === "cards" ? "block" : "none";
+  calendarioView.style.display = view === "calendario" ? "block" : "none";
+
+  document.querySelectorAll(".view-btn").forEach((btn, i) => {
+    if ((view === "cards" && i === 0) || (view === "calendario" && i === 1)) btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+
+  if (view === "calendario") renderizarCalendario();
+};
+
+window.mudarMes = function (d) {
+  dataCalendario.setMonth(dataCalendario.getMonth() + d);
+  renderizarCalendario();
+};
+
+window.irParaHoje = function () {
+  dataCalendario = new Date();
+  renderizarCalendario();
+  const tarefasContainer = document.getElementById("blocosTarefas");
+  if (tarefasContainer) tarefasContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+function renderizarCalendario() {
+  const ano = dataCalendario.getFullYear();
+  const mes = dataCalendario.getMonth();
+  const primeiroDia = new Date(ano, mes, 1).getDay();
+  const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+  const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  const calendarioMes = document.getElementById("calendarioMes");
+  if (calendarioMes) calendarioMes.textContent = `${meses[mes]} ${ano}`;
+
+  const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  let html = '<div class="calendario-grade">';
+  for (let i = 0; i < 7; i++) {
+    html += `<div style="text-align:center;padding:8px;color:white;font-weight:600;">${diasSemana[i]}</div>`;
+  }
+
+  let dia = 1;
+  const hoje = getDataHoje();
+
+  for (let i = 0; i < 42; i++) {
+    if (i < primeiroDia || dia > diasNoMes) {
+      html += `<div class="calendario-dia" style="opacity:0.3;"></div>`;
+    } else {
+      const dataStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+      const tarefasDia = tarefas.filter((t) => t.data === dataStr && !t.concluida);
+      const isHoje = dataStr === hoje;
+
+      html += `
+        <div class="calendario-dia" style="${isHoje ? "border:2px solid #667eea; background:rgba(102,126,234,0.15);" : ""}">
+          <div class="calendario-dia-header"><span style="color:white;font-weight:600;">${dia}</span></div>
+          <div class="calendario-tarefas">
+            ${tarefasDia
+              .slice(0, 3)
+              .map(
+                (t) =>
+                  `<div style="background:rgba(102,126,234,0.2);border-radius:6px;padding:4px;margin-bottom:4px;cursor:pointer;font-size:11px;color:white;" onclick="window.abrirModalReagendar(${JSON.stringify(t.id)})">${escapeHtml(t.texto.substring(0, 20))}</div>`
+              )
+              .join("")}
+          </div>
+          <button class="calendario-add-btn" onclick="alert('Use o formulário no card')" style="width:100%;margin-top:4px;padding:2px;background:rgba(102,126,234,0.2);border:none;border-radius:4px;color:white;cursor:pointer;">+</button>
+        </div>
+      `;
+      dia++;
+    }
+  }
+
+  html += "</div>";
+  const grade = document.getElementById("calendarioGrade");
+  if (grade) grade.innerHTML = html;
+}
+
+/* =========================================================
+   DASHBOARD / RODAPÉ
+========================================================= */
+function atualizarRodape() {
+  const hoje = getDataHoje();
+  const tarefasHoje = tarefas.filter((t) => t.data === hoje);
+  const concluidasHoje = tarefasHoje.filter((t) => t.concluida).length;
+  const totalHoje = tarefasHoje.length;
+  const taxaHoje = totalHoje > 0 ? Math.round((concluidasHoje / totalHoje) * 100) : 0;
+  const pendentes = tarefas.filter((t) => t.data && t.data <= hoje && !t.concluida).length;
+
+  const horasFocoHoje = Math.floor(tempoFocadoHoje / 3600);
+  const minutosFocoHoje = Math.floor((tempoFocadoHoje % 3600) / 60);
+
+  const fc = document.getElementById("footerConcluidas");
+  const ft = document.getElementById("footerTaxa");
+  const fp = document.getElementById("footerPendentes");
+  const ff = document.getElementById("footerTempo");
+  const fr = document.getElementById("footerReagendadasCount");
+
+  if (fc) fc.textContent = String(concluidasHoje);
+  if (ft) ft.textContent = `${taxaHoje}%`;
+  if (fp) fp.textContent = String(pendentes);
+  if (ff) ff.textContent = `${horasFocoHoje}h ${minutosFocoHoje}m`;
+  if (fr) fr.textContent = String(tarefasReagendadasHoje);
+}
+
+function atualizarDashboard() {
+  const hoje = getDataHoje();
+  const pendentes = tarefas.filter((t) => t.data && t.data <= hoje && !t.concluida).length;
+  const alertaDiv = document.getElementById("dashboardAlerta");
+  if (!alertaDiv) return;
+
+  if (pendentes > 0) {
+    alertaDiv.style.display = "flex";
+    const texto = document.getElementById("alertaTexto");
+    const subtexto = document.getElementById("alertaSubtexto");
+    if (texto) texto.innerHTML = pendentes === 1 ? "Você tem 1 tarefa pendente" : `Você tem ${pendentes} tarefas pendentes`;
+    if (subtexto) subtexto.innerHTML = pendentes === 1 ? "Não deixe para depois! 🎯" : "Organize seu dia e conclua suas metas! 💪";
   } else {
-    el.classList.remove("status-online");
-    el.classList.add("status-offline");
-    el.innerHTML = `<i class="fas fa-wifi"></i> Offline`;
+    alertaDiv.style.display = "none";
   }
 }
 
-function aplicarTemaSalvo() {
-  const tema = localStorage.getItem("temaFluxo") || "dark";
-  document.body.classList.toggle("dark-theme", tema === "dark");
-  const icon = document.querySelector("#themeToggle i");
-  if (icon) icon.className = tema === "dark" ? "fas fa-sun" : "fas fa-moon";
+/* =========================================================
+   REAGENDAR PENDENTES / BOTÕES TOPO
+========================================================= */
+function reagendarTarefasPendentes() {
+  const hoje = getDataHoje();
+  const amanha = new Date();
+  amanha.setDate(amanha.getDate() + 1);
+  const amanhaStr = amanha.toISOString().split("T")[0];
+
+  const pendentes = tarefas.filter((t) => t.data === hoje && !t.concluida);
+  if (pendentes.length === 0) {
+    alert("🎉 Nenhuma tarefa pendente!");
+    return;
+  }
+
+  if (confirm(`📅 Reagendar ${pendentes.length} tarefa(s) para amanhã?`)) {
+    pendentes.forEach((t) => {
+      t.data = amanhaStr;
+      t.notificado = false;
+    });
+    tarefasReagendadasHoje += pendentes.length;
+    localStorage.setItem("tarefasReagendadasHoje", String(tarefasReagendadasHoje));
+    salvarDados();
+    window.mostrarIndicadorSync(`📅 ${pendentes.length} tarefa(s) reagendada(s)`);
+  }
 }
 
-function toggleTema() {
-  const dark = document.body.classList.toggle("dark-theme");
-  localStorage.setItem("temaFluxo", dark ? "dark" : "light");
-  const icon = document.querySelector("#themeToggle i");
-  if (icon) icon.className = dark ? "fas fa-sun" : "fas fa-moon";
+/* =========================================================
+   POMODORO / FOCO
+========================================================= */
+function atualizarTimerDisplay() {
+  const min = Math.floor(tempoRestante / 60);
+  const seg = tempoRestante % 60;
+  const timer = document.getElementById("timerFocoGrande");
+  if (timer) timer.textContent = `${min.toString().padStart(2, "0")}:${seg.toString().padStart(2, "0")}`;
+
+  const bar = document.getElementById("progressoFocoBar");
+  if (!bar) return;
+
+  if (!emPausaEntrePomodoros) {
+    const progresso = ((25 * 60 - tempoRestante) / (25 * 60)) * 100;
+    bar.style.width = `${Math.min(100, Math.max(0, progresso))}%`;
+  } else {
+    const progresso = ((5 * 60 - tempoRestante) / (5 * 60)) * 100;
+    bar.style.width = `${Math.min(100, Math.max(0, progresso))}%`;
+  }
+}
+
+function tocarSino() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = 880;
+    gain.gain.value = 0.25;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.00001, now + 1.5);
+    osc.stop(now + 1.5);
+    setTimeout(() => ctx.close(), 2000);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function finalizarPomodoro() {
+  if (pomodoroInterval) clearInterval(pomodoroInterval);
+
+  const tempoGasto = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+  if (tempoGasto > 0) {
+    tempoTotalFocado += tempoGasto;
+    tempoFocadoHoje += tempoGasto;
+    if (tarefaFocoAtual) tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoGasto;
+    salvarDados();
+  }
+
+  window.stopLofi();
+  tocarSino();
+
+  const opcao = confirm("🎉 Pomodoro concluído!\n\n• OK para PAUSA de 5 min\n• Cancelar para +10 min de foco");
+  if (opcao) {
+    iniciarDescanso();
+  } else {
+    tempoRestante = 10 * 60;
+    emPausaEntrePomodoros = false;
+    pomodoroAtivo = true;
+    pomodoroPausado = false;
+    tempoFocoInicio = Date.now();
+
+    atualizarTimerDisplay();
+    document.getElementById("cronometroInfo").innerHTML = "🍅 +10 minutos de foco!";
+    document.getElementById("btnIniciarFoco").style.display = "none";
+    document.getElementById("btnPausarFoco").style.display = "inline-block";
+    document.getElementById("btnPausarFoco").innerHTML = '<i class="fas fa-pause"></i> Pausar';
+
+    pomodoroInterval = setInterval(() => {
+      if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+        tempoRestante--;
+        atualizarTimerDisplay();
+        if (tempoRestante <= 0) {
+          clearInterval(pomodoroInterval);
+          finalizarPomodoro();
+        }
+      }
+    }, 1000);
+
+    setTimeout(() => window.playLofi(), 100);
+  }
+}
+
+function iniciarDescanso() {
+  if (pomodoroInterval) clearInterval(pomodoroInterval);
+
+  tempoRestante = 5 * 60;
+  emPausaEntrePomodoros = true;
+  pomodoroAtivo = true;
+  pomodoroPausado = false;
+  tempoFocoInicio = Date.now();
+
+  atualizarTimerDisplay();
+  document.getElementById("cronometroInfo").innerHTML = "☕ Pausa de 5 minutos";
+  document.getElementById("btnIniciarFoco").style.display = "none";
+  document.getElementById("btnPausarFoco").style.display = "inline-block";
+
+  pomodoroInterval = setInterval(() => {
+    if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+      tempoRestante--;
+      atualizarTimerDisplay();
+      if (tempoRestante <= 0) {
+        clearInterval(pomodoroInterval);
+        tocarSino();
+        alert("⏰ Pausa concluída!");
+        document.getElementById("cronometroInfo").innerHTML = "🍅 Pomodoro 25 minutos";
+        tempoRestante = 25 * 60;
+        emPausaEntrePomodoros = false;
+        atualizarTimerDisplay();
+        document.getElementById("btnIniciarFoco").style.display = "inline-block";
+        document.getElementById("btnPausarFoco").style.display = "none";
+        pomodoroAtivo = false;
+      }
+    }
+  }, 1000);
+}
+
+window.prorrogarTempoFoco = function () {
+  if (!pomodoroAtivo || emPausaEntrePomodoros) {
+    alert("⏰ Só pode prorrogar durante o foco ativo!");
+    return;
+  }
+  tempoRestante += 10 * 60;
+  atualizarTimerDisplay();
+  const info = document.getElementById("cronometroInfo");
+  if (info) {
+    info.innerHTML = "⏰ +10 minutos!";
+    setTimeout(() => (info.innerHTML = "🍅 Focando..."), 2000);
+  }
+};
+
+window.iniciarPomodoro = function () {
+  if (pomodoroAtivo) return;
+
+  if (emPausaEntrePomodoros) {
+    if (confirm("Interromper pausa e voltar ao foco?")) {
+      if (pomodoroInterval) clearInterval(pomodoroInterval);
+      tempoRestante = 25 * 60;
+      emPausaEntrePomodoros = false;
+      pomodoroAtivo = true;
+      pomodoroPausado = false;
+      tempoFocoInicio = Date.now();
+
+      atualizarTimerDisplay();
+      document.getElementById("cronometroInfo").innerHTML = "🍅 Focando...";
+      document.getElementById("btnIniciarFoco").style.display = "none";
+      document.getElementById("btnPausarFoco").style.display = "inline-block";
+
+      pomodoroInterval = setInterval(() => {
+        if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+          tempoRestante--;
+          atualizarTimerDisplay();
+          if (tempoRestante <= 0) {
+            clearInterval(pomodoroInterval);
+            finalizarPomodoro();
+          }
+        }
+      }, 1000);
+
+      setTimeout(() => window.playLofi(), 100);
+    }
+    return;
+  }
+
+  emPausaEntrePomodoros = false;
+  pomodoroAtivo = true;
+  pomodoroPausado = false;
+  tempoFocoInicio = Date.now();
+  if (pomodoroInterval) clearInterval(pomodoroInterval);
+
+  pomodoroInterval = setInterval(() => {
+    if (!pomodoroPausado && pomodoroAtivo && tempoRestante > 0) {
+      tempoRestante--;
+      atualizarTimerDisplay();
+      if (tempoRestante <= 0) {
+        clearInterval(pomodoroInterval);
+        finalizarPomodoro();
+      }
+    }
+  }, 1000);
+
+  document.getElementById("btnIniciarFoco").style.display = "none";
+  document.getElementById("btnPausarFoco").style.display = "inline-block";
+  document.getElementById("cronometroInfo").innerHTML = "🍅 Focando...";
+  setTimeout(() => window.playLofi(), 100);
+};
+
+window.pausarPomodoro = function () {
+  if (!pomodoroAtivo) return;
+
+  if (!pomodoroPausado && !emPausaEntrePomodoros) {
+    const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+    if (tempoDecorrido > 0) {
+      tempoTotalFocado += tempoDecorrido;
+      tempoFocadoHoje += tempoDecorrido;
+      if (tarefaFocoAtual) tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
+      salvarDados();
+    }
+  }
+
+  tempoFocoInicio = Date.now();
+  pomodoroPausado = !pomodoroPausado;
+
+  const btn = document.getElementById("btnPausarFoco");
+  if (btn) btn.innerHTML = pomodoroPausado ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
+
+  const info = document.getElementById("cronometroInfo");
+  if (info) info.innerHTML = pomodoroPausado ? "⏸ Pausado" : emPausaEntrePomodoros ? "☕ Pausa" : "🍅 Focando...";
+
+  if (pomodoroPausado) window.stopLofi();
+  else window.playLofi();
+};
+
+window.concluirTarefaFoco = function () {
+  if (!tarefaFocoAtual) return;
+
+  if (pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros) {
+    const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+    if (tempoDecorrido > 0) {
+      tempoTotalFocado += tempoDecorrido;
+      tempoFocadoHoje += tempoDecorrido;
+      tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
+      salvarDados();
+    }
+  }
+
+  if (confirm(`Concluir "${tarefaFocoAtual.texto}"?`)) {
+    concluirComDuplicatas(tarefaFocoAtual.id);
+    salvarDados();
+    window.fecharModoFoco();
+    window.mostrarIndicadorSync("✅ Tarefa concluída via Foco!");
+  }
+};
+
+window.fecharModoFoco = function () {
+  if (pomodoroAtivo && !pomodoroPausado && !emPausaEntrePomodoros && tarefaFocoAtual) {
+    const tempoDecorrido = Math.floor((Date.now() - tempoFocoInicio) / 1000);
+    if (tempoDecorrido > 0) {
+      tempoTotalFocado += tempoDecorrido;
+      tempoFocadoHoje += tempoDecorrido;
+      tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + tempoDecorrido;
+      salvarDados();
+    }
+  }
+
+  if (pomodoroInterval) clearInterval(pomodoroInterval);
+  pomodoroAtivo = false;
+  window.stopLofi();
+  document.getElementById("modalFocoOverlay")?.classList.remove("show");
+  tarefaFocoAtual = null;
+  emPausaEntrePomodoros = false;
+  tempoRestante = 25 * 60;
+  atualizarTimerDisplay();
+};
+
+window.abrirModoFocoComTarefa = function (id) {
+  const tarefa = tarefas.find((t) => t.id === id);
+  if (!tarefa) return;
+
+  tarefaFocoAtual = tarefa;
+  document.getElementById("tarefaFocoTexto").textContent = tarefa.texto;
+  tempoRestante = 25 * 60;
+  emPausaEntrePomodoros = false;
+  pomodoroAtivo = false;
+  pomodoroPausado = false;
+  if (pomodoroInterval) clearInterval(pomodoroInterval);
+
+  atualizarTimerDisplay();
+  document.getElementById("btnIniciarFoco").style.display = "inline-block";
+  document.getElementById("btnPausarFoco").style.display = "none";
+  document.getElementById("cronometroInfo").innerHTML = "🍅 Pomodoro 25 minutos";
+  document.getElementById("modalFocoOverlay").classList.add("show");
+
+  if (lofiAudioElement) window.stopLofi();
+};
+
+/* =========================================================
+   MÚSICA LOFI
+========================================================= */
+function initLofiAudio() {
+  if (!lofiAudioElement) {
+    lofiAudioElement = document.getElementById("lofiAudio");
+    if (lofiAudioElement) {
+      lofiAudioElement.volume = 0.3;
+      lofiAudioElement.loop = true;
+    }
+  }
+}
+
+window.playLofi = function () {
+  initLofiAudio();
+  if (lofiAudioElement) {
+    lofiAudioElement
+      .play()
+      .then(() => {
+        lofiActive = true;
+      })
+      .catch(() => {});
+  }
+};
+
+window.stopLofi = function () {
+  if (lofiAudioElement) {
+    lofiAudioElement.pause();
+    lofiAudioElement.currentTime = 0;
+  }
+  lofiActive = false;
+};
+
+window.toggleMusicaFoco = function () {
+  initLofiAudio();
+  if (lofiActive) window.stopLofi();
+  else window.playLofi();
+};
+
+window.ajustarVolumeFoco = function (val) {
+  if (lofiAudioElement) lofiAudioElement.volume = Number(val) / 100;
+};
+
+/* =========================================================
+   EVENTOS / INICIALIZAÇÃO
+========================================================= */
+function updateConnectionStatus() {
+  const statusDiv = document.getElementById("statusConnection");
+  if (!statusDiv) return;
+  if (navigator.onLine) {
+    statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online';
+    statusDiv.classList.remove("status-offline");
+  } else {
+    statusDiv.innerHTML = '<i class="fas fa-plug"></i> Offline';
+    statusDiv.classList.add("status-offline");
+  }
 }
 
 function bindUI() {
-  document.getElementById("logoutBtn")?.addEventListener("click", () => fazerLogout());
-  document.getElementById("themeToggle")?.addEventListener("click", toggleTema);
-
-  document.getElementById("syncNowBtn")?.addEventListener("click", () => {
-    const ok = sincronizarTarefasRecorrentes();
-    salvarDados();
-    if (!ok) mostrarIndicadorSync("ℹ️ Nada novo para sincronizar", "info");
-  });
-
-  document.getElementById("backupBtn")?.addEventListener("click", () => exportarBackupJSON());
-  document.getElementById("importBackupBtn")?.addEventListener("click", () => importarBackupJSON());
-  document.getElementById("indexedbBtn")?.addEventListener("click", () => fazerBackupManual());
-
-  document.getElementById("rescheduleBtn")?.addEventListener("click", () => {
-    const hoje = getDataHoje();
-    const atrasadas = tarefas.filter((t) => t.data && t.data < hoje && !t.concluida);
-    if (atrasadas.length === 0) {
-      mostrarIndicadorSync("🎉 Sem tarefas atrasadas");
-      return;
-    }
-    if (!confirm(`Reagendar ${atrasadas.length} tarefa(s) atrasada(s) para hoje?`)) return;
-    atrasadas.forEach((t) => {
-      t.data = hoje;
-      t.notificado = false;
-      tarefasReagendadasHoje++;
-    });
-    salvarDados();
-    mostrarIndicadorSync(`📅 ${atrasadas.length} tarefa(s) reagendada(s)!`);
-  });
-
-  const userAvatar = document.getElementById("userAvatar");
-  const userTooltip = document.getElementById("userTooltip");
-  if (userAvatar && userTooltip) {
-    userAvatar.addEventListener("mouseenter", () => (userTooltip.style.display = "block"));
-    userAvatar.addEventListener("mouseleave", () => (userTooltip.style.display = "none"));
+  const themeToggle = document.getElementById("themeToggle");
+  const savedTheme = localStorage.getItem("themePreference");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-theme");
+    if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
   }
 
-  window.addEventListener("online", atualizarStatusConexao);
-  window.addEventListener("offline", atualizarStatusConexao);
+  themeToggle?.addEventListener("click", () => {
+    document.body.classList.toggle("dark-theme");
+    const isDark = document.body.classList.contains("dark-theme");
+    localStorage.setItem("themePreference", isDark ? "dark" : "light");
+    themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+  });
+
+  document.getElementById("logoutBtn")?.addEventListener("click", () => window.fazerLogout());
+  document.getElementById("backupBtn")?.addEventListener("click", () => window.exportarBackupJSON());
+  document.getElementById("importBackupBtn")?.addEventListener("click", () => window.importarBackupJSON());
+  document.getElementById("indexedbBtn")?.addEventListener("click", () => window.abrirModalBackup());
+  document.getElementById("rescheduleBtn")?.addEventListener("click", () => reagendarTarefasPendentes());
+  document.getElementById("syncNowBtn")?.addEventListener("click", () => sincronizarTarefasRecorrentes());
+
+  document.getElementById("notifyBtn")?.addEventListener("click", () => {
+    if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission();
+  });
+
+  const avatar = document.getElementById("userAvatar");
+  const tooltip = document.getElementById("userTooltip");
+  if (avatar && tooltip) {
+    avatar.addEventListener("mouseenter", () => (tooltip.style.display = "block"));
+    avatar.addEventListener("mouseleave", () => (tooltip.style.display = "none"));
+    avatar.addEventListener("click", (e) => {
+      e.stopPropagation();
+      tooltip.style.display = tooltip.style.display === "block" ? "none" : "block";
+      setTimeout(() => (tooltip.style.display = "none"), 3000);
+    });
+    document.addEventListener("click", (e) => {
+      if (!avatar.contains(e.target)) tooltip.style.display = "none";
+    });
+  }
+
+  window.addEventListener("online", updateConnectionStatus);
+  window.addEventListener("offline", updateConnectionStatus);
+  updateConnectionStatus();
 }
 
-/* =========================
-   INIT
-========================= */
 async function initApp() {
-  await initIndexedDB();
-  verificarResetDiario();
-  aplicarTemaSalvo();
   bindUI();
-  atualizarStatusConexao();
+  atualizarDataHeader();
+  initLofiAudio();
 
-  const dataHeader = document.getElementById("dataHojeHeader");
-  const dataMobile = document.getElementById("dataHojeMobile");
-  const textoData = formatarDataHeader(new Date());
-  if (dataHeader) dataHeader.textContent = textoData;
-  if (dataMobile) dataMobile.textContent = textoData;
-
-  // auth gate
   onAuthStateChanged(auth, async (user) => {
-    currentUser = user;
-    window.currentUser = user || null;
-
-    const loginOverlay = document.getElementById("loginOverlay");
-    const mainApp = document.getElementById("mainApp");
-    const tooltipEmail = document.getElementById("userEmailTooltip");
-
     if (user) {
-      usuarioAtual = user.uid;
-      if (tooltipEmail) tooltipEmail.textContent = user.email || "";
+      currentUser = user;
+      window.currentUser = user;
+      usuarioAtual = user.email || user.uid;
+
+      const loginOverlay = document.getElementById("loginOverlay");
+      const mainApp = document.getElementById("mainApp");
+      const userEmailTooltip = document.getElementById("userEmailTooltip");
+
       if (loginOverlay) loginOverlay.style.display = "none";
       if (mainApp) mainApp.style.display = "block";
+      if (userEmailTooltip) userEmailTooltip.textContent = user.email || "";
 
       await carregarDadosFirebase();
-      tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
-      metas = JSON.parse(localStorage.getItem("metas") || "[]");
-      cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
-      if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+      await initIndexedDB();
 
-      sincronizarTarefasRecorrentes();
-      salvarDados();
+      if (window.recarregarSistema) window.recarregarSistema();
+
+      // sync periódico
+      setInterval(() => salvarTudoFirebase(), 300000);   // 5 min
+      setInterval(() => salvarBackupIndexedDB(), 600000); // 10 min
     } else {
+      currentUser = null;
+      window.currentUser = null;
+      usuarioAtual = null;
+
+      const loginOverlay = document.getElementById("loginOverlay");
+      const mainApp = document.getElementById("mainApp");
+
       if (loginOverlay) loginOverlay.style.display = "flex";
       if (mainApp) mainApp.style.display = "none";
     }
   });
 
-  // render inicial para quando auth resolver
-  renderizarTarefas();
-  renderizarMetas();
-  renderizarMetasCarrossel();
-  renderizarCalendario();
-  atualizarDashboard();
-  atualizarRodape();
+  // primeira render local (antes do auth resolver)
+  if (window.recarregarSistema) window.recarregarSistema();
+
+  setInterval(() => verificarResetDiario(), 60000);
 }
 
 initApp();
