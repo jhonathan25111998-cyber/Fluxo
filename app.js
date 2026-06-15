@@ -1,8 +1,18 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
-// ========== FIREBASE ==========
+/* =========================
+   FIREBASE
+========================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDWUCRDmwf5_332izdNMCRsrjTG5z4Ho9g",
   authDomain: "fluxo-app-c71ec.firebaseapp.com",
@@ -11,110 +21,166 @@ const firebaseConfig = {
   messagingSenderId: "942507349330",
   appId: "1:942507349330:web:6ce004396cf55ec5ca568b"
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
-// ========== VARIÁVEIS GLOBAIS ==========
+/* =========================
+   ESTADO GLOBAL
+========================= */
 let currentUser = null;
 window.currentUser = null;
+
 let dbBackup = null;
 let usuarioAtual = null;
 
-let tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
-let metas = JSON.parse(localStorage.getItem('metas') || '[]');
-let cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas') || '[]');
-if(cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+let tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
+let metas = JSON.parse(localStorage.getItem("metas") || "[]");
+let cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
+if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
 
-let tempoTotalFocado = parseInt(localStorage.getItem('tempoTotalFocado') || '0');
-let tempoFocadoHoje = parseInt(localStorage.getItem('tempoFocadoHoje') || '0');
-let ultimaDataFoco = localStorage.getItem('ultimaDataFoco') || '';
-let ultimaDataReset = localStorage.getItem('ultimaDataReset') || '';
-let tarefasReagendadasHoje = parseInt(localStorage.getItem('tarefasReagendadasHoje') || '0');
-let ultimaDataReagendamento = localStorage.getItem('ultimaDataReagendamento') || '';
+let tempoTotalFocado = parseInt(localStorage.getItem("tempoTotalFocado") || "0", 10);
+let tempoFocadoHoje = parseInt(localStorage.getItem("tempoFocadoHoje") || "0", 10);
+let ultimaDataFoco = localStorage.getItem("ultimaDataFoco") || "";
+let ultimaDataReset = localStorage.getItem("ultimaDataReset") || "";
+let tarefasReagendadasHoje = parseInt(localStorage.getItem("tarefasReagendadasHoje") || "0", 10);
+let ultimaDataReagendamento = localStorage.getItem("ultimaDataReagendamento") || "";
+
 let tarefaReagendando = null;
 let tarefaArrastandoId = null;
 let tarefaArrastandoOrigem = null;
-let dataCalendario = new Date();
 let tarefaDescricaoAtual = null;
 let tarefaEditandoAtual = null;
 
-// ========== UTILS ==========
+let dataCalendario = new Date();
+
+/* =========================
+   UTILS
+========================= */
 function escapeHtml(t) {
-  if(!t) return '';
-  return t.replace(/[&<>]/g, function(m){
-    if(m==='&') return '&amp;';
-    if(m==='<') return '&lt;';
-    if(m==='>') return '&gt;';
-    return m;
-  });
+  if (!t) return "";
+  return t.replace(/[&<>]/g, (m) => (m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;"));
 }
 
 function getDataHoje() {
   const agora = new Date();
-  return `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(agora.getDate()).padStart(2,'0')}`;
-}
-
-function formatarDataExtensa() {
-  return new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+  return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}-${String(agora.getDate()).padStart(2, "0")}`;
 }
 
 function getProximoDiaUtil(dataStr) {
-  const data = new Date(dataStr);
+  const data = new Date(dataStr + "T00:00:00");
   data.setDate(data.getDate() + 1);
   while (data.getDay() === 0 || data.getDay() === 6) data.setDate(data.getDate() + 1);
-  return data.toISOString().split('T')[0];
+  return data.toISOString().split("T")[0];
 }
 
 function getProximaData(recorrencia, dataAtualStr) {
-  const data = new Date(dataAtualStr);
-  switch(recorrencia) {
-    case 'diaria': data.setDate(data.getDate() + 1); break;
-    case 'dias_uteis': return getProximoDiaUtil(dataAtualStr);
-    case 'semanal': data.setDate(data.getDate() + 7); break;
-    case 'mensal': data.setMonth(data.getMonth() + 1); break;
-    default: return null;
+  const data = new Date(dataAtualStr + "T00:00:00");
+  switch (recorrencia) {
+    case "diaria":
+      data.setDate(data.getDate() + 1);
+      break;
+    case "dias_uteis":
+      return getProximoDiaUtil(dataAtualStr);
+    case "semanal":
+      data.setDate(data.getDate() + 7);
+      break;
+    case "mensal":
+      data.setMonth(data.getMonth() + 1);
+      break;
+    default:
+      return null;
   }
-  return data.toISOString().split('T')[0];
+  return data.toISOString().split("T")[0];
 }
 
-// ========== LOGIN ==========
+function formatarDataHeader(d = new Date()) {
+  return d.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function uid() {
+  return Date.now() + Math.random();
+}
+
+/* =========================
+   FEEDBACK UI
+========================= */
+window.mostrarIndicadorSync = function (mensagem, tipo = "success") {
+  let indicator = document.getElementById("syncIndicator");
+  if (!indicator) {
+    indicator = document.createElement("div");
+    indicator.id = "syncIndicator";
+    indicator.className = "sync-indicator";
+    document.body.appendChild(indicator);
+  }
+  const icon = tipo === "success" ? "✅" : tipo === "error" ? "❌" : "🔄";
+  indicator.innerHTML = `${icon} ${mensagem}`;
+  indicator.classList.add("show");
+  setTimeout(() => indicator.classList.remove("show"), 2200);
+};
+
+/* =========================
+   LOGIN
+========================= */
 window.togglePasswordVisibility = (id, btn) => {
   const inp = document.getElementById(id);
-  if(inp.type === 'password'){ inp.type='text'; btn.innerHTML='<i class="far fa-eye-slash"></i>'; }
-  else { inp.type='password'; btn.innerHTML='<i class="far fa-eye"></i>'; }
+  if (!inp) return;
+  if (inp.type === "password") {
+    inp.type = "text";
+    btn.innerHTML = '<i class="far fa-eye-slash"></i>';
+  } else {
+    inp.type = "password";
+    btn.innerHTML = '<i class="far fa-eye"></i>';
+  }
 };
 
 window.mostrarCadastro = () => {
-  document.getElementById('loginForm').style.display='none';
-  document.getElementById('registerForm').style.display='block';
+  const l = document.getElementById("loginForm");
+  const r = document.getElementById("registerForm");
+  if (l) l.style.display = "none";
+  if (r) r.style.display = "block";
 };
 
 window.mostrarLogin = () => {
-  document.getElementById('loginForm').style.display='block';
-  document.getElementById('registerForm').style.display='none';
+  const l = document.getElementById("loginForm");
+  const r = document.getElementById("registerForm");
+  if (l) l.style.display = "block";
+  if (r) r.style.display = "none";
 };
 
 window.fazerLogin = async () => {
   try {
-    await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
-  } catch(e) {
-    document.getElementById('loginErrorMessage').textContent = 'Email ou senha inválidos!';
+    const email = document.getElementById("loginEmail")?.value?.trim();
+    const senha = document.getElementById("loginPassword")?.value;
+    await signInWithEmailAndPassword(auth, email, senha);
+  } catch (e) {
+    const err = document.getElementById("loginErrorMessage");
+    if (err) err.textContent = "Email ou senha inválidos!";
   }
 };
 
 window.fazerCadastro = async () => {
-  const pwd = document.getElementById('registerPassword').value;
-  if(pwd!== document.getElementById('registerConfirm').value) {
-    document.getElementById('registerErrorMessage').textContent = 'Senhas não coincidem';
+  const email = document.getElementById("registerEmail")?.value?.trim();
+  const pwd = document.getElementById("registerPassword")?.value;
+  const conf = document.getElementById("registerConfirm")?.value;
+  const err = document.getElementById("registerErrorMessage");
+
+  if (pwd !== conf) {
+    if (err) err.textContent = "Senhas não coincidem";
     return;
   }
   try {
-    await createUserWithEmailAndPassword(auth, document.getElementById('registerEmail').value, pwd);
-    mostrarIndicadorSync('✅ Conta criada!');
-  } catch(e) {
-    document.getElementById('registerErrorMessage').textContent = e.message;
+    await createUserWithEmailAndPassword(auth, email, pwd);
+    mostrarIndicadorSync("✅ Conta criada!");
+  } catch (e) {
+    if (err) err.textContent = e.message || "Erro ao cadastrar";
   }
 };
 
@@ -122,77 +188,82 @@ window.loginComGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     mostrarIndicadorSync(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!`);
-  } catch(error) {
-    mostrarIndicadorSync('❌ Erro no login com Google', 'error');
+  } catch (error) {
+    mostrarIndicadorSync("❌ Erro no login com Google", "error");
   }
 };
 
 window.fazerLogout = () => signOut(auth);
 
-// ========== SINCRONIZAÇÃO ==========
-window.mostrarIndicadorSync = function(mensagem, tipo = 'success') {
-  let indicator = document.getElementById('syncIndicator');
-  if(!indicator) {
-    indicator = document.createElement('div');
-    indicator.id = 'syncIndicator';
-    indicator.className = 'sync-indicator';
-    document.body.appendChild(indicator);
-  }
-  const icon = tipo === 'success'? '✅' : (tipo === 'error'? '❌' : '🔄');
-  indicator.innerHTML = `${icon} ${mensagem}`;
-  indicator.classList.add('show');
-  setTimeout(() => indicator.classList.remove('show'), 2000);
-};
-
+/* =========================
+   FIRESTORE SYNC
+========================= */
 async function salvarTudoFirebase() {
-  if(!currentUser) return;
+  if (!currentUser) return;
   try {
     const dados = {
-      tarefas: JSON.parse(localStorage.getItem('tarefas') || '[]'),
-      metas: JSON.parse(localStorage.getItem('metas') || '[]'),
-      cardsTarefas: JSON.parse(localStorage.getItem('cardsTarefas') || '[]'),
-      tempoTotalFocado: parseInt(localStorage.getItem('tempoTotalFocado') || '0'),
-      tempoFocadoHoje: parseInt(localStorage.getItem('tempoFocadoHoje') || '0'),
-      tarefasReagendadasHoje: parseInt(localStorage.getItem('tarefasReagendadasHoje') || '0'),
+      tarefas: JSON.parse(localStorage.getItem("tarefas") || "[]"),
+      metas: JSON.parse(localStorage.getItem("metas") || "[]"),
+      cardsTarefas: JSON.parse(localStorage.getItem("cardsTarefas") || "[]"),
+      tempoTotalFocado: parseInt(localStorage.getItem("tempoTotalFocado") || "0", 10),
+      tempoFocadoHoje: parseInt(localStorage.getItem("tempoFocadoHoje") || "0", 10),
+      tarefasReagendadasHoje: parseInt(localStorage.getItem("tarefasReagendadasHoje") || "0", 10),
       ultimaAtualizacao: new Date().toISOString()
     };
     await setDoc(doc(db, "usuarios", currentUser.uid), dados);
-  } catch(err) { console.error(err); }
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 async function carregarDadosFirebase() {
-  if(!currentUser) return;
+  if (!currentUser) return;
   try {
     const docRef = doc(db, "usuarios", currentUser.uid);
     const docSnap = await getDoc(docRef);
-    if(docSnap.exists()){
+    if (docSnap.exists()) {
       const d = docSnap.data();
-      if(d.tarefas) localStorage.setItem('tarefas', JSON.stringify(d.tarefas));
-      if(d.metas) localStorage.setItem('metas', JSON.stringify(d.metas));
-      if(d.cardsTarefas && d.cardsTarefas.length > 0) localStorage.setItem('cardsTarefas', JSON.stringify(d.cardsTarefas));
-      if(d.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', d.tempoTotalFocado);
-      tarefas = JSON.parse(localStorage.getItem('tarefas') || '[]');
-      metas = JSON.parse(localStorage.getItem('metas') || '[]');
-      cardsTarefas = JSON.parse(localStorage.getItem('cardsTarefas') || '[]');
+      if (d.tarefas) localStorage.setItem("tarefas", JSON.stringify(d.tarefas));
+      if (d.metas) localStorage.setItem("metas", JSON.stringify(d.metas));
+      if (d.cardsTarefas?.length > 0) localStorage.setItem("cardsTarefas", JSON.stringify(d.cardsTarefas));
+      if (typeof d.tempoTotalFocado === "number") localStorage.setItem("tempoTotalFocado", String(d.tempoTotalFocado));
+      if (typeof d.tempoFocadoHoje === "number") localStorage.setItem("tempoFocadoHoje", String(d.tempoFocadoHoje));
+      if (typeof d.tarefasReagendadasHoje === "number") localStorage.setItem("tarefasReagendadasHoje", String(d.tarefasReagendadasHoje));
     }
-  } catch(err) { console.error(err); }
+
+    // reidrata estado após pull
+    tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
+    metas = JSON.parse(localStorage.getItem("metas") || "[]");
+    cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
+    if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-// ========== INDEXEDDB BACKUP ==========
+/* =========================
+   INDEXEDDB BACKUP
+========================= */
 function initIndexedDB() {
   return new Promise((resolve) => {
-    const request = indexedDB.open('FLUXO_Backup_V3', 2);
-    request.onerror = () => console.log('Erro IndexedDB');
+    const request = indexedDB.open("FLUXO_Backup_V3", 2);
+
+    request.onerror = () => {
+      console.log("Erro IndexedDB");
+      resolve();
+    };
+
     request.onsuccess = (event) => {
       dbBackup = event.target.result;
       resolve();
     };
+
     request.onupgradeneeded = (event) => {
       const dbi = event.target.result;
-      if (!dbi.objectStoreNames.contains('backups')) {
-        const store = dbi.createObjectStore('backups', { keyPath: 'id', autoIncrement: true });
-        store.createIndex('usuario', 'usuario');
-        store.createIndex('timestamp', 'timestamp');
+      if (!dbi.objectStoreNames.contains("backups")) {
+        const store = dbi.createObjectStore("backups", { keyPath: "id", autoIncrement: true });
+        store.createIndex("usuario", "usuario");
+        store.createIndex("timestamp", "timestamp");
       }
     };
   });
@@ -204,104 +275,86 @@ async function salvarBackupIndexedDB() {
     usuario: usuarioAtual,
     timestamp: Date.now(),
     data: new Date().toISOString(),
-    tarefas: localStorage.getItem('tarefas'),
-    metas: localStorage.getItem('metas'),
-    cardsTarefas: localStorage.getItem('cardsTarefas'),
-    tempoTotalFocado: localStorage.getItem('tempoTotalFocado'),
-    tempoFocadoHoje: localStorage.getItem('tempoFocadoHoje'),
-    tarefasReagendadasHoje: localStorage.getItem('tarefasReagendadasHoje')
+    tarefas: localStorage.getItem("tarefas"),
+    metas: localStorage.getItem("metas"),
+    cardsTarefas: localStorage.getItem("cardsTarefas"),
+    tempoTotalFocado: localStorage.getItem("tempoTotalFocado"),
+    tempoFocadoHoje: localStorage.getItem("tempoFocadoHoje"),
+    tarefasReagendadasHoje: localStorage.getItem("tarefasReagendadasHoje")
   };
-  const tx = dbBackup.transaction(['backups'], 'readwrite');
-  tx.objectStore('backups').add(backup);
+  const tx = dbBackup.transaction(["backups"], "readwrite");
+  tx.objectStore("backups").add(backup);
 }
 
 async function listarBackups() {
   if (!usuarioAtual || !dbBackup) return [];
   return new Promise((resolve) => {
-    const tx = dbBackup.transaction(['backups'], 'readonly');
-    const index = tx.objectStore('backups').index('usuario');
+    const tx = dbBackup.transaction(["backups"], "readonly");
+    const index = tx.objectStore("backups").index("usuario");
     const range = IDBKeyRange.only(usuarioAtual);
     const request = index.getAll(range);
-    request.onsuccess = () => resolve(request.result.reverse());
+    request.onsuccess = () => resolve((request.result || []).reverse());
+    request.onerror = () => resolve([]);
   });
 }
 
 async function restaurarBackupIndexedDB(backupId) {
   if (!dbBackup) return;
-  const tx = dbBackup.transaction(['backups'], 'readonly');
-  const request = tx.objectStore('backups').get(backupId);
+  const tx = dbBackup.transaction(["backups"], "readonly");
+  const request = tx.objectStore("backups").get(backupId);
+
   request.onsuccess = async () => {
     const backup = request.result;
     if (backup && backup.usuario === usuarioAtual) {
-      if (backup.tarefas) localStorage.setItem('tarefas', backup.tarefas);
-      if (backup.metas) localStorage.setItem('metas', backup.metas);
-      if (backup.cardsTarefas) localStorage.setItem('cardsTarefas', backup.cardsTarefas);
-      if (backup.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', backup.tempoTotalFocado);
-      mostrarIndicadorSync('✅ Backup restaurado!');
-      setTimeout(() => location.reload(), 1000);
+      if (backup.tarefas) localStorage.setItem("tarefas", backup.tarefas);
+      if (backup.metas) localStorage.setItem("metas", backup.metas);
+      if (backup.cardsTarefas) localStorage.setItem("cardsTarefas", backup.cardsTarefas);
+      if (backup.tempoTotalFocado) localStorage.setItem("tempoTotalFocado", backup.tempoTotalFocado);
+      if (backup.tempoFocadoHoje) localStorage.setItem("tempoFocadoHoje", backup.tempoFocadoHoje);
+      if (backup.tarefasReagendadasHoje) localStorage.setItem("tarefasReagendadasHoje", backup.tarefasReagendadasHoje);
+      mostrarIndicadorSync("✅ Backup restaurado!");
+      setTimeout(() => location.reload(), 900);
     }
   };
 }
 
 async function excluirBackupIndexedDB(backupId) {
   if (!dbBackup) return;
-  const tx = dbBackup.transaction(['backups'], 'readwrite');
-  tx.objectStore('backups').delete(backupId);
-  mostrarIndicadorSync('🗑 Backup removido');
-  abrirModalBackup();
+  const tx = dbBackup.transaction(["backups"], "readwrite");
+  tx.objectStore("backups").delete(backupId);
+  mostrarIndicadorSync("🗑 Backup removido");
 }
 
 window.fazerBackupManual = async () => {
   await salvarBackupIndexedDB();
-  abrirModalBackup();
+  mostrarIndicadorSync("✅ Backup local salvo");
 };
 
-window.abrirModalBackup = async () => {
-  const backups = await listarBackups();
-  const container = document.getElementById('backupList');
-  if(!container) return;
-  if (backups.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">Nenhum backup encontrado</div>';
-  } else {
-    container.innerHTML = backups.map(b => `
-      <div class="backup-item">
-        <div class="backup-info">
-          <div class="backup-data"><i class="far fa-calendar-alt"></i> ${new Date(b.timestamp).toLocaleString('pt-BR')}</div>
-          <div class="backup-tarefas">📋 ${b.tarefas ? JSON.parse(b.tarefas || '[]').length : 0} tarefas</div>
-        </div>
-        <div class="backup-actions">
-          <button onclick="restaurarBackupIndexedDB(${b.id})" title="Restaurar"><i class="fas fa-undo-alt"></i></button>
-          <button onclick="excluirBackupIndexedDB(${b.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>
-    `).join('');
-  }
-  document.getElementById('modalBackupOverlay')?.classList.add('show');
-};
-
-window.fecharModalBackup = () => document.getElementById('modalBackupOverlay')?.classList.remove('show');
 window.restaurarBackupIndexedDB = restaurarBackupIndexedDB;
 window.excluirBackupIndexedDB = excluirBackupIndexedDB;
 
-window.importarBackupJSON = function() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-  input.onchange = function(event) {
+window.importarBackupJSON = function () {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+  input.onchange = function (event) {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
       try {
         const backup = JSON.parse(e.target.result);
-        if (backup.tarefas) localStorage.setItem('tarefas', backup.tarefas);
-        if (backup.metas) localStorage.setItem('metas', backup.metas);
-        if (backup.cardsTarefas) localStorage.setItem('cardsTarefas', backup.cardsTarefas);
-        if (backup.tempoTotalFocado) localStorage.setItem('tempoTotalFocado', backup.tempoTotalFocado);
-        mostrarIndicadorSync('✅ Backup importado com sucesso!');
-        setTimeout(() => location.reload(), 1000);
-      } catch (error) {
-        mostrarIndicadorSync('❌ Erro ao importar backup', 'error');
+        if (backup.tarefas) localStorage.setItem("tarefas", backup.tarefas);
+        if (backup.metas) localStorage.setItem("metas", backup.metas);
+        if (backup.cardsTarefas) localStorage.setItem("cardsTarefas", backup.cardsTarefas);
+        if (backup.tempoTotalFocado) localStorage.setItem("tempoTotalFocado", backup.tempoTotalFocado);
+        if (backup.tempoFocadoHoje) localStorage.setItem("tempoFocadoHoje", backup.tempoFocadoHoje);
+        if (backup.tarefasReagendadasHoje) localStorage.setItem("tarefasReagendadasHoje", backup.tarefasReagendadasHoje);
+        mostrarIndicadorSync("✅ Backup importado com sucesso!");
+        setTimeout(() => location.reload(), 900);
+      } catch {
+        mostrarIndicadorSync("❌ Erro ao importar backup", "error");
+        alert("Arquivo de backup inválido.");
       }
     };
     reader.readAsText(file);
@@ -309,219 +362,300 @@ window.importarBackupJSON = function() {
   input.click();
 };
 
-// ========== LÓGICA PRINCIPAL ==========
-function salvarDados() {
-  localStorage.setItem('tarefas', JSON.stringify(tarefas));
-  localStorage.setItem('metas', JSON.stringify(metas));
-  localStorage.setItem('cardsTarefas', JSON.stringify(cardsTarefas));
-  localStorage.setItem('tempoTotalFocado', tempoTotalFocado);
-  localStorage.setItem('tempoFocadoHoje', tempoFocadoHoje);
-  localStorage.setItem('tarefasReagendadasHoje', tarefasReagendadasHoje);
-  renderizarTarefas();
-  renderizarMetas();
-  renderizarCalendario();
-  atualizarDashboard();
-  renderizarMetasCarrossel(); // fica oculto
-  atualizarRodape();
-  if(window.currentUser) setTimeout(() => salvarTudoFirebase(), 500);
-}
+window.exportarBackupJSON = function () {
+  const payload = {
+    tarefas: localStorage.getItem("tarefas") || "[]",
+    metas: localStorage.getItem("metas") || "[]",
+    cardsTarefas: localStorage.getItem("cardsTarefas") || "[]",
+    tempoTotalFocado: localStorage.getItem("tempoTotalFocado") || "0",
+    tempoFocadoHoje: localStorage.getItem("tempoFocadoHoje") || "0",
+    tarefasReagendadasHoje: localStorage.getItem("tarefasReagendadasHoje") || "0",
+    data: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `fluxo-backup-${getDataHoje()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
 
+/* =========================
+   LÓGICA PRINCIPAL
+========================= */
 function verificarResetDiario() {
   const hoje = getDataHoje();
+
   if (ultimaDataReset !== hoje) {
     ultimaDataReset = hoje;
-    localStorage.setItem('ultimaDataReset', hoje);
+    localStorage.setItem("ultimaDataReset", hoje);
+
     if (ultimaDataReagendamento !== hoje) {
       tarefasReagendadasHoje = 0;
-      localStorage.setItem('tarefasReagendadasHoje', '0');
-      localStorage.setItem('ultimaDataReagendamento', hoje);
+      localStorage.setItem("tarefasReagendadasHoje", "0");
+      localStorage.setItem("ultimaDataReagendamento", hoje);
+      ultimaDataReagendamento = hoje;
     }
   }
+
   if (ultimaDataFoco !== hoje) {
     tempoFocadoHoje = 0;
-    localStorage.setItem('tempoFocadoHoje', '0');
-    localStorage.setItem('ultimaDataFoco', hoje);
+    localStorage.setItem("tempoFocadoHoje", "0");
+    localStorage.setItem("ultimaDataFoco", hoje);
     ultimaDataFoco = hoje;
   }
 }
 
-function concluirComDuplicatas(id) {
-  const tarefa = tarefas.find(t => t.id === id);
-  if(!tarefa) return;
-  tarefa.concluida = true;
+function sincronizarTarefasRecorrentes() {
+  const hoje = getDataHoje();
+  let tarefasGeradas = 0;
+  const novasTarefas = [];
 
-  if (tarefa.recorrencia && tarefa.recorrencia !== '') {
-    let proximaData = getProximaData(tarefa.recorrencia, tarefa.data);
-    if(proximaData && !tarefas.some(t => t.texto === tarefa.texto && t.data === proximaData && t.recorrencia === tarefa.recorrencia)) {
-      tarefas.push({
-        id: Date.now() + Math.random(),
-        texto: tarefa.texto,
-        descricao: tarefa.descricao || "",
-        bloco: tarefa.bloco,
-        data: proximaData,
-        prioridade: tarefa.prioridade || "p3",
-        recorrencia: tarefa.recorrencia,
-        concluida: false,
-        tempoGasto: 0,
-        notificado: false,
-        ordem: tarefas.filter(t => t.bloco === tarefa.bloco && !t.concluida).length
-      });
-      mostrarIndicadorSync(`🔄 Nova tarefa gerada: ${tarefa.texto}`);
+  const tarefasMae = tarefas.filter((t) => t.recorrencia && t.recorrencia !== "" && t.concluida === true);
+
+  for (const tarefaMae of tarefasMae) {
+    let proximaData = getProximaData(tarefaMae.recorrencia, tarefaMae.data);
+    if (!proximaData) continue;
+
+    while (proximaData < hoje) {
+      proximaData = getProximaData(tarefaMae.recorrencia, proximaData);
+      if (!proximaData) break;
+    }
+
+    if (proximaData && proximaData >= hoje) {
+      const jaExiste = tarefas.some(
+        (t) => t.texto === tarefaMae.texto && t.data === proximaData && t.recorrencia === tarefaMae.recorrencia
+      );
+
+      if (!jaExiste) {
+        novasTarefas.push({
+          id: uid(),
+          texto: tarefaMae.texto,
+          descricao: tarefaMae.descricao || "",
+          bloco: tarefaMae.bloco,
+          data: proximaData,
+          prioridade: tarefaMae.prioridade || "p2",
+          recorrencia: tarefaMae.recorrencia,
+          concluida: false,
+          tempoGasto: 0,
+          notificado: false,
+          ordem: tarefas.filter((t) => t.bloco === tarefaMae.bloco && !t.concluida).length
+        });
+        tarefasGeradas++;
+      }
     }
   }
-  salvarDados();
-  mostrarIndicadorSync('✅ Tarefa concluída!');
+
+  if (tarefasGeradas > 0) {
+    tarefas.push(...novasTarefas);
+    mostrarIndicadorSync(`✅ ${tarefasGeradas} nova(s) tarefa(s) gerada(s)`);
+    return true;
+  }
+  return false;
 }
 
-window.toggleTarefa = function(id) {
-  const t = tarefas.find(t=>t.id===id);
-  if(t) {
-    if(!t.concluida) concluirComDuplicatas(id);
-    else { t.concluida = false; salvarDados(); mostrarIndicadorSync('🔄 Tarefa reativada!'); }
+function concluirComDuplicatas(id) {
+  const tarefa = tarefas.find((t) => t.id === id);
+  if (!tarefa) return;
+
+  tarefa.concluida = true;
+
+  if (tarefa.recorrencia && tarefa.recorrencia !== "") {
+    const proximaData = getProximaData(tarefa.recorrencia, tarefa.data);
+    if (proximaData) {
+      const existe = tarefas.some(
+        (t) => t.texto === tarefa.texto && t.data === proximaData && t.recorrencia === tarefa.recorrencia
+      );
+      if (!existe) {
+        tarefas.push({
+          id: uid(),
+          texto: tarefa.texto,
+          descricao: tarefa.descricao || "",
+          bloco: tarefa.bloco,
+          data: proximaData,
+          prioridade: tarefa.prioridade || "p3",
+          recorrencia: tarefa.recorrencia,
+          concluida: false,
+          tempoGasto: 0,
+          notificado: false,
+          ordem: tarefas.filter((t) => t.bloco === tarefa.bloco && !t.concluida).length
+        });
+        mostrarIndicadorSync(`🔄 Nova tarefa gerada: ${tarefa.texto}`);
+      }
+    }
   }
+}
+
+function salvarDados() {
+  localStorage.setItem("tarefas", JSON.stringify(tarefas));
+  localStorage.setItem("metas", JSON.stringify(metas));
+  localStorage.setItem("cardsTarefas", JSON.stringify(cardsTarefas));
+  localStorage.setItem("tempoTotalFocado", String(tempoTotalFocado));
+  localStorage.setItem("tempoFocadoHoje", String(tempoFocadoHoje));
+  localStorage.setItem("tarefasReagendadasHoje", String(tarefasReagendadasHoje));
+
+  renderizarTarefas();
+  renderizarMetas();
+  renderizarMetasCarrossel();
+  renderizarCalendario();
+  atualizarDashboard();
+  atualizarRodape();
+
+  if (window.currentUser) setTimeout(() => salvarTudoFirebase(), 400);
+}
+
+/* =========================
+   TAREFAS
+========================= */
+window.toggleTarefa = function (id) {
+  const t = tarefas.find((x) => x.id === id);
+  if (!t) return;
+
+  if (!t.concluida) {
+    concluirComDuplicatas(id);
+    mostrarIndicadorSync("✅ Tarefa concluída!");
+  } else {
+    t.concluida = false;
+    mostrarIndicadorSync("🔄 Tarefa reativada!");
+  }
+  salvarDados();
 };
 
-window.excluirTarefa = function(id) {
-  if(confirm('Excluir tarefa?')) {
-    tarefas = tarefas.filter(t=>t.id!==id);
-    salvarDados();
-    mostrarIndicadorSync('🗑 Tarefa excluída!');
-  }
+window.excluirTarefa = function (id) {
+  if (!confirm("Excluir tarefa?")) return;
+  tarefas = tarefas.filter((t) => t.id !== id);
+  salvarDados();
+  mostrarIndicadorSync("🗑 Tarefa excluída!");
 };
 
-window.abrirModalEdicao = function(id) {
-  const tarefa = tarefas.find(t => t.id === id);
-  if(tarefa) {
-    tarefaEditandoAtual = tarefa;
-    document.getElementById('edicaoTitulo').value = tarefa.texto;
-    document.getElementById('edicaoDescricao').value = tarefa.descricao || '';
-    document.getElementById('edicaoData').value = tarefa.data || getDataHoje();
-    document.getElementById('edicaoPrioridade').value = tarefa.prioridade || 'p3';
-    document.getElementById('edicaoRecorrencia').value = tarefa.recorrencia || '';
-    document.getElementById('modalEdicaoOverlay').classList.add('show');
-  }
+window.abrirModalEdicao = function (id) {
+  const tarefa = tarefas.find((t) => t.id === id);
+  if (!tarefa) return;
+  tarefaEditandoAtual = tarefa;
+  document.getElementById("edicaoTitulo").value = tarefa.texto || "";
+  document.getElementById("edicaoDescricao").value = tarefa.descricao || "";
+  document.getElementById("edicaoData").value = tarefa.data || getDataHoje();
+  document.getElementById("edicaoPrioridade").value = tarefa.prioridade || "p3";
+  document.getElementById("edicaoRecorrencia").value = tarefa.recorrencia || "";
+  document.getElementById("modalEdicaoOverlay").classList.add("show");
 };
 
-window.fecharModalEdicao = function() {
-  document.getElementById('modalEdicaoOverlay').classList.remove('show');
+window.fecharModalEdicao = function () {
+  document.getElementById("modalEdicaoOverlay")?.classList.remove("show");
   tarefaEditandoAtual = null;
 };
 
-window.salvarEdicaoTarefa = function() {
-  if(tarefaEditandoAtual) {
-    tarefaEditandoAtual.texto = document.getElementById('edicaoTitulo').value.trim();
-    tarefaEditandoAtual.descricao = document.getElementById('edicaoDescricao').value;
-    tarefaEditandoAtual.data = document.getElementById('edicaoData').value;
-    tarefaEditandoAtual.prioridade = document.getElementById('edicaoPrioridade').value;
-    tarefaEditandoAtual.recorrencia = document.getElementById('edicaoRecorrencia').value;
-    salvarDados();
-    fecharModalEdicao();
-    mostrarIndicadorSync('✏ Tarefa editada!');
-  }
+window.salvarEdicaoTarefa = function () {
+  if (!tarefaEditandoAtual) return;
+  tarefaEditandoAtual.texto = document.getElementById("edicaoTitulo").value.trim();
+  tarefaEditandoAtual.descricao = document.getElementById("edicaoDescricao").value;
+  tarefaEditandoAtual.data = document.getElementById("edicaoData").value;
+  tarefaEditandoAtual.prioridade = document.getElementById("edicaoPrioridade").value;
+  tarefaEditandoAtual.recorrencia = document.getElementById("edicaoRecorrencia").value;
+  salvarDados();
+  fecharModalEdicao();
+  mostrarIndicadorSync("✏️ Tarefa editada!");
 };
 
-window.abrirModalDescricao = function(id) {
-  const tarefa = tarefas.find(t => t.id === id);
-  if(tarefa) {
-    tarefaDescricaoAtual = tarefa;
-    document.getElementById('modalDescricaoTitulo').textContent = tarefa.texto || "Sem título";
-    document.getElementById('modalDescricaoTexto').textContent = tarefa.descricao || "Nenhuma descrição adicionada";
-    document.getElementById('modalDescricaoOverlay').classList.add('show');
-  }
+window.abrirModalDescricao = function (id) {
+  const tarefa = tarefas.find((t) => t.id === id);
+  if (!tarefa) return;
+  tarefaDescricaoAtual = tarefa;
+  document.getElementById("modalDescricaoTitulo").textContent = tarefa.texto || "Sem título";
+  document.getElementById("modalDescricaoTexto").textContent = tarefa.descricao || "Nenhuma descrição adicionada";
+  document.getElementById("modalDescricaoOverlay").classList.add("show");
 };
 
-window.fecharModalDescricao = function() {
-  document.getElementById('modalDescricaoOverlay').classList.remove('show');
+window.fecharModalDescricao = function () {
+  document.getElementById("modalDescricaoOverlay")?.classList.remove("show");
   tarefaDescricaoAtual = null;
 };
 
-window.editarDescricaoModal = function() {
-  if(!tarefaDescricaoAtual) return;
-  const novaDescricao = prompt("Editar descrição:", tarefaDescricaoAtual.descricao || "");
-  if(novaDescricao !== null) {
-    tarefaDescricaoAtual.descricao = novaDescricao;
+window.editarDescricaoModal = function () {
+  if (!tarefaDescricaoAtual) return;
+  const nova = prompt("Editar descrição:", tarefaDescricaoAtual.descricao || "");
+  if (nova !== null) {
+    tarefaDescricaoAtual.descricao = nova;
     salvarDados();
     fecharModalDescricao();
-    mostrarIndicadorSync('📝 Descrição atualizada!');
+    mostrarIndicadorSync("📝 Descrição atualizada!");
   }
 };
 
-window.abrirModalReagendar = function(id) {
-  tarefaReagendando = tarefas.find(t => t.id === id);
-  if(tarefaReagendando) {
-    document.getElementById('novaDataReagendar').value = tarefaReagendando.data || getDataHoje();
-    document.getElementById('modalReagendarOverlay').classList.add('show');
-  }
+window.abrirModalReagendar = function (id) {
+  tarefaReagendando = tarefas.find((t) => t.id === id);
+  if (!tarefaReagendando) return;
+  document.getElementById("novaDataReagendar").value = tarefaReagendando.data || getDataHoje();
+  document.getElementById("modalReagendarOverlay").classList.add("show");
 };
 
-window.fecharModalReagendar = function() {
-  document.getElementById('modalReagendarOverlay').classList.remove('show');
+window.fecharModalReagendar = function () {
+  document.getElementById("modalReagendarOverlay")?.classList.remove("show");
   tarefaReagendando = null;
 };
 
-window.confirmarReagendamento = function() {
-  const novaData = document.getElementById('novaDataReagendar').value;
-  if(tarefaReagendando && novaData) {
-    tarefaReagendando.data = novaData;
-    tarefaReagendando.notificado = false;
-    tarefasReagendadasHoje++;
-    localStorage.setItem('tarefasReagendadasHoje', String(tarefasReagendadasHoje));
-    salvarDados();
-    fecharModalReagendar();
-    mostrarIndicadorSync('📅 Tarefa reagendada!');
-  }
+window.confirmarReagendamento = function () {
+  const novaData = document.getElementById("novaDataReagendar").value;
+  if (!tarefaReagendando || !novaData) return;
+  tarefaReagendando.data = novaData;
+  tarefaReagendando.notificado = false;
+  tarefasReagendadasHoje++;
+  salvarDados();
+  fecharModalReagendar();
+  mostrarIndicadorSync("📅 Tarefa reagendada!");
 };
 
-window.adicionarCardTarefa = function() {
-  const nome = prompt('Nome do novo espaço:');
-  if(nome && nome.trim()) {
-    cardsTarefas.push({ id:'card_'+Date.now(), nome:nome.trim() });
-    salvarDados();
-    mostrarIndicadorSync(`📁 Espaço "${nome}" criado!`);
-  }
+window.adicionarCardTarefa = function () {
+  const nome = prompt("Nome do novo espaço:");
+  if (!nome || !nome.trim()) return;
+  cardsTarefas.push({ id: "card_" + Date.now(), nome: nome.trim() });
+  salvarDados();
+  mostrarIndicadorSync(`📁 Espaço "${nome.trim()}" criado!`);
 };
 
-window.editarCardTarefa = function(id) {
-  const card = cardsTarefas.find(c => c.id === id);
-  if(card){
-    const novoNome = prompt('Editar nome:', card.nome);
-    if(novoNome && novoNome.trim()){
-      const antigoNome = card.nome;
-      card.nome = novoNome.trim();
-      tarefas.forEach(t => { if(t.bloco === antigoNome) t.bloco = card.nome; });
-      salvarDados();
-      mostrarIndicadorSync('✏ Espaço renomeado!');
-    }
-  }
+window.editarCardTarefa = function (id) {
+  const card = cardsTarefas.find((c) => c.id === id);
+  if (!card) return;
+  const novoNome = prompt("Editar nome:", card.nome);
+  if (!novoNome || !novoNome.trim()) return;
+  const antigo = card.nome;
+  card.nome = novoNome.trim();
+  tarefas.forEach((t) => {
+    if (t.bloco === antigo) t.bloco = card.nome;
+  });
+  salvarDados();
+  mostrarIndicadorSync("✏️ Espaço renomeado!");
 };
 
-window.excluirCardTarefa = function(id) {
-  if(confirm('Excluir este espaço?')) {
-    const card = cardsTarefas.find(c => c.id === id);
-    if(card) tarefas = tarefas.filter(t => t.bloco !== card.nome);
-    cardsTarefas = cardsTarefas.filter(c => c.id !== id);
-    if(cardsTarefas.length === 0) cardsTarefas = [{ id:'default_'+Date.now(), nome:'Minhas Tarefas' }];
-    salvarDados();
-    mostrarIndicadorSync('🗑 Espaço excluído!');
-  }
+window.excluirCardTarefa = function (id) {
+  if (!confirm("Excluir este espaço?")) return;
+  const card = cardsTarefas.find((c) => c.id === id);
+  if (!card) return;
+  tarefas = tarefas.filter((t) => t.bloco !== card.nome);
+  cardsTarefas = cardsTarefas.filter((c) => c.id !== id);
+  if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+  salvarDados();
+  mostrarIndicadorSync("🗑 Espaço excluído!");
 };
 
-window.mostrarFormAdicionar = function(cardId) {
-  document.getElementById(`form-${cardId}`)?.classList.toggle('show');
+window.mostrarFormAdicionar = function (cardId) {
+  document.getElementById(`form-${cardId}`)?.classList.toggle("show");
 };
 
-window.adicionarTarefaInline = function(cardId) {
-  const card = cardsTarefas.find(c => c.id === cardId);
-  if(!card) return;
+window.adicionarTarefaInline = function (cardId) {
+  const card = cardsTarefas.find((c) => c.id === cardId);
+  if (!card) return;
+
   const texto = document.getElementById(`texto-${cardId}`)?.value.trim();
-  if(!texto) return;
+  if (!texto) return;
+
   const descricao = document.getElementById(`descricao-${cardId}`)?.value.trim() || "";
   const data = document.getElementById(`data-${cardId}`)?.value || getDataHoje();
-  const prioridade = document.getElementById(`prioridade-${cardId}`)?.value || 'p3';
-  const recorrencia = document.getElementById(`recorrencia-${cardId}`)?.value || '';
+  const prioridade = document.getElementById(`prioridade-${cardId}`)?.value || "p3";
+  const recorrencia = document.getElementById(`recorrencia-${cardId}`)?.value || "";
 
   tarefas.push({
-    id: Date.now() + Math.random(),
+    id: uid(),
     texto,
     descricao,
     bloco: card.nome,
@@ -531,120 +665,371 @@ window.adicionarTarefaInline = function(cardId) {
     concluida: false,
     tempoGasto: 0,
     notificado: false,
-    ordem: tarefas.filter(t=>t.bloco===card.nome && !t.concluida).length
+    ordem: tarefas.filter((t) => t.bloco === card.nome && !t.concluida).length
   });
 
-  document.getElementById(`texto-${cardId}`).value = '';
-  document.getElementById(`descricao-${cardId}`).value = '';
-  document.getElementById(`form-${cardId}`)?.classList.remove('show');
+  const txt = document.getElementById(`texto-${cardId}`);
+  const desc = document.getElementById(`descricao-${cardId}`);
+  if (txt) txt.value = "";
+  if (desc) desc.value = "";
+
+  document.getElementById(`form-${cardId}`)?.classList.remove("show");
   salvarDados();
-  mostrarIndicadorSync('✅ Tarefa adicionada!');
+  mostrarIndicadorSync("✅ Tarefa adicionada!");
 };
 
-window.marcarTodasHoje = function() {
+window.marcarTodasHoje = function () {
   const hoje = getDataHoje();
-  const alvos = tarefas.filter(t=>t.data===hoje && !t.concluida);
-  if(alvos.length===0) return alert('🎉 Nenhuma tarefa pendente para hoje!');
-  if(confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)){
-    alvos.forEach(t=>t.concluida=true);
+  const alvos = tarefas.filter((t) => t.data === hoje && !t.concluida);
+  if (alvos.length === 0) {
+    alert("🎉 Nenhuma tarefa pendente para hoje!");
+    return;
+  }
+  if (confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)) {
+    alvos.forEach((t) => (t.concluida = true));
     salvarDados();
-    mostrarIndicadorSync(`🎉 ${alvos.length} tarefas concluídas!`);
+    mostrarIndicadorSync(`🎉 ${alvos.length} tarefa(s) concluída(s)!`);
   }
 };
 
-// DRAG AND DROP
-window.iniciarDragTarefa = function(id, cardNome, event) {
+/* Drag and Drop */
+window.iniciarDragTarefa = function (id, cardNome, event) {
   tarefaArrastandoId = id;
   tarefaArrastandoOrigem = cardNome;
-  event.dataTransfer.setData('text/plain', id);
-  const el = event.target.closest('.tarefa-item');
-  if(el) el.classList.add('dragging');
+  event.dataTransfer.setData("text/plain", String(id));
+  const el = event.target.closest(".tarefa-item");
+  if (el) el.classList.add("dragging");
 };
-window.permitirDropTarefa = function(event) { event.preventDefault(); };
-window.permitirDropCard = function(event) { event.preventDefault(); event.currentTarget.classList.add('drag-over'); };
-window.removerDragOver = function(event) { event.currentTarget.classList.remove('drag-over'); };
 
-window.soltarTarefa = function(event, cardNomeDestino, tarefaIdDestino) {
+window.permitirDropTarefa = (event) => event.preventDefault();
+window.permitirDropCard = (event) => {
   event.preventDefault();
-  event.currentTarget.classList.remove('drag-over');
-  if(!tarefaArrastandoId) return;
+  event.currentTarget.classList.add("drag-over");
+};
+window.removerDragOver = (event) => event.currentTarget.classList.remove("drag-over");
 
-  if(tarefaArrastandoOrigem === cardNomeDestino && tarefaIdDestino) {
-    const tarefasDoCard = tarefas.filter(t => t.bloco === cardNomeDestino && !t.concluida).sort((a,b)=>(a.ordem||0)-(b.ordem||0));
-    const indexOrigem = tarefasDoCard.findIndex(t => t.id === tarefaArrastandoId);
-    const indexDestino = tarefasDoCard.findIndex(t => t.id === tarefaIdDestino);
+window.soltarTarefa = function (event, cardNomeDestino, tarefaIdDestino) {
+  event.preventDefault();
+  event.currentTarget.classList.remove("drag-over");
+  if (!tarefaArrastandoId) return;
 
-    if(indexOrigem!== -1 && indexDestino!== -1) {
+  if (tarefaArrastandoOrigem === cardNomeDestino && tarefaIdDestino) {
+    const tarefasDoCard = tarefas
+      .filter((t) => t.bloco === cardNomeDestino && !t.concluida)
+      .sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+
+    const indexOrigem = tarefasDoCard.findIndex((t) => t.id === tarefaArrastandoId);
+    const indexDestino = tarefasDoCard.findIndex((t) => t.id === tarefaIdDestino);
+
+    if (indexOrigem !== -1 && indexDestino !== -1) {
       const [item] = tarefasDoCard.splice(indexOrigem, 1);
       tarefasDoCard.splice(indexDestino, 0, item);
       tarefasDoCard.forEach((t, idx) => {
-        const tarefaGlobal = tarefas.find(gt => gt.id === t.id);
-        if(tarefaGlobal) tarefaGlobal.ordem = idx;
+        const g = tarefas.find((gt) => gt.id === t.id);
+        if (g) g.ordem = idx;
       });
       salvarDados();
     }
-  } else if(tarefaArrastandoOrigem !== cardNomeDestino) {
-    const tarefa = tarefas.find(t => t.id === tarefaArrastandoId);
-    if(tarefa) {
+  } else if (tarefaArrastandoOrigem !== cardNomeDestino) {
+    const tarefa = tarefas.find((t) => t.id === tarefaArrastandoId);
+    if (tarefa) {
       tarefa.bloco = cardNomeDestino;
       salvarDados();
-      mostrarIndicadorSync('📦 Tarefa movida');
+      mostrarIndicadorSync("📦 Tarefa movida");
     }
   }
+
   tarefaArrastandoId = null;
   tarefaArrastandoOrigem = null;
-  document.querySelectorAll('.tarefa-item').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll(".tarefa-item").forEach((el) => el.classList.remove("dragging"));
 };
 
-// RENDERIZAÇÃO
-function renderizarTarefas() {
-  const container = document.getElementById('blocosTarefas');
-  if(!container) return;
-  const hoje = getDataHoje();
-  container.innerHTML = '';
+/* =========================
+   METAS (DISCRETO)
+========================= */
+window.togglePainelMetas = function () {
+  const painel = document.getElementById("metasCompletas");
+  const btn = document.getElementById("metasToggleBtn");
+  if (!painel || !btn) return;
 
-  cardsTarefas.forEach(card => {
-    let lista = tarefas.filter(t=>t.bloco===card.nome);
-    lista = lista.filter(t => (t.data && !t.concluida) && (t.data === hoje || t.data < hoje));
-    const ativas = lista.filter(t=>!t.concluida).length;
-    const cardId = card.id;
+  const aberto = painel.style.display === "block";
+  painel.style.display = aberto ? "none" : "block";
+  btn.textContent = aberto ? "Ver metas" : "Ocultar metas";
+};
 
-    const tarefasHtml = lista.sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(t => {
-      const atrasada = t.data && t.data < hoje;
-      const recorrenciaIcon = {
-        'diaria': '🔄 Diária',
-        'dias_uteis': '📅 Dias úteis',
-        'semanal': '📆 Semanal',
-        'mensal': '📅 Mensal'
-      }[t.recorrencia] || '';
+function renderizarMetas() {
+  const container = document.getElementById("metasGrid");
+  if (!container) return;
 
-      return `<div class="tarefa-item ${t.prioridade === 'p1'? 'p1' : (t.prioridade === 'p2'? 'p2' : '')}" draggable="true" ondragstart="iniciarDragTarefa(${t.id}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)" ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))" ondragover="permitirDropTarefa(event)" ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${t.id})">
-        <div class="task-left">
-          <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-          <input type="checkbox" class="task-checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})">
-          <div class="task-info">
-            <div class="task-title">${escapeHtml(t.texto)}</div>
-            <div class="task-meta">
-              <span class="meta-date ${atrasada? 'badge atrasada' : ''}" onclick="abrirModalReagendar(${t.id}); event.stopPropagation()"><i class="fas fa-calendar"></i> ${t.data} ${atrasada? '⚠' : ''}</span>
-              ${t.recorrencia? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaIcon}</span>` : ''}
-              ${t.tempoGasto? `<span class="meta-tag"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto/60)}min</span>` : ''}
-            </div>
+  container.innerHTML = metas
+    .map(
+      (m) => `
+      <div class="meta-card-mini" style="background:rgba(255,255,255,0.08); padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:10px; flex:1;">
+          <div class="${m.concluida ? "circulo-concluido" : "circulo-pendente"}" onclick="toggleMeta(${m.id})">
+            ${m.concluida ? '<i class="fas fa-check" style="color:white;font-size:12px;"></i>' : ""}
+          </div>
+          <div>
+            <div class="titulo-meta">${escapeHtml(m.texto)}</div>
+            <small style="color:rgba(255,255,255,0.5); font-size:11px;">${escapeHtml(m.categoria || "")}</small>
           </div>
         </div>
-        <div class="task-actions-2x2">
-          <button class="task-action-btn" onclick="abrirModalEdicao(${t.id}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
-          <button class="task-action-btn" onclick="abrirModalDescricao(${t.id}); event.stopPropagation()" title="Descrição"><i class="fas fa-pen-alt"></i></button>
-          <button class="task-action-btn" title="Modo Foco"><i class="fas fa-clock"></i></button>
-          <button class="task-action-btn danger" onclick="excluirTarefa(${t.id}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>`;
-    }).join('');
+        <button onclick="excluirMeta(${m.id})" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    `
+    )
+    .join("");
 
-    const div = document.createElement('div');
-    div.className = 'card-espaco';
-    div.setAttribute('ondragover', 'permitirDropCard(event)');
-    div.setAttribute('ondragleave', 'removerDragOver(event)');
-    div.setAttribute('ondrop', `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`);
+  const total = metas.length;
+  const concl = metas.filter((m) => m.concluida).length;
+  const progresso = total ? Math.round((concl / total) * 100) : 0;
+
+  const t = document.getElementById("totalMetas");
+  const c = document.getElementById("concluidasMetas");
+  const p = document.getElementById("progressoMetas");
+  if (t) t.textContent = String(total);
+  if (c) c.textContent = String(concl);
+  if (p) p.textContent = String(progresso);
+}
+
+// deixa sem protagonismo
+function renderizarMetasCarrossel() {
+  const container = document.getElementById("metasCarousel");
+  if (!container) return;
+  container.style.display = "none";
+  container.innerHTML = "";
+}
+
+window.adicionarMeta = function () {
+  const texto = document.getElementById("novaMetaTexto")?.value?.trim();
+  const categoria = document.getElementById("novaMetaCategoria")?.value || "Geral";
+  if (!texto) return;
+  metas.push({ id: Date.now(), texto, categoria, concluida: false });
+  const inp = document.getElementById("novaMetaTexto");
+  if (inp) inp.value = "";
+  salvarDados();
+  mostrarIndicadorSync("🎯 Meta adicionada!");
+};
+
+window.toggleMeta = function (id) {
+  const m = metas.find((x) => x.id === id);
+  if (!m) return;
+  m.concluida = !m.concluida;
+  salvarDados();
+  mostrarIndicadorSync(m.concluida ? "✅ Meta concluída!" : "🔄 Meta reativada!");
+};
+
+window.excluirMeta = function (id) {
+  if (!confirm("Excluir meta?")) return;
+  metas = metas.filter((m) => m.id !== id);
+  salvarDados();
+  mostrarIndicadorSync("🗑 Meta excluída!");
+};
+
+/* =========================
+   DASHBOARD / RODAPÉ
+========================= */
+function atualizarDashboard() {
+  const hoje = getDataHoje();
+  const tarefasHoje = tarefas.filter((t) => t.data === hoje && !t.concluida);
+  const tarefasAtrasadas = tarefas.filter((t) => t.data && t.data < hoje && !t.concluida);
+
+  const alerta = document.getElementById("dashboardAlerta");
+  if (!alerta) return;
+
+  const alertaTexto = document.getElementById("alertaTexto");
+  const alertaSubtexto = document.getElementById("alertaSubtexto");
+  const alertaBtn = document.getElementById("alertaBtn");
+
+  if (tarefasAtrasadas.length > 0) {
+    alerta.style.display = "inline-flex";
+    if (alertaTexto) alertaTexto.textContent = `Você tem ${tarefasAtrasadas.length} tarefa(s) atrasada(s)!`;
+    if (alertaSubtexto) alertaSubtexto.textContent = "Reagende ou conclua agora";
+    if (alertaBtn) alertaBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  } else if (tarefasHoje.length > 0) {
+    alerta.style.display = "inline-flex";
+    if (alertaTexto) alertaTexto.textContent = `Você tem ${tarefasHoje.length} tarefa(s) para hoje!`;
+    if (alertaSubtexto) alertaSubtexto.textContent = "Organize seu dia 🎯";
+    if (alertaBtn) alertaBtn.onclick = () => irParaHoje();
+  } else {
+    alerta.style.display = "none";
+  }
+}
+
+function atualizarRodape() {
+  const hoje = getDataHoje();
+  const concluidas = tarefas.filter((t) => t.concluida && t.data === hoje).length;
+  const pendentes = tarefas.filter((t) => !t.concluida && t.data === hoje).length;
+  const total = concluidas + pendentes;
+  const taxa = total > 0 ? Math.round((concluidas / total) * 100) : 0;
+
+  const footerConcluidas = document.getElementById("footerConcluidas");
+  const footerTaxa = document.getElementById("footerTaxa");
+  const footerPendentes = document.getElementById("footerPendentes");
+  const footerTempo = document.getElementById("footerTempo");
+  const footerReagendadas = document.getElementById("footerReagendadasCount");
+
+  if (footerConcluidas) footerConcluidas.textContent = String(concluidas);
+  if (footerTaxa) footerTaxa.textContent = `${taxa}%`;
+  if (footerPendentes) footerPendentes.textContent = String(pendentes);
+  if (footerTempo) footerTempo.textContent = `${Math.floor(tempoFocadoHoje / 60)}h ${tempoFocadoHoje % 60}m`;
+  if (footerReagendadas) footerReagendadas.textContent = String(tarefasReagendadasHoje);
+}
+
+/* =========================
+   CALENDÁRIO / VIEW
+========================= */
+window.toggleView = function (view) {
+  const cards = document.getElementById("cardsView");
+  const cal = document.getElementById("calendarioView");
+  const btns = document.querySelectorAll(".view-btn");
+  btns.forEach((b) => b.classList.remove("active"));
+
+  if (view === "calendario") {
+    if (cards) cards.style.display = "none";
+    if (cal) cal.style.display = "block";
+    btns[1]?.classList.add("active");
+    renderizarCalendario();
+  } else {
+    if (cards) cards.style.display = "block";
+    if (cal) cal.style.display = "none";
+    btns[0]?.classList.add("active");
+  }
+};
+
+window.mudarMes = function (delta) {
+  dataCalendario.setMonth(dataCalendario.getMonth() + delta);
+  renderizarCalendario();
+};
+
+window.irParaHoje = function () {
+  dataCalendario = new Date();
+  renderizarCalendario();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+function renderizarCalendario() {
+  const grade = document.getElementById("calendarioGrade");
+  if (!grade) return;
+
+  const ano = dataCalendario.getFullYear();
+  const mes = dataCalendario.getMonth();
+
+  const primeiroDia = new Date(ano, mes, 1);
+  const ultimoDia = new Date(ano, mes + 1, 0);
+  const inicioSemana = (primeiroDia.getDay() + 6) % 7; // segunda=0
+  const totalDias = ultimoDia.getDate();
+
+  const hoje = getDataHoje();
+
+  const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+  let html = `<div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:white;">
+    <strong>${dataCalendario.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</strong>
+  </div>`;
+
+  html += diasSemana
+    .map((d) => `<div style="font-size:12px;opacity:.7;text-align:center;padding:6px 0;">${d}</div>`)
+    .join("");
+
+  for (let i = 0; i < inicioSemana; i++) html += `<div></div>`;
+
+  for (let dia = 1; dia <= totalDias; dia++) {
+    const dataStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+    const qtd = tarefas.filter((t) => t.data === dataStr && !t.concluida).length;
+    const isHoje = dataStr === hoje;
+
+    html += `
+      <div style="
+        min-height:72px;
+        border:1px solid rgba(255,255,255,0.08);
+        border-radius:10px;
+        padding:8px;
+        background:${isHoje ? "rgba(124,58,237,0.25)" : "rgba(255,255,255,0.03)"};
+      ">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;font-weight:600;">${dia}</span>
+          ${qtd > 0 ? `<span style="font-size:11px;background:rgba(239,68,68,.25);padding:2px 6px;border-radius:999px;">${qtd}</span>` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  grade.innerHTML = html;
+}
+
+/* =========================
+   RENDER TAREFAS
+========================= */
+function renderizarTarefas() {
+  const container = document.getElementById("blocosTarefas");
+  if (!container) return;
+
+  const hoje = getDataHoje();
+  container.innerHTML = "";
+
+  cardsTarefas.forEach((card) => {
+    let lista = tarefas.filter((t) => t.bloco === card.nome);
+    lista = lista.filter((t) => {
+      if (!t.data || t.concluida) return false;
+      return t.data === hoje || t.data < hoje;
+    });
+
+    const ativas = lista.filter((t) => !t.concluida).length;
+    const cardId = card.id;
+
+    const tarefasHtml = lista
+      .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
+      .map((t) => {
+        const atrasada = t.data && t.data < hoje;
+        const recorrenciaIcon =
+          {
+            diaria: "🔄 Diária",
+            dias_uteis: "📅 Dias úteis",
+            semanal: "📆 Semanal",
+            mensal: "📅 Mensal"
+          }[t.recorrencia] || "";
+
+        return `<div class="tarefa-item ${t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : ""}"
+          draggable="true"
+          ondragstart="iniciarDragTarefa(${JSON.stringify(t.id)}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)"
+          ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))"
+          ondragover="permitirDropTarefa(event)"
+          ondrop="soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', ${JSON.stringify(t.id)})">
+
+          <div class="task-left">
+            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+            <input type="checkbox" class="task-checkbox" ${t.concluida ? "checked" : ""} onchange="toggleTarefa(${JSON.stringify(t.id)})">
+            <div class="task-info">
+              <div class="task-title">${escapeHtml(t.texto)}</div>
+              <div class="task-meta">
+                <span class="meta-date ${atrasada ? "badge atrasada" : ""}"
+                  onclick="abrirModalReagendar(${JSON.stringify(t.id)}); event.stopPropagation()">
+                  <i class="fas fa-calendar"></i> ${t.data} ${atrasada ? "⚠" : ""}
+                </span>
+                ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaIcon}</span>` : ""}
+                ${t.tempoGasto ? `<span class="meta-tag"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ""}
+              </div>
+            </div>
+          </div>
+
+          <div class="task-actions-2x2">
+            <button class="task-action-btn" onclick="abrirModalEdicao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
+            <button class="task-action-btn" onclick="abrirModalDescricao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Descrição"><i class="fas fa-pen-alt"></i></button>
+            <button class="task-action-btn" title="Modo Foco"><i class="fas fa-clock"></i></button>
+            <button class="task-action-btn danger" onclick="excluirTarefa(${JSON.stringify(t.id)}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>`;
+      })
+      .join("");
+
+    const div = document.createElement("div");
+    div.className = "card-espaco";
+    div.setAttribute("ondragover", "permitirDropCard(event)");
+    div.setAttribute("ondragleave", "removerDragOver(event)");
+    div.setAttribute("ondrop", `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`);
+
     div.innerHTML = `
       <div class="card-header">
         <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
@@ -654,16 +1039,31 @@ function renderizarTarefas() {
           <button onclick="excluirCardTarefa('${card.id}')"><i class="fas fa-trash-alt"></i></button>
         </div>
       </div>
+
       <div class="card-content">
-        ${lista.length === 0 ? `<div class="estado-vazio" style="text-align:center;padding:40px;"><i class="fas fa-check-circle" style="font-size:32px;opacity:0.5;"></i><p style="color:white;">Tudo certo</p><small style="color:rgba(255,255,255,0.5);">Adicione uma tarefa</small></div>` : tarefasHtml}
+        ${
+          lista.length === 0
+            ? `<div class="estado-vazio" style="text-align:center;padding:40px;">
+                <i class="fas fa-check-circle" style="font-size:32px;opacity:0.5;"></i>
+                <p style="color:white;">Tudo certo</p>
+                <small style="color:rgba(255,255,255,0.5);">Adicione uma tarefa</small>
+              </div>`
+            : tarefasHtml
+        }
       </div>
-      <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button>
+
+      <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')">
+        <i class="fas fa-plus-circle"></i> Nova Tarefa
+      </button>
+
       <div class="inline-form" id="form-${cardId}">
         <input type="text" id="texto-${cardId}" placeholder="Título...">
         <textarea id="descricao-${cardId}" placeholder="Descrição..." rows="2"></textarea>
         <input type="date" id="data-${cardId}" value="${getDataHoje()}">
         <select id="prioridade-${cardId}">
-          <option value="p3">🟢 Baixa</option><option value="p2">🟡 Média</option><option value="p1">🔴 Alta</option>
+          <option value="p3">🟢 Baixa</option>
+          <option value="p2">🟡 Média</option>
+          <option value="p1">🔴 Alta</option>
         </select>
         <select id="recorrencia-${cardId}">
           <option value="">Sem recorrência</option>
@@ -673,4 +1073,147 @@ function renderizarTarefas() {
           <option value="mensal">📅 Mensal</option>
         </select>
         <div class="inline-form-buttons">
-          <button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button
+          <button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button>
+          <button class="btn-cancel" onclick="document.getElementById('form-${cardId}').classList.remove('show')">Cancelar</button>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+
+  const addCard = document.createElement("div");
+  addCard.className = "card-novo-espaco";
+  addCard.onclick = () => adicionarCardTarefa();
+  addCard.innerHTML = `<div><i class="fas fa-plus-circle"></i><p>Novo Espaço</p></div>`;
+  container.appendChild(addCard);
+}
+
+/* =========================
+   STATUS / TEMA / EVENTOS
+========================= */
+function atualizarStatusConexao() {
+  const el = document.getElementById("statusConnection");
+  if (!el) return;
+  if (navigator.onLine) {
+    el.classList.remove("status-offline");
+    el.classList.add("status-online");
+    el.innerHTML = `<i class="fas fa-wifi"></i> Online`;
+  } else {
+    el.classList.remove("status-online");
+    el.classList.add("status-offline");
+    el.innerHTML = `<i class="fas fa-wifi"></i> Offline`;
+  }
+}
+
+function aplicarTemaSalvo() {
+  const tema = localStorage.getItem("temaFluxo") || "dark";
+  document.body.classList.toggle("dark-theme", tema === "dark");
+  const icon = document.querySelector("#themeToggle i");
+  if (icon) icon.className = tema === "dark" ? "fas fa-sun" : "fas fa-moon";
+}
+
+function toggleTema() {
+  const dark = document.body.classList.toggle("dark-theme");
+  localStorage.setItem("temaFluxo", dark ? "dark" : "light");
+  const icon = document.querySelector("#themeToggle i");
+  if (icon) icon.className = dark ? "fas fa-sun" : "fas fa-moon";
+}
+
+function bindUI() {
+  document.getElementById("logoutBtn")?.addEventListener("click", () => fazerLogout());
+  document.getElementById("themeToggle")?.addEventListener("click", toggleTema);
+
+  document.getElementById("syncNowBtn")?.addEventListener("click", () => {
+    const ok = sincronizarTarefasRecorrentes();
+    salvarDados();
+    if (!ok) mostrarIndicadorSync("ℹ️ Nada novo para sincronizar", "info");
+  });
+
+  document.getElementById("backupBtn")?.addEventListener("click", () => exportarBackupJSON());
+  document.getElementById("importBackupBtn")?.addEventListener("click", () => importarBackupJSON());
+  document.getElementById("indexedbBtn")?.addEventListener("click", () => fazerBackupManual());
+
+  document.getElementById("rescheduleBtn")?.addEventListener("click", () => {
+    const hoje = getDataHoje();
+    const atrasadas = tarefas.filter((t) => t.data && t.data < hoje && !t.concluida);
+    if (atrasadas.length === 0) {
+      mostrarIndicadorSync("🎉 Sem tarefas atrasadas");
+      return;
+    }
+    if (!confirm(`Reagendar ${atrasadas.length} tarefa(s) atrasada(s) para hoje?`)) return;
+    atrasadas.forEach((t) => {
+      t.data = hoje;
+      t.notificado = false;
+      tarefasReagendadasHoje++;
+    });
+    salvarDados();
+    mostrarIndicadorSync(`📅 ${atrasadas.length} tarefa(s) reagendada(s)!`);
+  });
+
+  const userAvatar = document.getElementById("userAvatar");
+  const userTooltip = document.getElementById("userTooltip");
+  if (userAvatar && userTooltip) {
+    userAvatar.addEventListener("mouseenter", () => (userTooltip.style.display = "block"));
+    userAvatar.addEventListener("mouseleave", () => (userTooltip.style.display = "none"));
+  }
+
+  window.addEventListener("online", atualizarStatusConexao);
+  window.addEventListener("offline", atualizarStatusConexao);
+}
+
+/* =========================
+   INIT
+========================= */
+async function initApp() {
+  await initIndexedDB();
+  verificarResetDiario();
+  aplicarTemaSalvo();
+  bindUI();
+  atualizarStatusConexao();
+
+  const dataHeader = document.getElementById("dataHojeHeader");
+  const dataMobile = document.getElementById("dataHojeMobile");
+  const textoData = formatarDataHeader(new Date());
+  if (dataHeader) dataHeader.textContent = textoData;
+  if (dataMobile) dataMobile.textContent = textoData;
+
+  // auth gate
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    window.currentUser = user || null;
+
+    const loginOverlay = document.getElementById("loginOverlay");
+    const mainApp = document.getElementById("mainApp");
+    const tooltipEmail = document.getElementById("userEmailTooltip");
+
+    if (user) {
+      usuarioAtual = user.uid;
+      if (tooltipEmail) tooltipEmail.textContent = user.email || "";
+      if (loginOverlay) loginOverlay.style.display = "none";
+      if (mainApp) mainApp.style.display = "block";
+
+      await carregarDadosFirebase();
+      tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
+      metas = JSON.parse(localStorage.getItem("metas") || "[]");
+      cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
+      if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+
+      sincronizarTarefasRecorrentes();
+      salvarDados();
+    } else {
+      if (loginOverlay) loginOverlay.style.display = "flex";
+      if (mainApp) mainApp.style.display = "none";
+    }
+  });
+
+  // render inicial para quando auth resolver
+  renderizarTarefas();
+  renderizarMetas();
+  renderizarMetasCarrossel();
+  renderizarCalendario();
+  atualizarDashboard();
+  atualizarRodape();
+}
+
+initApp();
