@@ -81,8 +81,8 @@
   }
   .status-offline { background: var(--danger); }
 
-  /* BOTÃO DE RECORRÊNCIA (MENOR E TRANSPARENTE) */
-  .sync-btn, .reschedule-btn, .backup-btn, .indexedb-btn, .import-btn, .google-btn, .theme-toggle {
+  /* ===== BOTÃO DE RECORRÊNCIA (MENOR E TRANSPARENTE) ===== */
+  .sync-btn, .reschedule-btn, .backup-btn, .indexedb-btn, .import-btn, .google-btn, .theme-toggle, .calendar-btn, .metas-btn {
     background: rgba(255,255,255,0.1);
     border: none;
     width: 36px;
@@ -122,7 +122,7 @@
   }
 
   /* MODAIS */
-  .modal-descricao-overlay, .modal-backup-overlay, .modal-foco-overlay, .modal-reagendar-overlay, .modal-edicao-overlay {
+  .modal-descricao-overlay, .modal-backup-overlay, .modal-foco-overlay, .modal-reagendar-overlay, .modal-edicao-overlay, .modal-metas-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -135,7 +135,7 @@
     align-items: center;
     justify-content: center;
   }
-  .modal-descricao-overlay.show, .modal-backup-overlay.show, .modal-foco-overlay.show, .modal-reagendar-overlay.show, .modal-edicao-overlay.show { display: flex; }
+  .modal-descricao-overlay.show, .modal-backup-overlay.show, .modal-foco-overlay.show, .modal-reagendar-overlay.show, .modal-edicao-overlay.show, .modal-metas-overlay.show { display: flex; }
 
   .modal-conteudo {
     background: rgba(26, 27, 38, 0.98);
@@ -295,7 +295,7 @@
     justify-content: center;
     cursor: pointer;
   }
-  .metas-dashboard { background: rgba(26,27,38,0.6); border-radius: 16px; padding: 16px; margin-bottom: 20px; display: none; }
+  .metas-dashboard { background: rgba(26,27,38,0.6); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
   .metas-grid { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
   .add-meta-form { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
   .add-meta-form input, .add-meta-form select { flex: 1; padding: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; }
@@ -523,6 +523,8 @@
       <button class="indexedb-btn" id="indexedbBtn" title="Backup IndexedDB"><i class="fas fa-database"></i></button>
       <button class="backup-btn" id="backupBtn" title="Exportar JSON"><i class="fas fa-download"></i></button>
       <button class="import-btn" id="importBackupBtn" title="Importar JSON"><i class="fas fa-upload"></i></button>
+      <button class="calendar-btn" id="calendarBtn" title="Calendário" style="display:none;"><i class="fas fa-calendar-alt"></i></button>
+      <button class="metas-btn" id="metasBtn" title="Metas" style="display:none;"><i class="fas fa-trophy"></i></button>
       <span class="data-hoje" id="dataHojeHeader"></span>
       <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
     </div>
@@ -547,6 +549,7 @@
       <div class="view-toggle">
         <button class="view-btn active" onclick="toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
         <button class="view-btn" onclick="toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button>
+        <button class="view-btn" onclick="toggleMetasDashboard()"><i class="fas fa-trophy"></i> Metas</button>
       </div>
       <div class="action-buttons">
         <button class="top-action-btn" onclick="adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button>
@@ -681,8 +684,8 @@
 
 <script>
 // ====================================================================
-// FLUXO - VERSÃO COMPLETA COM RECORRÊNCIA CORRIGIDA
-// Correções: Dias úteis agora funciona (sexta→segunda, sábado→segunda)
+// FLUXO - VERSÃO COMPLETA COM TODAS AS CORREÇÕES
+// Correções: Recorrência dias úteis, cards visíveis, botão transparente
 // ====================================================================
 
 // ===== ESTADO GLOBAL =====
@@ -1099,6 +1102,16 @@ function excluirMeta(id) {
   }
 }
 
+function toggleMetasDashboard() {
+  const metasDiv = document.getElementById('metasCompletas');
+  if (metasDiv.style.display === 'none') {
+    metasDiv.style.display = 'block';
+    renderizarMetas();
+  } else {
+    metasDiv.style.display = 'none';
+  }
+}
+
 function renderizarMetasCarrossel() {
   const container = document.getElementById('metasCarousel');
   if (!container) return;
@@ -1491,7 +1504,7 @@ function tocarSino() {
   } catch(e) {}
 }
 
-// ===== RENDERIZAÇÃO PRINCIPAL =====
+// ===== RENDERIZAÇÃO PRINCIPAL (CORRIGIDA - MOSTRA TODAS AS TAREFAS PENDENTES) =====
 function renderizarTarefas() {
   const container = document.getElementById('blocosTarefas');
   if (!container) return;
@@ -1500,12 +1513,12 @@ function renderizarTarefas() {
   container.innerHTML = '';
   
   App.cardsTarefas.forEach(card => {
-    let lista = App.tarefas.filter(t => t.bloco === card.nome);
-    lista = lista.filter(t => { if (!t.data || t.concluida) return false; return t.data === hoje || t.data < hoje; });
-    const ativas = lista.filter(t => !t.concluida).length;
+    // CORREÇÃO: Mostra TODAS as tarefas NÃO concluídas (sem filtro de data)
+    const tarefasCard = App.tarefas.filter(t => t.bloco === card.nome && !t.concluida);
+    const ativas = tarefasCard.length;
     const cardId = card.id;
     
-    const tarefasHtml = lista.map(t => {
+    const tarefasHtml = tarefasCard.map(t => {
       const atrasada = t.data && t.data < hoje;
       const recorrenciaTexto = {
         'diaria': '🔄 Diária',
@@ -1529,7 +1542,7 @@ function renderizarTarefas() {
                 <i class="fas fa-calendar"></i> ${t.data} ${atrasada ? '⚠️' : ''}
               </span>
               ${t.recorrencia ? `<span class="recorrencia-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaTexto}</span>` : ''}
-              ${t.tempoGasto ? `<span class="meta-tag" style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; font-size:10px;"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ''}
+              ${t.tempoGasto ? `<span style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; font-size:10px;"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ''}
             </div>
           </div>
         </div>
@@ -1557,9 +1570,7 @@ function renderizarTarefas() {
         </div>
       </div>
       <div class="card-content">
-        ${lista.length === 0
-          ? `<div style="text-align:center;padding:40px;"><i class="fas fa-check-circle" style="font-size:32px;opacity:0.5;"></i><p style="color:white;">Tudo certo</p><small style="color:rgba(255,255,255,0.5);">Adicione uma tarefa</small></div>`
-          : tarefasHtml}
+        ${tarefasHtml || '<div style="text-align:center;padding:40px;"><i class="fas fa-check-circle" style="font-size:32px;opacity:0.5;"></i><p style="color:white;">Tudo certo</p><small style="color:rgba(255,255,255,0.5);">Adicione uma tarefa</small></div>'}
       </div>
       <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')"><i class="fas fa-plus-circle"></i> Nova Tarefa</button>
       <div class="inline-form" id="form-${cardId}">
@@ -1820,6 +1831,7 @@ window.mudarMes = mudarMes;
 window.adicionarMeta = adicionarMeta;
 window.toggleMeta = toggleMeta;
 window.excluirMeta = excluirMeta;
+window.toggleMetasDashboard = toggleMetasDashboard;
 window.iniciarPomodoro = iniciarPomodoro;
 window.pausarPomodoro = pausarPomodoro;
 window.prorrogarTempoFoco = prorrogarTempoFoco;
