@@ -1069,3 +1069,11 @@ window.recarregarSistema = function() {
   renderizarMetasCarrossel();
   atualizarRodape();
 };
+
+window.togglePainelMetas = function(){
+  const painel = document.getElementById('metasCompletas');
+  const btn = document.querySelector('.metas-toggle-btn');
+  const aberto = painel.style.display === 'block';
+  painel.style.display = aberto ? 'none' : 'block';
+  if(btn) btn.textContent = aberto ? 'Ver metas' : 'Ocultar metas';
+};
