@@ -37,7 +37,6 @@
         </div>
 
         <div id="loginErrorMessage" style="color:#ef4444; font-size:12px; margin-bottom:12px;"></div>
-
         <button class="login-btn" onclick="window.fazerLogin()">Entrar</button>
 
         <div class="divider">
@@ -73,7 +72,6 @@
         </div>
 
         <div id="registerErrorMessage" style="color:#ef4444; font-size:12px; margin-bottom:12px;"></div>
-
         <button class="login-btn" onclick="window.fazerCadastro()">Cadastrar</button>
 
         <a class="register-link" onclick="window.mostrarLogin()" style="color:rgba(255,255,255,0.7); font-size:13px; margin-top:16px; display:block; cursor:pointer;">
@@ -224,7 +222,7 @@
         <button class="btn-glass" onclick="window.irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button>
       </div>
 
-      <!-- IMPORTANTE: JS vai renderizar dias + tarefas aqui -->
+      <!-- JS renderiza dias + resumo -->
       <div id="calendarioGrade" class="calendario-grade"></div>
     </div>
 
@@ -350,6 +348,28 @@
       <div class="modal-actions">
         <button class="btn-primary" onclick="window.confirmarReagendamento()">Confirmar</button>
         <button class="btn-secondary" onclick="window.fecharModalReagendar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOVO: MODAL DIA DO CALENDÁRIO -->
+  <div class="modal-dia-overlay" id="modalDiaOverlay">
+    <div class="modal-conteudo modal-dia-conteudo">
+      <div class="modal-header">
+        <h3><i class="fas fa-calendar-day"></i> <span id="modalDiaTitulo">Dia</span></h3>
+        <button class="modal-close" onclick="window.fecharDiaCalendario()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div id="modalDiaResumo" style="color:rgba(255,255,255,0.75); font-size:12px; margin-bottom:12px;"></div>
+
+        <!-- Lista completa das tarefas do dia -->
+        <div id="modalDiaLista" class="modal-dia-lista"></div>
+
+        <!-- Ações rápidas opcionais -->
+        <div class="modal-actions" style="margin-top:14px;">
+          <button class="btn-secondary" onclick="window.fecharDiaCalendario()">Fechar</button>
+        </div>
       </div>
     </div>
   </div>
