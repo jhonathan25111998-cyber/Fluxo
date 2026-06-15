@@ -326,7 +326,12 @@ function salvarDados() {
   renderizarMetas();
   renderizarCalendario();
   atualizarDashboard();
-  renderizarMetasCarrossel();
+  function renderizarMetasCarrossel() {
+  const container = document.getElementById('metasCarousel');
+  if(!container) return;
+  container.style.display = 'none'; // deixa oculto para metas não disputarem atenção
+}
+;
   atualizarRodape();
   if(window.currentUser) setTimeout(() => salvarTudoFirebase(), 500);
 }
