@@ -198,16 +198,23 @@
   .header-direita { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .data-hoje { font-size: 12px; color: rgba(255,255,255,0.8); }
 
-  .sync-btn, .reschedule-btn, .backup-btn, .indexedb-btn, .import-btn, .google-btn, .theme-toggle {
-    background: rgba(255,255,255,0.1);
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    color: rgba(255,255,255,0.7);
-    cursor: pointer;
-    transition: all 0.3s;
-  }
+.sync-btn, .reschedule-btn, .backup-btn, .indexedb-btn, .import-btn, .google-btn, .theme-toggle {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.sync-btn {
+  width: 28px;
+  height: 28px;
+  color: rgba(255,255,255,0.3);
+  font-size: 12px;
+}
   .import-btn { background: rgba(52,168,83,0.3); color: #34a853; }
   .google-btn { background: rgba(66,133,244,0.3); color: #4285f4; width: auto; border-radius: 20px; padding: 0 12px; display: flex; gap: 8px; align-items: center; }
   .sync-btn:hover, .reschedule-btn:hover, .backup-btn:hover, .indexedb-btn:hover, .import-btn:hover, .theme-toggle:hover {
