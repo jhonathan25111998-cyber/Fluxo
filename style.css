@@ -566,3 +566,69 @@ body.dark-theme .tarefa-item.p2 {
 body.dark-theme .tarefa-item.p1 {
   border-left-color: #ef4444 !important; /* urgente */
 }
+
+/* ===== Calendário ocupando melhor o espaço ===== */
+.container,
+#cardsView,
+#calendarioView {
+  width: 100%;
+  max-width: 100%;
+}
+
+#calendarioView {
+  width: 100%;
+}
+
+.calendario-grade {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  align-items: stretch;
+}
+
+.calendario-dia {
+  width: 100%;
+  min-height: 180px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.calendario-nav {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 1200px) {
+  .calendario-grade {
+    gap: 14px;
+  }
+  .calendario-dia {
+    min-height: 210px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .calendario-dia {
+    min-height: 160px;
+  }
+}
+
+@media (max-width: 640px) {
+  .calendario-grade {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .calendario-dia {
+    min-height: 140px;
+  }
+}
