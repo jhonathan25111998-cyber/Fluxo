@@ -521,6 +521,7 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
 .controles-foco { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .btn-musica { background: #17a2b8; border: none; padding: 8px 16px; border-radius: 40px; color: white; cursor: pointer; margin: 8px 4px; }
 
+/* Base do calendário */
 .calendario-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 16px; }
 .calendario-dia { min-height: 100px; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 8px; }
 .calendario-nav { display: flex; justify-content: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
@@ -545,73 +546,115 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
 .tarefa-item {
   border-left: 2px solid #22c55e !important; /* padrão: normal/baixa */
 }
-
-.tarefa-item.p2 {
-  border-left-color: #fbbf24 !important; /* média */
-}
-
-.tarefa-item.p1 {
-  border-left-color: #ef4444 !important; /* urgente */
-}
+.tarefa-item.p2 { border-left-color: #fbbf24 !important; /* média */ }
+.tarefa-item.p1 { border-left-color: #ef4444 !important; /* urgente */ }
 
 /* ===== Prioridade também no modo escuro ===== */
-body.dark-theme .tarefa-item {
-  border-left: 2px solid #22c55e !important; /* padrão normal/baixa */
+body.dark-theme .tarefa-item { border-left: 2px solid #22c55e !important; /* padrão normal/baixa */ }
+body.dark-theme .tarefa-item.p2 { border-left-color: #fbbf24 !important; /* média */ }
+body.dark-theme .tarefa-item.p1 { border-left-color: #ef4444 !important; /* urgente */ }
+
+/* =========================================
+   CALENDÁRIO RESPONSIVO (desktop amplo + mobile compacto)
+   ========================================= */
+#calendarioView{
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-body.dark-theme .tarefa-item.p2 {
-  border-left-color: #fbbf24 !important; /* média */
+#calendarioView .calendario-nav{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
 }
 
-body.dark-theme .tarefa-item.p1 {
-  border-left-color: #ef4444 !important; /* urgente */
+/* DESKTOP / NOTEBOOK (usa melhor a tela) */
+#calendarioView .calendario-grade{
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
 }
 
-/* ===== HOTFIX: calendário não pode encolher ===== */
-#calendarioView {
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+#calendarioView .calendario-dia{
+  min-height: 175px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  overflow: hidden;
 }
 
-#calendarioView .calendario-grade {
-  display: grid !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  grid-template-columns: repeat(7, minmax(140px, 1fr)) !important;
-  gap: 12px !important;
-  justify-content: stretch !important;
-  align-content: start !important;
+/* Cards de tarefa dentro do dia (mais compactos no geral) */
+#calendarioView .calendario-dia .tarefa-item,
+#calendarioView .calendario-dia .task-item,
+#calendarioView .calendario-dia .evento-item{
+  padding: 4px 6px;
+  margin-bottom: 4px;
+  border-radius: 7px;
+  font-size: 10px;
+  line-height: 1.2;
 }
 
-#calendarioView .calendario-dia {
-  width: 100% !important;
-  min-height: 170px !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
+#calendarioView .calendario-dia .task-title,
+#calendarioView .calendario-dia .titulo-tarefa{
+  font-size: 10px;
+  line-height: 1.15;
+  white-space: normal;
+  word-break: break-word;
 }
 
-/* garante que wrappers principais ocupem largura total */
-.container,
-#mainApp,
-#cardsView,
-.blocos-tarefas {
-  width: 100% !important;
-  max-width: 100% !important;
+/* Telas grandes: aumenta altura para respirar */
+@media (min-width: 1400px){
+  #calendarioView .calendario-grade{ gap: 12px; }
+  #calendarioView .calendario-dia{ min-height: 205px; }
 }
 
-/* responsivo */
-@media (max-width: 1024px) {
-  #calendarioView .calendario-grade {
-    grid-template-columns: repeat(4, minmax(120px, 1fr)) !important;
+/* Tablet/Notebook menor */
+@media (max-width: 1100px){
+  #calendarioView .calendario-dia{ min-height: 155px; }
+}
+
+/* MOBILE (compacto) */
+@media (max-width: 768px){
+  #calendarioView .calendario-grade{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  #calendarioView .calendario-dia{
+    min-height: 120px;
+    padding: 5px;
+    border-radius: 8px;
+  }
+
+  #calendarioView .calendario-dia .tarefa-item,
+  #calendarioView .calendario-dia .task-item,
+  #calendarioView .calendario-dia .evento-item{
+    padding: 3px 5px;
+    margin-bottom: 3px;
+    font-size: 9px;
+    border-radius: 6px;
+  }
+
+  #calendarioView .calendario-dia .task-title,
+  #calendarioView .calendario-dia .titulo-tarefa{
+    font-size: 9px;
+    line-height: 1.1;
   }
 }
 
-@media (max-width: 640px) {
-  #calendarioView .calendario-grade {
-    grid-template-columns: repeat(2, minmax(120px, 1fr)) !important;
+/* MOBILE em horizontal (landscape): aproveita melhor */
+@media (max-width: 900px) and (orientation: landscape){
+  #calendarioView .calendario-grade{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  #calendarioView .calendario-dia{
+    min-height: 105px;
   }
 }
