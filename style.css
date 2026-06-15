@@ -194,7 +194,7 @@ body.dark-theme .backup-item {
   animation: modalFadeIn 0.3s ease;
 }
 
-/* Modal do dia um pouco maior */
+/* Modal do dia maior */
 .modal-dia-conteudo {
   width: 680px;
   max-width: 95%;
@@ -285,9 +285,34 @@ body.dark-theme .backup-item {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* ===== NOVO: LISTA DO MODAL DIA ===== */
+/* ===== NOVO: ADD RÁPIDO NO MODAL DO DIA ===== */
+.modal-dia-add {
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-dia-add-title {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-dia-add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* ===== LISTA DO MODAL DIA ===== */
 .modal-dia-lista {
-  max-height: 60vh;
+  max-height: 48vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -1335,7 +1360,7 @@ body.dark-theme .cal-task.p3 {
   }
 
   .modal-dia-lista {
-    max-height: 55vh;
+    max-height: 44vh;
   }
 }
 
@@ -1371,6 +1396,10 @@ body.dark-theme .cal-task.p3 {
     height: auto;
     padding: 8px;
     gap: 8px;
+  }
+
+  .modal-dia-add-row {
+    grid-template-columns: 1fr;
   }
 
   .modal-dia-item {
