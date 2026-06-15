@@ -1,111 +1,258 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fluxo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#667eea">
+  <title>FLUXO - Organize. Execute. Flua.</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="mainApp" class="container">
-    <header class="header-fluxo">
-      <div class="header-logo">
-        <div class="logo-fallback">📌</div>
-        <div class="logo-texto">
-          <div class="logo-titulo">Fluxo</div>
-          <div class="logo-subtitulo">ORGANIZAÇÃO INTELIGENTE</div>
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-container">
+      <div class="logo-img" style="margin:0 auto 20px; justify-content: center;">
+        <img src="logo.png" alt="FLUXO" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:60px;height:60px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto;\'><i class=\'fas fa-tasks\' style=\'font-size:28px;color:white;\'></i></div>'">
+      </div>
+      <h2>FLUXO</h2>
+      <p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Organize. Execute. Flua.</p>
+
+      <div id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email">
+        <div class="password-container">
+          <input type="password" id="loginPassword" placeholder="Senha">
+          <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('loginPassword',this)"><i class="far fa-eye"></i></button>
         </div>
+        <div id="loginErrorMessage" style="color: #ef4444; font-size: 12px; margin-bottom: 12px;"></div>
+        <button class="login-btn" onclick="window.fazerLogin()">Entrar</button>
+
+        <div class="divider"><span class="divider-line"></span><span>ou</span><span class="divider-line"></span></div>
+        <button class="google-login-btn" onclick="window.loginComGoogle()"><i class="fab fa-google"></i> Continuar com Google</button>
+
+        <a class="register-link" onclick="window.mostrarCadastro()" style="color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 16px; display: block; cursor: pointer;">Criar conta</a>
       </div>
 
-      <div class="header-direita">
-        <span class="data-hoje" id="dataHoje"></span>
+      <div id="registerForm" style="display:none;">
+        <input type="email" id="registerEmail" placeholder="Email">
+        <div class="password-container">
+          <input type="password" id="registerPassword" placeholder="Senha">
+          <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('registerPassword',this)"><i class="far fa-eye"></i></button>
+        </div>
+        <div class="password-container">
+          <input type="password" id="registerConfirm" placeholder="Confirmar senha">
+          <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('registerConfirm',this)"><i class="far fa-eye"></i></button>
+        </div>
+        <div id="registerErrorMessage" style="color: #ef4444; font-size: 12px; margin-bottom: 12px;"></div>
+        <button class="login-btn" onclick="window.fazerCadastro()">Cadastrar</button>
+        <a class="register-link" onclick="window.mostrarLogin()" style="color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 16px; display: block; cursor: pointer;">Já tenho conta</a>
       </div>
-    </header>
-
-    <section class="top-section">
-      <div class="view-toggle">
-        <button id="btnCards" class="view-btn active" type="button">Cards</button>
-        <button id="btnCalendario" class="view-btn" type="button">Calendário</button>
-      </div>
-
-      <div class="botoes-topo">
-        <button id="btnNovaTarefaGlobal" class="top-action-btn" type="button">+ Nova tarefa</button>
-      </div>
-    </section>
-
-    <!-- CARDS -->
-    <section id="cardsView" class="view-section active">
-      <div class="blocos-tarefas">
-        <!-- Card Trabalho -->
-        <article class="card-espaco" data-espaco="trabalho">
-          <div class="card-header">
-            <span>Trabalho</span>
-            <button type="button" class="btn-add-inline" data-target="form-trabalho">+</button>
-          </div>
-
-          <div class="card-content">
-            <div class="inline-form" id="form-trabalho">
-              <input type="text" id="titulo-trabalho" placeholder="Título da tarefa" />
-              <input type="date" id="data-trabalho" />
-              <select id="prioridade-trabalho">
-                <option value="p3">Baixa</option>
-                <option value="p2">Média</option>
-                <option value="p1">Urgente</option>
-              </select>
-              <div class="inline-form-buttons">
-                <button class="btn-confirm" type="button" data-save="trabalho">Salvar</button>
-                <button class="btn-cancel" type="button" data-cancel="form-trabalho">Cancelar</button>
-              </div>
-            </div>
-
-            <div class="lista-tarefas" id="lista-trabalho"></div>
-          </div>
-        </article>
-
-        <!-- Card Pessoal -->
-        <article class="card-espaco" data-espaco="pessoal">
-          <div class="card-header">
-            <span>Pessoal</span>
-            <button type="button" class="btn-add-inline" data-target="form-pessoal">+</button>
-          </div>
-
-          <div class="card-content">
-            <div class="inline-form" id="form-pessoal">
-              <input type="text" id="titulo-pessoal" placeholder="Título da tarefa" />
-              <input type="date" id="data-pessoal" />
-              <select id="prioridade-pessoal">
-                <option value="p3">Baixa</option>
-                <option value="p2">Média</option>
-                <option value="p1">Urgente</option>
-              </select>
-              <div class="inline-form-buttons">
-                <button class="btn-confirm" type="button" data-save="pessoal">Salvar</button>
-                <button class="btn-cancel" type="button" data-cancel="form-pessoal">Cancelar</button>
-              </div>
-            </div>
-
-            <div class="lista-tarefas" id="lista-pessoal"></div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- CALENDÁRIO -->
-    <section id="calendarioView" class="view-section">
-      <div class="calendario-nav">
-        <button id="btnMesAnterior" class="top-action-btn" type="button">◀ Anterior</button>
-        <strong id="mesAnoLabel">Mês Ano</strong>
-        <button id="btnMesProximo" class="top-action-btn" type="button">Próximo ▶</button>
-        <button id="btnHoje" class="top-action-btn" type="button">Hoje</button>
-      </div>
-
-      <div class="calendario-grade" id="calendarioGrade"></div>
-    </section>
+    </div>
   </div>
 
-  <script src="./app.js"></script>
+  <div class="container" id="mainApp" style="display:block;">
+    <div class="header-fluxo">
+      <div class="header-logo">
+        <div class="logo-img">
+          <img src="logo.png" alt="FLUXO" onerror="this.style.display='none'; this.nextSibling.style.display='flex'">
+          <div class="logo-fallback" style="display: none;"><i class="fas fa-tasks"></i></div>
+        </div>
+        <div class="logo-texto">
+          <div class="logo-titulo">FLUXO</div>
+          <div class="logo-subtitulo">Organize. Execute. Flua.</div>
+        </div>
+      </div>
+      <div class="header-direita">
+        <button class="sync-btn" id="syncNowBtn" title="Sincronizar recorrentes"><i class="fas fa-sync-alt"></i></button>
+        <button class="reschedule-btn" id="rescheduleBtn" title="Reagendar pendentes"><i class="fas fa-calendar-plus"></i></button>
+        <button class="indexedb-btn" id="indexedbBtn" title="Backup IndexedDB"><i class="fas fa-database"></i></button>
+        <button class="backup-btn" id="backupBtn" title="Exportar JSON"><i class="fas fa-download"></i></button>
+        <button class="import-btn" id="importBackupBtn" title="Importar JSON"><i class="fas fa-upload"></i></button>
+        <button class="google-btn" id="googleBackupBtn" title="Backup Google Drive" style="display:none;"><i class="fab fa-google-drive"></i> Drive</button>
+        <span class="data-hoje" id="dataHojeHeader"></span>
+        <div class="user-info">
+          <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+          <button class="notify-btn" id="notifyBtn"><i class="fas fa-bell"></i></button>
+          <div class="user-avatar" id="userAvatar"><i class="fas fa-user-circle"></i><div class="user-tooltip" id="userTooltip"><span id="userEmailTooltip"></span></div></div>
+          <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="data-card-mobile" id="dataCardMobile">
+      <div class="data-badge"><i class="fas fa-calendar-alt"></i> <span id="dataHojeMobile"></span></div>
+    </div>
+
+    <div class="top-section">
+      <div class="banner-tarefas" id="dashboardAlerta" style="display: none;">
+        <div class="banner-esquerda">
+          <i class="fas fa-bell" style="color: white; font-size: 18px;"></i>
+          <div>
+            <div class="alerta-texto" id="alertaTexto">Você tem tarefas pendentes!</div>
+            <div class="alerta-subtexto" id="alertaSubtexto">Organize seu dia 🎯</div>
+          </div>
+          <button class="btn-ver-agora" id="alertaBtn" onclick="window.irParaHoje()">Ver agora</button>
+        </div>
+      </div>
+      <div class="botoes-topo">
+        <div class="view-toggle">
+          <button class="view-btn active" onclick="window.toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
+          <button class="view-btn" onclick="window.toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button>
+        </div>
+        <div class="action-buttons">
+          <button class="top-action-btn" onclick="window.adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button>
+          <button class="top-action-btn" onclick="window.marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="metas-resumo" id="metasResumo">
+      <div class="metas-resumo-left">
+        <i class="fas fa-bullseye"></i>
+        <span><strong id="totalMetas">0</strong> metas</span>
+        <span>•</span>
+        <span><strong id="concluidasMetas">0</strong> concluídas</span>
+        <span>•</span>
+        <span><strong id="progressoMetas">0</strong>%</span>
+      </div>
+      <button class="metas-toggle-btn" id="metasToggleBtn" onclick="window.togglePainelMetas()">Ver metas</button>
+    </div>
+
+    <div class="metas-dashboard" id="metasCompletas" style="display: none;">
+      <div class="metas-header" style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+        <h2 style="color:white;"><i class="fas fa-trophy"></i> Minhas Metas</h2>
+      </div>
+      <div class="metas-grid" id="metasGrid"></div>
+      <div class="add-meta-form" style="display: flex; gap: 8px; margin-top: 16px;">
+        <input type="text" id="novaMetaTexto" placeholder="Nova meta..." style="flex:1; padding:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white;">
+        <select id="novaMetaCategoria" style="padding:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white;">
+          <option>Saúde</option>
+          <option>Desenvolvimento</option>
+          <option>Financeiro</option>
+          <option>Espiritual</option>
+          <option>Carreira</option>
+          <option>Relacionamentos</option>
+        </select>
+        <button onclick="window.adicionarMeta()" style="background:linear-gradient(135deg,#fbbf24,#f59e0b); border:none; padding:8px 16px; border-radius:8px; color:#1a1a2e; font-weight:600; cursor:pointer;"><i class="fas fa-plus"></i> Adicionar</button>
+      </div>
+    </div>
+
+    <div id="statusConnection" class="status-online"><i class="fas fa-wifi"></i> Online</div>
+    <div id="cardsView" style="display:block;"><div class="blocos-tarefas" id="blocosTarefas"></div></div>
+
+    <div id="calendarioView" style="display:none;">
+      <div class="calendario-nav">
+        <button class="btn-glass" onclick="window.mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button>
+        <button class="btn-glass" onclick="window.mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button>
+        <span id="calendarioMes" style="color:white;font-weight:600;"></span>
+        <button class="btn-glass" onclick="window.irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button>
+      </div>
+      <div id="calendarioGrade" class="calendario-grade"></div>
+    </div>
+
+    <div class="footer-stats" id="footerStats">
+      <div class="footer-stats-item"><i class="fas fa-check-circle"></i><span id="footerConcluidas">0</span> concluídas</div>
+      <div class="footer-stats-item"><i class="fas fa-chart-line"></i><span id="footerTaxa">0%</span> taxa</div>
+      <div class="footer-stats-item"><i class="fas fa-clock"></i><span id="footerPendentes">0</span> pendentes</div>
+      <div class="footer-stats-item"><i class="fas fa-hourglass-half"></i><span id="footerTempo">0h 0m</span> foco</div>
+      <div class="footer-stats-item"><i class="fas fa-calendar-week"></i><span id="footerReagendadasCount">0</span> reagendadas</div>
+    </div>
+  </div>
+
+  <div class="modal-descricao-overlay" id="modalDescricaoOverlay">
+    <div class="modal-conteudo">
+      <div class="modal-header"><h3><i class="fas fa-pen-alt"></i> Descrição da Tarefa</h3><button class="modal-close" onclick="window.fecharModalDescricao()"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="modal-titulo">Título</div>
+        <div class="modal-texto" id="modalDescricaoTitulo"></div>
+        <div class="modal-titulo">Descrição</div>
+        <div class="modal-texto" id="modalDescricaoTexto"></div>
+        <div class="modal-actions"><button class="btn-primary" onclick="window.editarDescricaoModal()"><i class="fas fa-edit"></i> Editar</button><button class="btn-secondary" onclick="window.fecharModalDescricao()">Fechar</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-edicao-overlay" id="modalEdicaoOverlay">
+    <div class="modal-conteudo">
+      <div class="modal-header"><h3><i class="fas fa-edit"></i> Editar Tarefa</h3><button class="modal-close" onclick="window.fecharModalEdicao()"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <input type="text" id="edicaoTitulo" class="modal-input" placeholder="Título">
+        <textarea id="edicaoDescricao" class="modal-input" placeholder="Descrição" rows="3"></textarea>
+        <input type="date" id="edicaoData" class="modal-input">
+        <select id="edicaoPrioridade" class="modal-select">
+          <option value="p3">🟢 Baixa</option>
+          <option value="p2">🟡 Média</option>
+          <option value="p1">🔴 Alta</option>
+        </select>
+        <select id="edicaoRecorrencia" class="modal-select">
+          <option value="">Sem recorrência</option>
+          <option value="diaria">🔄 Diária</option>
+          <option value="dias_uteis">📅 Dias úteis</option>
+          <option value="semanal">📆 Semanal</option>
+          <option value="mensal">📅 Mensal</option>
+        </select>
+        <div class="modal-actions"><button class="btn-primary" onclick="window.salvarEdicaoTarefa()">Salvar</button><button class="btn-secondary" onclick="window.fecharModalEdicao()">Cancelar</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backup-overlay" id="modalBackupOverlay">
+    <div class="modal-conteudo">
+      <div class="modal-header"><h3><i class="fas fa-database"></i> Meus Backups</h3><button class="modal-close" onclick="window.fecharModalBackup()"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div id="backupList" class="backup-list"></div>
+        <button class="btn-primary" style="width:100%;" onclick="window.fazerBackupManual()"><i class="fas fa-save"></i> Fazer Backup Agora</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-foco-overlay" id="modalFocoOverlay">
+    <div class="modal-conteudo" style="text-align:center;">
+      <i class="fas fa-brain" style="font-size:40px;color:#667eea;"></i>
+      <h2 style="color:white;">🎯 Modo Foco</h2>
+      <div id="tarefaFocoTexto" style="color:white; margin:12px 0;"></div>
+      <div class="progresso-foco"><div class="progresso-foco-bar" id="progressoFocoBar"></div></div>
+      <div class="timer-foco-grande" id="timerFocoGrande">25:00</div>
+      <div class="controles-foco">
+        <button class="btn-glass" id="btnIniciarFoco" onclick="window.iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button>
+        <button class="btn-glass" id="btnPausarFoco" style="display:none" onclick="window.pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button>
+        <button class="btn-glass btn-prorrogar" id="btnProrrogar" onclick="window.prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button>
+        <button class="btn-glass" onclick="window.concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button>
+        <button class="btn-glass" onclick="window.fecharModoFoco()"><i class="fas fa-times"></i> Sair</button>
+      </div>
+      <div style="margin-top:16px;">
+        <button id="btnMusicaFoco" class="btn-musica" onclick="window.toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button>
+        <span style="color:white; font-size:11px; margin-left:10px;">Volume</span>
+        <input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="window.ajustarVolumeFoco(this.value)" style="width:100px;margin-left:6px;vertical-align:middle;">
+      </div>
+      <div id="cronometroInfo" style="color:white; font-size:12px; margin-top:12px;">🍅 Pomodoro 25 minutos</div>
+    </div>
+  </div>
+
+  <div class="modal-reagendar-overlay" id="modalReagendarOverlay">
+    <div class="modal-conteudo" style="text-align:center;">
+      <i class="fas fa-calendar-alt" style="font-size:28px;color:#667eea;"></i>
+      <h3 style="color:white;">Reagendar Tarefa</h3>
+      <input type="date" id="novaDataReagendar" class="modal-input" style="margin:16px 0;">
+      <div class="modal-actions"><button class="btn-primary" onclick="window.confirmarReagendamento()">Confirmar</button><button class="btn-secondary" onclick="window.fecharModalReagendar()">Cancelar</button></div>
+    </div>
+  </div>
+
+  <audio id="lofiAudio" loop preload="auto" style="display:none;">
+    <source src="lofi.mp3" type="audio/mpeg">
+  </audio>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
+    }
+  }
+  </script>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
