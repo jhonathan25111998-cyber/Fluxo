@@ -57,6 +57,15 @@ let tarefaEditandoAtual = null;
 let dataCalendario = new Date();
 
 /* =========================
+   MODO FOCO / POMODORO
+========================= */
+let tarefaFocoAtual = null;
+let timerPomodoro = null;
+let segundosRestantes = 25 * 60;
+let emPausa = false;
+let musicaAtiva = false;
+
+/* =========================
    UTILS
 ========================= */
 function escapeHtml(t) {
@@ -377,6 +386,36 @@ window.exportarBackupJSON = function () {
   a.download = `fluxo-backup-${getDataHoje()}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
+};
+
+window.abrirModalBackup = async function () {
+  const modal = document.getElementById("modalBackupOverlay");
+  const list = document.getElementById("backupList");
+  if (!modal || !list) return;
+
+  const backups = await listarBackups();
+  if (!backups.length) {
+    list.innerHTML = `<div style="color:rgba(255,255,255,.7);font-size:12px;">Nenhum backup encontrado.</div>`;
+  } else {
+    list.innerHTML = backups.map((b) => `
+      <div class="backup-item">
+        <div class="backup-info">
+          <div class="backup-data">${new Date(b.timestamp).toLocaleString("pt-BR")}</div>
+          <div class="backup-tarefas">${(JSON.parse(b.tarefas || "[]").length)} tarefas</div>
+        </div>
+        <div class="backup-actions">
+          <button onclick="restaurarBackupIndexedDB(${b.id})" title="Restaurar"><i class="fas fa-undo"></i></button>
+          <button onclick="excluirBackupIndexedDB(${b.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  modal.classList.add("show");
+};
+
+window.fecharModalBackup = function () {
+  document.getElementById("modalBackupOverlay")?.classList.remove("show");
 };
 
 /* =========================
@@ -744,7 +783,125 @@ window.soltarTarefa = function (event, cardNomeDestino, tarefaIdDestino) {
 };
 
 /* =========================
-   METAS (DISCRETO)
+   MODO FOCO
+========================= */
+window.abrirModoFoco = function (id) {
+  const tarefa = tarefas.find((t) => t.id === id);
+  if (!tarefa) return;
+
+  tarefaFocoAtual = tarefa;
+  segundosRestantes = 25 * 60;
+  emPausa = false;
+
+  const txt = document.getElementById("tarefaFocoTexto");
+  if (txt) txt.textContent = tarefa.texto;
+
+  const timer = document.getElementById("timerFocoGrande");
+  if (timer) timer.textContent = "25:00";
+
+  const bar = document.getElementById("progressoFocoBar");
+  if (bar) bar.style.width = "0%";
+
+  const btnIniciar = document.getElementById("btnIniciarFoco");
+  const btnPausar = document.getElementById("btnPausarFoco");
+  if (btnIniciar) btnIniciar.style.display = "inline-flex";
+  if (btnPausar) btnPausar.style.display = "none";
+
+  document.getElementById("modalFocoOverlay")?.classList.add("show");
+};
+
+window.fecharModoFoco = function () {
+  if (timerPomodoro) clearInterval(timerPomodoro);
+  timerPomodoro = null;
+  document.getElementById("modalFocoOverlay")?.classList.remove("show");
+};
+
+function atualizarTimerUI() {
+  const m = Math.floor(segundosRestantes / 60);
+  const s = segundosRestantes % 60;
+  const timer = document.getElementById("timerFocoGrande");
+  if (timer) timer.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+
+  const total = 25 * 60;
+  const perc = Math.min(100, Math.max(0, ((total - segundosRestantes) / total) * 100));
+  const bar = document.getElementById("progressoFocoBar");
+  if (bar) bar.style.width = `${perc}%`;
+}
+
+window.iniciarPomodoro = function () {
+  if (timerPomodoro) return;
+  emPausa = false;
+  document.getElementById("btnIniciarFoco")?.style && (document.getElementById("btnIniciarFoco").style.display = "none");
+  document.getElementById("btnPausarFoco")?.style && (document.getElementById("btnPausarFoco").style.display = "inline-flex");
+
+  timerPomodoro = setInterval(() => {
+    if (emPausa) return;
+    segundosRestantes--;
+    atualizarTimerUI();
+
+    if (segundosRestantes <= 0) {
+      clearInterval(timerPomodoro);
+      timerPomodoro = null;
+
+      tempoFocadoHoje += 25;
+      tempoTotalFocado += 25;
+
+      if (tarefaFocoAtual) {
+        tarefaFocoAtual.tempoGasto = (tarefaFocoAtual.tempoGasto || 0) + 25;
+      }
+
+      salvarDados();
+      mostrarIndicadorSync("🍅 Pomodoro concluído!");
+      document.getElementById("btnIniciarFoco")?.style && (document.getElementById("btnIniciarFoco").style.display = "inline-flex");
+      document.getElementById("btnPausarFoco")?.style && (document.getElementById("btnPausarFoco").style.display = "none");
+    }
+  }, 1000);
+};
+
+window.pausarPomodoro = function () {
+  emPausa = !emPausa;
+  const btn = document.getElementById("btnPausarFoco");
+  if (btn) btn.innerHTML = emPausa ? '<i class="fas fa-play"></i> Retomar' : '<i class="fas fa-pause"></i> Pausar';
+};
+
+window.prorrogarTempoFoco = function () {
+  segundosRestantes += 10 * 60;
+  atualizarTimerUI();
+  mostrarIndicadorSync("⏱️ +10 minutos adicionados");
+};
+
+window.concluirTarefaFoco = function () {
+  if (!tarefaFocoAtual) return;
+  tarefaFocoAtual.concluida = true;
+  salvarDados();
+  mostrarIndicadorSync("✅ Tarefa concluída no foco!");
+  fecharModoFoco();
+};
+
+window.toggleMusicaFoco = function () {
+  const audio = document.getElementById("lofiAudio");
+  const btn = document.getElementById("btnMusicaFoco");
+  if (!audio || !btn) return;
+
+  if (!musicaAtiva) {
+    audio.play().catch(() => {});
+    musicaAtiva = true;
+    btn.innerHTML = '<i class="fas fa-volume-mute"></i> Parar LoFi';
+  } else {
+    audio.pause();
+    musicaAtiva = false;
+    btn.innerHTML = '<i class="fas fa-music"></i> LoFi Focus';
+  }
+};
+
+window.ajustarVolumeFoco = function (valor) {
+  const audio = document.getElementById("lofiAudio");
+  if (!audio) return;
+  audio.volume = Math.max(0, Math.min(1, Number(valor) / 100));
+};
+
+/* =========================
+   METAS
 ========================= */
 window.togglePainelMetas = function () {
   const painel = document.getElementById("metasCompletas");
@@ -932,7 +1089,7 @@ function renderizarCalendario() {
 
   const primeiroDia = new Date(ano, mes, 1);
   const ultimoDia = new Date(ano, mes + 1, 0);
-  const inicioSemana = (primeiroDia.getDay() + 6) % 7;
+  const inicioSemana = (primeiroDia.getDay() + 6) % 7; // segunda = 0
   const totalDias = ultimoDia.getDate();
 
   const hoje = getDataHoje();
@@ -943,6 +1100,7 @@ function renderizarCalendario() {
   </div>`;
 
   html += diasSemana.map((d) => `<div style="font-size:12px;opacity:.7;text-align:center;padding:6px 0;">${d}</div>`).join("");
+
   for (let i = 0; i < inicioSemana; i++) html += `<div></div>`;
 
   for (let dia = 1; dia <= totalDias; dia++) {
@@ -993,15 +1151,19 @@ function renderizarTarefas() {
       .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
       .map((t) => {
         const atrasada = t.data && t.data < hoje;
-        const recorrenciaIcon =
+
+        // Sem emojis de calendário: só texto + ícone de setinha no span
+        const recorrenciaLabel =
           {
-            diaria: "🔄 Diária",
-            dias_uteis: "📅 Dias úteis",
-            semanal: "📆 Semanal",
-            mensal: "📅 Mensal"
+            diaria: "Diária",
+            dias_uteis: "Dias úteis",
+            semanal: "Semanal",
+            mensal: "Mensal"
           }[t.recorrencia] || "";
 
-        return `<div class="tarefa-item ${t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : ""}"
+        const classePrioridade = t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : "p3";
+
+        return `<div class="tarefa-item ${classePrioridade}"
           draggable="true"
           ondragstart="iniciarDragTarefa(${JSON.stringify(t.id)}, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', event)"
           ondragend="document.querySelectorAll('.tarefa-item').forEach(el=>el.classList.remove('dragging'))"
@@ -1018,7 +1180,7 @@ function renderizarTarefas() {
                   onclick="abrirModalReagendar(${JSON.stringify(t.id)}); event.stopPropagation()">
                   <i class="fas fa-calendar"></i> ${t.data} ${atrasada ? "⚠" : ""}
                 </span>
-                ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaIcon}</span>` : ""}
+                ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaLabel}</span>` : ""}
                 ${t.tempoGasto ? `<span class="meta-tag"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ""}
               </div>
             </div>
@@ -1027,7 +1189,7 @@ function renderizarTarefas() {
           <div class="task-actions-2x2">
             <button class="task-action-btn" onclick="abrirModalEdicao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
             <button class="task-action-btn" onclick="abrirModalDescricao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Descrição"><i class="fas fa-pen-alt"></i></button>
-            <button class="task-action-btn" title="Modo Foco"><i class="fas fa-clock"></i></button>
+            <button class="task-action-btn" onclick="abrirModoFoco(${JSON.stringify(t.id)}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
             <button class="task-action-btn danger" onclick="excluirTarefa(${JSON.stringify(t.id)}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>`;
@@ -1077,10 +1239,10 @@ function renderizarTarefas() {
         </select>
         <select id="recorrencia-${cardId}">
           <option value="">Sem recorrência</option>
-          <option value="diaria">🔄 Diária</option>
-          <option value="dias_uteis">📅 Dias úteis</option>
-          <option value="semanal">📆 Semanal</option>
-          <option value="mensal">📅 Mensal</option>
+          <option value="diaria">Diária</option>
+          <option value="dias_uteis">Dias úteis</option>
+          <option value="semanal">Semanal</option>
+          <option value="mensal">Mensal</option>
         </select>
         <div class="inline-form-buttons">
           <button class="btn-confirm" onclick="adicionarTarefaInline('${cardId}')">Adicionar</button>
@@ -1142,7 +1304,7 @@ function bindUI() {
 
   document.getElementById("backupBtn")?.addEventListener("click", () => exportarBackupJSON());
   document.getElementById("importBackupBtn")?.addEventListener("click", () => importarBackupJSON());
-  document.getElementById("indexedbBtn")?.addEventListener("click", () => fazerBackupManual());
+  document.getElementById("indexedbBtn")?.addEventListener("click", () => abrirModalBackup());
 
   document.getElementById("rescheduleBtn")?.addEventListener("click", () => {
     const hoje = getDataHoje();
@@ -1188,7 +1350,6 @@ async function initApp() {
   if (dataHeader) dataHeader.textContent = textoData;
   if (dataMobile) dataMobile.textContent = textoData;
 
-  // restaura view salva (cards padrão)
   const savedView = localStorage.getItem(VIEW_STORAGE_KEY);
   setView(savedView === "calendario" ? "calendario" : "cards", false);
 
