@@ -551,7 +551,6 @@ function salvarDados() {
   atualizarDashboard();
   atualizarRodape();
 
-  /* Se modal do dia estiver aberto, atualiza conteúdo em tempo real */
   if (dataModalDiaAtual) renderizarConteudoModalDia(dataModalDiaAtual);
 
   if (window.currentUser) setTimeout(() => salvarTudoFirebase(), 400);
@@ -1169,9 +1168,63 @@ function renderizarConteudoModalDia(dataStr) {
   }).join("");
 }
 
+/* NOVO: adicionar tarefa direto no modal do dia */
+window.adicionarTarefaNoDiaModal = function () {
+  if (!dataModalDiaAtual) return;
+
+  const textoEl = document.getElementById("modalDiaNovoTexto");
+  const descEl = document.getElementById("modalDiaNovaDescricao");
+  const priEl = document.getElementById("modalDiaNovaPrioridade");
+  const recEl = document.getElementById("modalDiaNovaRecorrencia");
+
+  const texto = textoEl?.value?.trim();
+  const descricao = descEl?.value?.trim() || "";
+  const prioridade = priEl?.value || "p2";
+  const recorrencia = recEl?.value || "";
+
+  if (!texto) {
+    alert("Digite o título da tarefa.");
+    return;
+  }
+
+  const blocoPadrao = (cardsTarefas[0] && cardsTarefas[0].nome) ? cardsTarefas[0].nome : "Minhas Tarefas";
+
+  tarefas.push({
+    id: uid(),
+    texto,
+    descricao,
+    bloco: blocoPadrao,
+    data: dataModalDiaAtual,
+    prioridade,
+    recorrencia,
+    concluida: false,
+    tempoGasto: 0,
+    notificado: false,
+    ordem: tarefas.filter((t) => t.bloco === blocoPadrao && !t.concluida).length
+  });
+
+  if (textoEl) textoEl.value = "";
+  if (descEl) descEl.value = "";
+  if (priEl) priEl.value = "p2";
+  if (recEl) recEl.value = "";
+
+  salvarDados();
+  mostrarIndicadorSync("✅ Tarefa adicionada no calendário!");
+};
+
 window.abrirDiaCalendario = function (dataStr) {
   dataModalDiaAtual = dataStr;
   renderizarConteudoModalDia(dataStr);
+
+  const textoEl = document.getElementById("modalDiaNovoTexto");
+  const descEl = document.getElementById("modalDiaNovaDescricao");
+  const priEl = document.getElementById("modalDiaNovaPrioridade");
+  const recEl = document.getElementById("modalDiaNovaRecorrencia");
+  if (textoEl) textoEl.value = "";
+  if (descEl) descEl.value = "";
+  if (priEl) priEl.value = "p2";
+  if (recEl) recEl.value = "";
+
   document.getElementById("modalDiaOverlay")?.classList.add("show");
 };
 
@@ -1456,7 +1509,6 @@ function bindUI() {
     userAvatar.addEventListener("mouseleave", () => (userTooltip.style.display = "none"));
   }
 
-  /* fechar modal do dia clicando fora */
   const modalDia = document.getElementById("modalDiaOverlay");
   if (modalDia) {
     modalDia.addEventListener("click", (e) => {
