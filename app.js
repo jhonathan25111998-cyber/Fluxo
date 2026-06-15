@@ -56,6 +56,9 @@ let tarefaEditandoAtual = null;
 
 let dataCalendario = new Date();
 
+/* Modal dia calendário */
+let dataModalDiaAtual = null;
+
 /* =========================
    MODO FOCO / POMODORO
 ========================= */
@@ -107,6 +110,18 @@ function getProximaData(recorrencia, dataAtualStr) {
 
 function formatarDataHeader(d = new Date()) {
   return d.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function formatarDataPtBr(dataStr) {
+  if (!dataStr) return "";
+  const [y, m, d] = dataStr.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "2-digit",
     month: "long",
@@ -535,6 +550,9 @@ function salvarDados() {
   renderizarCalendario();
   atualizarDashboard();
   atualizarRodape();
+
+  /* Se modal do dia estiver aberto, atualiza conteúdo em tempo real */
+  if (dataModalDiaAtual) renderizarConteudoModalDia(dataModalDiaAtual);
 
   if (window.currentUser) setTimeout(() => salvarTudoFirebase(), 400);
 }
@@ -1078,7 +1096,90 @@ window.irParaHoje = function () {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-/* ===== CORREÇÃO AQUI: calendário mostra tarefas do dia ===== */
+/* ===== MODAL DIA CALENDÁRIO ===== */
+function renderizarConteudoModalDia(dataStr) {
+  const tituloEl = document.getElementById("modalDiaTitulo");
+  const resumoEl = document.getElementById("modalDiaResumo");
+  const listaEl = document.getElementById("modalDiaLista");
+  if (!tituloEl || !resumoEl || !listaEl) return;
+
+  const tarefasDia = tarefas
+    .filter((t) => t.data === dataStr && !t.concluida)
+    .sort((a, b) => {
+      const ordem = { p1: 1, p2: 2, p3: 3 };
+      const pa = ordem[a.prioridade || "p3"];
+      const pb = ordem[b.prioridade || "p3"];
+      if (pa !== pb) return pa - pb;
+      return (a.ordem || 0) - (b.ordem || 0);
+    });
+
+  tituloEl.textContent = formatarDataPtBr(dataStr);
+  resumoEl.textContent = tarefasDia.length === 0
+    ? "Nenhuma tarefa pendente neste dia."
+    : `${tarefasDia.length} tarefa(s) pendente(s)`;
+
+  if (tarefasDia.length === 0) {
+    listaEl.innerHTML = `<div class="modal-dia-empty">Sem tarefas pendentes para este dia 🎉</div>`;
+    return;
+  }
+
+  const recorrenciaLabel = {
+    diaria: "Diária",
+    dias_uteis: "Dias úteis",
+    semanal: "Semanal",
+    mensal: "Mensal"
+  };
+
+  listaEl.innerHTML = tarefasDia.map((t) => {
+    const cls = t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : "p3";
+    const bloco = t.bloco ? `<span class="modal-dia-tag"><i class="fas fa-folder-open"></i> ${escapeHtml(t.bloco)}</span>` : "";
+    const rec = t.recorrencia ? `<span class="modal-dia-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaLabel[t.recorrencia] || "Recorrente"}</span>` : "";
+    const pri = `<span class="modal-dia-tag">${
+      t.prioridade === "p1" ? "🔴 Alta" : t.prioridade === "p2" ? "🟡 Média" : "🟢 Baixa"
+    }</span>`;
+
+    return `
+      <div class="modal-dia-item ${cls}">
+        <div class="modal-dia-main">
+          <div class="modal-dia-title">${escapeHtml(t.texto)}</div>
+          ${t.descricao ? `<div class="modal-dia-desc">${escapeHtml(t.descricao)}</div>` : ""}
+          <div class="modal-dia-tags">
+            ${pri}
+            ${bloco}
+            ${rec}
+          </div>
+        </div>
+
+        <div class="modal-dia-actions">
+          <button class="modal-dia-btn" title="Concluir" onclick="toggleTarefa(${JSON.stringify(t.id)}); event.stopPropagation();">
+            <i class="fas fa-check"></i>
+          </button>
+          <button class="modal-dia-btn" title="Editar" onclick="abrirModalEdicao(${JSON.stringify(t.id)}); event.stopPropagation();">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="modal-dia-btn" title="Reagendar" onclick="abrirModalReagendar(${JSON.stringify(t.id)}); event.stopPropagation();">
+            <i class="fas fa-calendar-alt"></i>
+          </button>
+          <button class="modal-dia-btn danger" title="Excluir" onclick="excluirTarefa(${JSON.stringify(t.id)}); event.stopPropagation();">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.abrirDiaCalendario = function (dataStr) {
+  dataModalDiaAtual = dataStr;
+  renderizarConteudoModalDia(dataStr);
+  document.getElementById("modalDiaOverlay")?.classList.add("show");
+};
+
+window.fecharDiaCalendario = function () {
+  document.getElementById("modalDiaOverlay")?.classList.remove("show");
+  dataModalDiaAtual = null;
+};
+
 function renderizarCalendario() {
   const grade = document.getElementById("calendarioGrade");
   const mesLabel = document.getElementById("calendarioMes");
@@ -1096,7 +1197,7 @@ function renderizarCalendario() {
 
   const primeiroDia = new Date(ano, mes, 1);
   const ultimoDia = new Date(ano, mes + 1, 0);
-  const inicioSemana = (primeiroDia.getDay() + 6) % 7; // segunda=0
+  const inicioSemana = (primeiroDia.getDay() + 6) % 7;
   const totalDias = ultimoDia.getDate();
 
   const hoje = getDataHoje();
@@ -1120,7 +1221,7 @@ function renderizarCalendario() {
       .filter((t) => t.data === dataStr)
       .sort((a, b) => {
         const ordem = { p1: 1, p2: 2, p3: 3 };
-        return (ordem[a.prioridade || "p3"] - ordem[b.prioridade || "p3"]);
+        return ordem[a.prioridade || "p3"] - ordem[b.prioridade || "p3"];
       });
 
     const isHoje = dataStr === hoje;
@@ -1139,7 +1240,7 @@ function renderizarCalendario() {
       .join("");
 
     html += `
-      <div class="cal-dia ${isHoje ? "hoje" : ""}">
+      <div class="cal-dia ${isHoje ? "hoje" : ""}" onclick="abrirDiaCalendario('${dataStr}')">
         <div class="cal-dia-topo">
           <span class="cal-dia-num">${dia}</span>
           ${tarefasDia.length > 0 ? `<span class="cal-dia-badge">${tarefasDia.length}</span>` : ""}
@@ -1353,6 +1454,14 @@ function bindUI() {
   if (userAvatar && userTooltip) {
     userAvatar.addEventListener("mouseenter", () => (userTooltip.style.display = "block"));
     userAvatar.addEventListener("mouseleave", () => (userTooltip.style.display = "none"));
+  }
+
+  /* fechar modal do dia clicando fora */
+  const modalDia = document.getElementById("modalDiaOverlay");
+  if (modalDia) {
+    modalDia.addEventListener("click", (e) => {
+      if (e.target === modalDia) fecharDiaCalendario();
+    });
   }
 
   window.addEventListener("online", atualizarStatusConexao);
