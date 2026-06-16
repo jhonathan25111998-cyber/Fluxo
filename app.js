@@ -134,6 +134,157 @@ function uid() {
 }
 
 /* =========================
+   RECORRÊNCIA ROBUSTA
+========================= */
+function makeSerieId() {
+  return "serie_" + Date.now() + "_" + Math.floor(Math.random() * 1e9);
+}
+
+function normalizarTarefaRecorrente(t) {
+  if (t && t.recorrencia && t.recorrencia !== "" && !t.serieId) {
+    t.serieId = makeSerieId();
+  }
+  return t;
+}
+
+function garantirSerieIds() {
+  let alterou = false;
+  tarefas.forEach((t) => {
+    if (t.recorrencia && t.recorrencia !== "" && !t.serieId) {
+      t.serieId = makeSerieId();
+      alterou = true;
+    }
+  });
+  return alterou;
+}
+
+function existePendenteDaSerie(serieId, ignoreId = null) {
+  return tarefas.some((x) => x.serieId === serieId && !x.concluida && x.id !== ignoreId);
+}
+
+function existeInstanciaDaSerieNaData(serieId, dataStr, ignoreId = null) {
+  return tarefas.some((x) => x.serieId === serieId && x.data === dataStr && x.id !== ignoreId);
+}
+
+/* remove duplicatas exatas de pendente por serie+data */
+function deduplicarPendentesPorSerieData() {
+  const mapa = new Map();
+  const removerIds = new Set();
+
+  for (const t of tarefas) {
+    if (!t.recorrencia || !t.serieId || t.concluida) continue;
+    const chave = `${t.serieId}__${t.data}__pendente`;
+
+    if (!mapa.has(chave)) {
+      mapa.set(chave, t);
+    } else {
+      const existente = mapa.get(chave);
+      const keep = String(existente.id) <= String(t.id) ? existente : t;
+      const drop = keep === existente ? t : existente;
+      mapa.set(chave, keep);
+      removerIds.add(drop.id);
+    }
+  }
+
+  if (removerIds.size > 0) {
+    tarefas = tarefas.filter((t) => !removerIds.has(t.id));
+    return true;
+  }
+  return false;
+}
+
+/* regra ouro: no máximo 1 pendente por série */
+function deduplicarPendenciaUnicaPorSerie() {
+  const hoje = getDataHoje();
+  const grupos = new Map();
+  const removerIds = new Set();
+
+  for (const t of tarefas) {
+    if (!t.recorrencia || !t.serieId || t.concluida) continue;
+    if (!grupos.has(t.serieId)) grupos.set(t.serieId, []);
+    grupos.get(t.serieId).push(t);
+  }
+
+  for (const [, arr] of grupos) {
+    if (arr.length <= 1) continue;
+
+    // Preferir manter: menor data >= hoje; se não houver, manter a mais recente atrasada
+    const futurasOuHoje = arr.filter((x) => x.data >= hoje).sort((a, b) => a.data.localeCompare(b.data));
+    let manter = null;
+
+    if (futurasOuHoje.length > 0) {
+      manter = futurasOuHoje[0];
+    } else {
+      manter = arr.slice().sort((a, b) => b.data.localeCompare(a.data))[0];
+    }
+
+    for (const t of arr) {
+      if (t.id !== manter.id) removerIds.add(t.id);
+    }
+  }
+
+  if (removerIds.size > 0) {
+    tarefas = tarefas.filter((t) => !removerIds.has(t.id));
+    return true;
+  }
+  return false;
+}
+
+function calcularBaseEfetivaConclusao(tarefa) {
+  const hoje = getDataHoje();
+  return tarefa.data < hoje ? hoje : tarefa.data;
+}
+
+function gerarProximaInstanciaSeNecessario(tarefaConcluida) {
+  if (!tarefaConcluida) return;
+  if (!tarefaConcluida.recorrencia || tarefaConcluida.recorrencia === "") return;
+
+  normalizarTarefaRecorrente(tarefaConcluida);
+  const serieId = tarefaConcluida.serieId;
+  if (!serieId) return;
+
+  // Se já existe outra pendente da mesma série, não cria nova
+  if (existePendenteDaSerie(serieId, tarefaConcluida.id)) return;
+
+  // Base dinâmica: atrasada concluída hoje -> próxima a partir de hoje
+  const base = calcularBaseEfetivaConclusao(tarefaConcluida);
+  const proximaData = getProximaData(tarefaConcluida.recorrencia, base);
+  if (!proximaData) return;
+
+  // Unicidade por série + data
+  if (existeInstanciaDaSerieNaData(serieId, proximaData, tarefaConcluida.id)) return;
+
+  tarefas.push({
+    id: uid(),
+    texto: tarefaConcluida.texto,
+    descricao: tarefaConcluida.descricao || "",
+    bloco: tarefaConcluida.bloco,
+    data: proximaData,
+    prioridade: tarefaConcluida.prioridade || "p3",
+    recorrencia: tarefaConcluida.recorrencia,
+    serieId: serieId,
+    concluida: false,
+    concluidaEm: null,
+    tempoGasto: 0,
+    notificado: false,
+    ordem: tarefas.filter((t) => t.bloco === tarefaConcluida.bloco && !t.concluida).length,
+    origemRecorrente: "conclusao",
+    criadoEm: new Date().toISOString()
+  });
+}
+
+function concluirTarefaComRecorrencia(id) {
+  const tarefa = tarefas.find((t) => t.id === id);
+  if (!tarefa) return;
+
+  if (tarefa.concluida) return;
+  tarefa.concluida = true;
+  tarefa.concluidaEm = new Date().toISOString();
+
+  gerarProximaInstanciaSeNecessario(tarefa);
+}
+
+/* =========================
    FEEDBACK UI
 ========================= */
 window.mostrarIndicadorSync = function (mensagem, tipo = "success") {
@@ -456,87 +607,31 @@ function verificarResetDiario() {
   }
 }
 
+/* Sync agora = reparo/dedupe (idempotente), sem geração em massa */
 function sincronizarTarefasRecorrentes() {
-  const hoje = getDataHoje();
-  let tarefasGeradas = 0;
-  const novasTarefas = [];
+  let alterou = false;
+  if (garantirSerieIds()) alterou = true;
+  if (deduplicarPendentesPorSerieData()) alterou = true;
+  if (deduplicarPendenciaUnicaPorSerie()) alterou = true;
 
-  const tarefasMae = tarefas.filter((t) => t.recorrencia && t.recorrencia !== "" && t.concluida === true);
-
-  for (const tarefaMae of tarefasMae) {
-    let proximaData = getProximaData(tarefaMae.recorrencia, tarefaMae.data);
-    if (!proximaData) continue;
-
-    while (proximaData < hoje) {
-      proximaData = getProximaData(tarefaMae.recorrencia, proximaData);
-      if (!proximaData) break;
-    }
-
-    if (proximaData && proximaData >= hoje) {
-      const jaExiste = tarefas.some(
-        (t) => t.texto === tarefaMae.texto && t.data === proximaData && t.recorrencia === tarefaMae.recorrencia
-      );
-
-      if (!jaExiste) {
-        novasTarefas.push({
-          id: uid(),
-          texto: tarefaMae.texto,
-          descricao: tarefaMae.descricao || "",
-          bloco: tarefaMae.bloco,
-          data: proximaData,
-          prioridade: tarefaMae.prioridade || "p2",
-          recorrencia: tarefaMae.recorrencia,
-          concluida: false,
-          tempoGasto: 0,
-          notificado: false,
-          ordem: tarefas.filter((t) => t.bloco === tarefaMae.bloco && !t.concluida).length
-        });
-        tarefasGeradas++;
-      }
-    }
-  }
-
-  if (tarefasGeradas > 0) {
-    tarefas.push(...novasTarefas);
-    mostrarIndicadorSync(`✅ ${tarefasGeradas} nova(s) tarefa(s) gerada(s)`);
+  if (alterou) {
+    mostrarIndicadorSync("🔄 Recorrências sincronizadas");
     return true;
   }
   return false;
 }
 
+/* Mantido nome para compatibilidade, mas agora usa lógica robusta */
 function concluirComDuplicatas(id) {
-  const tarefa = tarefas.find((t) => t.id === id);
-  if (!tarefa) return;
-
-  tarefa.concluida = true;
-
-  if (tarefa.recorrencia && tarefa.recorrencia !== "") {
-    const proximaData = getProximaData(tarefa.recorrencia, tarefa.data);
-    if (proximaData) {
-      const existe = tarefas.some(
-        (t) => t.texto === tarefa.texto && t.data === proximaData && t.recorrencia === tarefa.recorrencia
-      );
-      if (!existe) {
-        tarefas.push({
-          id: uid(),
-          texto: tarefa.texto,
-          descricao: tarefa.descricao || "",
-          bloco: tarefa.bloco,
-          data: proximaData,
-          prioridade: tarefa.prioridade || "p3",
-          recorrencia: tarefa.recorrencia,
-          concluida: false,
-          tempoGasto: 0,
-          notificado: false,
-          ordem: tarefas.filter((t) => t.bloco === tarefa.bloco && !t.concluida).length
-        });
-        mostrarIndicadorSync(`🔄 Nova tarefa gerada: ${tarefa.texto}`);
-      }
-    }
-  }
+  concluirTarefaComRecorrencia(id);
 }
 
 function salvarDados() {
+  // Saneamento defensivo recorrência antes de persistir
+  garantirSerieIds();
+  deduplicarPendentesPorSerieData();
+  deduplicarPendenciaUnicaPorSerie();
+
   localStorage.setItem("tarefas", JSON.stringify(tarefas));
   localStorage.setItem("metas", JSON.stringify(metas));
   localStorage.setItem("cardsTarefas", JSON.stringify(cardsTarefas));
@@ -564,10 +659,11 @@ window.toggleTarefa = function (id) {
   if (!t) return;
 
   if (!t.concluida) {
-    concluirComDuplicatas(id);
+    concluirTarefaComRecorrencia(id);
     mostrarIndicadorSync("✅ Tarefa concluída!");
   } else {
     t.concluida = false;
+    t.concluidaEm = null;
     mostrarIndicadorSync("🔄 Tarefa reativada!");
   }
   salvarDados();
@@ -604,6 +700,10 @@ window.salvarEdicaoTarefa = function () {
   tarefaEditandoAtual.data = document.getElementById("edicaoData").value;
   tarefaEditandoAtual.prioridade = document.getElementById("edicaoPrioridade").value;
   tarefaEditandoAtual.recorrencia = document.getElementById("edicaoRecorrencia").value;
+
+  // Se virou recorrente e não tinha serieId
+  normalizarTarefaRecorrente(tarefaEditandoAtual);
+
   salvarDados();
   fecharModalEdicao();
   mostrarIndicadorSync("✏️ Tarefa editada!");
@@ -652,6 +752,10 @@ window.confirmarReagendamento = function () {
   tarefaReagendando.data = novaData;
   tarefaReagendando.notificado = false;
   tarefasReagendadasHoje++;
+
+  // mantém recorrência da própria instância; não gera nada aqui
+  normalizarTarefaRecorrente(tarefaReagendando);
+
   salvarDados();
   fecharModalReagendar();
   mostrarIndicadorSync("📅 Tarefa reagendada!");
@@ -706,7 +810,7 @@ window.adicionarTarefaInline = function (cardId) {
   const prioridade = document.getElementById(`prioridade-${cardId}`)?.value || "p3";
   const recorrencia = document.getElementById(`recorrencia-${cardId}`)?.value || "";
 
-  tarefas.push({
+  const nova = {
     id: uid(),
     texto,
     descricao,
@@ -718,7 +822,10 @@ window.adicionarTarefaInline = function (cardId) {
     tempoGasto: 0,
     notificado: false,
     ordem: tarefas.filter((t) => t.bloco === card.nome && !t.concluida).length
-  });
+  };
+
+  normalizarTarefaRecorrente(nova);
+  tarefas.push(nova);
 
   const txt = document.getElementById(`texto-${cardId}`);
   const desc = document.getElementById(`descricao-${cardId}`);
@@ -738,7 +845,7 @@ window.marcarTodasHoje = function () {
     return;
   }
   if (confirm(`Concluir ${alvos.length} tarefa(s) de hoje?`)) {
-    alvos.forEach((t) => (t.concluida = true));
+    alvos.forEach((t) => concluirTarefaComRecorrencia(t.id));
     salvarDados();
     mostrarIndicadorSync(`🎉 ${alvos.length} tarefa(s) concluída(s)!`);
   }
@@ -888,7 +995,7 @@ window.prorrogarTempoFoco = function () {
 
 window.concluirTarefaFoco = function () {
   if (!tarefaFocoAtual) return;
-  tarefaFocoAtual.concluida = true;
+  concluirTarefaComRecorrencia(tarefaFocoAtual.id);
   salvarDados();
   mostrarIndicadorSync("✅ Tarefa concluída no foco!");
   fecharModoFoco();
@@ -1189,7 +1296,7 @@ window.adicionarTarefaNoDiaModal = function () {
 
   const blocoPadrao = (cardsTarefas[0] && cardsTarefas[0].nome) ? cardsTarefas[0].nome : "Minhas Tarefas";
 
-  tarefas.push({
+  const nova = {
     id: uid(),
     texto,
     descricao,
@@ -1201,7 +1308,10 @@ window.adicionarTarefaNoDiaModal = function () {
     tempoGasto: 0,
     notificado: false,
     ordem: tarefas.filter((t) => t.bloco === blocoPadrao && !t.concluida).length
-  });
+  };
+
+  normalizarTarefaRecorrente(nova);
+  tarefas.push(nova);
 
   if (textoEl) textoEl.value = "";
   if (descEl) descEl.value = "";
@@ -1359,7 +1469,7 @@ function renderizarTarefas() {
                   onclick="abrirModalReagendar(${JSON.stringify(t.id)}); event.stopPropagation()">
                   <i class="fas fa-calendar"></i> ${t.data} ${atrasada ? "⚠" : ""}
                 </span>
-                ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaLabel}</span>` : ""}
+                ${t.recorrencia ? `<span class="meta-tag" title="Recorrente • mantém 1 pendente por série"><i class="fas fa-redo-alt"></i> ${recorrenciaLabel}</span>` : ""}
                 ${t.tempoGasto ? `<span class="meta-tag"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ""}
               </div>
             </div>
@@ -1497,6 +1607,7 @@ function bindUI() {
       t.data = hoje;
       t.notificado = false;
       tarefasReagendadasHoje++;
+      normalizarTarefaRecorrente(t);
     });
     salvarDados();
     mostrarIndicadorSync(`📅 ${atrasadas.length} tarefa(s) reagendada(s)!`);
@@ -1505,74 +1616,4 @@ function bindUI() {
   const userAvatar = document.getElementById("userAvatar");
   const userTooltip = document.getElementById("userTooltip");
   if (userAvatar && userTooltip) {
-    userAvatar.addEventListener("mouseenter", () => (userTooltip.style.display = "block"));
-    userAvatar.addEventListener("mouseleave", () => (userTooltip.style.display = "none"));
-  }
-
-  const modalDia = document.getElementById("modalDiaOverlay");
-  if (modalDia) {
-    modalDia.addEventListener("click", (e) => {
-      if (e.target === modalDia) fecharDiaCalendario();
-    });
-  }
-
-  window.addEventListener("online", atualizarStatusConexao);
-  window.addEventListener("offline", atualizarStatusConexao);
-}
-
-/* =========================
-   INIT
-========================= */
-async function initApp() {
-  await initIndexedDB();
-  verificarResetDiario();
-  aplicarTemaSalvo();
-  bindUI();
-  atualizarStatusConexao();
-
-  const dataHeader = document.getElementById("dataHojeHeader");
-  const dataMobile = document.getElementById("dataHojeMobile");
-  const textoData = formatarDataHeader(new Date());
-  if (dataHeader) dataHeader.textContent = textoData;
-  if (dataMobile) dataMobile.textContent = textoData;
-
-  const savedView = localStorage.getItem(VIEW_STORAGE_KEY);
-  setView(savedView === "calendario" ? "calendario" : "cards", false);
-
-  onAuthStateChanged(auth, async (user) => {
-    currentUser = user;
-    window.currentUser = user || null;
-
-    const loginOverlay = document.getElementById("loginOverlay");
-    const mainApp = document.getElementById("mainApp");
-    const tooltipEmail = document.getElementById("userEmailTooltip");
-
-    if (user) {
-      usuarioAtual = user.uid;
-      if (tooltipEmail) tooltipEmail.textContent = user.email || "";
-      if (loginOverlay) loginOverlay.style.display = "none";
-      if (mainApp) mainApp.style.display = "block";
-
-      await carregarDadosFirebase();
-      tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
-      metas = JSON.parse(localStorage.getItem("metas") || "[]");
-      cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
-      if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
-
-      sincronizarTarefasRecorrentes();
-      salvarDados();
-    } else {
-      if (loginOverlay) loginOverlay.style.display = "flex";
-      if (mainApp) mainApp.style.display = "none";
-    }
-  });
-
-  renderizarTarefas();
-  renderizarMetas();
-  renderizarMetasCarrossel();
-  renderizarCalendario();
-  atualizarDashboard();
-  atualizarRodape();
-}
-
-initApp();
+    userAvatar
