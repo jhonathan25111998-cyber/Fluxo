@@ -166,7 +166,6 @@ function existeInstanciaDaSerieNaData(serieId, dataStr, ignoreId = null) {
   return tarefas.some((x) => x.serieId === serieId && x.data === dataStr && x.id !== ignoreId);
 }
 
-/* remove duplicatas exatas de pendente por serie+data */
 function deduplicarPendentesPorSerieData() {
   const mapa = new Map();
   const removerIds = new Set();
@@ -174,15 +173,10 @@ function deduplicarPendentesPorSerieData() {
   for (const t of tarefas) {
     if (!t.recorrencia || !t.serieId || t.concluida) continue;
     const chave = `${t.serieId}__${t.data}__pendente`;
-
     if (!mapa.has(chave)) {
       mapa.set(chave, t);
     } else {
-      const existente = mapa.get(chave);
-      const keep = String(existente.id) <= String(t.id) ? existente : t;
-      const drop = keep === existente ? t : existente;
-      mapa.set(chave, keep);
-      removerIds.add(drop.id);
+      removerIds.add(t.id);
     }
   }
 
@@ -193,11 +187,10 @@ function deduplicarPendentesPorSerieData() {
   return false;
 }
 
-/* regra ouro: no máximo 1 pendente por série */
 function deduplicarPendenciaUnicaPorSerie() {
   const hoje = getDataHoje();
   const grupos = new Map();
-  const removerIds = new Set();
+  const remover = new Set();
 
   for (const t of tarefas) {
     if (!t.recorrencia || !t.serieId || t.concluida) continue;
@@ -208,23 +201,19 @@ function deduplicarPendenciaUnicaPorSerie() {
   for (const [, arr] of grupos) {
     if (arr.length <= 1) continue;
 
-    // Preferir manter: menor data >= hoje; se não houver, manter a mais recente atrasada
     const futurasOuHoje = arr.filter((x) => x.data >= hoje).sort((a, b) => a.data.localeCompare(b.data));
-    let manter = null;
-
-    if (futurasOuHoje.length > 0) {
-      manter = futurasOuHoje[0];
-    } else {
-      manter = arr.slice().sort((a, b) => b.data.localeCompare(a.data))[0];
-    }
+    const manter =
+      futurasOuHoje.length > 0
+        ? futurasOuHoje[0]
+        : arr.slice().sort((a, b) => b.data.localeCompare(a.data))[0];
 
     for (const t of arr) {
-      if (t.id !== manter.id) removerIds.add(t.id);
+      if (t.id !== manter.id) remover.add(t.id);
     }
   }
 
-  if (removerIds.size > 0) {
-    tarefas = tarefas.filter((t) => !removerIds.has(t.id));
+  if (remover.size > 0) {
+    tarefas = tarefas.filter((t) => !remover.has(t.id));
     return true;
   }
   return false;
@@ -243,15 +232,12 @@ function gerarProximaInstanciaSeNecessario(tarefaConcluida) {
   const serieId = tarefaConcluida.serieId;
   if (!serieId) return;
 
-  // Se já existe outra pendente da mesma série, não cria nova
   if (existePendenteDaSerie(serieId, tarefaConcluida.id)) return;
 
-  // Base dinâmica: atrasada concluída hoje -> próxima a partir de hoje
   const base = calcularBaseEfetivaConclusao(tarefaConcluida);
   const proximaData = getProximaData(tarefaConcluida.recorrencia, base);
   if (!proximaData) return;
 
-  // Unicidade por série + data
   if (existeInstanciaDaSerieNaData(serieId, proximaData, tarefaConcluida.id)) return;
 
   tarefas.push({
@@ -275,12 +261,9 @@ function gerarProximaInstanciaSeNecessario(tarefaConcluida) {
 
 function concluirTarefaComRecorrencia(id) {
   const tarefa = tarefas.find((t) => t.id === id);
-  if (!tarefa) return;
-
-  if (tarefa.concluida) return;
+  if (!tarefa || tarefa.concluida) return;
   tarefa.concluida = true;
   tarefa.concluidaEm = new Date().toISOString();
-
   gerarProximaInstanciaSeNecessario(tarefa);
 }
 
@@ -607,27 +590,20 @@ function verificarResetDiario() {
   }
 }
 
-/* Sync agora = reparo/dedupe (idempotente), sem geração em massa */
 function sincronizarTarefasRecorrentes() {
   let alterou = false;
   if (garantirSerieIds()) alterou = true;
   if (deduplicarPendentesPorSerieData()) alterou = true;
   if (deduplicarPendenciaUnicaPorSerie()) alterou = true;
-
-  if (alterou) {
-    mostrarIndicadorSync("🔄 Recorrências sincronizadas");
-    return true;
-  }
-  return false;
+  return alterou;
 }
 
-/* Mantido nome para compatibilidade, mas agora usa lógica robusta */
+/* Compatibilidade com nome antigo */
 function concluirComDuplicatas(id) {
   concluirTarefaComRecorrencia(id);
 }
 
 function salvarDados() {
-  // Saneamento defensivo recorrência antes de persistir
   garantirSerieIds();
   deduplicarPendentesPorSerieData();
   deduplicarPendenciaUnicaPorSerie();
@@ -700,10 +676,7 @@ window.salvarEdicaoTarefa = function () {
   tarefaEditandoAtual.data = document.getElementById("edicaoData").value;
   tarefaEditandoAtual.prioridade = document.getElementById("edicaoPrioridade").value;
   tarefaEditandoAtual.recorrencia = document.getElementById("edicaoRecorrencia").value;
-
-  // Se virou recorrente e não tinha serieId
   normalizarTarefaRecorrente(tarefaEditandoAtual);
-
   salvarDados();
   fecharModalEdicao();
   mostrarIndicadorSync("✏️ Tarefa editada!");
@@ -715,7 +688,7 @@ window.abrirModalDescricao = function (id) {
   tarefaDescricaoAtual = tarefa;
   document.getElementById("modalDescricaoTitulo").textContent = tarefa.texto || "Sem título";
   document.getElementById("modalDescricaoTexto").textContent = tarefa.descricao || "Nenhuma descrição adicionada";
-  document.getElementById("modalDescricaoOverlay").classList.add("show");
+  document.getElementById("modalDescricaoOverlay")?.classList.add("show");
 };
 
 window.fecharModalDescricao = function () {
@@ -738,7 +711,7 @@ window.abrirModalReagendar = function (id) {
   tarefaReagendando = tarefas.find((t) => t.id === id);
   if (!tarefaReagendando) return;
   document.getElementById("novaDataReagendar").value = tarefaReagendando.data || getDataHoje();
-  document.getElementById("modalReagendarOverlay").classList.add("show");
+  document.getElementById("modalReagendarOverlay")?.classList.add("show");
 };
 
 window.fecharModalReagendar = function () {
@@ -752,10 +725,7 @@ window.confirmarReagendamento = function () {
   tarefaReagendando.data = novaData;
   tarefaReagendando.notificado = false;
   tarefasReagendadasHoje++;
-
-  // mantém recorrência da própria instância; não gera nada aqui
   normalizarTarefaRecorrente(tarefaReagendando);
-
   salvarDados();
   fecharModalReagendar();
   mostrarIndicadorSync("📅 Tarefa reagendada!");
@@ -1000,7 +970,6 @@ window.concluirTarefaFoco = function () {
   mostrarIndicadorSync("✅ Tarefa concluída no foco!");
   fecharModoFoco();
 };
-
 window.toggleMusicaFoco = function () {
   const audio = document.getElementById("lofiAudio");
   const btn = document.getElementById("btnMusicaFoco");
@@ -1275,7 +1244,6 @@ function renderizarConteudoModalDia(dataStr) {
   }).join("");
 }
 
-/* NOVO: adicionar tarefa direto no modal do dia */
 window.adicionarTarefaNoDiaModal = function () {
   if (!dataModalDiaAtual) return;
 
@@ -1469,7 +1437,7 @@ function renderizarTarefas() {
                   onclick="abrirModalReagendar(${JSON.stringify(t.id)}); event.stopPropagation()">
                   <i class="fas fa-calendar"></i> ${t.data} ${atrasada ? "⚠" : ""}
                 </span>
-                ${t.recorrencia ? `<span class="meta-tag" title="Recorrente • mantém 1 pendente por série"><i class="fas fa-redo-alt"></i> ${recorrenciaLabel}</span>` : ""}
+                ${t.recorrencia ? `<span class="meta-tag"><i class="fas fa-redo-alt"></i> ${recorrenciaLabel}</span>` : ""}
                 ${t.tempoGasto ? `<span class="meta-tag"><i class="fas fa-clock"></i> ${Math.floor(t.tempoGasto / 60)}min</span>` : ""}
               </div>
             </div>
@@ -1616,4 +1584,83 @@ function bindUI() {
   const userAvatar = document.getElementById("userAvatar");
   const userTooltip = document.getElementById("userTooltip");
   if (userAvatar && userTooltip) {
-    userAvatar
+    userAvatar.addEventListener("mouseenter", () => (userTooltip.style.display = "block"));
+    userAvatar.addEventListener("mouseleave", () => (userTooltip.style.display = "none"));
+  }
+
+  const modalDia = document.getElementById("modalDiaOverlay");
+  if (modalDia) {
+    modalDia.addEventListener("click", (e) => {
+      if (e.target === modalDia) fecharDiaCalendario();
+    });
+  }
+
+  window.addEventListener("online", atualizarStatusConexao);
+  window.addEventListener("offline", atualizarStatusConexao);
+}
+
+/* =========================
+   INIT
+========================= */
+async function initApp() {
+  await initIndexedDB();
+  verificarResetDiario();
+  aplicarTemaSalvo();
+  bindUI();
+  atualizarStatusConexao();
+
+  const dataHeader = document.getElementById("dataHojeHeader");
+  const dataMobile = document.getElementById("dataHojeMobile");
+  const textoData = formatarDataHeader(new Date());
+  if (dataHeader) dataHeader.textContent = textoData;
+  if (dataMobile) dataMobile.textContent = textoData;
+
+  const savedView = localStorage.getItem(VIEW_STORAGE_KEY);
+  setView(savedView === "calendario" ? "calendario" : "cards", false);
+
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    window.currentUser = user || null;
+
+    const loginOverlay = document.getElementById("loginOverlay");
+    const mainApp = document.getElementById("mainApp");
+    const tooltipEmail = document.getElementById("userEmailTooltip");
+
+    if (user) {
+      usuarioAtual = user.uid;
+      if (tooltipEmail) tooltipEmail.textContent = user.email || "";
+      if (loginOverlay) loginOverlay.style.display = "none";
+      if (mainApp) mainApp.style.display = "block";
+
+      await carregarDadosFirebase();
+      tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
+      metas = JSON.parse(localStorage.getItem("metas") || "[]");
+      cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
+      if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+
+      const mudou = sincronizarTarefasRecorrentes();
+      if (mudou) {
+        salvarDados();
+      } else {
+        renderizarTarefas();
+        renderizarMetas();
+        renderizarMetasCarrossel();
+        renderizarCalendario();
+        atualizarDashboard();
+        atualizarRodape();
+      }
+    } else {
+      if (loginOverlay) loginOverlay.style.display = "flex";
+      if (mainApp) mainApp.style.display = "none";
+    }
+  });
+
+  renderizarTarefas();
+  renderizarMetas();
+  renderizarMetasCarrossel();
+  renderizarCalendario();
+  atualizarDashboard();
+  atualizarRodape();
+}
+
+initApp();
