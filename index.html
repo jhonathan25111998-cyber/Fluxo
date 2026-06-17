@@ -100,24 +100,30 @@
       </div>
 
       <div class="header-direita">
+        <!-- Botões principais -->
         <button class="sync-btn" id="syncNowBtn" title="Sincronizar recorrentes"><i class="fas fa-sync-alt"></i></button>
         <button class="reschedule-btn" id="rescheduleBtn" title="Reagendar pendentes"><i class="fas fa-calendar-plus"></i></button>
-        <button class="indexedb-btn" id="indexedbBtn" title="Backup IndexedDB"><i class="fas fa-database"></i></button>
-        <button class="backup-btn" id="backupBtn" title="Exportar JSON"><i class="fas fa-download"></i></button>
-        <button class="import-btn" id="importBackupBtn" title="Importar JSON"><i class="fas fa-upload"></i></button>
-        <button class="google-btn" id="googleBackupBtn" title="Backup Google Drive" style="display:none;"><i class="fab fa-google-drive"></i> Drive</button>
+        <button class="backup-btn" id="backupBtn" title="Backup"><i class="fas fa-database"></i></button>
+        <button class="notify-btn" id="notifyBtn"><i class="fas fa-bell"></i></button>
+
+        <!-- Menu dropdown para opções extras -->
+        <div class="dropdown-menu" id="dropdownMenu">
+          <button class="dropdown-toggle" id="dropdownToggle"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="dropdown-content" id="dropdownContent">
+            <button class="dropdown-item" onclick="window.exportarBackupJSON()"><i class="fas fa-download"></i> Exportar JSON</button>
+            <button class="dropdown-item" onclick="window.importarBackupJSON()"><i class="fas fa-upload"></i> Importar JSON</button>
+            <button class="dropdown-item" onclick="window.abrirModalBackup()"><i class="fas fa-history"></i> Gerenciar Backups</button>
+            <button class="dropdown-item" id="googleBackupBtn" style="display:none;"><i class="fab fa-google-drive"></i> Backup Drive</button>
+          </div>
+        </div>
 
         <span class="data-hoje" id="dataHojeHeader"></span>
 
         <div class="user-info">
           <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
-          <button class="notify-btn" id="notifyBtn"><i class="fas fa-bell"></i></button>
 
-          <div class="user-avatar" id="userAvatar">
+          <div class="user-avatar" id="userAvatar" onclick="window.abrirModalPerfil()">
             <i class="fas fa-user-circle"></i>
-            <div class="user-tooltip" id="userTooltip">
-              <span id="userEmailTooltip"></span>
-            </div>
           </div>
 
           <button class="logout-btn" id="logoutBtn">
@@ -220,6 +226,13 @@
         <button class="btn-glass" onclick="window.mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button>
         <span id="calendarioMes" style="color:white; font-weight:600;"></span>
         <button class="btn-glass" onclick="window.irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button>
+      </div>
+
+      <!-- Seletor de visualização do calendário -->
+      <div class="calendario-view-selector">
+        <button class="cal-view-btn" data-view="dia" onclick="window.mudarModoCalendario('dia')">Dia</button>
+        <button class="cal-view-btn" data-view="semana" onclick="window.mudarModoCalendario('semana')">Semana</button>
+        <button class="cal-view-btn active" data-view="mes" onclick="window.mudarModoCalendario('mes')">Mês</button>
       </div>
 
       <!-- JS renderiza dias + resumo -->
@@ -399,6 +412,39 @@
         <div class="modal-actions" style="margin-top:14px;">
           <button class="btn-secondary" onclick="window.fecharDiaCalendario()">Fechar</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NOTIFICAÇÕES -->
+  <div class="modal-notificacoes-overlay" id="modalNotificacoesOverlay">
+    <div class="modal-conteudo">
+      <div class="modal-header">
+        <h3><i class="fas fa-bell"></i> Notificações</h3>
+        <button class="modal-close" onclick="window.fecharModalNotificacoes()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="modalNotificacoesBody">
+        <div id="notificacoesLista" style="max-height:300px; overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PERFIL -->
+  <div class="modal-perfil-overlay" id="modalPerfilOverlay">
+    <div class="modal-conteudo">
+      <div class="modal-header">
+        <h3><i class="fas fa-user-circle"></i> Perfil</h3>
+        <button class="modal-close" onclick="window.fecharModalPerfil()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align:center; margin-bottom:16px;">
+          <i class="fas fa-user-circle" style="font-size:48px; color:#667eea;"></i>
+          <div id="perfilEmail" style="color:white; font-weight:600; margin-top:8px;"></div>
+        </div>
+        <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="window.fecharModalPerfil(); window.fazerLogout();">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+        <button class="btn-secondary" style="width:100%;" onclick="window.fecharModalPerfil()">Fechar</button>
       </div>
     </div>
   </div>
