@@ -55,6 +55,7 @@ let tarefaDescricaoAtual = null;
 let tarefaEditandoAtual = null;
 
 let dataCalendario = new Date();
+let modoCalendario = localStorage.getItem("modoCalendario") || "mes";
 
 /* Modal dia calendário */
 let dataModalDiaAtual = null;
@@ -565,6 +566,66 @@ window.fecharModalBackup = function () {
 };
 
 /* =========================
+   NOTIFICAÇÕES
+========================= */
+window.abrirModalNotificacoes = function () {
+  const modal = document.getElementById("modalNotificacoesOverlay");
+  const lista = document.getElementById("notificacoesLista");
+  if (!modal || !lista) return;
+
+  const hoje = getDataHoje();
+  const atrasadas = tarefas.filter(t => t.data && t.data < hoje && !t.concluida);
+  const hojePendentes = tarefas.filter(t => t.data === hoje && !t.concluida);
+
+  let html = "";
+  if (atrasadas.length === 0 && hojePendentes.length === 0) {
+    html = `<div style="text-align:center;color:rgba(255,255,255,0.7);padding:20px;">🎉 Nenhuma notificação pendente!</div>`;
+  } else {
+    if (atrasadas.length > 0) {
+      html += `<div class="notificacao-item importante">
+        <div class="notif-titulo">⚠️ Tarefas atrasadas</div>
+        <div class="notif-desc">${atrasadas.map(t => escapeHtml(t.texto)).join(", ")}</div>
+        <div class="notif-data">${atrasadas.length} tarefa(s) aguardam</div>
+      </div>`;
+    }
+    if (hojePendentes.length > 0) {
+      html += `<div class="notificacao-item">
+        <div class="notif-titulo">📌 Tarefas para hoje</div>
+        <div class="notif-desc">${hojePendentes.map(t => escapeHtml(t.texto)).join(", ")}</div>
+        <div class="notif-data">${hojePendentes.length} tarefa(s) pendentes</div>
+      </div>`;
+    }
+  }
+
+  lista.innerHTML = html;
+  modal.classList.add("show");
+};
+
+window.fecharModalNotificacoes = function () {
+  document.getElementById("modalNotificacoesOverlay")?.classList.remove("show");
+};
+
+/* =========================
+   PERFIL
+========================= */
+window.abrirModalPerfil = function () {
+  const modal = document.getElementById("modalPerfilOverlay");
+  const emailEl = document.getElementById("perfilEmail");
+  if (!modal || !emailEl) return;
+
+  if (currentUser) {
+    emailEl.textContent = currentUser.email || "Usuário";
+  } else {
+    emailEl.textContent = "Não autenticado";
+  }
+  modal.classList.add("show");
+};
+
+window.fecharModalPerfil = function () {
+  document.getElementById("modalPerfilOverlay")?.classList.remove("show");
+};
+
+/* =========================
    LÓGICA PRINCIPAL
 ========================= */
 function verificarResetDiario() {
@@ -596,11 +657,6 @@ function sincronizarTarefasRecorrentes() {
   if (deduplicarPendentesPorSerieData()) alterou = true;
   if (deduplicarPendenciaUnicaPorSerie()) alterou = true;
   return alterou;
-}
-
-/* Compatibilidade com nome antigo */
-function concluirComDuplicatas(id) {
-  concluirTarefaComRecorrencia(id);
 }
 
 function salvarDados() {
@@ -722,6 +778,21 @@ window.fecharModalReagendar = function () {
 window.confirmarReagendamento = function () {
   const novaData = document.getElementById("novaDataReagendar").value;
   if (!tarefaReagendando || !novaData) return;
+
+  // Evitar duplicata na nova data para séries recorrentes
+  if (tarefaReagendando.recorrencia && tarefaReagendando.serieId) {
+    const existe = tarefas.some(t =>
+      t.serieId === tarefaReagendando.serieId &&
+      t.data === novaData &&
+      t.id !== tarefaReagendando.id &&
+      !t.concluida
+    );
+    if (existe) {
+      mostrarIndicadorSync("⚠️ Já existe uma tarefa pendente nesta data para esta recorrência.", "error");
+      return;
+    }
+  }
+
   tarefaReagendando.data = novaData;
   tarefaReagendando.notificado = false;
   tarefasReagendadasHoje++;
@@ -765,7 +836,13 @@ window.excluirCardTarefa = function (id) {
 };
 
 window.mostrarFormAdicionar = function (cardId) {
-  document.getElementById(`form-${cardId}`)?.classList.toggle("show");
+  const form = document.getElementById(`form-${cardId}`);
+  if (!form) return;
+  form.classList.toggle("show");
+  if (form.classList.contains("show")) {
+    const input = document.getElementById(`texto-${cardId}`);
+    if (input) setTimeout(() => input.focus(), 100);
+  }
 };
 
 window.adicionarTarefaInline = function (cardId) {
@@ -876,6 +953,12 @@ window.soltarTarefa = function (event, cardNomeDestino, tarefaIdDestino) {
 /* =========================
    MODO FOCO
 ========================= */
+function mostrarNotificacaoBrowser(titulo, corpo) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification(titulo, { body: corpo, icon: "logo.png" });
+  }
+}
+
 window.abrirModoFoco = function (id) {
   const tarefa = tarefas.find((t) => t.id === id);
   if (!tarefa) return;
@@ -899,6 +982,7 @@ window.abrirModoFoco = function (id) {
   if (btnPausar) btnPausar.style.display = "none";
 
   document.getElementById("modalFocoOverlay")?.classList.add("show");
+  mostrarNotificacaoBrowser("🧘 Modo Foco iniciado", `Foco em: ${tarefa.texto}`);
 };
 
 window.fecharModoFoco = function () {
@@ -945,6 +1029,7 @@ window.iniciarPomodoro = function () {
 
       salvarDados();
       mostrarIndicadorSync("🍅 Pomodoro concluído!");
+      mostrarNotificacaoBrowser("🍅 Pomodoro concluído!", "Parabéns! Você completou um ciclo de foco.");
       if (b1) b1.style.display = "inline-flex";
       if (b2) b2.style.display = "none";
     }
@@ -968,8 +1053,10 @@ window.concluirTarefaFoco = function () {
   concluirTarefaComRecorrencia(tarefaFocoAtual.id);
   salvarDados();
   mostrarIndicadorSync("✅ Tarefa concluída no foco!");
+  mostrarNotificacaoBrowser("✅ Tarefa concluída!", `"${tarefaFocoAtual.texto}" foi concluída.`);
   fecharModoFoco();
 };
+
 window.toggleMusicaFoco = function () {
   const audio = document.getElementById("lofiAudio");
   const btn = document.getElementById("btnMusicaFoco");
@@ -1159,6 +1246,16 @@ window.toggleView = function (view) {
   setView(view, true);
 };
 
+window.mudarModoCalendario = function (modo) {
+  modoCalendario = modo;
+  localStorage.setItem("modoCalendario", modo);
+  renderizarCalendario();
+  // Atualizar botões ativos
+  document.querySelectorAll(".cal-view-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.view === modo);
+  });
+};
+
 window.mudarMes = function (delta) {
   dataCalendario.setMonth(dataCalendario.getMonth() + delta);
   renderizarCalendario();
@@ -1311,6 +1408,7 @@ window.fecharDiaCalendario = function () {
   dataModalDiaAtual = null;
 };
 
+/* ===== RENDERIZAÇÃO DO CALENDÁRIO (com modos) ===== */
 function renderizarCalendario() {
   const grade = document.getElementById("calendarioGrade");
   const mesLabel = document.getElementById("calendarioMes");
@@ -1318,6 +1416,7 @@ function renderizarCalendario() {
 
   const ano = dataCalendario.getFullYear();
   const mes = dataCalendario.getMonth();
+  const hoje = getDataHoje();
 
   if (mesLabel) {
     mesLabel.textContent = dataCalendario.toLocaleDateString("pt-BR", {
@@ -1326,65 +1425,109 @@ function renderizarCalendario() {
     });
   }
 
-  const primeiroDia = new Date(ano, mes, 1);
-  const ultimoDia = new Date(ano, mes + 1, 0);
-  const inicioSemana = (primeiroDia.getDay() + 6) % 7;
-  const totalDias = ultimoDia.getDate();
+  // Limpar classe de modo
+  grade.className = "calendario-grade";
+  if (modoCalendario === "semana") grade.classList.add("modo-semana");
+  else if (modoCalendario === "dia") grade.classList.add("modo-dia");
 
-  const hoje = getDataHoje();
-  const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+  let html = "";
 
-  const tarefasMes = tarefas.filter((t) => {
-    if (!t?.data || t.concluida) return false;
-    const [y, m] = t.data.split("-").map(Number);
-    return y === ano && m - 1 === mes;
-  });
+  if (modoCalendario === "mes") {
+    // Modo mês: grade 7x
+    const primeiroDia = new Date(ano, mes, 1);
+    const ultimoDia = new Date(ano, mes + 1, 0);
+    const inicioSemana = (primeiroDia.getDay() + 6) % 7;
+    const totalDias = ultimoDia.getDate();
 
-  let html = diasSemana
-    .map((d) => `<div style="font-size:12px;opacity:.75;text-align:center;padding:6px 0;color:white;">${d}</div>`)
-    .join("");
-
-  for (let i = 0; i < inicioSemana; i++) html += `<div></div>`;
-
-  for (let dia = 1; dia <= totalDias; dia++) {
-    const dataStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-    const tarefasDia = tarefasMes
-      .filter((t) => t.data === dataStr)
-      .sort((a, b) => {
-        const ordem = { p1: 1, p2: 2, p3: 3 };
-        return ordem[a.prioridade || "p3"] - ordem[b.prioridade || "p3"];
-      });
-
-    const isHoje = dataStr === hoje;
-    const visiveis = tarefasDia.slice(0, 3);
-    const restantes = tarefasDia.length - visiveis.length;
-
-    const tarefasHtml = visiveis
-      .map((t) => {
-        const cls = t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : "p3";
-        return `
-          <div class="cal-task ${cls}" title="${escapeHtml(t.texto)}">
-            <span>${escapeHtml(t.texto)}</span>
-          </div>
-        `;
-      })
+    const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+    html = diasSemana
+      .map((d) => `<div style="font-size:12px;opacity:.75;text-align:center;padding:6px 0;color:white;">${d}</div>`)
       .join("");
 
-    html += `
-      <div class="cal-dia ${isHoje ? "hoje" : ""}" onclick="abrirDiaCalendario('${dataStr}')">
-        <div class="cal-dia-topo">
-          <span class="cal-dia-num">${dia}</span>
-          ${tarefasDia.length > 0 ? `<span class="cal-dia-badge">${tarefasDia.length}</span>` : ""}
-        </div>
-        <div class="cal-dia-lista">
-          ${tarefasHtml}
-          ${restantes > 0 ? `<div class="cal-task-more">+${restantes} mais</div>` : ""}
-        </div>
-      </div>
-    `;
+    for (let i = 0; i < inicioSemana; i++) html += `<div></div>`;
+
+    for (let dia = 1; dia <= totalDias; dia++) {
+      const dataStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+      html += gerarCelulaDia(dataStr, dia, hoje);
+    }
+  } else if (modoCalendario === "semana") {
+    // Modo semana: 7 dias a partir da segunda-feira da semana atual
+    const dataInicio = new Date(ano, mes, 1);
+    const diaSemana = (dataInicio.getDay() + 6) % 7; // 0=seg, 6=dom
+    const inicioSemanaOffset = -diaSemana;
+    const dataSegunda = new Date(ano, mes, 1);
+    dataSegunda.setDate(dataSegunda.getDate() + inicioSemanaOffset);
+
+    // Ajustar para a semana que contém dataCalendario
+    const diffDias = (dataCalendario - dataSegunda) / (1000*60*60*24);
+    const semanaAtual = Math.floor(diffDias / 7);
+    dataSegunda.setDate(dataSegunda.getDate() + semanaAtual * 7);
+
+    // Cabeçalho com dias da semana
+    const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+    html = diasSemana
+      .map((d) => `<div style="font-size:12px;opacity:.75;text-align:center;padding:6px 0;color:white;">${d}</div>`)
+      .join("");
+
+    for (let i = 0; i < 7; i++) {
+      const dataDia = new Date(dataSegunda);
+      dataDia.setDate(dataDia.getDate() + i);
+      const dia = dataDia.getDate();
+      const mesDia = dataDia.getMonth() + 1;
+      const anoDia = dataDia.getFullYear();
+      const dataStr = `${anoDia}-${String(mesDia).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+      html += gerarCelulaDia(dataStr, dia, hoje);
+    }
+  } else if (modoCalendario === "dia") {
+    // Modo dia: apenas o dia selecionado (dataCalendario)
+    const dia = dataCalendario.getDate();
+    const mesDia = dataCalendario.getMonth() + 1;
+    const anoDia = dataCalendario.getFullYear();
+    const dataStr = `${anoDia}-${String(mesDia).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+    // Cabeçalho com o dia da semana e data
+    const nomeDia = dataCalendario.toLocaleDateString("pt-BR", { weekday: "long" });
+    html = `<div style="grid-column:1; text-align:center; color:white; font-weight:600; padding:8px 0;">${nomeDia}, ${dia}/${mesDia}/${anoDia}</div>`;
+    html += gerarCelulaDia(dataStr, dia, hoje, true); // expandido
   }
 
   grade.innerHTML = html;
+}
+
+function gerarCelulaDia(dataStr, dia, hoje, expandido = false) {
+  const tarefasDia = tarefas
+    .filter((t) => t.data === dataStr && !t.concluida)
+    .sort((a, b) => {
+      const ordem = { p1: 1, p2: 2, p3: 3 };
+      return ordem[a.prioridade || "p3"] - ordem[b.prioridade || "p3"];
+    });
+
+  const isHoje = dataStr === hoje;
+  const visiveis = expandido ? tarefasDia : tarefasDia.slice(0, 3);
+  const restantes = tarefasDia.length - visiveis.length;
+
+  const tarefasHtml = visiveis
+    .map((t) => {
+      const cls = t.prioridade === "p1" ? "p1" : t.prioridade === "p2" ? "p2" : "p3";
+      return `
+        <div class="cal-task ${cls}" title="${escapeHtml(t.texto)}">
+          <span>${escapeHtml(t.texto)}</span>
+        </div>
+      `;
+    })
+    .join("");
+
+  return `
+    <div class="cal-dia ${isHoje ? "hoje" : ""}" onclick="abrirDiaCalendario('${dataStr}')">
+      <div class="cal-dia-topo">
+        <span class="cal-dia-num">${dia}</span>
+        ${tarefasDia.length > 0 ? `<span class="cal-dia-badge">${tarefasDia.length}</span>` : ""}
+      </div>
+      <div class="cal-dia-lista">
+        ${tarefasHtml}
+        ${restantes > 0 && !expandido ? `<div class="cal-task-more">+${restantes} mais</div>` : ""}
+      </div>
+    </div>
+  `;
 }
 
 /* =========================
@@ -1431,7 +1574,7 @@ function renderizarTarefas() {
             <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
             <input type="checkbox" class="task-checkbox" ${t.concluida ? "checked" : ""} onchange="toggleTarefa(${JSON.stringify(t.id)})">
             <div class="task-info">
-              <div class="task-title">${escapeHtml(t.texto)}</div>
+              <div class="task-title" onclick="abrirModalEdicao(${JSON.stringify(t.id)})" title="Clique para editar">${escapeHtml(t.texto)}</div>
               <div class="task-meta">
                 <span class="meta-date ${atrasada ? "badge atrasada" : ""}"
                   onclick="abrirModalReagendar(${JSON.stringify(t.id)}); event.stopPropagation()">
@@ -1559,9 +1702,9 @@ function bindUI() {
     if (!ok) mostrarIndicadorSync("ℹ️ Nada novo para sincronizar", "info");
   });
 
-  document.getElementById("backupBtn")?.addEventListener("click", () => exportarBackupJSON());
-  document.getElementById("importBackupBtn")?.addEventListener("click", () => importarBackupJSON());
-  document.getElementById("indexedbBtn")?.addEventListener("click", () => abrirModalBackup());
+  document.getElementById("backupBtn")?.addEventListener("click", () => abrirModalBackup());
+
+  document.getElementById("notifyBtn")?.addEventListener("click", () => abrirModalNotificacoes());
 
   document.getElementById("rescheduleBtn")?.addEventListener("click", () => {
     const hoje = getDataHoje();
@@ -1581,11 +1724,15 @@ function bindUI() {
     mostrarIndicadorSync(`📅 ${atrasadas.length} tarefa(s) reagendada(s)!`);
   });
 
-  const userAvatar = document.getElementById("userAvatar");
-  const userTooltip = document.getElementById("userTooltip");
-  if (userAvatar && userTooltip) {
-    userAvatar.addEventListener("mouseenter", () => (userTooltip.style.display = "block"));
-    userAvatar.addEventListener("mouseleave", () => (userTooltip.style.display = "none"));
+  // Dropdown toggle
+  const dropdownToggle = document.getElementById("dropdownToggle");
+  const dropdownContent = document.getElementById("dropdownContent");
+  if (dropdownToggle && dropdownContent) {
+    dropdownToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdownContent.classList.toggle("show");
+    });
+    document.addEventListener("click", () => dropdownContent.classList.remove("show"));
   }
 
   const modalDia = document.getElementById("modalDiaOverlay");
@@ -1594,6 +1741,15 @@ function bindUI() {
       if (e.target === modalDia) fecharDiaCalendario();
     });
   }
+
+  // Fechar modais com clique no overlay
+  document.querySelectorAll(".modal-descricao-overlay, .modal-backup-overlay, .modal-edicao-overlay, .modal-reagendar-overlay, .modal-notificacoes-overlay, .modal-perfil-overlay").forEach(overlay => {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove("show");
+      }
+    });
+  });
 
   window.addEventListener("online", atualizarStatusConexao);
   window.addEventListener("offline", atualizarStatusConexao);
@@ -1617,6 +1773,16 @@ async function initApp() {
 
   const savedView = localStorage.getItem(VIEW_STORAGE_KEY);
   setView(savedView === "calendario" ? "calendario" : "cards", false);
+
+  // Atualizar botão ativo do calendário
+  document.querySelectorAll(".cal-view-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.view === modoCalendario);
+  });
+
+  // Pedir permissão de notificação
+  if ("Notification" in window) {
+    Notification.requestPermission();
+  }
 
   onAuthStateChanged(auth, async (user) => {
     currentUser = user;
