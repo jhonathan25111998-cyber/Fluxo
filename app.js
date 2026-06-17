@@ -1417,6 +1417,7 @@ function renderizarCalendario() {
   const ano = dataCalendario.getFullYear();
   const mes = dataCalendario.getMonth();
   const hoje = getDataHoje();
+  const isMobile = window.innerWidth <= 768;
 
   if (mesLabel) {
     mesLabel.textContent = dataCalendario.toLocaleDateString("pt-BR", {
@@ -1448,7 +1449,7 @@ function renderizarCalendario() {
 
     for (let dia = 1; dia <= totalDias; dia++) {
       const dataStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-      html += gerarCelulaDia(dataStr, dia, hoje);
+      html += gerarCelulaDia(dataStr, dia, hoje, false, isMobile);
     }
   } else if (modoCalendario === "semana") {
     // Modo semana: 7 dias a partir da segunda-feira da semana atual
@@ -1476,7 +1477,7 @@ function renderizarCalendario() {
       const mesDia = dataDia.getMonth() + 1;
       const anoDia = dataDia.getFullYear();
       const dataStr = `${anoDia}-${String(mesDia).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-      html += gerarCelulaDia(dataStr, dia, hoje);
+      html += gerarCelulaDia(dataStr, dia, hoje, false, isMobile);
     }
   } else if (modoCalendario === "dia") {
     // Modo dia: apenas o dia selecionado (dataCalendario)
@@ -1487,13 +1488,13 @@ function renderizarCalendario() {
     // Cabeçalho com o dia da semana e data
     const nomeDia = dataCalendario.toLocaleDateString("pt-BR", { weekday: "long" });
     html = `<div style="grid-column:1; text-align:center; color:white; font-weight:600; padding:8px 0;">${nomeDia}, ${dia}/${mesDia}/${anoDia}</div>`;
-    html += gerarCelulaDia(dataStr, dia, hoje, true); // expandido
+    html += gerarCelulaDia(dataStr, dia, hoje, true, isMobile);
   }
 
   grade.innerHTML = html;
 }
 
-function gerarCelulaDia(dataStr, dia, hoje, expandido = false) {
+function gerarCelulaDia(dataStr, dia, hoje, expandido = false, isMobile = false) {
   const tarefasDia = tarefas
     .filter((t) => t.data === dataStr && !t.concluida)
     .sort((a, b) => {
@@ -1502,7 +1503,8 @@ function gerarCelulaDia(dataStr, dia, hoje, expandido = false) {
     });
 
   const isHoje = dataStr === hoje;
-  const visiveis = expandido ? tarefasDia : tarefasDia.slice(0, 3);
+  const maxVisiveis = isMobile ? 2 : 3;
+  const visiveis = expandido ? tarefasDia : tarefasDia.slice(0, maxVisiveis);
   const restantes = tarefasDia.length - visiveis.length;
 
   const tarefasHtml = visiveis
@@ -1587,10 +1589,12 @@ function renderizarTarefas() {
           </div>
 
           <div class="task-actions-2x2">
-            <button class="task-action-btn" onclick="abrirModalEdicao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Editar"><i class="fas fa-edit"></i></button>
-            <button class="task-action-btn" onclick="abrirModalDescricao(${JSON.stringify(t.id)}); event.stopPropagation()" title="Descrição"><i class="fas fa-pen-alt"></i></button>
-            <button class="task-action-btn" onclick="abrirModoFoco(${JSON.stringify(t.id)}); event.stopPropagation()" title="Modo Foco"><i class="fas fa-clock"></i></button>
-            <button class="task-action-btn danger" onclick="excluirTarefa(${JSON.stringify(t.id)}); event.stopPropagation()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+            <button class="task-action-btn" onclick="abrirModoFoco(${JSON.stringify(t.id)}); event.stopPropagation()" title="Modo Foco">
+              <i class="fas fa-clock"></i>
+            </button>
+            <button class="task-action-btn danger" onclick="excluirTarefa(${JSON.stringify(t.id)}); event.stopPropagation()" title="Excluir">
+              <i class="fas fa-trash-alt"></i>
+            </button>
           </div>
         </div>`;
       })
@@ -1774,7 +1778,14 @@ async function initApp() {
   const savedView = localStorage.getItem(VIEW_STORAGE_KEY);
   setView(savedView === "calendario" ? "calendario" : "cards", false);
 
-  // Atualizar botão ativo do calendário
+  // Definir modo de calendário padrão para mobile
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile && !localStorage.getItem("modoCalendario")) {
+    modoCalendario = "semana";
+    localStorage.setItem("modoCalendario", modoCalendario);
+  }
+
+  // Atualizar botões ativos do calendário
   document.querySelectorAll(".cal-view-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.view === modoCalendario);
   });
@@ -1783,6 +1794,17 @@ async function initApp() {
   if ("Notification" in window) {
     Notification.requestPermission();
   }
+
+  // Listener para redimensionamento (mobile)
+  window.addEventListener("resize", () => {
+    const mobile = window.innerWidth <= 768;
+    const atual = localStorage.getItem("modoCalendario");
+    if (mobile && !atual) {
+      modoCalendario = "semana";
+      localStorage.setItem("modoCalendario", "semana");
+      renderizarCalendario();
+    }
+  });
 
   onAuthStateChanged(auth, async (user) => {
     currentUser = user;
