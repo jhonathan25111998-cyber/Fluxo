@@ -86,14 +86,6 @@
         </div>
       </div>
 
-      <!-- ALERTA DE TAREFAS (canto superior) -->
-      <div class="alerta-tarefas" id="dashboardAlerta" style="display:none;">
-        <div class="alerta-conteudo">
-          <i class="fas fa-bell"></i>
-          <span id="alertaTexto">Você tem tarefas pendentes!</span>
-        </div>
-      </div>
-
       <!-- Ícone do usuário com dropdown (canto superior direito) -->
       <div class="user-dropdown" id="userDropdown">
         <div class="user-avatar" id="userAvatar">
@@ -117,7 +109,7 @@
       </div>
     </div>
 
-    <!-- LINHA DE BOTÕES -->
+    <!-- LINHA DE BOTÕES (com alerta integrado) -->
     <div class="linha-botoes">
       <div class="view-toggle">
         <button class="view-btn active" onclick="window.toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
@@ -127,6 +119,15 @@
         <button class="top-action-btn" onclick="window.adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button>
         <button class="top-action-btn" onclick="window.marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas</button>
       </div>
+
+      <!-- ALERTA DE TAREFAS (agora na linha de botões) -->
+      <div class="alerta-tarefas" id="dashboardAlerta" style="display:none;">
+        <div class="alerta-conteudo">
+          <i class="fas fa-bell"></i>
+          <span id="alertaTexto">Você tem tarefas pendentes!</span>
+        </div>
+      </div>
+
       <button class="metas-toggle-btn" id="metasToggleBtn" onclick="window.togglePainelMetas()">Ver metas</button>
     </div>
 
