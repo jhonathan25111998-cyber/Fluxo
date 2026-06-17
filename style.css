@@ -980,13 +980,13 @@ body.dark-theme .tarefa-item.p3 {
   }
 }
 
-/* ações 2x2 */
+/* ações 2x2 – apenas foco e excluir */
 .task-actions-2x2 {
   margin-left: 12px;
   flex-shrink: 0;
   display: grid;
   grid-template-columns: 32px 32px;
-  grid-template-rows: 32px 32px;
+  grid-template-rows: 32px;
   gap: 4px;
 }
 .task-action-btn {
@@ -1432,6 +1432,93 @@ body.dark-theme .modal-dia-item.p3 {
   display: none;
 }
 
+/* ===== MOBILE: CALENDÁRIO ===== */
+@media (max-width: 768px) {
+  /* Força o calendário a usar o modo semana (ou dia) */
+  .calendario-grade.modo-semana {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .calendario-grade.modo-dia {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* Células maiores e com mais padding */
+  .cal-dia {
+    min-height: 100px;
+    padding: 8px 6px;
+    border-radius: 8px;
+  }
+
+  .cal-dia-num {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .cal-dia-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+
+  .cal-task {
+    font-size: 11px;
+    padding: 4px 6px;
+    border-left-width: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cal-task-more {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Oculta o cabeçalho dos dias da semana para ganhar espaço */
+  .calendario-grade > div:first-child {
+    display: none; /* remove "Seg, Ter..." */
+  }
+
+  /* Ajuste dos botões de navegação */
+  .calendario-nav .btn-glass {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .calendario-view-selector .cal-view-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  /* Em telas muito pequenas, modo dia pode ser mais adequado */
+  @media (max-width: 480px) {
+    .calendario-grade.modo-semana {
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-dia {
+      min-height: 80px;
+      padding: 4px;
+    }
+
+    .cal-dia-num {
+      font-size: 13px;
+    }
+
+    .cal-task {
+      font-size: 9px;
+      padding: 2px 4px;
+    }
+
+    .cal-task-more {
+      font-size: 8px;
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .calendario-grade {
     gap: 8px;
@@ -1527,7 +1614,6 @@ body.dark-theme .modal-dia-item.p3 {
 
   .task-actions-2x2 {
     grid-template-columns: 28px 28px;
-    grid-template-rows: 28px 28px;
     gap: 3px;
   }
 
