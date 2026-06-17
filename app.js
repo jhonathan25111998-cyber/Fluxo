@@ -57,7 +57,6 @@ let tarefaEditandoAtual = null;
 let dataCalendario = new Date();
 let modoCalendario = localStorage.getItem("modoCalendario") || "mes";
 
-/* Modal dia calendário */
 let dataModalDiaAtual = null;
 
 /* =========================
@@ -109,25 +108,32 @@ function getProximaData(recorrencia, dataAtualStr) {
   return data.toISOString().split("T")[0];
 }
 
+function capitalizarPrimeira(str) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function formatarDataHeader(d = new Date()) {
-  return d.toLocaleDateString("pt-BR", {
+  const dataStr = d.toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "2-digit",
     month: "long",
     year: "numeric"
   });
+  return capitalizarPrimeira(dataStr);
 }
 
 function formatarDataPtBr(dataStr) {
   if (!dataStr) return "";
-  const [y, m, d] = dataStr.split("-").map(Number);
-  const dt = new Date(y, m - 1, d);
-  return dt.toLocaleDateString("pt-BR", {
+  const [y, m, dia] = dataStr.split("-").map(Number);
+  const dt = new Date(y, m - 1, dia);
+  const dataFormatada = dt.toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "2-digit",
     month: "long",
     year: "numeric"
   });
+  return capitalizarPrimeira(dataFormatada);
 }
 
 function uid() {
@@ -779,7 +785,6 @@ window.confirmarReagendamento = function () {
   const novaData = document.getElementById("novaDataReagendar").value;
   if (!tarefaReagendando || !novaData) return;
 
-  // Evitar duplicata na nova data para séries recorrentes
   if (tarefaReagendando.recorrencia && tarefaReagendando.serieId) {
     const existe = tarefas.some(t =>
       t.serieId === tarefaReagendando.serieId &&
@@ -1405,7 +1410,7 @@ window.fecharDiaCalendario = function () {
   dataModalDiaAtual = null;
 };
 
-/* ===== RENDERIZAÇÃO DO CALENDÁRIO (com modos) ===== */
+/* ===== RENDERIZAÇÃO DO CALENDÁRIO ===== */
 function renderizarCalendario() {
   const grade = document.getElementById("calendarioGrade");
   const mesLabel = document.getElementById("calendarioMes");
@@ -1423,7 +1428,6 @@ function renderizarCalendario() {
     });
   }
 
-  // Limpar classe de modo
   grade.className = "calendario-grade";
   if (modoCalendario === "semana") grade.classList.add("modo-semana");
   else if (modoCalendario === "dia") grade.classList.add("modo-dia");
@@ -1448,7 +1452,6 @@ function renderizarCalendario() {
       html += gerarCelulaDia(dataStr, dia, hoje, false, isMobile);
     }
   } else if (modoCalendario === "semana") {
-    // Modo semana: 7 dias a partir da segunda-feira da semana atual
     const dataInicio = new Date(ano, mes, 1);
     const diaSemana = (dataInicio.getDay() + 6) % 7;
     const inicioSemanaOffset = -diaSemana;
@@ -1459,7 +1462,6 @@ function renderizarCalendario() {
     const semanaAtual = Math.floor(diffDias / 7);
     dataSegunda.setDate(dataSegunda.getDate() + semanaAtual * 7);
 
-    // Cabeçalho com dias da semana (oculto no mobile para ganhar espaço)
     if (!isMobile) {
       const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
       html = diasSemana
@@ -1481,7 +1483,7 @@ function renderizarCalendario() {
     const mesDia = dataCalendario.getMonth() + 1;
     const anoDia = dataCalendario.getFullYear();
     const dataStr = `${anoDia}-${String(mesDia).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-    const nomeDia = dataCalendario.toLocaleDateString("pt-BR", { weekday: "long" });
+    const nomeDia = capitalizarPrimeira(dataCalendario.toLocaleDateString("pt-BR", { weekday: "long" }));
     html = `<div style="grid-column:1; text-align:center; color:white; font-weight:600; padding:8px 0;">${nomeDia}, ${dia}/${mesDia}/${anoDia}</div>`;
     html += gerarCelulaDia(dataStr, dia, hoje, true, isMobile);
   }
@@ -1696,7 +1698,6 @@ function fecharDropdownUser() {
 }
 
 function bindUI() {
-  // Os botões agora estão dentro do dropdown, mas os IDs são os mesmos
   document.getElementById("syncNowBtn")?.addEventListener("click", () => {
     const ok = sincronizarTarefasRecorrentes();
     salvarDados();
@@ -1747,7 +1748,6 @@ function bindUI() {
     fecharDropdownUser();
   });
 
-  // Dropdown do usuário
   const userAvatar = document.getElementById("userAvatar");
   const dropdownMenu = document.getElementById("dropdownMenuUser");
   if (userAvatar && dropdownMenu) {
@@ -1760,7 +1760,6 @@ function bindUI() {
     });
   }
 
-  // Fechar modais com clique no overlay
   document.querySelectorAll(".modal-descricao-overlay, .modal-backup-overlay, .modal-edicao-overlay, .modal-reagendar-overlay, .modal-notificacoes-overlay, .modal-perfil-overlay").forEach(overlay => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) {
@@ -1792,24 +1791,20 @@ async function initApp() {
   const savedView = localStorage.getItem(VIEW_STORAGE_KEY);
   setView(savedView === "calendario" ? "calendario" : "cards", false);
 
-  // Definir modo de calendário padrão para mobile
   const isMobile = window.innerWidth <= 768;
   if (isMobile && !localStorage.getItem("modoCalendario")) {
     modoCalendario = "semana";
     localStorage.setItem("modoCalendario", modoCalendario);
   }
 
-  // Atualizar botões ativos do calendário
   document.querySelectorAll(".cal-view-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.view === modoCalendario);
   });
 
-  // Pedir permissão de notificação
   if ("Notification" in window) {
     Notification.requestPermission();
   }
 
-  // Listener para redimensionamento (mobile)
   window.addEventListener("resize", () => {
     const mobile = window.innerWidth <= 768;
     const atual = localStorage.getItem("modoCalendario");
@@ -1818,7 +1813,6 @@ async function initApp() {
       localStorage.setItem("modoCalendario", "semana");
       renderizarCalendario();
     }
-    // Re-renderizar calendário ao mudar orientação
     renderizarCalendario();
   });
 
