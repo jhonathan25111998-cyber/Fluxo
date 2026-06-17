@@ -22,58 +22,46 @@
           onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:60px;height:60px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto;\'><i class=\'fas fa-tasks\' style=\'font-size:28px;color:white;\'></i></div>'"
         >
       </div>
-
       <h2>FLUXO</h2>
       <p style="color:rgba(255,255,255,0.7); margin-bottom:30px;">Organize. Execute. Flua.</p>
-
       <div id="loginForm">
         <input type="email" id="loginEmail" placeholder="Email">
-
         <div class="password-container">
           <input type="password" id="loginPassword" placeholder="Senha">
           <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('loginPassword', this)">
             <i class="far fa-eye"></i>
           </button>
         </div>
-
         <div id="loginErrorMessage" style="color:#ef4444; font-size:12px; margin-bottom:12px;"></div>
         <button class="login-btn" onclick="window.fazerLogin()">Entrar</button>
-
         <div class="divider">
           <span class="divider-line"></span>
           <span>ou</span>
           <span class="divider-line"></span>
         </div>
-
         <button class="google-login-btn" onclick="window.loginComGoogle()">
           <i class="fab fa-google"></i> Continuar com Google
         </button>
-
         <a class="register-link" onclick="window.mostrarCadastro()" style="color:rgba(255,255,255,0.7); font-size:13px; margin-top:16px; display:block; cursor:pointer;">
           Criar conta
         </a>
       </div>
-
       <div id="registerForm" style="display:none;">
         <input type="email" id="registerEmail" placeholder="Email">
-
         <div class="password-container">
           <input type="password" id="registerPassword" placeholder="Senha">
           <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('registerPassword', this)">
             <i class="far fa-eye"></i>
           </button>
         </div>
-
         <div class="password-container">
           <input type="password" id="registerConfirm" placeholder="Confirmar senha">
           <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('registerConfirm', this)">
             <i class="far fa-eye"></i>
           </button>
         </div>
-
         <div id="registerErrorMessage" style="color:#ef4444; font-size:12px; margin-bottom:12px;"></div>
         <button class="login-btn" onclick="window.fazerCadastro()">Cadastrar</button>
-
         <a class="register-link" onclick="window.mostrarLogin()" style="color:rgba(255,255,255,0.7); font-size:13px; margin-top:16px; display:block; cursor:pointer;">
           Já tenho conta
         </a>
@@ -83,52 +71,41 @@
 
   <!-- APP -->
   <div class="container" id="mainApp" style="display:block;">
-    <!-- HEADER -->
+    <!-- HEADER CENTRALIZADO -->
     <div class="header-fluxo">
-      <div class="header-logo">
+      <div class="header-logo-central">
         <div class="logo-img">
           <img src="logo.png" alt="FLUXO" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
           <div class="logo-fallback" style="display:none;">
             <i class="fas fa-tasks"></i>
           </div>
         </div>
-
         <div class="logo-texto">
           <div class="logo-titulo">FLUXO</div>
           <div class="logo-subtitulo">Organize. Execute. Flua.</div>
         </div>
       </div>
 
-      <div class="header-direita">
-        <!-- Botões principais -->
-        <button class="sync-btn" id="syncNowBtn" title="Sincronizar recorrentes"><i class="fas fa-sync-alt"></i></button>
-        <button class="reschedule-btn" id="rescheduleBtn" title="Reagendar pendentes"><i class="fas fa-calendar-plus"></i></button>
-        <button class="backup-btn" id="backupBtn" title="Backup"><i class="fas fa-database"></i></button>
-        <button class="notify-btn" id="notifyBtn"><i class="fas fa-bell"></i></button>
-
-        <!-- Menu dropdown para opções extras -->
-        <div class="dropdown-menu" id="dropdownMenu">
-          <button class="dropdown-toggle" id="dropdownToggle"><i class="fas fa-ellipsis-v"></i></button>
-          <div class="dropdown-content" id="dropdownContent">
-            <button class="dropdown-item" onclick="window.exportarBackupJSON()"><i class="fas fa-download"></i> Exportar JSON</button>
-            <button class="dropdown-item" onclick="window.importarBackupJSON()"><i class="fas fa-upload"></i> Importar JSON</button>
-            <button class="dropdown-item" onclick="window.abrirModalBackup()"><i class="fas fa-history"></i> Gerenciar Backups</button>
-            <button class="dropdown-item" id="googleBackupBtn" style="display:none;"><i class="fab fa-google-drive"></i> Backup Drive</button>
-          </div>
+      <!-- ALERTA DE TAREFAS (canto superior esquerdo) -->
+      <div class="alerta-tarefas" id="dashboardAlerta" style="display:none;">
+        <div class="alerta-conteudo">
+          <i class="fas fa-bell"></i>
+          <span id="alertaTexto">Você tem tarefas pendentes!</span>
         </div>
+      </div>
 
-        <span class="data-hoje" id="dataHojeHeader"></span>
-
-        <div class="user-info">
-          <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
-
-          <div class="user-avatar" id="userAvatar" onclick="window.abrirModalPerfil()">
-            <i class="fas fa-user-circle"></i>
-          </div>
-
-          <button class="logout-btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Sair
-          </button>
+      <!-- Ícone do usuário com dropdown (canto superior direito) -->
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-avatar" id="userAvatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="dropdown-menu-user" id="dropdownMenuUser">
+          <button class="dropdown-item" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Sincronizar</button>
+          <button class="dropdown-item" id="rescheduleBtn"><i class="fas fa-calendar-plus"></i> Reagendar</button>
+          <button class="dropdown-item" id="backupBtn"><i class="fas fa-database"></i> Backup</button>
+          <button class="dropdown-item" id="notifyBtn"><i class="fas fa-bell"></i> Notificações</button>
+          <button class="dropdown-item" id="themeToggle"><i class="fas fa-moon"></i> Tema</button>
+          <button class="dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </div>
       </div>
     </div>
@@ -140,34 +117,21 @@
       </div>
     </div>
 
-    <!-- TOPO -->
-    <div class="top-section">
-      <div class="banner-tarefas" id="dashboardAlerta" style="display:none;">
-        <div class="banner-esquerda">
-          <i class="fas fa-bell" style="color:white; font-size:18px;"></i>
-          <div>
-            <div class="alerta-texto" id="alertaTexto">Você tem tarefas pendentes!</div>
-            <div class="alerta-subtexto" id="alertaSubtexto">Organize seu dia 🎯</div>
-          </div>
-          <button class="btn-ver-agora" id="alertaBtn" onclick="window.irParaHoje()">Ver agora</button>
-        </div>
+    <!-- LINHA DE BOTÕES (Cards, Calendário, Novo Espaço, Concluir todas, Ver Metas) -->
+    <div class="linha-botoes">
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="window.toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
+        <button class="view-btn" onclick="window.toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button>
       </div>
-
-      <div class="botoes-topo">
-        <div class="view-toggle">
-          <button class="view-btn active" onclick="window.toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
-          <button class="view-btn" onclick="window.toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button>
-        </div>
-
-        <div class="action-buttons">
-          <button class="top-action-btn" onclick="window.adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button>
-          <button class="top-action-btn" onclick="window.marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas do dia</button>
-        </div>
+      <div class="action-buttons">
+        <button class="top-action-btn" onclick="window.adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button>
+        <button class="top-action-btn" onclick="window.marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas</button>
       </div>
+      <button class="metas-toggle-btn" id="metasToggleBtn" onclick="window.togglePainelMetas()">Ver metas</button>
     </div>
 
-    <!-- RESUMO METAS -->
-    <div class="metas-resumo" id="metasResumo">
+    <!-- RESUMO METAS (agora integrado com os botões) -->
+    <div class="metas-resumo" id="metasResumo" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
       <div class="metas-resumo-left">
         <i class="fas fa-bullseye"></i>
         <span><strong id="totalMetas">0</strong> metas</span>
@@ -176,7 +140,6 @@
         <span>•</span>
         <span><strong id="progressoMetas">0</strong>%</span>
       </div>
-      <button class="metas-toggle-btn" id="metasToggleBtn" onclick="window.togglePainelMetas()">Ver metas</button>
     </div>
 
     <!-- DASHBOARD METAS -->
@@ -184,16 +147,9 @@
       <div class="metas-header" style="display:flex; justify-content:space-between; margin-bottom:16px;">
         <h2 style="color:white;"><i class="fas fa-trophy"></i> Minhas Metas</h2>
       </div>
-
       <div class="metas-grid" id="metasGrid"></div>
-
       <div class="add-meta-form" style="display:flex; gap:8px; margin-top:16px;">
-        <input
-          type="text"
-          id="novaMetaTexto"
-          placeholder="Nova meta..."
-          style="flex:1; padding:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white;"
-        >
+        <input type="text" id="novaMetaTexto" placeholder="Nova meta..." style="flex:1; padding:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white;">
         <select id="novaMetaCategoria" style="padding:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white;">
           <option>Saúde</option>
           <option>Desenvolvimento</option>
@@ -202,10 +158,7 @@
           <option>Carreira</option>
           <option>Relacionamentos</option>
         </select>
-        <button
-          onclick="window.adicionarMeta()"
-          style="background:linear-gradient(135deg,#fbbf24,#f59e0b); border:none; padding:8px 16px; border-radius:8px; color:#1a1a2e; font-weight:600; cursor:pointer;"
-        >
+        <button onclick="window.adicionarMeta()" style="background:linear-gradient(135deg,#fbbf24,#f59e0b); border:none; padding:8px 16px; border-radius:8px; color:#1a1a2e; font-weight:600; cursor:pointer;">
           <i class="fas fa-plus"></i> Adicionar
         </button>
       </div>
@@ -227,19 +180,15 @@
         <span id="calendarioMes" style="color:white; font-weight:600;"></span>
         <button class="btn-glass" onclick="window.irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button>
       </div>
-
-      <!-- Seletor de visualização do calendário -->
       <div class="calendario-view-selector">
         <button class="cal-view-btn" data-view="dia" onclick="window.mudarModoCalendario('dia')">Dia</button>
         <button class="cal-view-btn" data-view="semana" onclick="window.mudarModoCalendario('semana')">Semana</button>
         <button class="cal-view-btn active" data-view="mes" onclick="window.mudarModoCalendario('mes')">Mês</button>
       </div>
-
-      <!-- JS renderiza dias + resumo -->
       <div id="calendarioGrade" class="calendario-grade"></div>
     </div>
 
-    <!-- RODAPÉ -->
+    <!-- RODAPÉ FIXO -->
     <div class="footer-stats" id="footerStats">
       <div class="footer-stats-item"><i class="fas fa-check-circle"></i><span id="footerConcluidas">0</span> concluídas</div>
       <div class="footer-stats-item"><i class="fas fa-chart-line"></i><span id="footerTaxa">0%</span> taxa</div>
@@ -249,7 +198,8 @@
     </div>
   </div>
 
-  <!-- MODAL DESCRIÇÃO (ainda usado para edição de descrição separada) -->
+  <!-- MODAIS (mantidos) -->
+  <!-- MODAL DESCRIÇÃO -->
   <div class="modal-descricao-overlay" id="modalDescricaoOverlay">
     <div class="modal-conteudo">
       <div class="modal-header">
@@ -259,10 +209,8 @@
       <div class="modal-body">
         <div class="modal-titulo">Título</div>
         <div class="modal-texto" id="modalDescricaoTitulo"></div>
-
         <div class="modal-titulo">Descrição</div>
         <div class="modal-texto" id="modalDescricaoTexto"></div>
-
         <div class="modal-actions">
           <button class="btn-primary" onclick="window.editarDescricaoModal()"><i class="fas fa-edit"></i> Editar</button>
           <button class="btn-secondary" onclick="window.fecharModalDescricao()">Fechar</button>
@@ -282,13 +230,11 @@
         <input type="text" id="edicaoTitulo" class="modal-input" placeholder="Título">
         <textarea id="edicaoDescricao" class="modal-input" placeholder="Descrição" rows="3"></textarea>
         <input type="date" id="edicaoData" class="modal-input">
-
         <select id="edicaoPrioridade" class="modal-select">
           <option value="p3">🟢 Baixa</option>
           <option value="p2">🟡 Média</option>
           <option value="p1">🔴 Alta</option>
         </select>
-
         <select id="edicaoRecorrencia" class="modal-select">
           <option value="">Sem recorrência</option>
           <option value="diaria">🔄 Diária</option>
@@ -296,7 +242,6 @@
           <option value="semanal">🔄 Semanal</option>
           <option value="mensal">🔄 Mensal</option>
         </select>
-
         <div class="modal-actions">
           <button class="btn-primary" onclick="window.salvarEdicaoTarefa()">Salvar</button>
           <button class="btn-secondary" onclick="window.fecharModalEdicao()">Cancelar</button>
@@ -327,13 +272,10 @@
       <i class="fas fa-brain" style="font-size:40px; color:#667eea;"></i>
       <h2 style="color:white;">🎯 Modo Foco</h2>
       <div id="tarefaFocoTexto" style="color:white; margin:12px 0;"></div>
-
       <div class="progresso-foco">
         <div class="progresso-foco-bar" id="progressoFocoBar"></div>
       </div>
-
       <div class="timer-foco-grande" id="timerFocoGrande">25:00</div>
-
       <div class="controles-foco">
         <button class="btn-glass" id="btnIniciarFoco" onclick="window.iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button>
         <button class="btn-glass" id="btnPausarFoco" style="display:none;" onclick="window.pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button>
@@ -341,13 +283,11 @@
         <button class="btn-glass" onclick="window.concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button>
         <button class="btn-glass" onclick="window.fecharModoFoco()"><i class="fas fa-times"></i> Sair</button>
       </div>
-
       <div style="margin-top:16px;">
         <button id="btnMusicaFoco" class="btn-musica" onclick="window.toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button>
         <span style="color:white; font-size:11px; margin-left:10px;">Volume</span>
         <input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="window.ajustarVolumeFoco(this.value)" style="width:100px; margin-left:6px; vertical-align:middle;">
       </div>
-
       <div id="cronometroInfo" style="color:white; font-size:12px; margin-top:12px;">🍅 Pomodoro 25 minutos</div>
     </div>
   </div>
@@ -365,31 +305,25 @@
     </div>
   </div>
 
-  <!-- MODAL DIA DO CALENDÁRIO -->
+  <!-- MODAL DIA CALENDÁRIO -->
   <div class="modal-dia-overlay" id="modalDiaOverlay">
     <div class="modal-conteudo modal-dia-conteudo">
       <div class="modal-header">
         <h3><i class="fas fa-calendar-day"></i> <span id="modalDiaTitulo">Dia</span></h3>
         <button class="modal-close" onclick="window.fecharDiaCalendario()"><i class="fas fa-times"></i></button>
       </div>
-
       <div class="modal-body">
         <div id="modalDiaResumo" style="color:rgba(255,255,255,0.75); font-size:12px; margin-bottom:12px;"></div>
-
-        <!-- NOVO: form rápido para adicionar tarefa no dia selecionado -->
         <div class="modal-dia-add">
           <div class="modal-dia-add-title"><i class="fas fa-plus-circle"></i> Nova tarefa neste dia</div>
-
           <input type="text" id="modalDiaNovoTexto" class="modal-input" placeholder="Título da tarefa">
           <textarea id="modalDiaNovaDescricao" class="modal-input" rows="2" placeholder="Descrição (opcional)"></textarea>
-
           <div class="modal-dia-add-row">
             <select id="modalDiaNovaPrioridade" class="modal-select">
               <option value="p3">🟢 Baixa</option>
               <option value="p2" selected>🟡 Média</option>
               <option value="p1">🔴 Alta</option>
             </select>
-
             <select id="modalDiaNovaRecorrencia" class="modal-select">
               <option value="">Sem recorrência</option>
               <option value="diaria">Diária</option>
@@ -398,17 +332,13 @@
               <option value="mensal">Mensal</option>
             </select>
           </div>
-
           <div class="modal-actions" style="margin-top:8px;">
             <button class="btn-primary" onclick="window.adicionarTarefaNoDiaModal()">
               <i class="fas fa-plus"></i> Adicionar tarefa
             </button>
           </div>
         </div>
-
-        <!-- Lista completa das tarefas do dia -->
         <div id="modalDiaLista" class="modal-dia-lista"></div>
-
         <div class="modal-actions" style="margin-top:14px;">
           <button class="btn-secondary" onclick="window.fecharDiaCalendario()">Fechar</button>
         </div>
