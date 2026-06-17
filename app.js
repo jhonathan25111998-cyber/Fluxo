@@ -1174,19 +1174,17 @@ function atualizarDashboard() {
   if (!alerta) return;
 
   const alertaTexto = document.getElementById("alertaTexto");
-  const alertaSubtexto = document.getElementById("alertaSubtexto");
-  const alertaBtn = document.getElementById("alertaBtn");
 
   if (tarefasAtrasadas.length > 0) {
     alerta.style.display = "inline-flex";
-    if (alertaTexto) alertaTexto.textContent = `Você tem ${tarefasAtrasadas.length} tarefa(s) atrasada(s)!`;
-    if (alertaSubtexto) alertaSubtexto.textContent = "Reagende ou conclua agora";
-    if (alertaBtn) alertaBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+    const qtd = tarefasAtrasadas.length;
+    const palavra = qtd === 1 ? "tarefa atrasada" : "tarefas atrasadas";
+    alertaTexto.textContent = `Você tem ${qtd} ${palavra}!`;
   } else if (tarefasHoje.length > 0) {
     alerta.style.display = "inline-flex";
-    if (alertaTexto) alertaTexto.textContent = `Você tem ${tarefasHoje.length} tarefa(s) para hoje!`;
-    if (alertaSubtexto) alertaSubtexto.textContent = "Organize seu dia 🎯";
-    if (alertaBtn) alertaBtn.onclick = () => irParaHoje();
+    const qtd = tarefasHoje.length;
+    const palavra = qtd === 1 ? "tarefa para hoje" : "tarefas para hoje";
+    alertaTexto.textContent = `Você tem ${qtd} ${palavra}!`;
   } else {
     alerta.style.display = "none";
   }
@@ -1250,7 +1248,6 @@ window.mudarModoCalendario = function (modo) {
   modoCalendario = modo;
   localStorage.setItem("modoCalendario", modo);
   renderizarCalendario();
-  // Atualizar botões ativos
   document.querySelectorAll(".cal-view-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.view === modo);
   });
@@ -1434,7 +1431,6 @@ function renderizarCalendario() {
   let html = "";
 
   if (modoCalendario === "mes") {
-    // Modo mês: grade 7x
     const primeiroDia = new Date(ano, mes, 1);
     const ultimoDia = new Date(ano, mes + 1, 0);
     const inicioSemana = (primeiroDia.getDay() + 6) % 7;
@@ -1454,21 +1450,22 @@ function renderizarCalendario() {
   } else if (modoCalendario === "semana") {
     // Modo semana: 7 dias a partir da segunda-feira da semana atual
     const dataInicio = new Date(ano, mes, 1);
-    const diaSemana = (dataInicio.getDay() + 6) % 7; // 0=seg, 6=dom
+    const diaSemana = (dataInicio.getDay() + 6) % 7;
     const inicioSemanaOffset = -diaSemana;
     const dataSegunda = new Date(ano, mes, 1);
     dataSegunda.setDate(dataSegunda.getDate() + inicioSemanaOffset);
 
-    // Ajustar para a semana que contém dataCalendario
     const diffDias = (dataCalendario - dataSegunda) / (1000*60*60*24);
     const semanaAtual = Math.floor(diffDias / 7);
     dataSegunda.setDate(dataSegunda.getDate() + semanaAtual * 7);
 
-    // Cabeçalho com dias da semana
-    const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-    html = diasSemana
-      .map((d) => `<div style="font-size:12px;opacity:.75;text-align:center;padding:6px 0;color:white;">${d}</div>`)
-      .join("");
+    // Cabeçalho com dias da semana (oculto no mobile para ganhar espaço)
+    if (!isMobile) {
+      const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+      html = diasSemana
+        .map((d) => `<div style="font-size:12px;opacity:.75;text-align:center;padding:6px 0;color:white;">${d}</div>`)
+        .join("");
+    }
 
     for (let i = 0; i < 7; i++) {
       const dataDia = new Date(dataSegunda);
@@ -1480,12 +1477,10 @@ function renderizarCalendario() {
       html += gerarCelulaDia(dataStr, dia, hoje, false, isMobile);
     }
   } else if (modoCalendario === "dia") {
-    // Modo dia: apenas o dia selecionado (dataCalendario)
     const dia = dataCalendario.getDate();
     const mesDia = dataCalendario.getMonth() + 1;
     const anoDia = dataCalendario.getFullYear();
     const dataStr = `${anoDia}-${String(mesDia).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-    // Cabeçalho com o dia da semana e data
     const nomeDia = dataCalendario.toLocaleDateString("pt-BR", { weekday: "long" });
     html = `<div style="grid-column:1; text-align:center; color:white; font-weight:600; padding:8px 0;">${nomeDia}, ${dia}/${mesDia}/${anoDia}</div>`;
     html += gerarCelulaDia(dataStr, dia, hoje, true, isMobile);
@@ -1696,28 +1691,31 @@ function toggleTema() {
   if (icon) icon.className = dark ? "fas fa-sun" : "fas fa-moon";
 }
 
-function bindUI() {
-  document.getElementById("logoutBtn")?.addEventListener("click", () => fazerLogout());
-  document.getElementById("themeToggle")?.addEventListener("click", toggleTema);
+function fecharDropdownUser() {
+  document.getElementById("dropdownMenuUser")?.classList.remove("show");
+}
 
+function bindUI() {
+  // Os botões agora estão dentro do dropdown, mas os IDs são os mesmos
   document.getElementById("syncNowBtn")?.addEventListener("click", () => {
     const ok = sincronizarTarefasRecorrentes();
     salvarDados();
     if (!ok) mostrarIndicadorSync("ℹ️ Nada novo para sincronizar", "info");
+    fecharDropdownUser();
   });
-
-  document.getElementById("backupBtn")?.addEventListener("click", () => abrirModalBackup());
-
-  document.getElementById("notifyBtn")?.addEventListener("click", () => abrirModalNotificacoes());
 
   document.getElementById("rescheduleBtn")?.addEventListener("click", () => {
     const hoje = getDataHoje();
     const atrasadas = tarefas.filter((t) => t.data && t.data < hoje && !t.concluida);
     if (atrasadas.length === 0) {
       mostrarIndicadorSync("🎉 Sem tarefas atrasadas");
+      fecharDropdownUser();
       return;
     }
-    if (!confirm(`Reagendar ${atrasadas.length} tarefa(s) atrasada(s) para hoje?`)) return;
+    if (!confirm(`Reagendar ${atrasadas.length} tarefa(s) atrasada(s) para hoje?`)) {
+      fecharDropdownUser();
+      return;
+    }
     atrasadas.forEach((t) => {
       t.data = hoje;
       t.notificado = false;
@@ -1726,23 +1724,39 @@ function bindUI() {
     });
     salvarDados();
     mostrarIndicadorSync(`📅 ${atrasadas.length} tarefa(s) reagendada(s)!`);
+    fecharDropdownUser();
   });
 
-  // Dropdown toggle
-  const dropdownToggle = document.getElementById("dropdownToggle");
-  const dropdownContent = document.getElementById("dropdownContent");
-  if (dropdownToggle && dropdownContent) {
-    dropdownToggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdownContent.classList.toggle("show");
-    });
-    document.addEventListener("click", () => dropdownContent.classList.remove("show"));
-  }
+  document.getElementById("backupBtn")?.addEventListener("click", () => {
+    abrirModalBackup();
+    fecharDropdownUser();
+  });
 
-  const modalDia = document.getElementById("modalDiaOverlay");
-  if (modalDia) {
-    modalDia.addEventListener("click", (e) => {
-      if (e.target === modalDia) fecharDiaCalendario();
+  document.getElementById("notifyBtn")?.addEventListener("click", () => {
+    abrirModalNotificacoes();
+    fecharDropdownUser();
+  });
+
+  document.getElementById("themeToggle")?.addEventListener("click", () => {
+    toggleTema();
+    fecharDropdownUser();
+  });
+
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    fazerLogout();
+    fecharDropdownUser();
+  });
+
+  // Dropdown do usuário
+  const userAvatar = document.getElementById("userAvatar");
+  const dropdownMenu = document.getElementById("dropdownMenuUser");
+  if (userAvatar && dropdownMenu) {
+    userAvatar.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle("show");
+    });
+    document.addEventListener("click", () => {
+      dropdownMenu.classList.remove("show");
     });
   }
 
@@ -1804,6 +1818,8 @@ async function initApp() {
       localStorage.setItem("modoCalendario", "semana");
       renderizarCalendario();
     }
+    // Re-renderizar calendário ao mudar orientação
+    renderizarCalendario();
   });
 
   onAuthStateChanged(auth, async (user) => {
