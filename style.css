@@ -209,33 +209,6 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
   color: #fff; opacity: 0.7; font-size: 9px; letter-spacing: 1px;
 }
 
-/* ===== ALERTA DE TAREFAS ===== */
-.alerta-tarefas {
-  position: absolute;
-  top: 12px;
-  left: 16px;
-  background: rgba(124,58,237,0.25);
-  border-radius: 40px;
-  padding: 6px 14px;
-  font-size: 13px;
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.1);
-  z-index: 10;
-}
-.alerta-tarefas .alerta-conteudo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.alerta-tarefas i {
-  color: #fff !important; /* força ícone branco */
-  font-size: 14px;
-}
-
 /* ===== DROPDOWN DO USUÁRIO ===== */
 .user-dropdown {
   position: absolute;
@@ -299,6 +272,7 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   margin-bottom: 12px;
   padding: 8px 0;
@@ -333,15 +307,58 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
   border: 1px solid rgba(255,255,255,0.2);
   background: rgba(255,255,255,0.1);
 }
+
+/* ===== ALERTA DE TAREFAS (agora na linha de botões) ===== */
+.alerta-tarefas {
+  background: rgba(124,58,237,0.3);
+  border-radius: 40px;
+  padding: 4px 14px;
+  font-size: 13px;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.15);
+  white-space: nowrap;
+  transition: 0.2s;
+}
+.alerta-tarefas .alerta-conteudo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.alerta-tarefas i {
+  color: #fff !important;
+  font-size: 14px;
+}
+.alerta-tarefas:hover {
+  background: rgba(124,58,237,0.5);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* ===== BOTÃO VER METAS (estilizado como botão) ===== */
 .metas-toggle-btn {
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.85);
+  border: none;
+  border-radius: 40px;
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
   cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.08);
-  margin-left: auto;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.metas-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4);
+}
+.metas-toggle-btn:active {
+  transform: translateY(0);
 }
 
 /* ===== RESUMO METAS ===== */
@@ -680,44 +697,32 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
   .header-fluxo {
-    min-height: 90px;
-    padding-top: 36px;
-  }
-  .header-logo-central {
-    margin-top: 8px;
+    min-height: 70px;
+    padding-top: 8px;
   }
   .header-logo-central .logo-titulo { font-size: 16px; }
   .header-logo-central .logo-subtitulo { font-size: 8px; }
 
-  /* Alerta centralizado entre logo e data */
-  .alerta-tarefas {
-    top: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    padding: 4px 12px;
-    white-space: nowrap;
-    max-width: 90%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    background: rgba(124,58,237,0.4);
-    border-color: rgba(255,255,255,0.2);
-  }
-  .alerta-tarefas i {
-    color: #fff !important; /* garante que fique branco */
-  }
-
   .user-dropdown {
-    top: 6px;
+    top: 8px;
     right: 8px;
   }
   .user-avatar { width: 28px; height: 28px; }
   .user-avatar i { font-size: 16px; }
 
-  .linha-botoes { gap: 8px; }
+  .linha-botoes {
+    gap: 8px;
+    justify-content: center;
+  }
   .view-btn { font-size: 12px; padding: 4px 12px; }
   .top-action-btn { font-size: 11px; padding: 4px 10px; }
-  .metas-toggle-btn { font-size: 11px; padding: 4px 10px; }
+  .metas-toggle-btn { font-size: 12px; padding: 4px 14px; }
+  .alerta-tarefas {
+    font-size: 11px;
+    padding: 3px 10px;
+    max-width: 100%;
+  }
+  .alerta-tarefas i { font-size: 12px; }
 
   .calendario-grade { gap: 8px; }
   .cal-dia { min-height: 86px; padding: 6px; }
@@ -754,4 +759,17 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
   .modal-dia-item { flex-direction: column; gap: 8px; }
   .modal-dia-actions { width: 100%; grid-template-columns: repeat(4, 1fr); }
   .modal-dia-btn { width: 100%; height: 34px; }
+
+  .linha-botoes {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .view-toggle, .action-buttons, .alerta-tarefas, .metas-toggle-btn {
+    justify-content: center;
+    width: 100%;
+  }
+  .alerta-tarefas {
+    white-space: normal;
+    text-align: center;
+  }
 }
