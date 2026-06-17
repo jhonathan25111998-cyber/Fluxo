@@ -232,7 +232,7 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
   gap: 8px;
 }
 .alerta-tarefas i {
-  color: #fff;
+  color: #fff !important; /* força ícone branco */
   font-size: 14px;
 }
 
@@ -689,6 +689,7 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
   .header-logo-central .logo-titulo { font-size: 16px; }
   .header-logo-central .logo-subtitulo { font-size: 8px; }
 
+  /* Alerta centralizado entre logo e data */
   .alerta-tarefas {
     top: 6px;
     left: 50%;
@@ -701,6 +702,9 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
     text-overflow: ellipsis;
     background: rgba(124,58,237,0.4);
     border-color: rgba(255,255,255,0.2);
+  }
+  .alerta-tarefas i {
+    color: #fff !important; /* garante que fique branco */
   }
 
   .user-dropdown {
