@@ -32,7 +32,7 @@ body {
   padding: 16px;
   color: var(--text-primary);
   transition: all 0.3s ease;
-  padding-bottom: 80px; /* espaço para o rodapé fixo */
+  padding-bottom: 80px;
 }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -187,7 +187,6 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
   min-height: 80px;
 }
 
-/* Logo central */
 .header-logo-central {
   display: flex;
   align-items: center;
@@ -210,7 +209,7 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
   color: #fff; opacity: 0.7; font-size: 9px; letter-spacing: 1px;
 }
 
-/* Alerta de tarefas (canto superior esquerdo) */
+/* ===== ALERTA DE TAREFAS ===== */
 .alerta-tarefas {
   position: absolute;
   top: 12px;
@@ -225,15 +224,19 @@ body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
   gap: 8px;
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255,255,255,0.1);
+  z-index: 10;
 }
 .alerta-tarefas .alerta-conteudo {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.alerta-tarefas i { color: #fbbf24; font-size: 14px; }
+.alerta-tarefas i {
+  color: #fff;
+  font-size: 14px;
+}
 
-/* Dropdown do usuário (canto superior direito) */
+/* ===== DROPDOWN DO USUÁRIO ===== */
 .user-dropdown {
   position: absolute;
   top: 12px;
@@ -676,11 +679,34 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
-  .header-fluxo { min-height: 70px; padding: 8px 12px; }
+  .header-fluxo {
+    min-height: 90px;
+    padding-top: 36px;
+  }
+  .header-logo-central {
+    margin-top: 8px;
+  }
   .header-logo-central .logo-titulo { font-size: 16px; }
   .header-logo-central .logo-subtitulo { font-size: 8px; }
-  .alerta-tarefas { font-size: 11px; padding: 4px 10px; top: 8px; left: 8px; }
-  .user-dropdown { top: 8px; right: 8px; }
+
+  .alerta-tarefas {
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    padding: 4px 12px;
+    white-space: nowrap;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: rgba(124,58,237,0.4);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .user-dropdown {
+    top: 6px;
+    right: 8px;
+  }
   .user-avatar { width: 28px; height: 28px; }
   .user-avatar i { font-size: 16px; }
 
