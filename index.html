@@ -73,24 +73,28 @@
   <div class="container" id="mainApp" style="display:block;">
     <!-- HEADER CENTRALIZADO -->
     <div class="header-fluxo">
-      <div class="header-logo-central">
-        <div class="logo-img">
-          <img src="logo.png" alt="FLUXO" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-          <div class="logo-fallback" style="display:none;">
-            <i class="fas fa-tasks"></i>
+      <!-- Logo e avatar centralizados -->
+      <div class="header-central">
+        <div class="header-logo-avatar">
+          <div class="user-avatar" id="userAvatar" onclick="window.abrirModalPerfil()">
+            <i class="fas fa-user-circle"></i>
           </div>
-        </div>
-        <div class="logo-texto">
-          <div class="logo-titulo">FLUXO</div>
-          <div class="logo-subtitulo">Organize. Execute. Flua.</div>
+          <div class="logo-img">
+            <img src="logo.png" alt="FLUXO" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="logo-fallback" style="display:none;">
+              <i class="fas fa-tasks"></i>
+            </div>
+          </div>
+          <div class="logo-texto">
+            <div class="logo-titulo">FLUXO</div>
+            <div class="logo-subtitulo">Organize. Execute. Flua.</div>
+          </div>
         </div>
       </div>
 
-      <!-- Ícone do usuário com dropdown (canto superior direito) -->
+      <!-- Dropdown do usuário (canto superior direito) -->
       <div class="user-dropdown" id="userDropdown">
-        <div class="user-avatar" id="userAvatar">
-          <i class="fas fa-user-circle"></i>
-        </div>
+        <button class="dropdown-toggle" id="dropdownToggle"><i class="fas fa-ellipsis-v"></i></button>
         <div class="dropdown-menu-user" id="dropdownMenuUser">
           <button class="dropdown-item" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Sincronizar</button>
           <button class="dropdown-item" id="rescheduleBtn"><i class="fas fa-calendar-plus"></i> Reagendar</button>
@@ -109,7 +113,7 @@
       </div>
     </div>
 
-    <!-- LINHA DE BOTÕES (com alerta integrado) -->
+    <!-- LINHA DE BOTÕES -->
     <div class="linha-botoes">
       <div class="view-toggle">
         <button class="view-btn active" onclick="window.toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
@@ -120,7 +124,7 @@
         <button class="top-action-btn" onclick="window.marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas</button>
       </div>
 
-      <!-- ALERTA DE TAREFAS (agora na linha de botões) -->
+      <!-- ALERTA DE TAREFAS -->
       <div class="alerta-tarefas" id="dashboardAlerta" style="display:none;">
         <div class="alerta-conteudo">
           <i class="fas fa-bell"></i>
@@ -199,7 +203,8 @@
     </div>
   </div>
 
-  <!-- MODAIS (mantidos) -->
+  <!-- MODAIS -->
+
   <!-- MODAL DESCRIÇÃO -->
   <div class="modal-descricao-overlay" id="modalDescricaoOverlay">
     <div class="modal-conteudo">
@@ -360,22 +365,35 @@
     </div>
   </div>
 
-  <!-- MODAL PERFIL -->
+  <!-- MODAL PERFIL (EDITÁVEL) -->
   <div class="modal-perfil-overlay" id="modalPerfilOverlay">
     <div class="modal-conteudo">
       <div class="modal-header">
-        <h3><i class="fas fa-user-circle"></i> Perfil</h3>
+        <h3><i class="fas fa-user-circle"></i> Editar Perfil</h3>
         <button class="modal-close" onclick="window.fecharModalPerfil()"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body">
         <div style="text-align:center; margin-bottom:16px;">
-          <i class="fas fa-user-circle" style="font-size:48px; color:#667eea;"></i>
-          <div id="perfilEmail" style="color:white; font-weight:600; margin-top:8px;"></div>
+          <div class="avatar-preview" id="avatarPreview" style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin:0 auto 12px;background:#667eea;display:flex;align-items:center;justify-content:center;border:3px solid #667eea;">
+            <i class="fas fa-user-circle" style="font-size:64px;color:white;"></i>
+          </div>
+          <input type="file" id="avatarUpload" accept="image/*" style="display:none;" onchange="window.uploadAvatar(event)">
+          <button class="btn-secondary" onclick="document.getElementById('avatarUpload').click()">
+            <i class="fas fa-camera"></i> Trocar foto
+          </button>
         </div>
-        <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="window.fecharModalPerfil(); window.fazerLogout();">
-          <i class="fas fa-sign-out-alt"></i> Sair
-        </button>
-        <button class="btn-secondary" style="width:100%;" onclick="window.fecharModalPerfil()">Fechar</button>
+        <div style="margin-bottom:16px;">
+          <label style="color:rgba(255,255,255,0.7);font-size:13px;">Nome</label>
+          <input type="text" id="perfilNome" class="modal-input" placeholder="Seu nome">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="color:rgba(255,255,255,0.7);font-size:13px;">Email</label>
+          <input type="text" id="perfilEmail" class="modal-input" disabled style="opacity:0.7;">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-primary" onclick="window.salvarPerfil()">Salvar</button>
+          <button class="btn-secondary" onclick="window.fecharModalPerfil()">Cancelar</button>
+        </div>
       </div>
     </div>
   </div>
