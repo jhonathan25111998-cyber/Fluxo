@@ -1,418 +1,1247 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <meta name="theme-color" content="#667eea">
-  <title>FLUXO - Organize. Execute. Flua.</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <!-- LOGIN -->
-  <div class="login-overlay" id="loginOverlay">
-    <div class="login-container">
-      <div class="logo-img" style="margin:0 auto 20px; justify-content:center;">
-        <img
-          src="logo.png"
-          alt="FLUXO"
-          style="width:60px;height:60px;object-fit:contain;"
-          onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:60px;height:60px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto;\'><i class=\'fas fa-tasks\' style=\'font-size:28px;color:white;\'></i></div>'"
-        >
-      </div>
-      <h2>FLUXO</h2>
-      <p style="color:rgba(255,255,255,0.7); margin-bottom:30px;">Organize. Execute. Flua.</p>
-      <div id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Email">
-        <div class="password-container">
-          <input type="password" id="loginPassword" placeholder="Senha">
-          <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('loginPassword', this)">
-            <i class="far fa-eye"></i>
-          </button>
-        </div>
-        <div id="loginErrorMessage" style="color:#ef4444; font-size:12px; margin-bottom:12px;"></div>
-        <button class="login-btn" onclick="window.fazerLogin()">Entrar</button>
-        <div class="divider">
-          <span class="divider-line"></span>
-          <span>ou</span>
-          <span class="divider-line"></span>
-        </div>
-        <button class="google-login-btn" onclick="window.loginComGoogle()">
-          <i class="fab fa-google"></i> Continuar com Google
-        </button>
-        <a class="register-link" onclick="window.mostrarCadastro()" style="color:rgba(255,255,255,0.7); font-size:13px; margin-top:16px; display:block; cursor:pointer;">
-          Criar conta
-        </a>
-      </div>
-      <div id="registerForm" style="display:none;">
-        <input type="email" id="registerEmail" placeholder="Email">
-        <div class="password-container">
-          <input type="password" id="registerPassword" placeholder="Senha">
-          <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('registerPassword', this)">
-            <i class="far fa-eye"></i>
-          </button>
-        </div>
-        <div class="password-container">
-          <input type="password" id="registerConfirm" placeholder="Confirmar senha">
-          <button type="button" class="toggle-password" onclick="window.togglePasswordVisibility('registerConfirm', this)">
-            <i class="far fa-eye"></i>
-          </button>
-        </div>
-        <div id="registerErrorMessage" style="color:#ef4444; font-size:12px; margin-bottom:12px;"></div>
-        <button class="login-btn" onclick="window.fazerCadastro()">Cadastrar</button>
-        <a class="register-link" onclick="window.mostrarLogin()" style="color:rgba(255,255,255,0.7); font-size:13px; margin-top:16px; display:block; cursor:pointer;">
-          Já tenho conta
-        </a>
-      </div>
-    </div>
-  </div>
+:root {
+  --card-bg: #1e1e2e;
+  --card-bg-hover: #242438;
+  --purple-primary: #7c3aed;
+  --purple-secondary: #a855f7;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #fbbf24;
+  --bg-gradient-start: #667eea;
+  --bg-gradient-mid: #764ba2;
+  --bg-gradient-end: #f093fb;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --card-bg-light: rgba(30, 30, 46, 0.6);
+  --header-bg: rgba(26, 27, 38, 0.6);
+}
 
-  <!-- APP -->
-  <div class="container" id="mainApp" style="display:block;">
-    <!-- HEADER CENTRALIZADO -->
-    <div class="header-fluxo">
-      <div class="header-central">
-        <div class="header-logo-avatar">
-          <div class="user-avatar" id="userAvatar" onclick="window.abrirModalPerfil()">
-            <i class="fas fa-user-circle"></i>
-          </div>
-          <div class="logo-img">
-            <img src="logo.png" alt="FLUXO" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-            <div class="logo-fallback" style="display:none;">
-              <i class="fas fa-tasks"></i>
-            </div>
-          </div>
-          <div class="logo-texto">
-            <div class="logo-titulo">FLUXO</div>
-            <div class="logo-subtitulo">Organize. Execute. Flua.</div>
-          </div>
-        </div>
-      </div>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
 
-      <!-- Dropdown do usuário (canto superior direito) -->
-      <div class="user-dropdown" id="userDropdown">
-        <button class="dropdown-toggle" id="dropdownToggle"><i class="fas fa-ellipsis-v"></i></button>
-        <div class="dropdown-menu-user" id="dropdownMenuUser">
-          <button class="dropdown-item" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Sincronizar</button>
-          <button class="dropdown-item" id="rescheduleBtn"><i class="fas fa-calendar-plus"></i> Reagendar</button>
-          <button class="dropdown-item" id="backupBtn"><i class="fas fa-database"></i> Backup</button>
-          <button class="dropdown-item" id="notifyBtn"><i class="fas fa-bell"></i> Notificações</button>
-          <button class="dropdown-item" id="themeToggle"><i class="fas fa-moon"></i> Tema</button>
-          <button class="dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
-        </div>
-      </div>
-    </div>
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  padding: 16px;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  padding-bottom: 80px;
+}
 
-    <!-- DATA MOBILE -->
-    <div class="data-card-mobile" id="dataCardMobile">
-      <div class="data-badge">
-        <i class="fas fa-calendar-alt"></i> <span id="dataHojeMobile"></span>
-      </div>
-    </div>
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(168,85,247,0.4); }
 
-    <!-- LINHA DE BOTÕES -->
-    <div class="linha-botoes">
-      <div class="view-toggle">
-        <button class="view-btn active" onclick="window.toggleView('cards')"><i class="fas fa-th-large"></i> Cards</button>
-        <button class="view-btn" onclick="window.toggleView('calendario')"><i class="fas fa-calendar-alt"></i> Calendário</button>
-      </div>
-      <div class="action-buttons">
-        <button class="top-action-btn" onclick="window.adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button>
-        <button class="top-action-btn" onclick="window.marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas</button>
-      </div>
+/* ===== TEMAS ===== */
 
-      <!-- ALERTA DE TAREFAS -->
-      <div class="alerta-tarefas" id="dashboardAlerta" style="display:none;">
-        <div class="alerta-conteudo">
-          <i class="fas fa-bell"></i>
-          <span id="alertaTexto">Você tem tarefas pendentes!</span>
-        </div>
-      </div>
+/* Modo escuro (padrão) */
+body.dark-theme {
+  --bg-gradient-start: #0f0f1a;
+  --bg-gradient-mid: #1a1a2e;
+  --bg-gradient-end: #16213e;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255,255,255,0.6);
+  --card-bg-light: rgba(20,20,35,0.8);
+  --header-bg: rgba(10,10,20,0.8);
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+}
+body.dark-theme .header-fluxo,
+body.dark-theme .card-espaco,
+body.dark-theme .metas-dashboard {
+  background: rgba(10,10,20,0.9);
+  border-color: rgba(255,255,255,0.05);
+}
+body.dark-theme .card-header { background: #2a2a3e; color: #fff; }
+body.dark-theme .tarefa-item { background: rgba(40,40,55,0.8); border-color: rgba(255,255,255,0.08); }
+body.dark-theme .task-title { color: #fff; }
+body.dark-theme .footer-stats { background: rgba(10,10,20,0.95); border-color: rgba(255,255,255,0.05); }
+body.dark-theme .modal-conteudo { background: rgba(20,20,35,0.98); border-color: rgba(255,255,255,0.1); }
+body.dark-theme .modal-input, body.dark-theme .modal-select { background: rgba(255,255,255,0.08); color: #fff; }
+body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
+body.dark-theme .alerta-tarefas { background: rgba(124,58,237,0.3); }
+body.dark-theme .metas-toggle-btn { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+body.dark-theme .estado-vazio i { color: rgba(255,255,255,0.3); }
+body.dark-theme .estado-vazio p { color: rgba(255,255,255,0.8); }
+body.dark-theme .estado-vazio small { color: rgba(255,255,255,0.4); }
+body.dark-theme .data-badge { color: #fff; background: rgba(255,255,255,0.1); }
+body.dark-theme .data-badge i { color: #fff; }
 
-      <button class="metas-toggle-btn" id="metasToggleBtn" onclick="window.togglePainelMetas()">Ver metas</button>
-    </div>
+/* ===== MODO CLARO ===== */
+body.light-theme {
+  --bg-gradient-start: #f0f0f5;
+  --bg-gradient-mid: #e8e8f0;
+  --bg-gradient-end: #ffffff;
+  --text-primary: #1a1a2e;
+  --text-secondary: rgba(0,0,0,0.6);
+  --card-bg-light: rgba(255,255,255,0.8);
+  --header-bg: rgba(255,255,255,0.9);
+  background: linear-gradient(135deg, #f0f0f5 0%, #e8e8f0 50%, #ffffff 100%);
+}
 
-    <!-- RESUMO METAS -->
-    <div class="metas-resumo" id="metasResumo" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-      <div class="metas-resumo-left">
-        <i class="fas fa-bullseye"></i>
-        <span><strong id="totalMetas">0</strong> metas</span>
-        <span>•</span>
-        <span><strong id="concluidasMetas">0</strong> concluídas</span>
-        <span>•</span>
-        <span><strong id="progressoMetas">0</strong>%</span>
-      </div>
-    </div>
+body.light-theme .header-fluxo {
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(0,0,0,0.08);
+}
+body.light-theme .dropdown-toggle {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.05);
+}
+body.light-theme .dropdown-toggle:hover {
+  background: rgba(0,0,0,0.1);
+  color: #1a1a2e;
+}
+body.light-theme .user-avatar i {
+  color: #1a1a2e;
+}
+body.light-theme .logo-texto .logo-titulo {
+  background: linear-gradient(135deg, #1a1a2e, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body.light-theme .logo-texto .logo-subtitulo {
+  color: #1a1a2e;
+  opacity: 0.7;
+}
 
-    <!-- DASHBOARD METAS -->
-    <div class="metas-dashboard" id="metasCompletas" style="display:none;">
-      <div class="metas-header" style="display:flex; justify-content:space-between; margin-bottom:16px;">
-        <h2 style="color:white;"><i class="fas fa-trophy"></i> Minhas Metas</h2>
-      </div>
-      <div class="metas-grid" id="metasGrid"></div>
-      <div class="add-meta-form" style="display:flex; gap:8px; margin-top:16px;">
-        <input type="text" id="novaMetaTexto" placeholder="Nova meta..." style="flex:1; padding:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white;">
-        <select id="novaMetaCategoria" style="padding:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white;">
-          <option>Saúde</option>
-          <option>Desenvolvimento</option>
-          <option>Financeiro</option>
-          <option>Espiritual</option>
-          <option>Carreira</option>
-          <option>Relacionamentos</option>
-        </select>
-        <button onclick="window.adicionarMeta()" style="background:linear-gradient(135deg,#fbbf24,#f59e0b); border:none; padding:8px 16px; border-radius:8px; color:#1a1a2e; font-weight:600; cursor:pointer;">
-          <i class="fas fa-plus"></i> Adicionar
-        </button>
-      </div>
-    </div>
+body.light-theme .dropdown-menu-user {
+  background: rgba(255,255,255,0.98);
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .dropdown-menu-user .dropdown-item {
+  color: #1a1a2e;
+}
+body.light-theme .dropdown-menu-user .dropdown-item:hover {
+  background: rgba(0,0,0,0.05);
+}
 
-    <!-- STATUS -->
-    <div id="statusConnection" class="status-online"><i class="fas fa-wifi"></i> Online</div>
+body.light-theme .card-espaco,
+body.light-theme .metas-dashboard {
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(0,0,0,0.08);
+}
+body.light-theme .card-header {
+  background: #e8e8f0;
+  color: #1a1a2e;
+}
+body.light-theme .card-header button {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.08);
+}
+body.light-theme .card-header button:hover {
+  background: rgba(0,0,0,0.15);
+}
+body.light-theme .card-header span {
+  color: #1a1a2e !important;
+}
 
-    <!-- VIEW CARDS -->
-    <div id="cardsView" style="display:block;">
-      <div class="blocos-tarefas" id="blocosTarefas"></div>
-    </div>
+body.light-theme .estado-vazio i {
+  color: rgba(0,0,0,0.25);
+}
+body.light-theme .estado-vazio p {
+  color: #1a1a2e !important;
+}
+body.light-theme .estado-vazio small {
+  color: rgba(0,0,0,0.5) !important;
+}
 
-    <!-- VIEW CALENDÁRIO -->
-    <div id="calendarioView" style="display:none;">
-      <div class="calendario-nav">
-        <button class="btn-glass" onclick="window.mudarMes(-1)"><i class="fas fa-chevron-left"></i> Anterior</button>
-        <button class="btn-glass" onclick="window.mudarMes(1)">Próximo <i class="fas fa-chevron-right"></i></button>
-        <span id="calendarioMes" style="color:white; font-weight:600;"></span>
-        <button class="btn-glass" onclick="window.irParaHoje()"><i class="fas fa-calendar-day"></i> Hoje</button>
-      </div>
-      <div class="calendario-view-selector">
-        <button class="cal-view-btn" data-view="dia" onclick="window.mudarModoCalendario('dia')">Dia</button>
-        <button class="cal-view-btn" data-view="semana" onclick="window.mudarModoCalendario('semana')">Semana</button>
-        <button class="cal-view-btn active" data-view="mes" onclick="window.mudarModoCalendario('mes')">Mês</button>
-      </div>
-      <div id="calendarioGrade" class="calendario-grade"></div>
-    </div>
+body.light-theme .tarefa-item {
+  background: rgba(255,255,255,0.8);
+  border-color: rgba(0,0,0,0.08);
+}
+body.light-theme .task-title {
+  color: #1a1a2e;
+}
+body.light-theme .task-title:hover {
+  color: #7c3aed;
+}
+body.light-theme .task-meta .meta-date,
+body.light-theme .task-meta .meta-tag {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
+body.light-theme .task-meta .meta-date:hover {
+  color: #7c3aed;
+  background: rgba(124,58,237,0.15);
+}
+body.light-theme .task-meta .badge.atrasada {
+  color: #dc2626;
+  background: rgba(239,68,68,0.15);
+}
+body.light-theme .task-action-btn {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
+body.light-theme .task-action-btn:hover {
+  color: #1a1a2e;
+  background: rgba(124,58,237,0.15);
+}
+body.light-theme .task-action-btn.danger:hover {
+  background: rgba(239,68,68,0.15);
+}
+body.light-theme .task-action-btn.danger:hover i {
+  color: #dc2626;
+}
 
-    <!-- RODAPÉ FIXO -->
-    <div class="footer-stats" id="footerStats">
-      <div class="footer-stats-item"><i class="fas fa-check-circle"></i><span id="footerConcluidas">0</span> concluídas</div>
-      <div class="footer-stats-item"><i class="fas fa-chart-line"></i><span id="footerTaxa">0%</span> taxa</div>
-      <div class="footer-stats-item"><i class="fas fa-clock"></i><span id="footerPendentes">0</span> pendentes</div>
-      <div class="footer-stats-item"><i class="fas fa-hourglass-half"></i><span id="footerTempo">0h 0m</span> foco</div>
-      <div class="footer-stats-item"><i class="fas fa-calendar-week"></i><span id="footerReagendadasCount">0</span> reagendadas</div>
-    </div>
-  </div>
+body.light-theme .btn-nova-tarefa {
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  color: #fff;
+}
 
-  <!-- MODAIS (mantidos) -->
-  <!-- MODAL DESCRIÇÃO -->
-  <div class="modal-descricao-overlay" id="modalDescricaoOverlay">
-    <div class="modal-conteudo">
-      <div class="modal-header">
-        <h3><i class="fas fa-pen-alt"></i> Descrição da Tarefa</h3>
-        <button class="modal-close" onclick="window.fecharModalDescricao()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-titulo">Título</div>
-        <div class="modal-texto" id="modalDescricaoTitulo"></div>
-        <div class="modal-titulo">Descrição</div>
-        <div class="modal-texto" id="modalDescricaoTexto"></div>
-        <div class="modal-actions">
-          <button class="btn-primary" onclick="window.editarDescricaoModal()"><i class="fas fa-edit"></i> Editar</button>
-          <button class="btn-secondary" onclick="window.fecharModalDescricao()">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+body.light-theme .footer-stats {
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(0,0,0,0.08);
+}
+body.light-theme .footer-stats-item {
+  color: #1a1a2e;
+}
 
-  <!-- MODAL EDIÇÃO -->
-  <div class="modal-edicao-overlay" id="modalEdicaoOverlay">
-    <div class="modal-conteudo">
-      <div class="modal-header">
-        <h3><i class="fas fa-edit"></i> Editar Tarefa</h3>
-        <button class="modal-close" onclick="window.fecharModalEdicao()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="edicaoTitulo" class="modal-input" placeholder="Título">
-        <textarea id="edicaoDescricao" class="modal-input" placeholder="Descrição" rows="3"></textarea>
-        <input type="date" id="edicaoData" class="modal-input">
-        <select id="edicaoPrioridade" class="modal-select">
-          <option value="p3">🟢 Baixa</option>
-          <option value="p2">🟡 Média</option>
-          <option value="p1">🔴 Alta</option>
-        </select>
-        <select id="edicaoRecorrencia" class="modal-select">
-          <option value="">Sem recorrência</option>
-          <option value="diaria">🔄 Diária</option>
-          <option value="dias_uteis">🔄 Dias úteis</option>
-          <option value="semanal">🔄 Semanal</option>
-          <option value="mensal">🔄 Mensal</option>
-        </select>
-        <div class="modal-actions">
-          <button class="btn-primary" onclick="window.salvarEdicaoTarefa()">Salvar</button>
-          <button class="btn-secondary" onclick="window.fecharModalEdicao()">Cancelar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+body.light-theme .modal-conteudo {
+  background: rgba(255,255,255,0.98);
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .modal-input,
+body.light-theme .modal-select {
+  background: rgba(0,0,0,0.05);
+  color: #1a1a2e;
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .modal-titulo {
+  color: rgba(0,0,0,0.6);
+}
+body.light-theme .modal-texto {
+  background: rgba(0,0,0,0.04);
+  color: #1a1a2e;
+}
+body.light-theme .modal-header h3 {
+  color: #fff;
+}
+body.light-theme .btn-secondary {
+  border-color: rgba(0,0,0,0.2);
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.05);
+}
 
-  <!-- MODAL BACKUP -->
-  <div class="modal-backup-overlay" id="modalBackupOverlay">
-    <div class="modal-conteudo">
-      <div class="modal-header">
-        <h3><i class="fas fa-database"></i> Meus Backups</h3>
-        <button class="modal-close" onclick="window.fecharModalBackup()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <div id="backupList" class="backup-list"></div>
-        <button class="btn-primary" style="width:100%;" onclick="window.fazerBackupManual()">
-          <i class="fas fa-save"></i> Fazer Backup Agora
-        </button>
-      </div>
-    </div>
-  </div>
+body.light-theme .backup-item {
+  background: rgba(0,0,0,0.05);
+}
+body.light-theme .backup-data {
+  color: rgba(0,0,0,0.7);
+}
+body.light-theme .backup-actions button {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
 
-  <!-- MODAL FOCO -->
-  <div class="modal-foco-overlay" id="modalFocoOverlay">
-    <div class="modal-conteudo" style="text-align:center;">
-      <i class="fas fa-brain" style="font-size:40px; color:#667eea;"></i>
-      <h2 style="color:white;">🎯 Modo Foco</h2>
-      <div id="tarefaFocoTexto" style="color:white; margin:12px 0;"></div>
-      <div class="progresso-foco">
-        <div class="progresso-foco-bar" id="progressoFocoBar"></div>
-      </div>
-      <div class="timer-foco-grande" id="timerFocoGrande">25:00</div>
-      <div class="controles-foco">
-        <button class="btn-glass" id="btnIniciarFoco" onclick="window.iniciarPomodoro()"><i class="fas fa-play"></i> Iniciar</button>
-        <button class="btn-glass" id="btnPausarFoco" style="display:none;" onclick="window.pausarPomodoro()"><i class="fas fa-pause"></i> Pausar</button>
-        <button class="btn-glass btn-prorrogar" id="btnProrrogar" onclick="window.prorrogarTempoFoco()"><i class="fas fa-plus-circle"></i> +10 min</button>
-        <button class="btn-glass" onclick="window.concluirTarefaFoco()"><i class="fas fa-check"></i> Concluir</button>
-        <button class="btn-glass" onclick="window.fecharModoFoco()"><i class="fas fa-times"></i> Sair</button>
-      </div>
-      <div style="margin-top:16px;">
-        <button id="btnMusicaFoco" class="btn-musica" onclick="window.toggleMusicaFoco()"><i class="fas fa-music"></i> LoFi Focus</button>
-        <span style="color:white; font-size:11px; margin-left:10px;">Volume</span>
-        <input type="range" id="volumeFoco" min="0" max="100" value="30" onchange="window.ajustarVolumeFoco(this.value)" style="width:100px; margin-left:6px; vertical-align:middle;">
-      </div>
-      <div id="cronometroInfo" style="color:white; font-size:12px; margin-top:12px;">🍅 Pomodoro 25 minutos</div>
-    </div>
-  </div>
+body.light-theme .notificacao-item {
+  background: rgba(0,0,0,0.03);
+  border-left-color: #7c3aed;
+}
+body.light-theme .notificacao-item.importante {
+  border-left-color: #dc2626;
+}
+body.light-theme .notificacao-item .notif-titulo {
+  color: #1a1a2e;
+}
+body.light-theme .notificacao-item .notif-desc {
+  color: rgba(0,0,0,0.7);
+}
+body.light-theme .notificacao-item .notif-data {
+  color: rgba(0,0,0,0.5);
+}
 
-  <!-- MODAL REAGENDAR -->
-  <div class="modal-reagendar-overlay" id="modalReagendarOverlay">
-    <div class="modal-conteudo" style="text-align:center;">
-      <i class="fas fa-calendar-alt" style="font-size:28px; color:#667eea;"></i>
-      <h3 style="color:white;">Reagendar Tarefa</h3>
-      <input type="date" id="novaDataReagendar" class="modal-input" style="margin:16px 0;">
-      <div class="modal-actions">
-        <button class="btn-primary" onclick="window.confirmarReagendamento()">Confirmar</button>
-        <button class="btn-secondary" onclick="window.fecharModalReagendar()">Cancelar</button>
-      </div>
-    </div>
-  </div>
+body.light-theme .alerta-tarefas {
+  background: rgba(124,58,237,0.12);
+  border-color: rgba(124,58,237,0.3);
+}
+body.light-theme .alerta-tarefas i {
+  color: #7c3aed !important;
+}
+body.light-theme .alerta-tarefas .alerta-conteudo span {
+  color: #1a1a2e;
+}
+body.light-theme .alerta-tarefas:hover {
+  background: rgba(124,58,237,0.2);
+}
 
-  <!-- MODAL DIA CALENDÁRIO -->
-  <div class="modal-dia-overlay" id="modalDiaOverlay">
-    <div class="modal-conteudo modal-dia-conteudo">
-      <div class="modal-header">
-        <h3><i class="fas fa-calendar-day"></i> <span id="modalDiaTitulo">Dia</span></h3>
-        <button class="modal-close" onclick="window.fecharDiaCalendario()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <div id="modalDiaResumo" style="color:rgba(255,255,255,0.75); font-size:12px; margin-bottom:12px;"></div>
-        <div class="modal-dia-add">
-          <div class="modal-dia-add-title"><i class="fas fa-plus-circle"></i> Nova tarefa neste dia</div>
-          <input type="text" id="modalDiaNovoTexto" class="modal-input" placeholder="Título da tarefa">
-          <textarea id="modalDiaNovaDescricao" class="modal-input" rows="2" placeholder="Descrição (opcional)"></textarea>
-          <div class="modal-dia-add-row">
-            <select id="modalDiaNovaPrioridade" class="modal-select">
-              <option value="p3">🟢 Baixa</option>
-              <option value="p2" selected>🟡 Média</option>
-              <option value="p1">🔴 Alta</option>
-            </select>
-            <select id="modalDiaNovaRecorrencia" class="modal-select">
-              <option value="">Sem recorrência</option>
-              <option value="diaria">Diária</option>
-              <option value="dias_uteis">Dias úteis</option>
-              <option value="semanal">Semanal</option>
-              <option value="mensal">Mensal</option>
-            </select>
-          </div>
-          <div class="modal-actions" style="margin-top:8px;">
-            <button class="btn-primary" onclick="window.adicionarTarefaNoDiaModal()">
-              <i class="fas fa-plus"></i> Adicionar tarefa
-            </button>
-          </div>
-        </div>
-        <div id="modalDiaLista" class="modal-dia-lista"></div>
-        <div class="modal-actions" style="margin-top:14px;">
-          <button class="btn-secondary" onclick="window.fecharDiaCalendario()">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+body.light-theme .metas-resumo-left {
+  color: rgba(0,0,0,0.75);
+}
+body.light-theme .metas-resumo-left i {
+  color: #7c3aed;
+}
+body.light-theme .meta-card-mini {
+  background: #f0f0f5 !important;
+}
+body.light-theme .titulo-meta {
+  color: #1a1a2e !important;
+}
+body.light-theme .metas-toggle-btn {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff;
+}
+body.light-theme .metas-toggle-btn:hover {
+  box-shadow: 0 6px 16px rgba(124,58,237,0.3);
+}
 
-  <!-- MODAL NOTIFICAÇÕES -->
-  <div class="modal-notificacoes-overlay" id="modalNotificacoesOverlay">
-    <div class="modal-conteudo">
-      <div class="modal-header">
-        <h3><i class="fas fa-bell"></i> Notificações</h3>
-        <button class="modal-close" onclick="window.fecharModalNotificacoes()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body" id="modalNotificacoesBody">
-        <div id="notificacoesLista" style="max-height:300px; overflow-y:auto;"></div>
-      </div>
-    </div>
-  </div>
+body.light-theme .view-btn {
+  background: rgba(255,255,255,0.8);
+  border-color: rgba(0,0,0,0.1);
+  color: #1a1a2e;
+}
+body.light-theme .view-btn.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+body.light-theme .top-action-btn {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: #1a1a2e;
+}
+body.light-theme .top-action-btn:hover {
+  background: rgba(0,0,0,0.1);
+}
 
-  <!-- MODAL PERFIL -->
-  <div class="modal-perfil-overlay" id="modalPerfilOverlay">
-    <div class="modal-conteudo">
-      <div class="modal-header">
-        <h3><i class="fas fa-user-circle"></i> Editar Perfil</h3>
-        <button class="modal-close" onclick="window.fecharModalPerfil()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <div style="text-align:center; margin-bottom:16px;">
-          <div class="avatar-preview" id="avatarPreview" style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin:0 auto 12px;background:#667eea;display:flex;align-items:center;justify-content:center;border:3px solid #667eea;">
-            <i class="fas fa-user-circle" style="font-size:64px;color:white;"></i>
-          </div>
-          <input type="file" id="avatarUpload" accept="image/*" style="display:none;" onchange="window.uploadAvatar(event)">
-          <button class="btn-secondary" onclick="document.getElementById('avatarUpload').click()">
-            <i class="fas fa-camera"></i> Trocar foto
-          </button>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label style="color:rgba(255,255,255,0.7);font-size:13px;">Nome</label>
-          <input type="text" id="perfilNome" class="modal-input" placeholder="Seu nome">
-        </div>
-        <div style="margin-bottom:16px;">
-          <label style="color:rgba(255,255,255,0.7);font-size:13px;">Email</label>
-          <input type="text" id="perfilEmail" class="modal-input" disabled style="opacity:0.7;">
-        </div>
-        <div class="modal-actions">
-          <button class="btn-primary" onclick="window.salvarPerfil()">Salvar</button>
-          <button class="btn-secondary" onclick="window.fecharModalPerfil()">Cancelar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+body.light-theme .calendario-nav .btn-glass {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+body.light-theme #calendarioMes {
+  color: #1a1a2e !important;
+}
+body.light-theme .cal-view-btn {
+  border-color: rgba(0,0,0,0.2);
+  color: rgba(0,0,0,0.7);
+}
+body.light-theme .cal-view-btn.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+body.light-theme .cal-view-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+body.light-theme .cal-dia {
+  background: rgba(255,255,255,0.5);
+  border-color: rgba(0,0,0,0.08);
+}
+body.light-theme .cal-dia-num {
+  color: #1a1a2e;
+}
+body.light-theme .cal-dia.hoje {
+  background: rgba(124,58,237,0.12);
+  border-color: #7c3aed;
+}
+body.light-theme .cal-task {
+  background: rgba(0,0,0,0.05);
+  color: #1a1a2e;
+}
+body.light-theme .cal-task-more {
+  color: rgba(0,0,0,0.6);
+}
 
-  <!-- Áudio -->
-  <audio id="lofiAudio" loop preload="auto" style="display:none;">
-    <source src="lofi.mp3" type="audio/mpeg">
-  </audio>
+body.light-theme .modal-dia-item {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+}
+body.light-theme .modal-dia-title {
+  color: #1a1a2e;
+}
+body.light-theme .modal-dia-desc {
+  color: rgba(0,0,0,0.7);
+}
+body.light-theme .modal-dia-tag {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.08);
+}
+body.light-theme .modal-dia-empty {
+  color: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .modal-dia-add {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+}
+body.light-theme .modal-dia-add-title {
+  color: #1a1a2e;
+}
+body.light-theme .modal-dia-btn {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
+body.light-theme .modal-dia-btn:hover {
+  background: rgba(124,58,237,0.15);
+}
+body.light-theme .modal-dia-btn.danger:hover {
+  background: rgba(239,68,68,0.15);
+}
 
-  <!-- Import map Firebase -->
-  <script type="importmap">
-  {
-    "imports": {
-      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
-      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
-    }
+body.light-theme .login-container {
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .login-container h2 {
+  color: #1a1a2e;
+}
+body.light-theme .login-container input {
+  background: rgba(0,0,0,0.05);
+  color: #1a1a2e;
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .login-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+body.light-theme .google-login-btn {
+  border-color: rgba(0,0,0,0.1);
+  color: #1a1a2e;
+}
+body.light-theme .divider {
+  color: rgba(0,0,0,0.3);
+}
+body.light-theme .divider-line {
+  background: rgba(0,0,0,0.2);
+}
+body.light-theme .toggle-password {
+  color: rgba(0,0,0,0.5);
+}
+body.light-theme .register-link {
+  color: rgba(0,0,0,0.7) !important;
+}
+body.light-theme .password-container input {
+  color: #1a1a2e;
+}
+
+body.light-theme .modal-perfil-overlay .modal-body label {
+  color: rgba(0,0,0,0.7) !important;
+}
+body.light-theme #perfilEmail {
+  color: #1a1a2e;
+}
+body.light-theme .avatar-preview {
+  border-color: #7c3aed;
+}
+body.light-theme .avatar-preview i {
+  color: #1a1a2e !important;
+}
+
+/* ===== DATA MOBILE (CORRIGIDO) ===== */
+.data-card-mobile {
+  display: none;
+}
+.data-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 20px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.1);
+}
+.data-badge i {
+  color: #fff;
+}
+
+body.light-theme .data-badge {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
+body.light-theme .data-badge i {
+  color: #1a1a2e;
+}
+
+/* ===== INDICADORES ===== */
+.sync-indicator {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  background: var(--success);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-size: 12px;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  pointer-events: none;
+}
+.sync-indicator.show { opacity: 1; }
+
+.status-online, .status-offline {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+}
+.status-online { background: var(--success); }
+.status-offline { background: var(--danger); }
+
+/* ===== MODAIS ===== */
+.modal-descricao-overlay, .modal-backup-overlay, .modal-foco-overlay,
+.modal-reagendar-overlay, .modal-edicao-overlay, .modal-dia-overlay,
+.modal-notificacoes-overlay, .modal-perfil-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3500;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+}
+.modal-descricao-overlay.show, .modal-backup-overlay.show,
+.modal-foco-overlay.show, .modal-reagendar-overlay.show,
+.modal-edicao-overlay.show, .modal-dia-overlay.show,
+.modal-notificacoes-overlay.show, .modal-perfil-overlay.show {
+  display: flex;
+}
+.modal-conteudo {
+  width: 450px;
+  max-width: 90%;
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(26,27,38,0.98);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(24px);
+  animation: modalFadeIn 0.3s ease;
+}
+.modal-dia-conteudo { width: 680px; max-width: 95%; }
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.modal-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-header h3 { color: #fff; font-size: 16px; }
+.modal-close {
+  width: 30px; height: 30px; border: none; border-radius: 50%;
+  color: #fff; cursor: pointer; background: rgba(255,255,255,0.2);
+}
+.modal-body { padding: 20px; }
+.modal-titulo { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 6px; }
+.modal-texto {
+  max-height: 200px; overflow-y: auto; margin-bottom: 16px;
+  padding: 12px; border-radius: 12px; font-size: 15px;
+  line-height: 1.5; color: #fff; background: rgba(255,255,255,0.05);
+}
+.modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+.modal-input, .modal-select {
+  width: 100%; margin-bottom: 12px; padding: 10px; color: #fff;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
+}
+.btn-primary {
+  border: none; border-radius: 8px; padding: 8px 20px; color: #fff;
+  cursor: pointer; background: linear-gradient(135deg, #667eea, #764ba2);
+}
+.btn-secondary {
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+  padding: 8px 20px; color: #fff; cursor: pointer;
+  background: rgba(255,255,255,0.1);
+}
+
+/* ===== HEADER ===== */
+.header-fluxo {
+  position: relative;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: var(--header-bg);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(24px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80px;
+}
+
+.header-central {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.header-logo-avatar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+.user-avatar:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-avatar i { color: #fff; font-size: 28px; }
+
+.logo-img { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.logo-fallback {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-fallback i { color: #fff; font-size: 20px; }
+.logo-texto .logo-titulo {
+  font-size: 20px; font-weight: 700;
+  background: linear-gradient(135deg, #fff, #e0d4ff);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.logo-texto .logo-subtitulo {
+  color: #fff; opacity: 0.7; font-size: 9px; letter-spacing: 1px;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.dropdown-toggle {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  background: rgba(255,255,255,0.1);
+  font-size: 16px;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dropdown-toggle:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+.dropdown-menu-user {
+  display: none;
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: rgba(26,27,38,0.98);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 8px 0;
+  min-width: 180px;
+  z-index: 2000;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.dropdown-menu-user.show { display: block; }
+.dropdown-menu-user .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.8);
+  font-size: 13px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: 0.2s;
+}
+.dropdown-menu-user .dropdown-item:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+.dropdown-menu-user .dropdown-item i { width: 18px; text-align: center; }
+
+/* ===== LINHA DE BOTÕES ===== */
+.linha-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+}
+.view-toggle {
+  display: flex;
+  gap: 8px;
+}
+.view-btn {
+  border-radius: 40px;
+  padding: 6px 16px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  background: rgba(26,27,38,0.6);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(24px);
+}
+.view-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.top-action-btn {
+  border-radius: 20px;
+  padding: 6px 12px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+}
+
+.alerta-tarefas {
+  background: rgba(124,58,237,0.3);
+  border-radius: 40px;
+  padding: 4px 14px;
+  font-size: 13px;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.15);
+  white-space: nowrap;
+  transition: 0.2s;
+}
+.alerta-tarefas .alerta-conteudo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.alerta-tarefas i { color: #fff !important; font-size: 14px; }
+.alerta-tarefas:hover { background: rgba(124,58,237,0.5); border-color: rgba(255,255,255,0.3); }
+
+.metas-toggle-btn {
+  border: none;
+  border-radius: 40px;
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.metas-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124,58,237,0.4);
+}
+.metas-toggle-btn:active { transform: translateY(0); }
+
+.btn-nova-tarefa {
+  height: 44px;
+  margin: 0 16px 16px 16px;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+.card-espaco:hover .btn-nova-tarefa {
+  display: flex;
+}
+.btn-nova-tarefa:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(124,58,237,0.4);
+}
+
+/* ===== RESUMO METAS ===== */
+.metas-resumo {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.metas-resumo-left {
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.metas-resumo-left i { color: #a855f7; opacity: 0.8; }
+
+.metas-dashboard {
+  display: none;
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(26,27,38,0.45);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.metas-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.meta-card-mini {
+  min-width: 180px;
+  height: 48px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #242438 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.titulo-meta { color: #fff !important; font-size: 13px; font-weight: 500; }
+.circulo-pendente, .circulo-concluido {
+  width: 18px; height: 18px; border-radius: 50%; cursor: pointer;
+}
+.circulo-pendente { border: 2px solid rgba(255,255,255,0.6); }
+.circulo-concluido { background: #22c55e; display: flex; align-items: center; justify-content: center; }
+
+/* ===== CARDS TAREFAS ===== */
+.blocos-tarefas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+.card-espaco {
+  border-radius: 16px;
+  background: var(--card-bg-light);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+}
+.card-header {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 16px 16px 0 0;
+  border-top: 3px solid #7c3aed;
+  background: #2a2a3e;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-header button {
+  width: 28px; height: 28px; margin-left: 4px; border: none;
+  border-radius: 8px; color: #fff; cursor: pointer;
+  background: rgba(255,255,255,0.15);
+}
+.card-content { flex: 1; padding: 12px 16px; }
+
+.estado-vazio {
+  text-align: center;
+  padding: 40px;
+}
+.estado-vazio i {
+  font-size: 32px;
+  opacity: 0.5;
+  color: rgba(255,255,255,0.3);
+}
+.estado-vazio p {
+  color: rgba(255,255,255,0.7);
+  margin-top: 8px;
+}
+.estado-vazio small {
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+}
+
+.card-novo-espaco {
+  min-height: 320px;
+  border-radius: 16px;
+  cursor: pointer;
+  background: rgba(30, 30, 46, 0.3);
+  border: 2px dashed rgba(168, 85, 247, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  transition: 0.3s;
+}
+.card-novo-espaco:hover {
+  background: rgba(30, 30, 46, 0.5);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+.card-novo-espaco > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.card-novo-espaco i {
+  font-size: 28px;
+  color: rgba(255, 255, 255, 0.3);
+}
+.card-novo-espaco p {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+  margin: 0;
+}
+
+body.light-theme .card-novo-espaco {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+body.light-theme .card-novo-espaco:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+body.light-theme .card-novo-espaco i {
+  color: rgba(0, 0, 0, 0.25);
+}
+body.light-theme .card-novo-espaco p {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.inline-form {
+  display: none; margin-top: 10px; padding: 10px;
+  border-radius: 10px; background: rgba(0,0,0,0.3);
+}
+.inline-form.show { display: block; }
+.inline-form input, .inline-form select, .inline-form textarea {
+  width: 100%; margin-bottom: 6px; padding: 8px; color: #fff;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
+}
+.inline-form-buttons { display: flex; gap: 8px; }
+.btn-confirm, .btn-cancel {
+  flex: 1; border: none; border-radius: 8px; padding: 6px; color: #fff; cursor: pointer;
+}
+.btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); }
+.btn-cancel { background: rgba(255,255,255,0.1); }
+
+/* ===== TAREFA ITEM ===== */
+.tarefa-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px; margin-bottom: 8px; border-radius: 12px; cursor: grab;
+  transition: all 0.2s; background: rgba(30,30,46,0.6);
+  border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid transparent;
+}
+.tarefa-item:hover { background: rgba(255,255,255,0.08); }
+.tarefa-item.dragging { opacity: 0.3; cursor: grabbing; }
+.tarefa-item.p1 { border-left-color: #ef4444 !important; }
+.tarefa-item.p2 { border-left-color: #fbbf24 !important; }
+.tarefa-item.p3 { border-left-color: #22c55e !important; }
+body.dark-theme .tarefa-item.p1 { border-left-color: #ff5c5c !important; }
+body.dark-theme .tarefa-item.p2 { border-left-color: #ffd24a !important; }
+body.dark-theme .tarefa-item.p3 { border-left-color: #4ade80 !important; }
+
+.task-left {
+  display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;
+}
+.drag-handle { color: rgba(255,255,255,0.4); font-size: 14px; cursor: grab; flex-shrink: 0; }
+.task-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
+.task-info { flex: 1; min-width: 0; }
+.task-title {
+  color: #fff; font-size: 14px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; transition: 0.2s;
+}
+.task-title:hover { color: #a855f7; }
+.task-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+.meta-date, .meta-tag {
+  font-size: 11px; padding: 2px 6px; border-radius: 4px;
+  color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.08);
+}
+.meta-date { cursor: pointer; transition: 0.2s; }
+.meta-date:hover { color: #a855f7; background: rgba(168,85,247,0.3); }
+.task-meta .badge.atrasada {
+  color: #ff9999; background: rgba(239,68,68,0.3);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
+.task-actions-2x2 {
+  margin-left: 12px; flex-shrink: 0;
+  display: grid; grid-template-columns: 32px 32px; grid-template-rows: 32px; gap: 4px;
+}
+.task-action-btn {
+  width: 32px; height: 32px; border: none; border-radius: 8px;
+  cursor: pointer; color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.08); transition: 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.task-action-btn:hover { color: #fff; transform: scale(1.05); background: rgba(168,85,247,0.3); }
+.task-action-btn.danger:hover { background: rgba(239,68,68,0.3); }
+.task-action-btn.danger:hover i { color: var(--danger); }
+
+/* ===== MODO FOCO ===== */
+.timer-foco-grande { margin: 16px 0; color: #667eea; font-size: 48px; font-weight: bold; font-family: monospace; }
+.progresso-foco { height: 4px; overflow: hidden; margin: 20px 0; border-radius: 2px; background: rgba(255,255,255,0.1); }
+.progresso-foco-bar { width: 0%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); }
+.controles-foco { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.btn-glass {
+  margin: 4px; border: none; border-radius: 40px; padding: 8px 16px;
+  color: #fff; cursor: pointer; background: linear-gradient(135deg, #667eea, #764ba2);
+}
+.btn-prorrogar { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.btn-musica { margin: 8px 4px; border: none; border-radius: 40px; padding: 8px 16px; color: #fff; cursor: pointer; background: #17a2b8; }
+
+/* ===== CALENDÁRIO ===== */
+#cardsView, #calendarioView { width: 100%; }
+.calendario-nav { margin-bottom: 12px; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+.calendario-view-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+.cal-view-btn {
+  padding: 4px 14px; border-radius: 40px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7); cursor: pointer; font-size: 13px; transition: 0.2s;
+}
+.cal-view-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: transparent; color: #fff; }
+.cal-view-btn:hover { background: rgba(255,255,255,0.12); }
+
+.calendario-grade {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+.calendario-grade.modo-semana { grid-template-columns: repeat(7, 1fr); }
+.calendario-grade.modo-dia { grid-template-columns: 1fr; }
+
+.cal-dia {
+  min-height: 112px; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 8px; background: rgba(255,255,255,0.03);
+  display: flex; flex-direction: column; gap: 6px; overflow: hidden; cursor: pointer; transition: 0.2s;
+}
+.cal-dia:hover { transform: translateY(-1px); border-color: rgba(168,85,247,0.5); background: rgba(168,85,247,0.08); }
+.cal-dia.hoje { background: rgba(124,58,237,0.22); border-color: rgba(168,85,247,0.55); }
+.cal-dia-topo { display: flex; justify-content: space-between; align-items: center; }
+.cal-dia-num { color: #fff; font-size: 13px; font-weight: 700; }
+.cal-dia-badge { line-height: 1; border-radius: 999px; padding: 2px 6px; font-size: 10px; color: #ffd7d7; background: rgba(239,68,68,0.25); }
+.cal-dia-lista { display: flex; flex-direction: column; gap: 4px; }
+.cal-task {
+  font-size: 10px; color: rgba(255,255,255,0.92); padding: 3px 6px;
+  border-radius: 6px; background: rgba(255,255,255,0.08);
+  border-left: 3px solid transparent;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cal-task.p1 { border-left-color: #ef4444; }
+.cal-task.p2 { border-left-color: #fbbf24; }
+.cal-task.p3 { border-left-color: #22c55e; }
+body.dark-theme .cal-task.p1 { border-left-color: #ff5c5c; }
+body.dark-theme .cal-task.p2 { border-left-color: #ffd24a; }
+body.dark-theme .cal-task.p3 { border-left-color: #4ade80; }
+.cal-task-more { font-size: 10px; color: rgba(255,255,255,0.65); padding-left: 2px; }
+
+/* ===== RODAPÉ FIXO ===== */
+.footer-stats {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: rgba(26,27,38,0.95);
+  backdrop-filter: blur(16px);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding: 0 12px;
+  z-index: 100;
+}
+.footer-stats-item {
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* ===== MODAL DIA ===== */
+.modal-dia-add {
+  margin-bottom: 14px; padding: 12px; border-radius: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+}
+.modal-dia-add-title { color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.modal-dia-add-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.modal-dia-lista {
+  max-height: 48vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px;
+}
+.modal-dia-empty { color: rgba(255,255,255,0.7); font-size: 13px; text-align: center; padding: 18px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.14); }
+.modal-dia-item {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  border-radius: 12px; padding: 10px 12px; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08); border-left: 4px solid transparent;
+}
+.modal-dia-item.p1 { border-left-color: #ef4444; }
+.modal-dia-item.p2 { border-left-color: #fbbf24; }
+.modal-dia-item.p3 { border-left-color: #22c55e; }
+body.dark-theme .modal-dia-item.p1 { border-left-color: #ff5c5c; }
+body.dark-theme .modal-dia-item.p2 { border-left-color: #ffd24a; }
+body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
+.modal-dia-main { min-width: 0; flex: 1; }
+.modal-dia-title { color: #fff; font-size: 14px; font-weight: 600; line-height: 1.25; }
+.modal-dia-desc { margin-top: 4px; color: rgba(255,255,255,0.72); font-size: 12px; line-height: 1.35; }
+.modal-dia-tags { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+.modal-dia-tag { border-radius: 999px; padding: 2px 8px; font-size: 10px; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.12); }
+.modal-dia-actions { flex-shrink: 0; display: grid; grid-template-columns: 30px 30px; gap: 6px; }
+.modal-dia-btn { width: 30px; height: 30px; border: none; border-radius: 8px; cursor: pointer; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.1); transition: 0.2s; }
+.modal-dia-btn:hover { transform: scale(1.05); background: rgba(168,85,247,0.35); }
+.modal-dia-btn.danger:hover { background: rgba(239,68,68,0.32); }
+
+/* ===== BACKUP ===== */
+.backup-list { max-height: 300px; overflow-y: auto; margin: 16px 0; }
+.backup-item { margin-bottom: 8px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+.backup-info { flex: 1; }
+.backup-data { color: rgba(255,255,255,0.7); font-size: 12px; }
+.backup-tarefas { color: #a855f7; font-size: 10px; margin-top: 4px; }
+.backup-actions { display: flex; gap: 8px; }
+.backup-actions button { border: none; border-radius: 6px; padding: 4px 8px; color: #fff; cursor: pointer; background: rgba(255,255,255,0.1); }
+
+/* ===== NOTIFICAÇÕES ===== */
+.notificacao-item {
+  padding: 10px 12px; border-radius: 8px; margin-bottom: 8px;
+  background: rgba(255,255,255,0.05); border-left: 3px solid #667eea;
+}
+.notificacao-item.importante { border-left-color: #ef4444; }
+.notificacao-item .notif-titulo { color: #fff; font-size: 13px; font-weight: 600; }
+.notificacao-item .notif-desc { color: rgba(255,255,255,0.7); font-size: 12px; }
+.notificacao-item .notif-data { color: rgba(255,255,255,0.5); font-size: 10px; margin-top: 4px; }
+
+/* ===== PERFIL ===== */
+#perfilEmail { color: #fff; font-weight: 600; margin-top: 8px; word-break: break-all; }
+.avatar-preview { transition: 0.3s; }
+.avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ===== LOGIN ===== */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 3000; display: flex; justify-content: center;
+  align-items: center; padding: 16px; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
+}
+.login-container {
+  width: 100%; max-width: 400px; text-align: center; padding: 32px 24px;
+  border-radius: 28px; background: rgba(26,27,38,0.95);
+  border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(24px);
+}
+.login-container h2 { color: #fff; margin-bottom: 24px; }
+.login-container input { width: 100%; margin-bottom: 16px; padding: 12px 14px; color: #fff; border-radius: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); }
+.login-btn { width: 100%; margin-top: 10px; padding: 12px; border: none; border-radius: 40px; color: #fff; cursor: pointer; font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); }
+.password-container { position: relative; }
+.toggle-password { position: absolute; right: 12px; top: 50%; border: none; cursor: pointer; background: none; color: rgba(255,255,255,0.6); transform: translateY(-50%); }
+.divider { margin: 20px 0; color: rgba(255,255,255,0.5); display: flex; align-items: center; gap: 12px; }
+.divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.2); }
+.google-login-btn { width: 100%; padding: 10px; border-radius: 40px; color: #fff; cursor: pointer; font-size: 14px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+/* ===== DATA MOBILE ===== */
+.data-card-mobile { display: none; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  body { padding: 12px; padding-bottom: 80px; }
+
+  .header-fluxo { min-height: 70px; }
+  .header-logo-avatar { gap: 10px; }
+  .user-avatar { width: 36px; height: 36px; }
+  .user-avatar i { font-size: 22px; }
+  .logo-img { width: 36px; height: 36px; }
+  .logo-texto .logo-titulo { font-size: 16px; }
+  .logo-texto .logo-subtitulo { font-size: 8px; }
+
+  .user-dropdown { top: 8px; right: 8px; }
+  .dropdown-toggle { width: 30px; height: 30px; font-size: 14px; }
+
+  .linha-botoes { gap: 8px; justify-content: center; }
+  .view-btn { font-size: 12px; padding: 4px 12px; }
+  .top-action-btn { font-size: 11px; padding: 4px 10px; }
+  .metas-toggle-btn { font-size: 12px; padding: 4px 14px; }
+  .alerta-tarefas { font-size: 11px; padding: 3px 10px; max-width: 100%; }
+  .alerta-tarefas i { font-size: 12px; }
+
+  .calendario-grade { gap: 8px; }
+  .cal-dia { min-height: 86px; padding: 6px; }
+  .cal-task { font-size: 9px; padding: 2px 5px; }
+
+  .modal-dia-conteudo { width: 96%; }
+  .modal-dia-lista { max-height: 44vh; }
+
+  .data-hoje { display: none; }
+  .data-card-mobile { display: flex; justify-content: center; margin-bottom: 12px; }
+
+  .footer-stats { height: 48px; }
+  .footer-stats-item { font-size: 10px; gap: 4px; }
+  .footer-stats-item i { font-size: 12px; }
+
+  .calendario-grade.modo-semana { grid-template-columns: 1fr !important; gap: 8px; }
+  .calendario-grade.modo-dia { grid-template-columns: 1fr !important; }
+
+  .btn-nova-tarefa { display: flex !important; }
+}
+
+@media (max-width: 480px) {
+  body { padding: 8px; padding-bottom: 80px; }
+
+  .blocos-tarefas { grid-template-columns: 1fr; }
+  .task-actions-2x2 { grid-template-columns: 28px 28px; gap: 3px; }
+  .task-action-btn { width: 28px; height: 28px; }
+  .task-action-btn i { font-size: 12px; }
+
+  .modal-dia-add-row { grid-template-columns: 1fr; }
+  .modal-dia-item { flex-direction: column; gap: 8px; }
+  .modal-dia-actions { width: 100%; grid-template-columns: repeat(4, 1fr); }
+  .modal-dia-btn { width: 100%; height: 34px; }
+
+  .linha-botoes { flex-direction: column; align-items: stretch; }
+  .view-toggle, .action-buttons, .alerta-tarefas, .metas-toggle-btn {
+    justify-content: center;
+    width: 100%;
   }
-  </script>
-
-  <!-- App -->
-  <script type="module" src="app.js"></script>
-</body>
-</html>
+  .alerta-tarefas { white-space: normal; text-align: center; }
+  .header-logo-avatar { flex-wrap: wrap; justify-content: center; }
+}
