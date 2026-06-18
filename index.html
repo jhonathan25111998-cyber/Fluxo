@@ -71,12 +71,15 @@
 
   <!-- APP -->
   <div class="container" id="mainApp" style="display:block;">
-    <!-- HEADER REORGANIZADO -->
+    <!-- HEADER CORRIGIDO: logo + texto à esquerda, avatar + nome à direita -->
     <div class="header-fluxo">
-      <!-- Lado esquerdo: Avatar + FLUXO + slogan -->
+      <!-- Lado esquerdo: Logo + FLUXO + slogan -->
       <div class="header-left">
-        <div class="user-avatar" id="userAvatar" onclick="window.abrirModalPerfil()">
-          <i class="fas fa-user-circle"></i>
+        <div class="logo-img">
+          <img src="logo.png" alt="FLUXO" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="logo-fallback" style="display:none;">
+            <i class="fas fa-tasks"></i>
+          </div>
         </div>
         <div class="logo-texto">
           <div class="logo-titulo">FLUXO</div>
@@ -366,7 +369,7 @@
     </div>
   </div>
 
-  <!-- MODAL PERFIL (com abas Dados e Relatórios) -->
+  <!-- MODAL PERFIL -->
   <div class="modal-perfil-overlay" id="modalPerfilOverlay">
     <div class="modal-conteudo" style="width:600px; max-width:95%;">
       <div class="modal-header">
