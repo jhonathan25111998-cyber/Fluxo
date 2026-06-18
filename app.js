@@ -393,8 +393,9 @@ async function carregarDadosFirebase() {
 function aplicarPerfil(profile) {
   if (!profile) return;
   const avatarEl = document.getElementById("userAvatar");
+  if (!avatarEl) return;
   if (profile.avatar) {
-    avatarEl.innerHTML = `<img src="${profile.avatar}" alt="Avatar">`;
+    avatarEl.innerHTML = `<img src="${profile.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
   } else {
     avatarEl.innerHTML = `<i class="fas fa-user-circle"></i>`;
   }
@@ -407,7 +408,7 @@ function aplicarPerfil(profile) {
   const preview = document.getElementById("avatarPreview");
   if (preview) {
     if (profile.avatar) {
-      preview.innerHTML = `<img src="${profile.avatar}" alt="Avatar">`;
+      preview.innerHTML = `<img src="${profile.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
     } else {
       preview.innerHTML = `<i class="fas fa-user-circle" style="font-size:64px;color:white;"></i>`;
     }
@@ -426,14 +427,14 @@ window.abrirModalPerfil = function() {
   const preview = document.getElementById("avatarPreview");
   if (preview) {
     if (profile.avatar) {
-      preview.innerHTML = `<img src="${profile.avatar}" alt="Avatar">`;
+      preview.innerHTML = `<img src="${profile.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
     } else {
       preview.innerHTML = `<i class="fas fa-user-circle" style="font-size:64px;color:white;"></i>`;
     }
   }
-  // Atualizar relatórios
-  gerarRelatorios();
   modal.classList.add("show");
+  // Abrir aba dados por padrão
+  abrirTabPerfil('dados');
 };
 
 window.fecharModalPerfil = function() {
@@ -448,8 +449,9 @@ window.uploadAvatar = function(event) {
     const dataUrl = e.target.result;
     const preview = document.getElementById("avatarPreview");
     if (preview) {
-      preview.innerHTML = `<img src="${dataUrl}" alt="Avatar">`;
+      preview.innerHTML = `<img src="${dataUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
     }
+    // Salvar temporariamente para enviar ao salvar
     window._avatarTemp = dataUrl;
   };
   reader.readAsDataURL(file);
@@ -461,9 +463,11 @@ window.salvarPerfil = async function() {
   const profile = { nome };
   if (avatar) profile.avatar = avatar;
 
+  // Salvar localmente
   localStorage.setItem("profile", JSON.stringify(profile));
   aplicarPerfil(profile);
 
+  // Salvar no Firebase
   if (currentUser) {
     try {
       await updateDoc(doc(db, "usuarios", currentUser.uid), { profile });
@@ -473,121 +477,151 @@ window.salvarPerfil = async function() {
       mostrarIndicadorSync("❌ Erro ao salvar perfil", "error");
     }
   }
+
   window._avatarTemp = null;
   fecharModalPerfil();
 };
 
+/* =========================
+   ABAS DO PERFIL
+========================= */
 window.abrirTabPerfil = function(tab) {
-  document.querySelectorAll('.perfil-tab').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.perfil-tab-content').forEach(el => el.style.display = 'none');
-  document.querySelector(`.perfil-tab[data-tab="${tab}"]`)?.classList.add('active');
-  document.getElementById(`tab${capitalizarPrimeira(tab)}`)?.style.display = 'block';
-  if (tab === 'relatorios') gerarRelatorios();
+  // Atualizar tabs
+  document.querySelectorAll('.perfil-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  // Mostrar conteúdo
+  document.getElementById('tabDados').style.display = tab === 'dados' ? 'block' : 'none';
+  document.getElementById('tabRelatorios').style.display = tab === 'relatorios' ? 'block' : 'none';
+  if (tab === 'relatorios') {
+    gerarRelatorios();
+  }
 };
 
-/* =========================
-   RELATÓRIOS
-========================= */
 function gerarRelatorios() {
-  const container = document.getElementById("relatoriosContainer");
+  const container = document.getElementById('relatoriosContainer');
   if (!container) return;
 
   const hoje = getDataHoje();
+  const trintaDiasAtras = new Date();
+  trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+  const dataLimite = trintaDiasAtras.toISOString().split('T')[0];
+
   const tarefasConcluidas = tarefas.filter(t => t.concluida);
+  const tarefasHoje = tarefas.filter(t => t.data === hoje && !t.concluida);
+  const tarefasAtrasadas = tarefas.filter(t => t.data && t.data < hoje && !t.concluida);
+  const concluidasUltimos30Dias = tarefasConcluidas.filter(t => t.concluidaEm && t.concluidaEm.split('T')[0] >= dataLimite);
+  const totalTarefas = tarefas.length;
   const totalConcluidas = tarefasConcluidas.length;
+  const taxaConclusao = totalTarefas > 0 ? Math.round((totalConcluidas / totalTarefas) * 100) : 0;
 
-  // Últimos 30 dias
-  const data30dias = new Date();
-  data30dias.setDate(data30dias.getDate() - 30);
-  const data30Str = data30dias.toISOString().split('T')[0];
-  const concluidas30dias = tarefasConcluidas.filter(t => t.concluidaEm && t.concluidaEm.split('T')[0] >= data30Str);
-
-  // Tempo total focado
-  const totalFocoMin = Math.floor(tempoTotalFocado / 60);
-  const totalFocoHoras = Math.floor(totalFocoMin / 60);
-  const totalFocoResto = totalFocoMin % 60;
+  // Tempo total focado em horas
+  const horasFoco = Math.floor(tempoTotalFocado / 60);
+  const minutosFoco = tempoTotalFocado % 60;
 
   // Tarefas por prioridade
-  const prioridades = { p1: 0, p2: 0, p3: 0 };
-  tarefasConcluidas.forEach(t => {
-    if (t.prioridade) prioridades[t.prioridade] = (prioridades[t.prioridade] || 0) + 1;
-  });
+  const p1 = tarefasConcluidas.filter(t => t.prioridade === 'p1').length;
+  const p2 = tarefasConcluidas.filter(t => t.prioridade === 'p2').length;
+  const p3 = tarefasConcluidas.filter(t => t.prioridade === 'p3').length;
 
-  // Tarefas por espaço (bloco)
-  const porBloco = {};
-  tarefasConcluidas.forEach(t => {
-    if (t.bloco) porBloco[t.bloco] = (porBloco[t.bloco] || 0) + 1;
-  });
-  const topBlocos = Object.entries(porBloco).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  // Tarefas por recorrência
+  const recorrentes = tarefasConcluidas.filter(t => t.recorrencia && t.recorrencia !== '').length;
+  const avulsas = totalConcluidas - recorrentes;
 
-  // Tarefas por dia (últimos 7 dias)
-  const porDia = {};
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().split('T')[0];
-    porDia[key] = 0;
-  }
+  // Cards com mais tarefas concluídas
+  const cardsMap = {};
   tarefasConcluidas.forEach(t => {
-    if (t.concluidaEm) {
-      const key = t.concluidaEm.split('T')[0];
-      if (porDia[key] !== undefined) porDia[key]++;
+    if (t.bloco) {
+      cardsMap[t.bloco] = (cardsMap[t.bloco] || 0) + 1;
     }
   });
+  const topCards = Object.entries(cardsMap).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
-  // Últimas tarefas concluídas (5 mais recentes)
-  const ultimasConcluidas = tarefasConcluidas
-    .filter(t => t.concluidaEm)
-    .sort((a, b) => new Date(b.concluidaEm) - new Date(a.concluidaEm))
-    .slice(0, 5);
-
-  // Montar HTML
   let html = `
-    <div class="relatorio-titulo">📊 Resumo Geral</div>
-    <div class="relatorio-stat"><span class="label">Total de tarefas concluídas</span><span class="value">${totalConcluidas}</span></div>
-    <div class="relatorio-stat"><span class="label">Concluídas nos últimos 30 dias</span><span class="value">${concluidas30dias.length}</span></div>
-    <div class="relatorio-stat"><span class="label">Tempo total focado</span><span class="value">${totalFocoHoras}h ${totalFocoResto}m</span></div>
-    <div class="relatorio-stat"><span class="label">Tarefas reagendadas hoje</span><span class="value">${tarefasReagendadasHoje}</span></div>
-
-    <div class="relatorio-titulo">🎯 Por Prioridade</div>
-    <div class="relatorio-stat"><span class="label">🔴 Alta (p1)</span><span class="value">${prioridades.p1 || 0}</span></div>
-    <div class="relatorio-stat"><span class="label">🟡 Média (p2)</span><span class="value">${prioridades.p2 || 0}</span></div>
-    <div class="relatorio-stat"><span class="label">🟢 Baixa (p3)</span><span class="value">${prioridades.p3 || 0}</span></div>
-
-    <div class="relatorio-titulo">📁 Top Espaços</div>
-    ${topBlocos.length > 0 ? topBlocos.map(([nome, qtd]) => `
-      <div class="relatorio-stat"><span class="label">${escapeHtml(nome)}</span><span class="value">${qtd}</span></div>
-    `).join('') : '<div class="relatorio-sub">Nenhuma tarefa concluída por espaço ainda.</div>'}
-
-    <div class="relatorio-titulo">📅 Últimos 7 Dias</div>
-    ${Object.entries(porDia).map(([data, qtd]) => {
-      const d = new Date(data + 'T00:00:00');
-      const diaSemana = d.toLocaleDateString('pt-BR', { weekday: 'short' });
-      return `<div class="relatorio-stat"><span class="label">${diaSemana} ${data}</span><span class="value">${qtd}</span></div>`;
-    }).join('')}
-
-    <div class="relatorio-titulo">⏱️ Últimas Concluídas</div>
-    ${ultimasConcluidas.length > 0 ? ultimasConcluidas.map(t => `
-      <div class="relatorio-item">
-        <span class="nome">${escapeHtml(t.texto)}</span>
-        <span class="tempo">${t.concluidaEm ? new Date(t.concluidaEm).toLocaleDateString('pt-BR') : ''}</span>
+    <div style="margin-bottom:16px;">
+      <h4 style="color:#a855f7;margin-bottom:8px;">📊 Resumo Geral</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Total de tarefas</div>
+          <div style="font-size:20px;font-weight:700;">${totalTarefas}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Concluídas</div>
+          <div style="font-size:20px;font-weight:700;color:#22c55e;">${totalConcluidas}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Taxa de conclusão</div>
+          <div style="font-size:20px;font-weight:700;color:#fbbf24;">${taxaConclusao}%</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Tempo focado</div>
+          <div style="font-size:20px;font-weight:700;color:#667eea;">${horasFoco}h ${minutosFoco}m</div>
+        </div>
       </div>
-    `).join('') : '<div class="relatorio-sub">Nenhuma tarefa concluída ainda.</div>'}
+    </div>
 
-    <div class="relatorio-titulo">📈 Taxa de Conclusão (hoje)</div>
-    <div class="relatorio-stat destaque"><span class="label">${getDataHoje()}</span><span class="value">${calcularTaxaConclusaoHoje()}%</span></div>
+    <div style="margin-bottom:16px;">
+      <h4 style="color:#a855f7;margin-bottom:8px;">📈 Últimos 30 dias</h4>
+      <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:rgba(255,255,255,0.6);">Concluídas</span>
+          <span style="font-weight:600;color:#22c55e;">${concluidasUltimos30Dias.length}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="color:rgba(255,255,255,0.6);">Pendentes hoje</span>
+          <span style="font-weight:600;color:#fbbf24;">${tarefasHoje.length}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="color:rgba(255,255,255,0.6);">Atrasadas</span>
+          <span style="font-weight:600;color:#ef4444;">${tarefasAtrasadas.length}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <h4 style="color:#a855f7;margin-bottom:8px;">🏷️ Por prioridade</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="background:rgba(239,68,68,0.15);padding:8px;border-radius:8px;text-align:center;">
+          <div style="font-size:11px;color:#ef4444;">🔴 Alta</div>
+          <div style="font-weight:600;">${p1}</div>
+        </div>
+        <div style="background:rgba(251,191,36,0.15);padding:8px;border-radius:8px;text-align:center;">
+          <div style="font-size:11px;color:#fbbf24;">🟡 Média</div>
+          <div style="font-weight:600;">${p2}</div>
+        </div>
+        <div style="background:rgba(34,197,94,0.15);padding:8px;border-radius:8px;text-align:center;">
+          <div style="font-size:11px;color:#22c55e;">🟢 Baixa</div>
+          <div style="font-weight:600;">${p3}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <h4 style="color:#a855f7;margin-bottom:8px;">🔄 Recorrência</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Recorrentes</div>
+          <div style="font-weight:600;">${recorrentes}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Avulsas</div>
+          <div style="font-weight:600;">${avulsas}</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h4 style="color:#a855f7;margin-bottom:8px;">📁 Top espaços</h4>
+      ${topCards.length > 0 ? topCards.map(([nome, qtd]) => `
+        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:6px;margin-bottom:4px;">
+          <span style="font-size:13px;">${escapeHtml(nome)}</span>
+          <span style="font-weight:600;color:#a855f7;">${qtd}</span>
+        </div>
+      `).join('') : '<div style="color:rgba(255,255,255,0.5);font-size:13px;">Nenhuma tarefa concluída ainda.</div>'}
+    </div>
   `;
 
   container.innerHTML = html;
-}
-
-function calcularTaxaConclusaoHoje() {
-  const hoje = getDataHoje();
-  const hojePendentes = tarefas.filter(t => t.data === hoje && !t.concluida).length;
-  const hojeConcluidas = tarefas.filter(t => t.data === hoje && t.concluida).length;
-  const total = hojePendentes + hojeConcluidas;
-  if (total === 0) return 0;
-  return Math.round((hojeConcluidas / total) * 100);
 }
 
 /* =========================
@@ -1590,7 +1624,7 @@ function gerarCelulaDia(dataStr, dia, hoje, expandido = false, isMobile = false)
 }
 
 /* =========================
-   RENDER TAREFAS (CARDS) - COM RESUMO
+   RENDER TAREFAS (CARDS)
 ========================= */
 function renderizarTarefas() {
   const container = document.getElementById("blocosTarefas");
@@ -1605,15 +1639,6 @@ function renderizarTarefas() {
     });
     const ativas = lista.filter((t) => !t.concluida).length;
     const cardId = card.id;
-
-    // Resumo do card
-    const totalConcluidas = tarefas.filter(t => t.bloco === card.nome && t.concluida).length;
-    const ultimos30Dias = tarefas.filter(t => {
-      if (!t.concluidaEm) return false;
-      const dataConclusao = t.concluidaEm.split('T')[0];
-      return t.bloco === card.nome && dataConclusao >= getDataHoje30Dias();
-    }).length;
-
     const tarefasHtml = lista
       .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
       .map((t) => {
@@ -1656,13 +1681,11 @@ function renderizarTarefas() {
         </div>`;
       })
       .join("");
-
     const div = document.createElement("div");
     div.className = "card-espaco";
     div.setAttribute("ondragover", "permitirDropCard(event)");
     div.setAttribute("ondragleave", "removerDragOver(event)");
     div.setAttribute("ondrop", `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`);
-
     div.innerHTML = `
       <div class="card-header">
         <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
@@ -1682,9 +1705,9 @@ function renderizarTarefas() {
       <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')">
         <i class="fas fa-plus-circle"></i> Nova Tarefa
       </button>
-      <div class="card-resumo-tarefas">
-        <span><i class="fas fa-check-circle"></i> ${totalConcluidas} concluídas</span>
-        <span><i class="fas fa-calendar-alt"></i> ${ultimos30Dias} nos últimos 30 dias</span>
+      <!-- Resumo do card -->
+      <div class="card-resumo" id="resumo-${cardId}">
+        ${calcularResumoCard(card.nome)}
       </div>
       <div class="inline-form" id="form-${cardId}">
         <input type="text" id="texto-${cardId}" placeholder="Título...">
@@ -1708,10 +1731,8 @@ function renderizarTarefas() {
         </div>
       </div>
     `;
-
     container.appendChild(div);
   });
-
   const addCard = document.createElement("div");
   addCard.className = "card-novo-espaco";
   addCard.onclick = () => adicionarCardTarefa();
@@ -1719,10 +1740,21 @@ function renderizarTarefas() {
   container.appendChild(addCard);
 }
 
-function getDataHoje30Dias() {
-  const d = new Date();
-  d.setDate(d.getDate() - 30);
-  return d.toISOString().split('T')[0];
+function calcularResumoCard(nomeCard) {
+  const hoje = getDataHoje();
+  const trintaDiasAtras = new Date();
+  trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+  const dataLimite = trintaDiasAtras.toISOString().split('T')[0];
+
+  const tarefasHoje = tarefas.filter(t => t.bloco === nomeCard && t.data === hoje && !t.concluida).length;
+  const tarefasUltimos30Dias = tarefas.filter(t =>
+    t.bloco === nomeCard &&
+    t.concluida &&
+    t.concluidaEm &&
+    t.concluidaEm.split('T')[0] >= dataLimite
+  ).length;
+
+  return `${tarefasHoje} hoje / ${tarefasUltimos30Dias} nos últimos 30 dias`;
 }
 
 /* =========================
@@ -1776,6 +1808,7 @@ function fecharDropdownUser() {
 }
 
 function bindUI() {
+  // Dropdown toggle
   const dropdownToggle = document.getElementById("dropdownToggle");
   const dropdownMenu = document.getElementById("dropdownMenuUser");
   if (dropdownToggle && dropdownMenu) {
@@ -1838,12 +1871,11 @@ function bindUI() {
 
   document.getElementById("relatoriosBtn")?.addEventListener("click", () => {
     abrirModalPerfil();
-    setTimeout(() => {
-      window.abrirTabPerfil('relatorios');
-    }, 100);
+    abrirTabPerfil('relatorios');
     fecharDropdownUser();
   });
 
+  // Fechar modais com clique no overlay
   document.querySelectorAll(".modal-descricao-overlay, .modal-backup-overlay, .modal-edicao-overlay, .modal-reagendar-overlay, .modal-notificacoes-overlay, .modal-perfil-overlay").forEach(overlay => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) {
