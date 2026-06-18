@@ -68,8 +68,11 @@ body.dark-theme .modal-input, body.dark-theme .modal-select { background: rgba(2
 body.dark-theme .backup-item { background: rgba(255,255,255,0.05); }
 body.dark-theme .alerta-tarefas { background: rgba(124,58,237,0.3); }
 body.dark-theme .metas-toggle-btn { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+body.dark-theme .estado-vazio i { color: rgba(255,255,255,0.3); }
+body.dark-theme .estado-vazio p { color: rgba(255,255,255,0.8); }
+body.dark-theme .estado-vazio small { color: rgba(255,255,255,0.4); }
 
-/* ===== MODO CLARO (CORRIGIDO) ===== */
+/* ===== MODO CLARO ===== */
 body.light-theme {
   --bg-gradient-start: #f0f0f5;
   --bg-gradient-mid: #e8e8f0;
@@ -81,7 +84,6 @@ body.light-theme {
   background: linear-gradient(135deg, #f0f0f5 0%, #e8e8f0 50%, #ffffff 100%);
 }
 
-/* HEADER */
 body.light-theme .header-fluxo {
   background: rgba(255,255,255,0.9);
   border-color: rgba(0,0,0,0.08);
@@ -107,7 +109,6 @@ body.light-theme .logo-texto .logo-subtitulo {
   opacity: 0.7;
 }
 
-/* DROPDOWN */
 body.light-theme .dropdown-menu-user {
   background: rgba(255,255,255,0.98);
   border-color: rgba(0,0,0,0.1);
@@ -119,7 +120,6 @@ body.light-theme .dropdown-menu-user .dropdown-item:hover {
   background: rgba(0,0,0,0.05);
 }
 
-/* CARDS */
 body.light-theme .card-espaco,
 body.light-theme .metas-dashboard {
   background: rgba(255,255,255,0.9);
@@ -140,7 +140,16 @@ body.light-theme .card-header span {
   color: #1a1a2e !important;
 }
 
-/* TAREFAS */
+body.light-theme .estado-vazio i {
+  color: rgba(0,0,0,0.25);
+}
+body.light-theme .estado-vazio p {
+  color: #1a1a2e !important;
+}
+body.light-theme .estado-vazio small {
+  color: rgba(0,0,0,0.5) !important;
+}
+
 body.light-theme .tarefa-item {
   background: rgba(255,255,255,0.8);
   border-color: rgba(0,0,0,0.08);
@@ -179,13 +188,11 @@ body.light-theme .task-action-btn.danger:hover i {
   color: #dc2626;
 }
 
-/* BOTÃO NOVA TAREFA */
 body.light-theme .btn-nova-tarefa {
   background: linear-gradient(90deg, #7c3aed, #a855f7);
   color: #fff;
 }
 
-/* RODAPÉ */
 body.light-theme .footer-stats {
   background: rgba(255,255,255,0.95);
   border-color: rgba(0,0,0,0.08);
@@ -194,7 +201,6 @@ body.light-theme .footer-stats-item {
   color: #1a1a2e;
 }
 
-/* MODAIS */
 body.light-theme .modal-conteudo {
   background: rgba(255,255,255,0.98);
   border-color: rgba(0,0,0,0.1);
@@ -221,7 +227,6 @@ body.light-theme .btn-secondary {
   background: rgba(0,0,0,0.05);
 }
 
-/* BACKUP */
 body.light-theme .backup-item {
   background: rgba(0,0,0,0.05);
 }
@@ -233,7 +238,6 @@ body.light-theme .backup-actions button {
   background: rgba(0,0,0,0.06);
 }
 
-/* NOTIFICAÇÕES */
 body.light-theme .notificacao-item {
   background: rgba(0,0,0,0.03);
   border-left-color: #7c3aed;
@@ -251,7 +255,6 @@ body.light-theme .notificacao-item .notif-data {
   color: rgba(0,0,0,0.5);
 }
 
-/* ALERTA DE TAREFAS */
 body.light-theme .alerta-tarefas {
   background: rgba(124,58,237,0.12);
   border-color: rgba(124,58,237,0.3);
@@ -266,7 +269,6 @@ body.light-theme .alerta-tarefas:hover {
   background: rgba(124,58,237,0.2);
 }
 
-/* METAS */
 body.light-theme .metas-resumo-left {
   color: rgba(0,0,0,0.75);
 }
@@ -287,7 +289,6 @@ body.light-theme .metas-toggle-btn:hover {
   box-shadow: 0 6px 16px rgba(124,58,237,0.3);
 }
 
-/* VIEW TOGGLE */
 body.light-theme .view-btn {
   background: rgba(255,255,255,0.8);
   border-color: rgba(0,0,0,0.1);
@@ -306,7 +307,6 @@ body.light-theme .top-action-btn:hover {
   background: rgba(0,0,0,0.1);
 }
 
-/* CALENDÁRIO */
 body.light-theme .calendario-nav .btn-glass {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: #fff;
@@ -344,7 +344,6 @@ body.light-theme .cal-task-more {
   color: rgba(0,0,0,0.6);
 }
 
-/* MODAL DIA */
 body.light-theme .modal-dia-item {
   background: rgba(0,0,0,0.03);
   border-color: rgba(0,0,0,0.08);
@@ -382,7 +381,6 @@ body.light-theme .modal-dia-btn.danger:hover {
   background: rgba(239,68,68,0.15);
 }
 
-/* LOGIN */
 body.light-theme .login-container {
   background: rgba(255,255,255,0.95);
   border-color: rgba(0,0,0,0.1);
@@ -419,7 +417,6 @@ body.light-theme .password-container input {
   color: #1a1a2e;
 }
 
-/* PERFIL */
 body.light-theme .modal-perfil-overlay .modal-body label {
   color: rgba(0,0,0,0.7) !important;
 }
@@ -431,55 +428,6 @@ body.light-theme .avatar-preview {
 }
 body.light-theme .avatar-preview i {
   color: #1a1a2e !important;
-}
-
-/* ===== CARD "NOVO ESPAÇO" ===== */
-.card-novo-espaco {
-  min-height: 320px;
-  border-radius: 16px;
-  cursor: pointer;
-  background: rgba(30, 30, 46, 0.3);
-  border: 2px dashed rgba(168, 85, 247, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 8px;
-  transition: 0.3s;
-}
-.card-novo-espaco:hover {
-  background: rgba(30, 30, 46, 0.5);
-  border-color: rgba(168, 85, 247, 0.4);
-}
-.card-novo-espaco > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.card-novo-espaco i {
-  font-size: 28px;
-  color: rgba(255, 255, 255, 0.3);
-}
-.card-novo-espaco p {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 14px;
-  margin: 0;
-}
-
-/* MODO CLARO - NOVO ESPAÇO */
-body.light-theme .card-novo-espaco {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(0, 0, 0, 0.15);
-}
-body.light-theme .card-novo-espaco:hover {
-  background: rgba(255, 255, 255, 0.7);
-}
-body.light-theme .card-novo-espaco i {
-  color: rgba(0, 0, 0, 0.25);
-}
-body.light-theme .card-novo-espaco p {
-  color: rgba(0, 0, 0, 0.35);
 }
 
 /* ===== INDICADORES ===== */
@@ -519,7 +467,7 @@ body.light-theme .card-novo-espaco p {
 .status-online { background: var(--success); }
 .status-offline { background: var(--danger); }
 
-/* ===== MODAIS GERAIS ===== */
+/* ===== MODAIS ===== */
 .modal-descricao-overlay, .modal-backup-overlay, .modal-foco-overlay,
 .modal-reagendar-overlay, .modal-edicao-overlay, .modal-dia-overlay,
 .modal-notificacoes-overlay, .modal-perfil-overlay {
@@ -653,7 +601,6 @@ body.light-theme .card-novo-espaco p {
   color: #fff; opacity: 0.7; font-size: 9px; letter-spacing: 1px;
 }
 
-/* Dropdown do usuário */
 .user-dropdown {
   position: absolute;
   top: 12px;
@@ -754,7 +701,6 @@ body.light-theme .card-novo-espaco p {
   background: rgba(255,255,255,0.1);
 }
 
-/* ===== ALERTA DE TAREFAS ===== */
 .alerta-tarefas {
   background: rgba(124,58,237,0.3);
   border-radius: 40px;
@@ -777,7 +723,6 @@ body.light-theme .card-novo-espaco p {
 .alerta-tarefas i { color: #fff !important; font-size: 14px; }
 .alerta-tarefas:hover { background: rgba(124,58,237,0.5); border-color: rgba(255,255,255,0.3); }
 
-/* ===== BOTÃO VER METAS ===== */
 .metas-toggle-btn {
   border: none;
   border-radius: 40px;
@@ -799,7 +744,6 @@ body.light-theme .card-novo-espaco p {
 }
 .metas-toggle-btn:active { transform: translateY(0); }
 
-/* ===== BOTÃO NOVA TAREFA ===== */
 .btn-nova-tarefa {
   height: 44px;
   margin: 0 16px 16px 16px;
@@ -910,7 +854,70 @@ body.light-theme .card-novo-espaco p {
 }
 .card-content { flex: 1; padding: 12px 16px; }
 
-/* ===== CARD NOVO ESPAÇO (ja definido acima) ===== */
+.estado-vazio {
+  text-align: center;
+  padding: 40px;
+}
+.estado-vazio i {
+  font-size: 32px;
+  opacity: 0.5;
+  color: rgba(255,255,255,0.3);
+}
+.estado-vazio p {
+  color: rgba(255,255,255,0.7);
+  margin-top: 8px;
+}
+.estado-vazio small {
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+}
+
+.card-novo-espaco {
+  min-height: 320px;
+  border-radius: 16px;
+  cursor: pointer;
+  background: rgba(30, 30, 46, 0.3);
+  border: 2px dashed rgba(168, 85, 247, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  transition: 0.3s;
+}
+.card-novo-espaco:hover {
+  background: rgba(30, 30, 46, 0.5);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+.card-novo-espaco > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.card-novo-espaco i {
+  font-size: 28px;
+  color: rgba(255, 255, 255, 0.3);
+}
+.card-novo-espaco p {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+  margin: 0;
+}
+
+body.light-theme .card-novo-espaco {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+body.light-theme .card-novo-espaco:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+body.light-theme .card-novo-espaco i {
+  color: rgba(0, 0, 0, 0.25);
+}
+body.light-theme .card-novo-espaco p {
+  color: rgba(0, 0, 0, 0.35);
+}
 
 .inline-form {
   display: none; margin-top: 10px; padding: 10px;
