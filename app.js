@@ -391,17 +391,30 @@ async function carregarDadosFirebase() {
 ========================= */
 function aplicarPerfil(profile) {
   if (!profile) return;
+  // Avatar grande (esquerda)
   const avatarEl = document.getElementById("userAvatar");
-  if (!avatarEl) return;
-  if (profile.avatar) {
-    avatarEl.innerHTML = `<img src="${profile.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-  } else {
-    avatarEl.innerHTML = `<i class="fas fa-user-circle"></i>`;
+  if (avatarEl) {
+    if (profile.avatar) {
+      avatarEl.innerHTML = `<img src="${profile.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else {
+      avatarEl.innerHTML = `<i class="fas fa-user-circle"></i>`;
+    }
   }
-  const nomeInput = document.getElementById("perfilNome");
-  const emailInput = document.getElementById("perfilEmail");
-  if (nomeInput && profile.nome) nomeInput.value = profile.nome;
-  if (emailInput && currentUser) emailInput.value = currentUser.email;
+  // Avatar pequeno (direita)
+  const avatarSmall = document.getElementById("userAvatarSmall");
+  if (avatarSmall) {
+    if (profile.avatar) {
+      avatarSmall.innerHTML = `<img src="${profile.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else {
+      avatarSmall.innerHTML = `<i class="fas fa-user-circle"></i>`;
+    }
+  }
+  // Nome do usuário
+  const nameDisplay = document.getElementById("userNameDisplay");
+  if (nameDisplay) {
+    nameDisplay.textContent = profile.nome || "Usuário";
+  }
+  // Preview no modal
   const preview = document.getElementById("avatarPreview");
   if (preview) {
     if (profile.avatar) {
@@ -519,7 +532,7 @@ function gerarRelatorios() {
 
   let html = `
     <div style="margin-bottom:16px;">
-      <h4>📊 Resumo Geral</h4>
+      <h4 style="color:#a855f7;margin-bottom:8px;">📊 Resumo Geral</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <div class="relatorio-card">
           <div class="relatorio-label">Total de tarefas</div>
@@ -541,7 +554,7 @@ function gerarRelatorios() {
     </div>
 
     <div style="margin-bottom:16px;">
-      <h4>📈 Últimos 30 dias</h4>
+      <h4 style="color:#a855f7;margin-bottom:8px;">📈 Últimos 30 dias</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
         <div class="relatorio-card">
           <div class="relatorio-label">Concluídas</div>
@@ -559,7 +572,7 @@ function gerarRelatorios() {
     </div>
 
     <div style="margin-bottom:16px;">
-      <h4>🏷️ Por prioridade</h4>
+      <h4 style="color:#a855f7;margin-bottom:8px;">🏷️ Por prioridade</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
         <div class="relatorio-card prioridade-alta">
           <div class="relatorio-label">🔴 Alta</div>
@@ -577,7 +590,7 @@ function gerarRelatorios() {
     </div>
 
     <div style="margin-bottom:16px;">
-      <h4>🔄 Recorrência</h4>
+      <h4 style="color:#a855f7;margin-bottom:8px;">🔄 Recorrência</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <div class="relatorio-card">
           <div class="relatorio-label">Recorrentes</div>
@@ -591,7 +604,7 @@ function gerarRelatorios() {
     </div>
 
     <div>
-      <h4>📁 Top espaços</h4>
+      <h4 style="color:#a855f7;margin-bottom:8px;">📁 Top espaços</h4>
       ${topCards.length > 0 ? topCards.map(([nome, qtd]) => `
         <div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:6px;margin-bottom:4px;border:1px solid rgba(255,255,255,0.04);">
           <span style="font-size:13px;">${escapeHtml(nome)}</span>
@@ -602,6 +615,38 @@ function gerarRelatorios() {
   `;
 
   container.innerHTML = html;
+}
+
+/* =========================
+   TEMAS COM 3 ESTADOS
+========================= */
+function aplicarTemaSalvo() {
+  const tema = localStorage.getItem("temaFluxo") || "purple";
+  document.body.classList.remove("dark-theme", "light-theme", "purple-theme");
+  if (tema === "dark") {
+    document.body.classList.add("dark-theme");
+  } else if (tema === "light") {
+    document.body.classList.add("light-theme");
+  } else {
+    document.body.classList.add("purple-theme");
+  }
+  // Atualizar ícone do botão de tema
+  const icon = document.querySelector("#themeToggle i");
+  if (icon) {
+    if (tema === "purple") icon.className = "fas fa-palette";
+    else if (tema === "light") icon.className = "fas fa-sun";
+    else if (tema === "dark") icon.className = "fas fa-moon";
+  }
+}
+
+function toggleTema() {
+  const current = localStorage.getItem("temaFluxo") || "purple";
+  let novo = "";
+  if (current === "purple") novo = "light";
+  else if (current === "light") novo = "dark";
+  else if (current === "dark") novo = "purple";
+  localStorage.setItem("temaFluxo", novo);
+  aplicarTemaSalvo();
 }
 
 /* =========================
@@ -1759,35 +1804,6 @@ function atualizarStatusConexao() {
     el.classList.remove("status-online");
     el.classList.add("status-offline");
     el.innerHTML = `<i class="fas fa-wifi"></i> Offline`;
-  }
-}
-
-function aplicarTemaSalvo() {
-  const tema = localStorage.getItem("temaFluxo") || "dark";
-  document.body.classList.remove("dark-theme", "light-theme");
-  if (tema === "dark") {
-    document.body.classList.add("dark-theme");
-  } else if (tema === "light") {
-    document.body.classList.add("light-theme");
-  }
-  const icon = document.querySelector("#themeToggle i");
-  if (icon) {
-    if (tema === "dark") icon.className = "fas fa-sun";
-    else if (tema === "light") icon.className = "fas fa-moon";
-  }
-}
-
-function toggleTema() {
-  const current = localStorage.getItem("temaFluxo") || "dark";
-  let novo = "";
-  if (current === "dark") novo = "light";
-  else if (current === "light") novo = "dark";
-  localStorage.setItem("temaFluxo", novo);
-  aplicarTemaSalvo();
-  const icon = document.querySelector("#themeToggle i");
-  if (icon) {
-    if (novo === "dark") icon.className = "fas fa-sun";
-    else if (novo === "light") icon.className = "fas fa-moon";
   }
 }
 
