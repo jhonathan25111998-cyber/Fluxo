@@ -372,7 +372,6 @@ async function carregarDadosFirebase() {
       if (typeof d.tempoTotalFocado === "number") localStorage.setItem("tempoTotalFocado", String(d.tempoTotalFocado));
       if (typeof d.tempoFocadoHoje === "number") localStorage.setItem("tempoFocadoHoje", String(d.tempoFocadoHoje));
       if (typeof d.tarefasReagendadasHoje === "number") localStorage.setItem("tarefasReagendadasHoje", String(d.tarefasReagendadasHoje));
-      // Carregar perfil
       if (d.profile) {
         localStorage.setItem("profile", JSON.stringify(d.profile));
         aplicarPerfil(d.profile);
@@ -399,12 +398,10 @@ function aplicarPerfil(profile) {
   } else {
     avatarEl.innerHTML = `<i class="fas fa-user-circle"></i>`;
   }
-  // Atualizar modal de perfil se estiver aberto
   const nomeInput = document.getElementById("perfilNome");
   const emailInput = document.getElementById("perfilEmail");
   if (nomeInput && profile.nome) nomeInput.value = profile.nome;
   if (emailInput && currentUser) emailInput.value = currentUser.email;
-  // Preview do avatar no modal
   const preview = document.getElementById("avatarPreview");
   if (preview) {
     if (profile.avatar) {
@@ -423,7 +420,6 @@ window.abrirModalPerfil = function() {
   const emailInput = document.getElementById("perfilEmail");
   if (nomeInput) nomeInput.value = profile.nome || "";
   if (emailInput && currentUser) emailInput.value = currentUser.email;
-  // Atualizar preview
   const preview = document.getElementById("avatarPreview");
   if (preview) {
     if (profile.avatar) {
@@ -433,7 +429,6 @@ window.abrirModalPerfil = function() {
     }
   }
   modal.classList.add("show");
-  // Abrir aba dados por padrão
   abrirTabPerfil('dados');
 };
 
@@ -451,7 +446,6 @@ window.uploadAvatar = function(event) {
     if (preview) {
       preview.innerHTML = `<img src="${dataUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
     }
-    // Salvar temporariamente para enviar ao salvar
     window._avatarTemp = dataUrl;
   };
   reader.readAsDataURL(file);
@@ -462,12 +456,8 @@ window.salvarPerfil = async function() {
   const avatar = window._avatarTemp || null;
   const profile = { nome };
   if (avatar) profile.avatar = avatar;
-
-  // Salvar localmente
   localStorage.setItem("profile", JSON.stringify(profile));
   aplicarPerfil(profile);
-
-  // Salvar no Firebase
   if (currentUser) {
     try {
       await updateDoc(doc(db, "usuarios", currentUser.uid), { profile });
@@ -477,7 +467,6 @@ window.salvarPerfil = async function() {
       mostrarIndicadorSync("❌ Erro ao salvar perfil", "error");
     }
   }
-
   window._avatarTemp = null;
   fecharModalPerfil();
 };
@@ -486,11 +475,9 @@ window.salvarPerfil = async function() {
    ABAS DO PERFIL
 ========================= */
 window.abrirTabPerfil = function(tab) {
-  // Atualizar tabs
   document.querySelectorAll('.perfil-tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === tab);
   });
-  // Mostrar conteúdo
   document.getElementById('tabDados').style.display = tab === 'dados' ? 'block' : 'none';
   document.getElementById('tabRelatorios').style.display = tab === 'relatorios' ? 'block' : 'none';
   if (tab === 'relatorios') {
@@ -514,21 +501,14 @@ function gerarRelatorios() {
   const totalTarefas = tarefas.length;
   const totalConcluidas = tarefasConcluidas.length;
   const taxaConclusao = totalTarefas > 0 ? Math.round((totalConcluidas / totalTarefas) * 100) : 0;
-
-  // Tempo total focado em horas
   const horasFoco = Math.floor(tempoTotalFocado / 60);
   const minutosFoco = tempoTotalFocado % 60;
-
-  // Tarefas por prioridade
   const p1 = tarefasConcluidas.filter(t => t.prioridade === 'p1').length;
   const p2 = tarefasConcluidas.filter(t => t.prioridade === 'p2').length;
   const p3 = tarefasConcluidas.filter(t => t.prioridade === 'p3').length;
-
-  // Tarefas por recorrência
   const recorrentes = tarefasConcluidas.filter(t => t.recorrencia && t.recorrencia !== '').length;
   const avulsas = totalConcluidas - recorrentes;
 
-  // Cards com mais tarefas concluídas
   const cardsMap = {};
   tarefasConcluidas.forEach(t => {
     if (t.bloco) {
@@ -539,81 +519,81 @@ function gerarRelatorios() {
 
   let html = `
     <div style="margin-bottom:16px;">
-      <h4 style="color:#a855f7;margin-bottom:8px;">📊 Resumo Geral</h4>
+      <h4>📊 Resumo Geral</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Total de tarefas</div>
-          <div style="font-size:20px;font-weight:700;">${totalTarefas}</div>
+        <div class="relatorio-card">
+          <div class="relatorio-label">Total de tarefas</div>
+          <div class="relatorio-valor">${totalTarefas}</div>
         </div>
-        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Concluídas</div>
-          <div style="font-size:20px;font-weight:700;color:#22c55e;">${totalConcluidas}</div>
+        <div class="relatorio-card">
+          <div class="relatorio-label">Concluídas</div>
+          <div class="relatorio-valor" style="color:#22c55e;">${totalConcluidas}</div>
         </div>
-        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Taxa de conclusão</div>
-          <div style="font-size:20px;font-weight:700;color:#fbbf24;">${taxaConclusao}%</div>
+        <div class="relatorio-card">
+          <div class="relatorio-label">Taxa de conclusão</div>
+          <div class="relatorio-valor" style="color:#fbbf24;">${taxaConclusao}%</div>
         </div>
-        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Tempo focado</div>
-          <div style="font-size:20px;font-weight:700;color:#667eea;">${horasFoco}h ${minutosFoco}m</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-bottom:16px;">
-      <h4 style="color:#a855f7;margin-bottom:8px;">📈 Últimos 30 dias</h4>
-      <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:rgba(255,255,255,0.6);">Concluídas</span>
-          <span style="font-weight:600;color:#22c55e;">${concluidasUltimos30Dias.length}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px;">
-          <span style="color:rgba(255,255,255,0.6);">Pendentes hoje</span>
-          <span style="font-weight:600;color:#fbbf24;">${tarefasHoje.length}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px;">
-          <span style="color:rgba(255,255,255,0.6);">Atrasadas</span>
-          <span style="font-weight:600;color:#ef4444;">${tarefasAtrasadas.length}</span>
+        <div class="relatorio-card">
+          <div class="relatorio-label">Tempo focado</div>
+          <div class="relatorio-valor" style="color:#667eea;">${horasFoco}h ${minutosFoco}m</div>
         </div>
       </div>
     </div>
 
     <div style="margin-bottom:16px;">
-      <h4 style="color:#a855f7;margin-bottom:8px;">🏷️ Por prioridade</h4>
+      <h4>📈 Últimos 30 dias</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-        <div style="background:rgba(239,68,68,0.15);padding:8px;border-radius:8px;text-align:center;">
-          <div style="font-size:11px;color:#ef4444;">🔴 Alta</div>
-          <div style="font-weight:600;">${p1}</div>
+        <div class="relatorio-card">
+          <div class="relatorio-label">Concluídas</div>
+          <div class="relatorio-valor" style="color:#22c55e;">${concluidasUltimos30Dias.length}</div>
         </div>
-        <div style="background:rgba(251,191,36,0.15);padding:8px;border-radius:8px;text-align:center;">
-          <div style="font-size:11px;color:#fbbf24;">🟡 Média</div>
-          <div style="font-weight:600;">${p2}</div>
+        <div class="relatorio-card">
+          <div class="relatorio-label">Pendentes hoje</div>
+          <div class="relatorio-valor" style="color:#fbbf24;">${tarefasHoje.length}</div>
         </div>
-        <div style="background:rgba(34,197,94,0.15);padding:8px;border-radius:8px;text-align:center;">
-          <div style="font-size:11px;color:#22c55e;">🟢 Baixa</div>
-          <div style="font-weight:600;">${p3}</div>
+        <div class="relatorio-card">
+          <div class="relatorio-label">Atrasadas</div>
+          <div class="relatorio-valor" style="color:#ef4444;">${tarefasAtrasadas.length}</div>
         </div>
       </div>
     </div>
 
     <div style="margin-bottom:16px;">
-      <h4 style="color:#a855f7;margin-bottom:8px;">🔄 Recorrência</h4>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;text-align:center;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Recorrentes</div>
-          <div style="font-weight:600;">${recorrentes}</div>
+      <h4>🏷️ Por prioridade</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div class="relatorio-card prioridade-alta">
+          <div class="relatorio-label">🔴 Alta</div>
+          <div class="relatorio-valor">${p1}</div>
         </div>
-        <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;text-align:center;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Avulsas</div>
-          <div style="font-weight:600;">${avulsas}</div>
+        <div class="relatorio-card prioridade-media">
+          <div class="relatorio-label">🟡 Média</div>
+          <div class="relatorio-valor">${p2}</div>
+        </div>
+        <div class="relatorio-card prioridade-baixa">
+          <div class="relatorio-label">🟢 Baixa</div>
+          <div class="relatorio-valor">${p3}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <h4>🔄 Recorrência</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="relatorio-card">
+          <div class="relatorio-label">Recorrentes</div>
+          <div class="relatorio-valor">${recorrentes}</div>
+        </div>
+        <div class="relatorio-card">
+          <div class="relatorio-label">Avulsas</div>
+          <div class="relatorio-valor">${avulsas}</div>
         </div>
       </div>
     </div>
 
     <div>
-      <h4 style="color:#a855f7;margin-bottom:8px;">📁 Top espaços</h4>
+      <h4>📁 Top espaços</h4>
       ${topCards.length > 0 ? topCards.map(([nome, qtd]) => `
-        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:6px;margin-bottom:4px;">
+        <div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:6px;margin-bottom:4px;border:1px solid rgba(255,255,255,0.04);">
           <span style="font-size:13px;">${escapeHtml(nome)}</span>
           <span style="font-weight:600;color:#a855f7;">${qtd}</span>
         </div>
@@ -1624,7 +1604,7 @@ function gerarCelulaDia(dataStr, dia, hoje, expandido = false, isMobile = false)
 }
 
 /* =========================
-   RENDER TAREFAS (CARDS)
+   RENDER TAREFAS (CARDS) – com resumo estilizado
 ========================= */
 function renderizarTarefas() {
   const container = document.getElementById("blocosTarefas");
@@ -1705,9 +1685,17 @@ function renderizarTarefas() {
       <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')">
         <i class="fas fa-plus-circle"></i> Nova Tarefa
       </button>
-      <!-- Resumo do card -->
-      <div class="card-resumo" id="resumo-${cardId}">
-        ${calcularResumoCard(card.nome)}
+      <div class="card-resumo">
+        <div class="card-resumo-item">
+          <span class="resumo-icon"><i class="fas fa-chart-simple"></i></span>
+          <span class="resumo-texto">
+            <span class="resumo-num">${calcularHoje(card.nome)}</span>
+            <span class="resumo-label">hoje</span>
+            <span class="resumo-separator">/</span>
+            <span class="resumo-num">${calcularUltimos30Dias(card.nome)}</span>
+            <span class="resumo-label">últimos 30 dias</span>
+          </span>
+        </div>
       </div>
       <div class="inline-form" id="form-${cardId}">
         <input type="text" id="texto-${cardId}" placeholder="Título...">
@@ -1740,21 +1728,21 @@ function renderizarTarefas() {
   container.appendChild(addCard);
 }
 
-function calcularResumoCard(nomeCard) {
+function calcularHoje(nomeCard) {
   const hoje = getDataHoje();
+  return tarefas.filter(t => t.bloco === nomeCard && t.data === hoje && !t.concluida).length;
+}
+
+function calcularUltimos30Dias(nomeCard) {
   const trintaDiasAtras = new Date();
   trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
   const dataLimite = trintaDiasAtras.toISOString().split('T')[0];
-
-  const tarefasHoje = tarefas.filter(t => t.bloco === nomeCard && t.data === hoje && !t.concluida).length;
-  const tarefasUltimos30Dias = tarefas.filter(t =>
+  return tarefas.filter(t =>
     t.bloco === nomeCard &&
     t.concluida &&
     t.concluidaEm &&
     t.concluidaEm.split('T')[0] >= dataLimite
   ).length;
-
-  return `${tarefasHoje} hoje / ${tarefasUltimos30Dias} nos últimos 30 dias`;
 }
 
 /* =========================
