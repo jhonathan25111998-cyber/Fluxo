@@ -311,6 +311,9 @@ body.light-theme .card-header button {
   color: #1a1a2e;
   background: rgba(0,0,0,0.08);
 }
+body.light-theme .card-header button i {
+  color: #1a1a2e;  /* Ícones escuros nos botões do cabeçalho do card */
+}
 body.light-theme .card-header button:hover {
   background: rgba(0,0,0,0.15);
 }
@@ -406,6 +409,26 @@ body.light-theme .btn-confirm {
 body.light-theme .btn-cancel {
   color: #1a1a2e;
   background: rgba(0,0,0,0.08);
+}
+
+/* ---- BOTÃO NOVO ESPAÇO (modo claro) ---- */
+body.light-theme .card-novo-espaco {
+  background: rgba(0,0,0,0.02);
+  border: 2px dashed rgba(0,0,0,0.10);
+}
+body.light-theme .card-novo-espaco i {
+  color: rgba(0,0,0,0.25);
+}
+body.light-theme .card-novo-espaco p {
+  color: rgba(0,0,0,0.35);
+}
+body.light-theme .card-novo-espaco:hover {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.18);
+}
+body.light-theme .card-novo-espaco:hover i,
+body.light-theme .card-novo-espaco:hover p {
+  color: rgba(0,0,0,0.5);
 }
 
 /* ---- RESUMO DO CARD ---- */
@@ -571,6 +594,9 @@ body.light-theme .login-container {
 }
 body.light-theme .login-container h2 {
   color: #1a1a2e;
+}
+body.light-theme .login-container p {
+  color: rgba(0,0,0,0.7); /* Frase "Organize. Execute. Flua." agora visível */
 }
 body.light-theme .login-container input {
   background: rgba(0,0,0,0.05);
@@ -773,6 +799,8 @@ body.light-theme .inline-form select option {
   backdrop-filter: blur(24px);
   min-height: 70px;
   margin-bottom: 20px;
+  position: relative;
+  z-index: 10; /* contexto de empilhamento */
 }
 
 .header-left {
@@ -897,6 +925,7 @@ body.light-theme .inline-form select option {
 /* ===== DROPDOWN ===== */
 .user-dropdown {
   position: relative;
+  z-index: 10; /* garante que o dropdown fique no contexto correto */
 }
 .dropdown-toggle {
   width: 34px;
@@ -926,7 +955,7 @@ body.light-theme .inline-form select option {
   border-radius: 12px;
   padding: 8px 0;
   min-width: 180px;
-  z-index: 2000;
+  z-index: 3000; /* Aumentado para ficar sobre os botões da linha */
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
@@ -960,6 +989,8 @@ body.light-theme .inline-form select option {
   gap: 12px;
   margin-bottom: 12px;
   padding: 8px 0;
+  position: relative;
+  z-index: 1; /* inferior ao dropdown */
 }
 .view-toggle {
   display: flex;
@@ -1756,6 +1787,10 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
 .login-container h2 {
   color: #fff;
   margin-bottom: 24px;
+}
+.login-container p {
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 30px;
 }
 .login-container input {
   width: 100%;
