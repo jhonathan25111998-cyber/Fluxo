@@ -213,28 +213,21 @@ body.light-theme .titulo-meta {
 }
 
 /* ---- CORREÇÕES: BOLINHA, CATEGORIA, INPUT, SELECT E BOTÕES ---- */
-/* Círculo de concluir/pendente */
 body.light-theme .circulo-pendente {
   border-color: rgba(0,0,0,0.5) !important;
 }
 body.light-theme .circulo-concluido {
   background: #22c55e;
 }
-
-/* Categoria dentro do card de meta */
 body.light-theme .meta-card-mini small {
   color: rgba(0,0,0,0.6) !important;
 }
-
-/* Botões de editar/excluir no card de meta */
 body.light-theme .meta-card-mini button {
   color: #1a1a2e !important;
 }
 body.light-theme .meta-card-mini button:hover {
   color: #000 !important;
 }
-
-/* Input "Nova meta..." */
 body.light-theme #novaMetaTexto {
   color: #1a1a2e !important;
   background: rgba(0,0,0,0.05) !important;
@@ -243,8 +236,6 @@ body.light-theme #novaMetaTexto {
 body.light-theme #novaMetaTexto::placeholder {
   color: rgba(0,0,0,0.4) !important;
 }
-
-/* Select de categoria */
 body.light-theme #novaMetaCategoria {
   color: #1a1a2e !important;
   background: rgba(0,0,0,0.05) !important;
@@ -302,7 +293,8 @@ body.light-theme .cal-task {
 body.light-theme .cal-task-more {
   color: rgba(0,0,0,0.6);
 }
-body.light-theme .calendario-grade > div:first-child {
+/* Corrige os cabeçalhos dos dias da semana (Seg, Ter, Qua...) */
+body.light-theme .calendario-grade > div[style*="color:white"] {
   color: #1a1a2e !important;
 }
 
@@ -388,6 +380,34 @@ body.light-theme .btn-nova-tarefa i {
   color: #fff;
 }
 
+/* ---- FORMULÁRIO INLINE (ADICIONAR TAREFA) ---- */
+body.light-theme .inline-form {
+  background: rgba(0,0,0,0.03); /* cinza bem clarinho */
+  border: 1px solid rgba(0,0,0,0.08);
+}
+body.light-theme .inline-form input,
+body.light-theme .inline-form textarea,
+body.light-theme .inline-form select {
+  background: rgba(255,255,255,0.9);
+  color: #1a1a2e;
+  border-color: rgba(0,0,0,0.15);
+}
+body.light-theme .inline-form input::placeholder,
+body.light-theme .inline-form textarea::placeholder {
+  color: rgba(0,0,0,0.4);
+}
+body.light-theme .inline-form select option {
+  background: #fff;
+  color: #1a1a2e;
+}
+body.light-theme .btn-confirm {
+  color: #fff; /* mantém branco, fundo gradiente */
+}
+body.light-theme .btn-cancel {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.08);
+}
+
 /* ---- RESUMO DO CARD ---- */
 body.light-theme .card-resumo-item {
   background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(16,185,129,0.10));
@@ -428,6 +448,11 @@ body.light-theme .modal-select {
   background: rgba(0,0,0,0.05);
   color: #1a1a2e;
   border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .modal-input option,
+body.light-theme .modal-select option {
+  background: #fff;
+  color: #1a1a2e;
 }
 body.light-theme .modal-titulo {
   color: rgba(0,0,0,0.6);
@@ -576,6 +601,52 @@ body.light-theme .register-link {
   color: rgba(0,0,0,0.7) !important;
 }
 body.light-theme .password-container input {
+  color: #1a1a2e;
+}
+
+/* ============================
+   ESTILOS GERAIS DE SELECT/OPTION PARA TODOS OS TEMAS
+   (garantindo visibilidade ao clicar)
+============================ */
+/* Tema padrão (roxo/escuro) */
+body.purple-theme select,
+body.purple-theme .modal-select,
+body.purple-theme .inline-form select {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+body.purple-theme select option,
+body.purple-theme .modal-select option,
+body.purple-theme .inline-form select option {
+  background: #1e1e2e;
+  color: #fff;
+}
+
+/* Tema escuro */
+body.dark-theme select,
+body.dark-theme .modal-select,
+body.dark-theme .inline-form select {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+body.dark-theme select option,
+body.dark-theme .modal-select option,
+body.dark-theme .inline-form select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+/* Tema claro (já definido acima, mas reforçando) */
+body.light-theme select,
+body.light-theme .modal-select,
+body.light-theme .inline-form select {
+  background: rgba(0,0,0,0.05);
+  color: #1a1a2e;
+}
+body.light-theme select option,
+body.light-theme .modal-select option,
+body.light-theme .inline-form select option {
+  background: #fff;
   color: #1a1a2e;
 }
 
