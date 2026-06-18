@@ -80,7 +80,7 @@ body.dark-theme .card-resumo-item .resumo-num { color: #34d399; }
 body.dark-theme .card-resumo-item .resumo-label { color: rgba(255,255,255,0.6); }
 body.dark-theme .card-resumo-item .resumo-separator { color: rgba(255,255,255,0.25); }
 
-/* ===== MODO CLARO – CORREÇÕES ===== */
+/* ===== MODO CLARO ===== */
 body.light-theme {
   --bg-gradient-start: #f0f0f5;
   --bg-gradient-mid: #e8e8f0;
@@ -144,7 +144,7 @@ body.light-theme .dropdown-menu-user .dropdown-item:hover {
   background: rgba(0,0,0,0.05);
 }
 
-/* ---- LINHA DE BOTÕES (Cards, Calendário, Novo Espaço, Concluir todas, Ver metas) ---- */
+/* ---- LINHA DE BOTÕES ---- */
 body.light-theme .view-btn {
   background: rgba(255,255,255,0.8);
   border-color: rgba(0,0,0,0.1);
@@ -184,7 +184,6 @@ body.light-theme .metas-toggle-btn:hover {
   box-shadow: 0 6px 16px rgba(124,58,237,0.3);
 }
 
-/* ---- ALERTA DE TAREFAS ---- */
 body.light-theme .alerta-tarefas {
   background: rgba(124,58,237,0.12);
   border-color: rgba(124,58,237,0.3);
@@ -251,7 +250,7 @@ body.light-theme .cal-dia.hoje {
 }
 body.light-theme .cal-dia-badge {
   background: rgba(239,68,68,0.15);
-  color: #b91c1c !important; /* vermelho escuro para contraste */
+  color: #b91c1c !important;
 }
 body.light-theme .cal-task {
   background: rgba(0,0,0,0.05);
@@ -260,7 +259,6 @@ body.light-theme .cal-task {
 body.light-theme .cal-task-more {
   color: rgba(0,0,0,0.6);
 }
-/* Dias da semana no calendário (cabeçalho) */
 body.light-theme .calendario-grade > div:first-child {
   color: #1a1a2e !important;
 }
@@ -347,7 +345,7 @@ body.light-theme .btn-nova-tarefa i {
   color: #fff;
 }
 
-/* ---- RESUMO DO CARD (verde) ---- */
+/* ---- RESUMO DO CARD ---- */
 body.light-theme .card-resumo-item {
   background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(16,185,129,0.10));
   border-color: rgba(16,185,129,0.3);
@@ -538,7 +536,7 @@ body.light-theme .password-container input {
   color: #1a1a2e;
 }
 
-/* ---- INDICADORES ---- */
+/* ===== INDICADORES ===== */
 .sync-indicator {
   position: fixed;
   bottom: 80px;
@@ -649,7 +647,7 @@ body.light-theme .password-container input {
   background: rgba(255,255,255,0.1);
 }
 
-/* ===== HEADER REORGANIZADO ===== */
+/* ===== HEADER ===== */
 .header-fluxo {
   display: flex;
   justify-content: space-between;
@@ -669,33 +667,32 @@ body.light-theme .password-container input {
   gap: 12px;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-avatar {
+/* ---- LOGO (TAMANHO CORRETO) ---- */
+.logo-img {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2px solid rgba(255,255,255,0.2);
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
 }
-.user-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.logo-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
-.user-avatar i {
-  font-size: 28px;
+.logo-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-fallback i {
   color: #fff;
+  font-size: 20px;
 }
 
 .logo-texto .logo-titulo {
@@ -709,6 +706,12 @@ body.light-theme .password-container input {
   font-size: 9px;
   color: rgba(255,255,255,0.7);
   letter-spacing: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .user-info {
@@ -1709,8 +1712,9 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
   body { padding: 12px; padding-bottom: 80px; }
   .header-fluxo { min-height: 60px; padding: 6px 12px; flex-wrap: wrap; gap: 8px; }
   .header-left { gap: 8px; }
-  .user-avatar { width: 36px; height: 36px; }
-  .user-avatar i { font-size: 22px; }
+  .logo-img { width: 36px; height: 36px; }
+  .logo-fallback { width: 32px; height: 32px; }
+  .logo-fallback i { font-size: 16px; }
   .logo-texto .logo-titulo { font-size: 16px; }
   .logo-texto .logo-subtitulo { font-size: 8px; }
   .header-right { gap: 8px; flex-wrap: wrap; }
