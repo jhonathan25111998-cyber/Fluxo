@@ -101,6 +101,7 @@
           <button class="dropdown-item" id="notifyBtn"><i class="fas fa-bell"></i> Notificações</button>
           <button class="dropdown-item" id="themeToggle"><i class="fas fa-moon"></i> Tema</button>
           <button class="dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+          <button class="dropdown-item" id="relatoriosBtn"><i class="fas fa-chart-bar"></i> Relatórios</button>
         </div>
       </div>
     </div>
@@ -202,7 +203,8 @@
     </div>
   </div>
 
-  <!-- MODAIS (mantidos) -->
+  <!-- MODAIS -->
+
   <!-- MODAL DESCRIÇÃO -->
   <div class="modal-descricao-overlay" id="modalDescricaoOverlay">
     <div class="modal-conteudo">
@@ -363,34 +365,50 @@
     </div>
   </div>
 
-  <!-- MODAL PERFIL -->
+  <!-- MODAL PERFIL (agora com abas) -->
   <div class="modal-perfil-overlay" id="modalPerfilOverlay">
-    <div class="modal-conteudo">
+    <div class="modal-conteudo" style="width:600px; max-width:95%;">
       <div class="modal-header">
-        <h3><i class="fas fa-user-circle"></i> Editar Perfil</h3>
+        <h3><i class="fas fa-user-circle"></i> Meu Perfil</h3>
         <button class="modal-close" onclick="window.fecharModalPerfil()"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body">
-        <div style="text-align:center; margin-bottom:16px;">
-          <div class="avatar-preview" id="avatarPreview" style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin:0 auto 12px;background:#667eea;display:flex;align-items:center;justify-content:center;border:3px solid #667eea;">
-            <i class="fas fa-user-circle" style="font-size:64px;color:white;"></i>
+        <!-- Abas -->
+        <div class="perfil-tabs">
+          <button class="perfil-tab active" data-tab="dados" onclick="window.abrirTabPerfil('dados')">Dados</button>
+          <button class="perfil-tab" data-tab="relatorios" onclick="window.abrirTabPerfil('relatorios')">Relatórios</button>
+        </div>
+
+        <!-- Aba Dados -->
+        <div class="perfil-tab-content" id="tabDados">
+          <div style="text-align:center; margin-bottom:16px;">
+            <div class="avatar-preview" id="avatarPreview" style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin:0 auto 12px;background:#667eea;display:flex;align-items:center;justify-content:center;border:3px solid #667eea;">
+              <i class="fas fa-user-circle" style="font-size:64px;color:white;"></i>
+            </div>
+            <input type="file" id="avatarUpload" accept="image/*" style="display:none;" onchange="window.uploadAvatar(event)">
+            <button class="btn-secondary" onclick="document.getElementById('avatarUpload').click()">
+              <i class="fas fa-camera"></i> Trocar foto
+            </button>
           </div>
-          <input type="file" id="avatarUpload" accept="image/*" style="display:none;" onchange="window.uploadAvatar(event)">
-          <button class="btn-secondary" onclick="document.getElementById('avatarUpload').click()">
-            <i class="fas fa-camera"></i> Trocar foto
-          </button>
+          <div style="margin-bottom:16px;">
+            <label style="color:rgba(255,255,255,0.7);font-size:13px;">Nome</label>
+            <input type="text" id="perfilNome" class="modal-input" placeholder="Seu nome">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="color:rgba(255,255,255,0.7);font-size:13px;">Email</label>
+            <input type="text" id="perfilEmail" class="modal-input" disabled style="opacity:0.7;">
+          </div>
+          <div class="modal-actions">
+            <button class="btn-primary" onclick="window.salvarPerfil()">Salvar</button>
+            <button class="btn-secondary" onclick="window.fecharModalPerfil()">Cancelar</button>
+          </div>
         </div>
-        <div style="margin-bottom:16px;">
-          <label style="color:rgba(255,255,255,0.7);font-size:13px;">Nome</label>
-          <input type="text" id="perfilNome" class="modal-input" placeholder="Seu nome">
-        </div>
-        <div style="margin-bottom:16px;">
-          <label style="color:rgba(255,255,255,0.7);font-size:13px;">Email</label>
-          <input type="text" id="perfilEmail" class="modal-input" disabled style="opacity:0.7;">
-        </div>
-        <div class="modal-actions">
-          <button class="btn-primary" onclick="window.salvarPerfil()">Salvar</button>
-          <button class="btn-secondary" onclick="window.fecharModalPerfil()">Cancelar</button>
+
+        <!-- Aba Relatórios -->
+        <div class="perfil-tab-content" id="tabRelatorios" style="display:none;">
+          <div id="relatoriosContainer" style="color:white; max-height:400px; overflow-y:auto;">
+            <!-- Preenchido pelo JS -->
+          </div>
         </div>
       </div>
     </div>
