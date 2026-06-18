@@ -6,8 +6,7 @@ import {
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup,
-  updateProfile
+  signInWithPopup
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
@@ -394,12 +393,10 @@ async function carregarDadosFirebase() {
 function aplicarPerfil(profile) {
   if (!profile) return;
   const avatarEl = document.getElementById("userAvatar");
-  if (avatarEl) {
-    if (profile.avatar) {
-      avatarEl.innerHTML = `<img src="${profile.avatar}" alt="Avatar">`;
-    } else {
-      avatarEl.innerHTML = `<i class="fas fa-user-circle"></i>`;
-    }
+  if (profile.avatar) {
+    avatarEl.innerHTML = `<img src="${profile.avatar}" alt="Avatar">`;
+  } else {
+    avatarEl.innerHTML = `<i class="fas fa-user-circle"></i>`;
   }
   // Atualizar modal de perfil se estiver aberto
   const nomeInput = document.getElementById("perfilNome");
@@ -425,6 +422,7 @@ window.abrirModalPerfil = function() {
   const emailInput = document.getElementById("perfilEmail");
   if (nomeInput) nomeInput.value = profile.nome || "";
   if (emailInput && currentUser) emailInput.value = currentUser.email;
+  // Atualizar preview
   const preview = document.getElementById("avatarPreview");
   if (preview) {
     if (profile.avatar) {
@@ -433,6 +431,8 @@ window.abrirModalPerfil = function() {
       preview.innerHTML = `<i class="fas fa-user-circle" style="font-size:64px;color:white;"></i>`;
     }
   }
+  // Atualizar relatórios
+  gerarRelatorios();
   modal.classList.add("show");
 };
 
@@ -473,10 +473,122 @@ window.salvarPerfil = async function() {
       mostrarIndicadorSync("❌ Erro ao salvar perfil", "error");
     }
   }
-
   window._avatarTemp = null;
   fecharModalPerfil();
 };
+
+window.abrirTabPerfil = function(tab) {
+  document.querySelectorAll('.perfil-tab').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.perfil-tab-content').forEach(el => el.style.display = 'none');
+  document.querySelector(`.perfil-tab[data-tab="${tab}"]`)?.classList.add('active');
+  document.getElementById(`tab${capitalizarPrimeira(tab)}`)?.style.display = 'block';
+  if (tab === 'relatorios') gerarRelatorios();
+};
+
+/* =========================
+   RELATÓRIOS
+========================= */
+function gerarRelatorios() {
+  const container = document.getElementById("relatoriosContainer");
+  if (!container) return;
+
+  const hoje = getDataHoje();
+  const tarefasConcluidas = tarefas.filter(t => t.concluida);
+  const totalConcluidas = tarefasConcluidas.length;
+
+  // Últimos 30 dias
+  const data30dias = new Date();
+  data30dias.setDate(data30dias.getDate() - 30);
+  const data30Str = data30dias.toISOString().split('T')[0];
+  const concluidas30dias = tarefasConcluidas.filter(t => t.concluidaEm && t.concluidaEm.split('T')[0] >= data30Str);
+
+  // Tempo total focado
+  const totalFocoMin = Math.floor(tempoTotalFocado / 60);
+  const totalFocoHoras = Math.floor(totalFocoMin / 60);
+  const totalFocoResto = totalFocoMin % 60;
+
+  // Tarefas por prioridade
+  const prioridades = { p1: 0, p2: 0, p3: 0 };
+  tarefasConcluidas.forEach(t => {
+    if (t.prioridade) prioridades[t.prioridade] = (prioridades[t.prioridade] || 0) + 1;
+  });
+
+  // Tarefas por espaço (bloco)
+  const porBloco = {};
+  tarefasConcluidas.forEach(t => {
+    if (t.bloco) porBloco[t.bloco] = (porBloco[t.bloco] || 0) + 1;
+  });
+  const topBlocos = Object.entries(porBloco).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+  // Tarefas por dia (últimos 7 dias)
+  const porDia = {};
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    porDia[key] = 0;
+  }
+  tarefasConcluidas.forEach(t => {
+    if (t.concluidaEm) {
+      const key = t.concluidaEm.split('T')[0];
+      if (porDia[key] !== undefined) porDia[key]++;
+    }
+  });
+
+  // Últimas tarefas concluídas (5 mais recentes)
+  const ultimasConcluidas = tarefasConcluidas
+    .filter(t => t.concluidaEm)
+    .sort((a, b) => new Date(b.concluidaEm) - new Date(a.concluidaEm))
+    .slice(0, 5);
+
+  // Montar HTML
+  let html = `
+    <div class="relatorio-titulo">📊 Resumo Geral</div>
+    <div class="relatorio-stat"><span class="label">Total de tarefas concluídas</span><span class="value">${totalConcluidas}</span></div>
+    <div class="relatorio-stat"><span class="label">Concluídas nos últimos 30 dias</span><span class="value">${concluidas30dias.length}</span></div>
+    <div class="relatorio-stat"><span class="label">Tempo total focado</span><span class="value">${totalFocoHoras}h ${totalFocoResto}m</span></div>
+    <div class="relatorio-stat"><span class="label">Tarefas reagendadas hoje</span><span class="value">${tarefasReagendadasHoje}</span></div>
+
+    <div class="relatorio-titulo">🎯 Por Prioridade</div>
+    <div class="relatorio-stat"><span class="label">🔴 Alta (p1)</span><span class="value">${prioridades.p1 || 0}</span></div>
+    <div class="relatorio-stat"><span class="label">🟡 Média (p2)</span><span class="value">${prioridades.p2 || 0}</span></div>
+    <div class="relatorio-stat"><span class="label">🟢 Baixa (p3)</span><span class="value">${prioridades.p3 || 0}</span></div>
+
+    <div class="relatorio-titulo">📁 Top Espaços</div>
+    ${topBlocos.length > 0 ? topBlocos.map(([nome, qtd]) => `
+      <div class="relatorio-stat"><span class="label">${escapeHtml(nome)}</span><span class="value">${qtd}</span></div>
+    `).join('') : '<div class="relatorio-sub">Nenhuma tarefa concluída por espaço ainda.</div>'}
+
+    <div class="relatorio-titulo">📅 Últimos 7 Dias</div>
+    ${Object.entries(porDia).map(([data, qtd]) => {
+      const d = new Date(data + 'T00:00:00');
+      const diaSemana = d.toLocaleDateString('pt-BR', { weekday: 'short' });
+      return `<div class="relatorio-stat"><span class="label">${diaSemana} ${data}</span><span class="value">${qtd}</span></div>`;
+    }).join('')}
+
+    <div class="relatorio-titulo">⏱️ Últimas Concluídas</div>
+    ${ultimasConcluidas.length > 0 ? ultimasConcluidas.map(t => `
+      <div class="relatorio-item">
+        <span class="nome">${escapeHtml(t.texto)}</span>
+        <span class="tempo">${t.concluidaEm ? new Date(t.concluidaEm).toLocaleDateString('pt-BR') : ''}</span>
+      </div>
+    `).join('') : '<div class="relatorio-sub">Nenhuma tarefa concluída ainda.</div>'}
+
+    <div class="relatorio-titulo">📈 Taxa de Conclusão (hoje)</div>
+    <div class="relatorio-stat destaque"><span class="label">${getDataHoje()}</span><span class="value">${calcularTaxaConclusaoHoje()}%</span></div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function calcularTaxaConclusaoHoje() {
+  const hoje = getDataHoje();
+  const hojePendentes = tarefas.filter(t => t.data === hoje && !t.concluida).length;
+  const hojeConcluidas = tarefas.filter(t => t.data === hoje && t.concluida).length;
+  const total = hojePendentes + hojeConcluidas;
+  if (total === 0) return 0;
+  return Math.round((hojeConcluidas / total) * 100);
+}
 
 /* =========================
    INDEXEDDB BACKUP
@@ -1478,7 +1590,7 @@ function gerarCelulaDia(dataStr, dia, hoje, expandido = false, isMobile = false)
 }
 
 /* =========================
-   RENDER TAREFAS (CARDS)
+   RENDER TAREFAS (CARDS) - COM RESUMO
 ========================= */
 function renderizarTarefas() {
   const container = document.getElementById("blocosTarefas");
@@ -1493,6 +1605,15 @@ function renderizarTarefas() {
     });
     const ativas = lista.filter((t) => !t.concluida).length;
     const cardId = card.id;
+
+    // Resumo do card
+    const totalConcluidas = tarefas.filter(t => t.bloco === card.nome && t.concluida).length;
+    const ultimos30Dias = tarefas.filter(t => {
+      if (!t.concluidaEm) return false;
+      const dataConclusao = t.concluidaEm.split('T')[0];
+      return t.bloco === card.nome && dataConclusao >= getDataHoje30Dias();
+    }).length;
+
     const tarefasHtml = lista
       .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
       .map((t) => {
@@ -1535,11 +1656,13 @@ function renderizarTarefas() {
         </div>`;
       })
       .join("");
+
     const div = document.createElement("div");
     div.className = "card-espaco";
     div.setAttribute("ondragover", "permitirDropCard(event)");
     div.setAttribute("ondragleave", "removerDragOver(event)");
     div.setAttribute("ondrop", `soltarTarefa(event, '${escapeHtml(card.nome).replace(/'/g, "\\'")}', null)`);
+
     div.innerHTML = `
       <div class="card-header">
         <span><i class="fas fa-list-ul"></i> ${escapeHtml(card.nome)}</span>
@@ -1550,15 +1673,19 @@ function renderizarTarefas() {
         </div>
       </div>
       <div class="card-content">
-        ${lista.length === 0 ? `<div class="estado-vazio" style="text-align:center;padding:40px;">
-          <i class="fas fa-check-circle" style="font-size:32px;opacity:0.5;"></i>
-          <p style="color:white;">Tudo certo</p>
-          <small style="color:rgba(255,255,255,0.5);">Adicione uma tarefa</small>
+        ${lista.length === 0 ? `<div class="estado-vazio">
+          <i class="fas fa-check-circle"></i>
+          <p>Tudo certo</p>
+          <small>Adicione uma tarefa</small>
         </div>` : tarefasHtml}
       </div>
       <button class="btn-nova-tarefa" onclick="mostrarFormAdicionar('${cardId}')">
         <i class="fas fa-plus-circle"></i> Nova Tarefa
       </button>
+      <div class="card-resumo-tarefas">
+        <span><i class="fas fa-check-circle"></i> ${totalConcluidas} concluídas</span>
+        <span><i class="fas fa-calendar-alt"></i> ${ultimos30Dias} nos últimos 30 dias</span>
+      </div>
       <div class="inline-form" id="form-${cardId}">
         <input type="text" id="texto-${cardId}" placeholder="Título...">
         <textarea id="descricao-${cardId}" placeholder="Descrição..." rows="2"></textarea>
@@ -1581,13 +1708,21 @@ function renderizarTarefas() {
         </div>
       </div>
     `;
+
     container.appendChild(div);
   });
+
   const addCard = document.createElement("div");
   addCard.className = "card-novo-espaco";
   addCard.onclick = () => adicionarCardTarefa();
   addCard.innerHTML = `<div><i class="fas fa-plus-circle"></i><p>Novo Espaço</p></div>`;
   container.appendChild(addCard);
+}
+
+function getDataHoje30Dias() {
+  const d = new Date();
+  d.setDate(d.getDate() - 30);
+  return d.toISOString().split('T')[0];
 }
 
 /* =========================
@@ -1641,7 +1776,6 @@ function fecharDropdownUser() {
 }
 
 function bindUI() {
-  // Dropdown toggle
   const dropdownToggle = document.getElementById("dropdownToggle");
   const dropdownMenu = document.getElementById("dropdownMenuUser");
   if (dropdownToggle && dropdownMenu) {
@@ -1702,7 +1836,14 @@ function bindUI() {
     fecharDropdownUser();
   });
 
-  // Fechar modais com clique no overlay
+  document.getElementById("relatoriosBtn")?.addEventListener("click", () => {
+    abrirModalPerfil();
+    setTimeout(() => {
+      window.abrirTabPerfil('relatorios');
+    }, 100);
+    fecharDropdownUser();
+  });
+
   document.querySelectorAll(".modal-descricao-overlay, .modal-backup-overlay, .modal-edicao-overlay, .modal-reagendar-overlay, .modal-notificacoes-overlay, .modal-perfil-overlay").forEach(overlay => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) {
