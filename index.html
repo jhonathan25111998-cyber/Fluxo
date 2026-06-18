@@ -71,37 +71,41 @@
 
   <!-- APP -->
   <div class="container" id="mainApp" style="display:block;">
-    <!-- HEADER CENTRALIZADO -->
+    <!-- HEADER REORGANIZADO -->
     <div class="header-fluxo">
-      <div class="header-central">
-        <div class="header-logo-avatar">
-          <div class="user-avatar" id="userAvatar" onclick="window.abrirModalPerfil()">
-            <i class="fas fa-user-circle"></i>
-          </div>
-          <div class="logo-img">
-            <img src="logo.png" alt="FLUXO" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-            <div class="logo-fallback" style="display:none;">
-              <i class="fas fa-tasks"></i>
-            </div>
-          </div>
-          <div class="logo-texto">
-            <div class="logo-titulo">FLUXO</div>
-            <div class="logo-subtitulo">Organize. Execute. Flua.</div>
-          </div>
+      <!-- Lado esquerdo: Avatar + FLUXO + slogan -->
+      <div class="header-left">
+        <div class="user-avatar" id="userAvatar" onclick="window.abrirModalPerfil()">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="logo-texto">
+          <div class="logo-titulo">FLUXO</div>
+          <div class="logo-subtitulo">Organize. Execute. Flua.</div>
         </div>
       </div>
 
-      <!-- Dropdown do usuário (canto superior direito) -->
-      <div class="user-dropdown" id="userDropdown">
-        <button class="dropdown-toggle" id="dropdownToggle"><i class="fas fa-ellipsis-v"></i></button>
-        <div class="dropdown-menu-user" id="dropdownMenuUser">
-          <button class="dropdown-item" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Sincronizar</button>
-          <button class="dropdown-item" id="rescheduleBtn"><i class="fas fa-calendar-plus"></i> Reagendar</button>
-          <button class="dropdown-item" id="backupBtn"><i class="fas fa-database"></i> Backup</button>
-          <button class="dropdown-item" id="notifyBtn"><i class="fas fa-bell"></i> Notificações</button>
-          <button class="dropdown-item" id="themeToggle"><i class="fas fa-moon"></i> Tema</button>
-          <button class="dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
-          <button class="dropdown-item" id="relatoriosBtn"><i class="fas fa-chart-bar"></i> Relatórios</button>
+      <!-- Lado direito: Tema, Avatar pequeno, Nome, Badge Pro, Dropdown -->
+      <div class="header-right">
+        <button class="theme-toggle" id="themeToggle" title="Alternar tema (Roxo → Claro → Escuro)">
+          <i class="fas fa-palette"></i>
+        </button>
+        <div class="user-info">
+          <div class="user-avatar-small" id="userAvatarSmall" onclick="window.abrirModalPerfil()">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <span class="user-name" id="userNameDisplay">Usuário</span>
+          <span class="user-badge">Pro</span>
+        </div>
+        <div class="user-dropdown" id="userDropdown">
+          <button class="dropdown-toggle" id="dropdownToggle"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="dropdown-menu-user" id="dropdownMenuUser">
+            <button class="dropdown-item" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Sincronizar</button>
+            <button class="dropdown-item" id="rescheduleBtn"><i class="fas fa-calendar-plus"></i> Reagendar</button>
+            <button class="dropdown-item" id="backupBtn"><i class="fas fa-database"></i> Backup</button>
+            <button class="dropdown-item" id="notifyBtn"><i class="fas fa-bell"></i> Notificações</button>
+            <button class="dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            <button class="dropdown-item" id="relatoriosBtn"><i class="fas fa-chart-bar"></i> Relatórios</button>
+          </div>
         </div>
       </div>
     </div>
@@ -123,15 +127,12 @@
         <button class="top-action-btn" onclick="window.adicionarCardTarefa()"><i class="fas fa-plus-circle"></i> Novo Espaço</button>
         <button class="top-action-btn" onclick="window.marcarTodasHoje()"><i class="fas fa-check-double"></i> Concluir todas</button>
       </div>
-
-      <!-- ALERTA DE TAREFAS -->
       <div class="alerta-tarefas" id="dashboardAlerta" style="display:none;">
         <div class="alerta-conteudo">
           <i class="fas fa-bell"></i>
           <span id="alertaTexto">Você tem tarefas pendentes!</span>
         </div>
       </div>
-
       <button class="metas-toggle-btn" id="metasToggleBtn" onclick="window.togglePainelMetas()">Ver metas</button>
     </div>
 
@@ -364,7 +365,7 @@
     </div>
   </div>
 
-  <!-- MODAL PERFIL (com relatórios) -->
+  <!-- MODAL PERFIL -->
   <div class="modal-perfil-overlay" id="modalPerfilOverlay">
     <div class="modal-conteudo" style="width:600px; max-width:95%;">
       <div class="modal-header">
@@ -372,13 +373,10 @@
         <button class="modal-close" onclick="window.fecharModalPerfil()"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body">
-        <!-- Abas -->
         <div class="perfil-tabs">
           <button class="perfil-tab active" data-tab="dados" onclick="window.abrirTabPerfil('dados')">Dados</button>
           <button class="perfil-tab" data-tab="relatorios" onclick="window.abrirTabPerfil('relatorios')">Relatórios</button>
         </div>
-
-        <!-- Aba Dados -->
         <div class="perfil-tab-content" id="tabDados">
           <div style="text-align:center; margin-bottom:16px;">
             <div class="avatar-preview" id="avatarPreview" style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin:0 auto 12px;background:#667eea;display:flex;align-items:center;justify-content:center;border:3px solid #667eea;">
@@ -402,12 +400,8 @@
             <button class="btn-secondary" onclick="window.fecharModalPerfil()">Cancelar</button>
           </div>
         </div>
-
-        <!-- Aba Relatórios -->
         <div class="perfil-tab-content" id="tabRelatorios" style="display:none;">
-          <div id="relatoriosContainer" style="max-height:400px; overflow-y:auto;">
-            <!-- Preenchido pelo JS -->
-          </div>
+          <div id="relatoriosContainer" style="max-height:400px; overflow-y:auto;"></div>
         </div>
       </div>
     </div>
