@@ -6,7 +6,8 @@ import {
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  updateProfile
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
@@ -393,10 +394,12 @@ async function carregarDadosFirebase() {
 function aplicarPerfil(profile) {
   if (!profile) return;
   const avatarEl = document.getElementById("userAvatar");
-  if (profile.avatar) {
-    avatarEl.innerHTML = `<img src="${profile.avatar}" alt="Avatar">`;
-  } else {
-    avatarEl.innerHTML = `<i class="fas fa-user-circle"></i>`;
+  if (avatarEl) {
+    if (profile.avatar) {
+      avatarEl.innerHTML = `<img src="${profile.avatar}" alt="Avatar">`;
+    } else {
+      avatarEl.innerHTML = `<i class="fas fa-user-circle"></i>`;
+    }
   }
   // Atualizar modal de perfil se estiver aberto
   const nomeInput = document.getElementById("perfilNome");
@@ -422,7 +425,6 @@ window.abrirModalPerfil = function() {
   const emailInput = document.getElementById("perfilEmail");
   if (nomeInput) nomeInput.value = profile.nome || "";
   if (emailInput && currentUser) emailInput.value = currentUser.email;
-  // Atualizar preview
   const preview = document.getElementById("avatarPreview");
   if (preview) {
     if (profile.avatar) {
@@ -448,7 +450,6 @@ window.uploadAvatar = function(event) {
     if (preview) {
       preview.innerHTML = `<img src="${dataUrl}" alt="Avatar">`;
     }
-    // Salvar temporariamente para enviar ao salvar
     window._avatarTemp = dataUrl;
   };
   reader.readAsDataURL(file);
@@ -460,11 +461,9 @@ window.salvarPerfil = async function() {
   const profile = { nome };
   if (avatar) profile.avatar = avatar;
 
-  // Salvar localmente
   localStorage.setItem("profile", JSON.stringify(profile));
   aplicarPerfil(profile);
 
-  // Salvar no Firebase
   if (currentUser) {
     try {
       await updateDoc(doc(db, "usuarios", currentUser.uid), { profile });
