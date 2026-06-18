@@ -71,9 +71,8 @@ body.dark-theme .metas-toggle-btn { background: linear-gradient(135deg, #7c3aed,
 body.dark-theme .estado-vazio i { color: rgba(255,255,255,0.3); }
 body.dark-theme .estado-vazio p { color: rgba(255,255,255,0.8); }
 body.dark-theme .estado-vazio small { color: rgba(255,255,255,0.4); }
-body.dark-theme .data-hoje { color: rgba(255,255,255,0.8); }
-body.dark-theme .data-card-mobile .data-badge { color: #fff; background: rgba(255,255,255,0.1); }
-body.dark-theme .data-card-mobile .data-badge i { color: #fff; }
+body.dark-theme .data-badge { color: #fff; background: rgba(255,255,255,0.1); }
+body.dark-theme .data-badge i { color: #fff; }
 
 /* ===== MODO CLARO ===== */
 body.light-theme {
@@ -151,17 +150,6 @@ body.light-theme .estado-vazio p {
 }
 body.light-theme .estado-vazio small {
   color: rgba(0,0,0,0.5) !important;
-}
-
-body.light-theme .data-hoje {
-  color: #1a1a2e !important;
-}
-body.light-theme .data-card-mobile .data-badge {
-  color: #1a1a2e !important;
-  background: rgba(0, 0, 0, 0.06) !important;
-}
-body.light-theme .data-card-mobile .data-badge i {
-  color: #1a1a2e !important;
 }
 
 body.light-theme .tarefa-item {
@@ -444,6 +432,32 @@ body.light-theme .avatar-preview i {
   color: #1a1a2e !important;
 }
 
+/* ===== DATA MOBILE (CORRIGIDO) ===== */
+.data-card-mobile {
+  display: none;
+}
+.data-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 20px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.1);
+}
+.data-badge i {
+  color: #fff;
+}
+
+body.light-theme .data-badge {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
+body.light-theme .data-badge i {
+  color: #1a1a2e;
+}
+
 /* ===== INDICADORES ===== */
 .sync-indicator {
   position: fixed;
@@ -673,26 +687,6 @@ body.light-theme .avatar-preview i {
   color: #fff;
 }
 .dropdown-menu-user .dropdown-item i { width: 18px; text-align: center; }
-
-/* ===== DATA/HORA NO HEADER ===== */
-.data-hoje {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
-}
-
-.data-card-mobile {
-  display: none;
-}
-.data-card-mobile .data-badge {
-  color: #fff;
-  font-size: 12px;
-  border-radius: 20px;
-  padding: 6px 12px;
-  background: rgba(255,255,255,0.1);
-}
-.data-card-mobile .data-badge i {
-  color: #fff;
-}
 
 /* ===== LINHA DE BOTÕES ===== */
 .linha-botoes {
@@ -1190,6 +1184,8 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
+  body { padding: 12px; padding-bottom: 80px; }
+
   .header-fluxo { min-height: 70px; }
   .header-logo-avatar { gap: 10px; }
   .user-avatar { width: 36px; height: 36px; }
@@ -1216,7 +1212,7 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
   .modal-dia-lista { max-height: 44vh; }
 
   .data-hoje { display: none; }
-  .data-card-mobile { display: flex; justify-content: center; margin-bottom: 16px; }
+  .data-card-mobile { display: flex; justify-content: center; margin-bottom: 12px; }
 
   .footer-stats { height: 48px; }
   .footer-stats-item { font-size: 10px; gap: 4px; }
@@ -1229,6 +1225,8 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
 }
 
 @media (max-width: 480px) {
+  body { padding: 8px; padding-bottom: 80px; }
+
   .blocos-tarefas { grid-template-columns: 1fr; }
   .task-actions-2x2 { grid-template-columns: 28px 28px; gap: 3px; }
   .task-action-btn { width: 28px; height: 28px; }
