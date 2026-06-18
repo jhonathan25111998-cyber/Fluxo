@@ -385,7 +385,7 @@ body.light-theme .btn-nova-tarefa i {
 
 /* ---- FORMULÁRIO INLINE (ADICIONAR TAREFA) ---- */
 body.light-theme .inline-form {
-  background: rgba(0,0,0,0.03); /* cinza bem clarinho */
+  background: rgba(0,0,0,0.03);
   border: 1px solid rgba(0,0,0,0.08);
 }
 body.light-theme .inline-form input,
@@ -404,7 +404,7 @@ body.light-theme .inline-form select option {
   color: #1a1a2e;
 }
 body.light-theme .btn-confirm {
-  color: #fff; /* mantém branco, fundo gradiente */
+  color: #fff;
 }
 body.light-theme .btn-cancel {
   color: #1a1a2e;
@@ -494,6 +494,54 @@ body.light-theme .btn-secondary {
 }
 body.light-theme .btn-secondary i {
   color: #1a1a2e;
+}
+
+/* ---- MODAL DIA (CALENDÁRIO) MODO CLARO ---- */
+body.light-theme #modalDiaResumo {
+  color: #1a1a2e !important; /* Sobrescreve estilo inline */
+}
+body.light-theme .modal-dia-item {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+  color: #1a1a2e;
+}
+body.light-theme .modal-dia-title {
+  color: #1a1a2e;
+}
+body.light-theme .modal-dia-desc {
+  color: rgba(0,0,0,0.7);
+}
+body.light-theme .modal-dia-tag {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
+body.light-theme .modal-dia-empty {
+  color: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-theme .modal-dia-btn {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
+body.light-theme .modal-dia-btn i {
+  color: inherit;
+}
+body.light-theme .modal-dia-btn:hover {
+  background: rgba(124,58,237,0.12);
+}
+body.light-theme .modal-dia-btn.danger:hover {
+  background: rgba(239,68,68,0.12);
+}
+body.light-theme .modal-dia-add-title {
+  color: #1a1a2e;
+}
+body.light-theme .modal-dia-add-title i {
+  color: inherit;
+}
+body.light-theme .modal-dia-add {
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.08);
 }
 
 /* ---- BACKUP ---- */
@@ -587,7 +635,7 @@ body.light-theme .data-badge i {
   color: #1a1a2e;
 }
 
-/* ---- LOGIN ---- */
+/* ---- LOGIN (CORREÇÃO FINAL) ---- */
 body.light-theme .login-container {
   background: rgba(255,255,255,0.95);
   border-color: rgba(0,0,0,0.1);
@@ -595,8 +643,9 @@ body.light-theme .login-container {
 body.light-theme .login-container h2 {
   color: #1a1a2e;
 }
+/* Força o slogan a ficar visível, sobrescrevendo o estilo inline */
 body.light-theme .login-container p {
-  color: rgba(0,0,0,0.7); /* Frase "Organize. Execute. Flua." agora visível */
+  color: #1a1a2e !important;
 }
 body.light-theme .login-container input {
   background: rgba(0,0,0,0.05);
@@ -632,9 +681,7 @@ body.light-theme .password-container input {
 
 /* ============================
    ESTILOS GERAIS DE SELECT/OPTION PARA TODOS OS TEMAS
-   (garantindo visibilidade ao clicar)
 ============================ */
-/* Tema padrão (roxo/escuro) */
 body.purple-theme select,
 body.purple-theme .modal-select,
 body.purple-theme .inline-form select {
@@ -648,7 +695,6 @@ body.purple-theme .inline-form select option {
   color: #fff;
 }
 
-/* Tema escuro */
 body.dark-theme select,
 body.dark-theme .modal-select,
 body.dark-theme .inline-form select {
@@ -662,7 +708,6 @@ body.dark-theme .inline-form select option {
   color: #fff;
 }
 
-/* Tema claro (já definido acima, mas reforçando) */
 body.light-theme select,
 body.light-theme .modal-select,
 body.light-theme .inline-form select {
@@ -800,7 +845,7 @@ body.light-theme .inline-form select option {
   min-height: 70px;
   margin-bottom: 20px;
   position: relative;
-  z-index: 10; /* contexto de empilhamento */
+  z-index: 10;
 }
 
 .header-left {
@@ -925,7 +970,7 @@ body.light-theme .inline-form select option {
 /* ===== DROPDOWN ===== */
 .user-dropdown {
   position: relative;
-  z-index: 10; /* garante que o dropdown fique no contexto correto */
+  z-index: 10;
 }
 .dropdown-toggle {
   width: 34px;
@@ -955,7 +1000,7 @@ body.light-theme .inline-form select option {
   border-radius: 12px;
   padding: 8px 0;
   min-width: 180px;
-  z-index: 3000; /* Aumentado para ficar sobre os botões da linha */
+  z-index: 3000; /* Garante que fique sobre os botões da linha */
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
@@ -990,7 +1035,7 @@ body.light-theme .inline-form select option {
   margin-bottom: 12px;
   padding: 8px 0;
   position: relative;
-  z-index: 1; /* inferior ao dropdown */
+  z-index: 1;
 }
 .view-toggle {
   display: flex;
@@ -1509,7 +1554,7 @@ body.dark-theme .cal-task.p3 { border-left-color: #4ade80; }
   color: inherit;
 }
 
-/* ===== MODAL DIA ===== */
+/* ===== MODAL DIA (compartilhado) ===== */
 .modal-dia-add {
   margin-bottom: 14px;
   padding: 12px;
