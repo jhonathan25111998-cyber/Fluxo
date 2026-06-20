@@ -6,7 +6,9 @@ import {
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
@@ -271,7 +273,7 @@ window.mostrarIndicadorSync = function (mensagem, tipo = "success") {
 };
 
 /* =========================
-   LOGIN
+   LOGIN (CORRIGIDO)
 ========================= */
 window.togglePasswordVisibility = (id, btn) => {
   const inp = document.getElementById(id);
@@ -300,41 +302,114 @@ window.mostrarLogin = () => {
 };
 
 window.fazerLogin = async () => {
+  const emailInput = document.getElementById("loginEmail");
+  const passwordInput = document.getElementById("loginPassword");
+  const errEl = document.getElementById("loginErrorMessage");
+  
+  if (!emailInput || !passwordInput) {
+    if (errEl) errEl.textContent = "Erro interno. Tente recarregar.";
+    return;
+  }
+
+  const email = emailInput.value.trim();
+  const senha = passwordInput.value;
+
+  if (!email || !senha) {
+    if (errEl) errEl.textContent = "Preencha email e senha.";
+    return;
+  }
+
   try {
-    const email = document.getElementById("loginEmail")?.value?.trim();
-    const senha = document.getElementById("loginPassword")?.value;
     await signInWithEmailAndPassword(auth, email, senha);
-  } catch {
-    const err = document.getElementById("loginErrorMessage");
-    if (err) err.textContent = "Email ou senha inválidos!";
+    // O onAuthStateChanged vai lidar com a navegação
+    if (errEl) errEl.textContent = "";
+  } catch (error) {
+    console.error(error);
+    if (errEl) {
+      if (error.code === 'auth/user-not-found') {
+        errEl.textContent = "Usuário não encontrado. Cadastre-se primeiro.";
+      } else if (error.code === 'auth/wrong-password') {
+        errEl.textContent = "Senha incorreta.";
+      } else if (error.code === 'auth/invalid-email') {
+        errEl.textContent = "Email inválido.";
+      } else if (error.code === 'auth/too-many-requests') {
+        errEl.textContent = "Muitas tentativas. Tente mais tarde.";
+      } else {
+        errEl.textContent = error.message || "Erro ao fazer login.";
+      }
+    }
   }
 };
 
 window.fazerCadastro = async () => {
-  const email = document.getElementById("registerEmail")?.value?.trim();
-  const pwd = document.getElementById("registerPassword")?.value;
-  const conf = document.getElementById("registerConfirm")?.value;
-  const err = document.getElementById("registerErrorMessage");
-  if (pwd !== conf) {
-    if (err) err.textContent = "Senhas não coincidem";
+  const emailEl = document.getElementById("registerEmail");
+  const pwdEl = document.getElementById("registerPassword");
+  const confEl = document.getElementById("registerConfirm");
+  const errEl = document.getElementById("registerErrorMessage");
+
+  if (!emailEl || !pwdEl || !confEl) {
+    if (errEl) errEl.textContent = "Erro interno. Tente recarregar.";
     return;
   }
+
+  const email = emailEl.value.trim();
+  const pwd = pwdEl.value;
+  const conf = confEl.value;
+
+  if (pwd !== conf) {
+    if (errEl) errEl.textContent = "Senhas não coincidem";
+    return;
+  }
+
+  if (pwd.length < 6) {
+    if (errEl) errEl.textContent = "Senha deve ter pelo menos 6 caracteres";
+    return;
+  }
+
   try {
     await createUserWithEmailAndPassword(auth, email, pwd);
     mostrarIndicadorSync("✅ Conta criada!");
-  } catch (e) {
-    if (err) err.textContent = e.message || "Erro ao cadastrar";
+    if (errEl) errEl.textContent = "";
+  } catch (error) {
+    console.error(error);
+    if (errEl) {
+      if (error.code === 'auth/email-already-in-use') {
+        errEl.textContent = "Email já cadastrado.";
+      } else if (error.code === 'auth/invalid-email') {
+        errEl.textContent = "Email inválido.";
+      } else {
+        errEl.textContent = error.message || "Erro ao cadastrar.";
+      }
+    }
   }
 };
 
 window.loginComGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    mostrarIndicadorSync(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!`);
-  } catch {
-    mostrarIndicadorSync("❌ Erro no login com Google", "error");
+    await signInWithRedirect(auth, googleProvider);
+    // O redirecionamento vai ocorrer, depois voltamos para handleGoogleRedirect
+  } catch (error) {
+    console.error(error);
+    mostrarIndicadorSync("❌ Erro ao iniciar login com Google", "error");
   }
 };
+
+// Função para processar o redirect do Google
+async function handleGoogleRedirect() {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result) {
+      mostrarIndicadorSync(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!`);
+    }
+  } catch (error) {
+    console.error(error);
+    if (error.code === 'auth/account-exists-with-different-credential') {
+      mostrarIndicadorSync("❌ Já existe uma conta com este email. Use a senha.", "error");
+    } else {
+      mostrarIndicadorSync("❌ Erro no login com Google", "error");
+    }
+  }
+}
 
 window.fazerLogout = () => signOut(auth);
 
@@ -1891,3 +1966,341 @@ function bindUI() {
   window.addEventListener("online", atualizarStatusConexao);
   window.addEventListener("offline", atualizarStatusConexao);
 }
+
+/* ============================================================
+   🎤 COMANDOS DE VOZ (Web Speech API)
+   ============================================================ */
+
+// Verifica se o navegador suporta reconhecimento de voz
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+// Estado do microfone
+let microfoneAtivo = false;
+let reconhecimentoEmAndamento = false;
+let timeoutReconhecimento = null;
+
+// Elemento do botão
+const btnMicrofone = document.getElementById('btnMicrofone');
+
+// Configuração do reconhecimento
+if (recognition) {
+  recognition.lang = 'pt-BR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = function(event) {
+    const ultimoResultado = event.results[event.results.length - 1];
+    if (ultimoResultado.isFinal) {
+      const texto = ultimoResultado[0].transcript.trim();
+      processarComandoVoz(texto);
+    }
+  };
+
+  recognition.onend = function() {
+    microfoneAtivo = false;
+    reconhecimentoEmAndamento = false;
+    if (btnMicrofone) {
+      btnMicrofone.classList.remove('listening');
+      btnMicrofone.innerHTML = '<i class="fas fa-microphone"></i>';
+    }
+    clearTimeout(timeoutReconhecimento);
+  };
+
+  recognition.onerror = function(event) {
+    console.error('Erro no reconhecimento de voz:', event.error);
+    if (event.error === 'not-allowed') {
+      mostrarIndicadorSync('❌ Permissão do microfone negada!', 'error');
+    } else if (event.error === 'no-speech') {
+      mostrarIndicadorSync('⏳ Nenhuma fala detectada. Tente novamente.', 'info');
+    } else {
+      mostrarIndicadorSync('❌ Erro: ' + event.error, 'error');
+    }
+    microfoneAtivo = false;
+    reconhecimentoEmAndamento = false;
+    if (btnMicrofone) {
+      btnMicrofone.classList.remove('listening');
+      btnMicrofone.innerHTML = '<i class="fas fa-microphone"></i>';
+    }
+    clearTimeout(timeoutReconhecimento);
+  };
+} else {
+  console.warn('Web Speech API não suportada neste navegador.');
+  if (btnMicrofone) {
+    btnMicrofone.style.opacity = '0.3';
+    btnMicrofone.title = 'Reconhecimento de voz não suportado';
+    btnMicrofone.disabled = true;
+  }
+}
+
+/**
+ * Alterna o estado do microfone (liga/desliga)
+ */
+window.toggleMicrofone = function() {
+  if (!recognition) {
+    mostrarIndicadorSync('❌ Reconhecimento de voz não suportado', 'error');
+    return;
+  }
+
+  if (microfoneAtivo) {
+    recognition.stop();
+    microfoneAtivo = false;
+    reconhecimentoEmAndamento = false;
+    if (btnMicrofone) {
+      btnMicrofone.classList.remove('listening');
+      btnMicrofone.innerHTML = '<i class="fas fa-microphone"></i>';
+    }
+    mostrarIndicadorSync('🛑 Microfone desligado', 'info');
+    return;
+  }
+
+  try {
+    recognition.start();
+    microfoneAtivo = true;
+    reconhecimentoEmAndamento = true;
+    if (btnMicrofone) {
+      btnMicrofone.classList.add('listening');
+      btnMicrofone.innerHTML = '<i class="fas fa-stop-circle"></i>';
+    }
+    mostrarIndicadorSync('🎤 Ouvindo... fale seu comando', 'info');
+
+    clearTimeout(timeoutReconhecimento);
+    timeoutReconhecimento = setTimeout(() => {
+      if (microfoneAtivo) {
+        recognition.stop();
+        mostrarIndicadorSync('⏱️ Tempo esgotado. Tente novamente.', 'info');
+      }
+    }, 10000);
+  } catch (e) {
+    console.error('Erro ao iniciar reconhecimento:', e);
+    mostrarIndicadorSync('❌ Erro ao acessar microfone', 'error');
+    microfoneAtivo = false;
+    reconhecimentoEmAndamento = false;
+    if (btnMicrofone) {
+      btnMicrofone.classList.remove('listening');
+      btnMicrofone.innerHTML = '<i class="fas fa-microphone"></i>';
+    }
+  }
+};
+
+// Evento de clique no botão
+if (btnMicrofone) {
+  btnMicrofone.addEventListener('click', window.toggleMicrofone);
+}
+
+/**
+ * Processa o comando de voz e cria a tarefa
+ * @param {string} texto - Texto transcrito da fala
+ */
+function processarComandoVoz(texto) {
+  const textoLimpo = texto.toLowerCase().trim();
+  console.log('📝 Comando recebido:', textoLimpo);
+
+  const padroes = [
+    /(?:adicionar|criar|nova|add)\s*(?:tarefa|task)?\s*(.+?)(?:\s*(?:no|em|no card|no espaço|em card|em espaço)\s*(.+))?/i,
+    /(?:tarefa|task)\s*(.+?)(?:\s*(?:no|em|no card|no espaço|em card|em espaço)\s*(.+))?/i
+  ];
+
+  let titulo = null;
+  let cardNome = null;
+
+  for (const padrao of padroes) {
+    const match = texto.match(padrao);
+    if (match) {
+      titulo = match[1]?.trim();
+      cardNome = match[2]?.trim();
+      if (titulo) break;
+    }
+  }
+
+  if (!titulo) {
+    const palavrasRemover = ['adicionar', 'criar', 'nova', 'tarefa', 'task', 'add'];
+    let textoAux = textoLimpo;
+    for (const palavra of palavrasRemover) {
+      textoAux = textoAux.replace(new RegExp(`^${palavra}\\s+`, 'i'), '');
+    }
+    if (textoAux.length > 0) {
+      titulo = textoAux;
+    }
+  }
+
+  if (!titulo) {
+    mostrarIndicadorSync('❌ Não entendi o comando. Tente: "Adicionar tarefa <título> no card <nome>"', 'error');
+    return;
+  }
+
+  titulo = titulo.charAt(0).toUpperCase() + titulo.slice(1);
+
+  if (!cardNome) {
+    if (cardsTarefas.length > 0) {
+      cardNome = cardsTarefas[0].nome;
+    } else {
+      cardsTarefas.push({ id: 'default_' + Date.now(), nome: 'Minhas Tarefas' });
+      cardNome = 'Minhas Tarefas';
+    }
+    mostrarIndicadorSync(`ℹ️ Nenhum card especificado. Usando "${cardNome}"`, 'info');
+  }
+
+  const card = cardsTarefas.find(c => c.nome.toLowerCase() === cardNome.toLowerCase());
+  if (!card) {
+    mostrarIndicadorSync(`❌ Card "${cardNome}" não encontrado.`, 'error');
+    return;
+  }
+
+  let prioridade = 'p2';
+  if (/\b(urgente|alta|importante|prioridade alta|prioridade 1|p1)\b/i.test(texto)) {
+    prioridade = 'p1';
+  } else if (/\b(baixa|tranquilo|fácil|prioridade baixa|prioridade 3|p3)\b/i.test(texto)) {
+    prioridade = 'p3';
+  }
+
+  let recorrencia = '';
+  if (/\b(diária|todo dia|diariamente|recorrente diária|recorrencia diaria)\b/i.test(texto)) {
+    recorrencia = 'diaria';
+  } else if (/\b(dias úteis|dias uteis|recorrente dias úteis|recorrencia dias uteis)\b/i.test(texto)) {
+    recorrencia = 'dias_uteis';
+  } else if (/\b(semanal|toda semana|recorrente semanal|recorrencia semanal)\b/i.test(texto)) {
+    recorrencia = 'semanal';
+  } else if (/\b(mensal|todo mês|recorrente mensal|recorrencia mensal)\b/i.test(texto)) {
+    recorrencia = 'mensal';
+  }
+
+  let data = getDataHoje();
+  if (/\b(amanhã|amanha)\b/i.test(texto)) {
+    const amanha = new Date();
+    amanha.setDate(amanha.getDate() + 1);
+    data = `${amanha.getFullYear()}-${String(amanha.getMonth() + 1).padStart(2, '0')}-${String(amanha.getDate()).padStart(2, '0')}`;
+  } else if (/\b(hoje)\b/i.test(texto)) {
+    data = getDataHoje();
+  } else {
+    const dataMatch = texto.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?/);
+    if (dataMatch) {
+      const dia = parseInt(dataMatch[1]);
+      const mes = parseInt(dataMatch[2]) - 1;
+      const ano = dataMatch[3] ? parseInt(dataMatch[3]) : new Date().getFullYear();
+      const dataObj = new Date(ano, mes, dia);
+      if (!isNaN(dataObj)) {
+        data = `${dataObj.getFullYear()}-${String(dataObj.getMonth() + 1).padStart(2, '0')}-${String(dataObj.getDate()).padStart(2, '0')}`;
+      }
+    }
+  }
+
+  const novaTarefa = {
+    id: uid(),
+    texto: titulo,
+    descricao: '',
+    bloco: card.nome,
+    data: data,
+    prioridade: prioridade,
+    recorrencia: recorrencia,
+    concluida: false,
+    concluidaEm: null,
+    tempoGasto: 0,
+    notificado: false,
+    ordem: tarefas.filter(t => t.bloco === card.nome && !t.concluida).length,
+    criadoEm: new Date().toISOString()
+  };
+
+  normalizarTarefaRecorrente(novaTarefa);
+  tarefas.push(novaTarefa);
+  salvarDados();
+
+  const emoji = prioridade === 'p1' ? '🔴' : prioridade === 'p3' ? '🟢' : '🟡';
+  const recLabel = recorrencia ? ` (${recorrencia})` : '';
+  mostrarIndicadorSync(`🎤 Tarefa "${titulo}" adicionada em "${card.nome}" ${emoji} ${recLabel}`, 'success');
+
+  if (window.speechSynthesis) {
+    const utterance = new SpeechSynthesisUtterance(`Tarefa "${titulo}" adicionada com sucesso.`);
+    utterance.lang = 'pt-BR';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+/* =========================
+   INIT
+========================= */
+async function initApp() {
+  await initIndexedDB();
+  verificarResetDiario();
+  aplicarTemaSalvo();
+  bindUI();
+  atualizarStatusConexao();
+
+  // Processar redirect do Google (se houver)
+  await handleGoogleRedirect();
+
+  const dataHeader = document.getElementById("dataHojeHeader");
+  const dataMobile = document.getElementById("dataHojeMobile");
+  const textoData = formatarDataHeader(new Date());
+  if (dataHeader) dataHeader.textContent = textoData;
+  if (dataMobile) dataMobile.textContent = textoData;
+
+  const savedView = localStorage.getItem(VIEW_STORAGE_KEY);
+  setView(savedView === "calendario" ? "calendario" : "cards", false);
+
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile && !localStorage.getItem("modoCalendario")) {
+    modoCalendario = "semana";
+    localStorage.setItem("modoCalendario", modoCalendario);
+  }
+  document.querySelectorAll(".cal-view-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.view === modoCalendario);
+  });
+
+  if ("Notification" in window) {
+    Notification.requestPermission();
+  }
+
+  window.addEventListener("resize", () => {
+    const mobile = window.innerWidth <= 768;
+    const atual = localStorage.getItem("modoCalendario");
+    if (mobile && !atual) {
+      modoCalendario = "semana";
+      localStorage.setItem("modoCalendario", "semana");
+      renderizarCalendario();
+    }
+    renderizarCalendario();
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    window.currentUser = user || null;
+    const loginOverlay = document.getElementById("loginOverlay");
+    const mainApp = document.getElementById("mainApp");
+    if (user) {
+      usuarioAtual = user.uid;
+      if (loginOverlay) loginOverlay.style.display = "none";
+      if (mainApp) mainApp.style.display = "block";
+      await carregarDadosFirebase();
+      tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
+      metas = JSON.parse(localStorage.getItem("metas") || "[]");
+      cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
+      if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
+      const mudou = sincronizarTarefasRecorrentes();
+      if (mudou) {
+        salvarDados();
+      } else {
+        renderizarTarefas();
+        renderizarMetas();
+        renderizarMetasCarrossel();
+        renderizarCalendario();
+        atualizarDashboard();
+        atualizarRodape();
+      }
+    } else {
+      if (loginOverlay) loginOverlay.style.display = "flex";
+      if (mainApp) mainApp.style.display = "none";
+    }
+  });
+
+  renderizarTarefas();
+  renderizarMetas();
+  renderizarMetasCarrossel();
+  renderizarCalendario();
+  atualizarDashboard();
+  atualizarRodape();
+}
+
+initApp();
