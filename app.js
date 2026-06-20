@@ -391,7 +391,7 @@ async function carregarDadosFirebase() {
 ========================= */
 function aplicarPerfil(profile) {
   if (!profile) return;
-  // Avatar grande (esquerda)
+  // Avatar grande (esquerda) - removido, mantido apenas por compatibilidade
   const avatarEl = document.getElementById("userAvatar");
   if (avatarEl) {
     if (profile.avatar) {
@@ -1649,7 +1649,7 @@ function gerarCelulaDia(dataStr, dia, hoje, expandido = false, isMobile = false)
 }
 
 /* =========================
-   RENDER TAREFAS (CARDS) – com resumo estilizado
+   RENDER TAREFAS (CARDS)
 ========================= */
 function renderizarTarefas() {
   const container = document.getElementById("blocosTarefas");
@@ -1891,87 +1891,3 @@ function bindUI() {
   window.addEventListener("online", atualizarStatusConexao);
   window.addEventListener("offline", atualizarStatusConexao);
 }
-
-/* =========================
-   INIT
-========================= */
-async function initApp() {
-  await initIndexedDB();
-  verificarResetDiario();
-  aplicarTemaSalvo();
-  bindUI();
-  atualizarStatusConexao();
-
-  const dataHeader = document.getElementById("dataHojeHeader");
-  const dataMobile = document.getElementById("dataHojeMobile");
-  const textoData = formatarDataHeader(new Date());
-  if (dataHeader) dataHeader.textContent = textoData;
-  if (dataMobile) dataMobile.textContent = textoData;
-
-  const savedView = localStorage.getItem(VIEW_STORAGE_KEY);
-  setView(savedView === "calendario" ? "calendario" : "cards", false);
-
-  const isMobile = window.innerWidth <= 768;
-  if (isMobile && !localStorage.getItem("modoCalendario")) {
-    modoCalendario = "semana";
-    localStorage.setItem("modoCalendario", modoCalendario);
-  }
-  document.querySelectorAll(".cal-view-btn").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.view === modoCalendario);
-  });
-
-  if ("Notification" in window) {
-    Notification.requestPermission();
-  }
-
-  window.addEventListener("resize", () => {
-    const mobile = window.innerWidth <= 768;
-    const atual = localStorage.getItem("modoCalendario");
-    if (mobile && !atual) {
-      modoCalendario = "semana";
-      localStorage.setItem("modoCalendario", "semana");
-      renderizarCalendario();
-    }
-    renderizarCalendario();
-  });
-
-  onAuthStateChanged(auth, async (user) => {
-    currentUser = user;
-    window.currentUser = user || null;
-    const loginOverlay = document.getElementById("loginOverlay");
-    const mainApp = document.getElementById("mainApp");
-    if (user) {
-      usuarioAtual = user.uid;
-      if (loginOverlay) loginOverlay.style.display = "none";
-      if (mainApp) mainApp.style.display = "block";
-      await carregarDadosFirebase();
-      tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
-      metas = JSON.parse(localStorage.getItem("metas") || "[]");
-      cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
-      if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
-      const mudou = sincronizarTarefasRecorrentes();
-      if (mudou) {
-        salvarDados();
-      } else {
-        renderizarTarefas();
-        renderizarMetas();
-        renderizarMetasCarrossel();
-        renderizarCalendario();
-        atualizarDashboard();
-        atualizarRodape();
-      }
-    } else {
-      if (loginOverlay) loginOverlay.style.display = "flex";
-      if (mainApp) mainApp.style.display = "none";
-    }
-  });
-
-  renderizarTarefas();
-  renderizarMetas();
-  renderizarMetasCarrossel();
-  renderizarCalendario();
-  atualizarDashboard();
-  atualizarRodape();
-}
-
-initApp();
