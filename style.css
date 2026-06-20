@@ -212,40 +212,6 @@ body.light-theme .titulo-meta {
   color: #1a1a2e !important;
 }
 
-/* ---- CORREÇÕES: BOLINHA, CATEGORIA, INPUT, SELECT E BOTÕES ---- */
-body.light-theme .circulo-pendente {
-  border-color: rgba(0,0,0,0.5) !important;
-}
-body.light-theme .circulo-concluido {
-  background: #22c55e;
-}
-body.light-theme .meta-card-mini small {
-  color: rgba(0,0,0,0.6) !important;
-}
-body.light-theme .meta-card-mini button {
-  color: #1a1a2e !important;
-}
-body.light-theme .meta-card-mini button:hover {
-  color: #000 !important;
-}
-body.light-theme #novaMetaTexto {
-  color: #1a1a2e !important;
-  background: rgba(0,0,0,0.05) !important;
-  border-color: rgba(0,0,0,0.15) !important;
-}
-body.light-theme #novaMetaTexto::placeholder {
-  color: rgba(0,0,0,0.4) !important;
-}
-body.light-theme #novaMetaCategoria {
-  color: #1a1a2e !important;
-  background: rgba(0,0,0,0.05) !important;
-  border-color: rgba(0,0,0,0.15) !important;
-}
-body.light-theme #novaMetaCategoria option {
-  color: #1a1a2e;
-  background: #fff;
-}
-
 /* ---- CALENDÁRIO ---- */
 body.light-theme .calendario-nav .btn-glass {
   background: linear-gradient(135deg, #667eea, #764ba2);
@@ -293,8 +259,7 @@ body.light-theme .cal-task {
 body.light-theme .cal-task-more {
   color: rgba(0,0,0,0.6);
 }
-/* Corrige os cabeçalhos dos dias da semana (Seg, Ter, Qua...) */
-body.light-theme .calendario-grade > div[style*="color:white"] {
+body.light-theme .calendario-grade > div:first-child {
   color: #1a1a2e !important;
 }
 
@@ -310,9 +275,6 @@ body.light-theme .card-header {
 body.light-theme .card-header button {
   color: #1a1a2e;
   background: rgba(0,0,0,0.08);
-}
-body.light-theme .card-header button i {
-  color: #1a1a2e;  /* Ícones escuros nos botões do cabeçalho do card */
 }
 body.light-theme .card-header button:hover {
   background: rgba(0,0,0,0.15);
@@ -383,54 +345,6 @@ body.light-theme .btn-nova-tarefa i {
   color: #fff;
 }
 
-/* ---- FORMULÁRIO INLINE (ADICIONAR TAREFA) ---- */
-body.light-theme .inline-form {
-  background: rgba(0,0,0,0.03);
-  border: 1px solid rgba(0,0,0,0.08);
-}
-body.light-theme .inline-form input,
-body.light-theme .inline-form textarea,
-body.light-theme .inline-form select {
-  background: rgba(255,255,255,0.9);
-  color: #1a1a2e;
-  border-color: rgba(0,0,0,0.15);
-}
-body.light-theme .inline-form input::placeholder,
-body.light-theme .inline-form textarea::placeholder {
-  color: rgba(0,0,0,0.4);
-}
-body.light-theme .inline-form select option {
-  background: #fff;
-  color: #1a1a2e;
-}
-body.light-theme .btn-confirm {
-  color: #fff;
-}
-body.light-theme .btn-cancel {
-  color: #1a1a2e;
-  background: rgba(0,0,0,0.08);
-}
-
-/* ---- BOTÃO NOVO ESPAÇO (modo claro) ---- */
-body.light-theme .card-novo-espaco {
-  background: rgba(0,0,0,0.02);
-  border: 2px dashed rgba(0,0,0,0.10);
-}
-body.light-theme .card-novo-espaco i {
-  color: rgba(0,0,0,0.25);
-}
-body.light-theme .card-novo-espaco p {
-  color: rgba(0,0,0,0.35);
-}
-body.light-theme .card-novo-espaco:hover {
-  background: rgba(0,0,0,0.05);
-  border-color: rgba(0,0,0,0.18);
-}
-body.light-theme .card-novo-espaco:hover i,
-body.light-theme .card-novo-espaco:hover p {
-  color: rgba(0,0,0,0.5);
-}
-
 /* ---- RESUMO DO CARD ---- */
 body.light-theme .card-resumo-item {
   background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(16,185,129,0.10));
@@ -461,7 +375,7 @@ body.light-theme .footer-stats-item i {
   color: #1a1a2e;
 }
 
-/* ---- MODAIS ---- */
+/* ---- MODAIS GERAIS ---- */
 body.light-theme .modal-conteudo {
   background: rgba(255,255,255,0.98);
   border-color: rgba(0,0,0,0.1);
@@ -471,11 +385,6 @@ body.light-theme .modal-select {
   background: rgba(0,0,0,0.05);
   color: #1a1a2e;
   border-color: rgba(0,0,0,0.1);
-}
-body.light-theme .modal-input option,
-body.light-theme .modal-select option {
-  background: #fff;
-  color: #1a1a2e;
 }
 body.light-theme .modal-titulo {
   color: rgba(0,0,0,0.6);
@@ -496,52 +405,59 @@ body.light-theme .btn-secondary i {
   color: #1a1a2e;
 }
 
-/* ---- MODAL DIA (CALENDÁRIO) MODO CLARO ---- */
-body.light-theme #modalDiaResumo {
-  color: #1a1a2e !important; /* Sobrescreve estilo inline */
-}
-body.light-theme .modal-dia-item {
-  background: rgba(0,0,0,0.03);
-  border-color: rgba(0,0,0,0.08);
+/* ---- MODAL FOCO (CORREÇÃO PARA MODO CLARO) ---- */
+body.light-theme .modal-foco-overlay .modal-conteudo {
+  background: rgba(255,255,255,0.98);
   color: #1a1a2e;
 }
-body.light-theme .modal-dia-title {
+body.light-theme .modal-foco-overlay h2 {
   color: #1a1a2e;
 }
-body.light-theme .modal-dia-desc {
-  color: rgba(0,0,0,0.7);
-}
-body.light-theme .modal-dia-tag {
-  color: #1a1a2e;
-  background: rgba(0,0,0,0.06);
-}
-body.light-theme .modal-dia-empty {
-  color: rgba(0,0,0,0.7);
-  background: rgba(0,0,0,0.03);
-  border-color: rgba(0,0,0,0.1);
-}
-body.light-theme .modal-dia-btn {
-  color: #1a1a2e;
-  background: rgba(0,0,0,0.06);
-}
-body.light-theme .modal-dia-btn i {
-  color: inherit;
-}
-body.light-theme .modal-dia-btn:hover {
-  background: rgba(124,58,237,0.12);
-}
-body.light-theme .modal-dia-btn.danger:hover {
-  background: rgba(239,68,68,0.12);
-}
-body.light-theme .modal-dia-add-title {
+body.light-theme .modal-foco-overlay #tarefaFocoTexto {
   color: #1a1a2e;
 }
-body.light-theme .modal-dia-add-title i {
-  color: inherit;
+body.light-theme .modal-foco-overlay .timer-foco-grande {
+  color: #4a1a7a; /* roxo escuro para contraste */
 }
-body.light-theme .modal-dia-add {
-  background: rgba(0,0,0,0.02);
-  border-color: rgba(0,0,0,0.08);
+body.light-theme .modal-foco-overlay #cronometroInfo {
+  color: #1a1a2e;
+}
+body.light-theme .modal-foco-overlay .modal-close {
+  color: #fff;
+  background: rgba(0,0,0,0.2);
+}
+body.light-theme .modal-foco-overlay .modal-close:hover {
+  background: rgba(0,0,0,0.3);
+}
+body.light-theme .modal-foco-overlay .btn-glass {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+body.light-theme .modal-foco-overlay .btn-glass i {
+  color: #fff;
+}
+body.light-theme .modal-foco-overlay .btn-prorrogar {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+}
+body.light-theme .modal-foco-overlay .btn-prorrogar i {
+  color: #fff;
+}
+body.light-theme .modal-foco-overlay .btn-musica {
+  background: #17a2b8;
+  color: #fff;
+}
+body.light-theme .modal-foco-overlay .btn-musica i {
+  color: #fff;
+}
+body.light-theme .modal-foco-overlay .fa-brain {
+  color: #7c3aed !important;
+}
+body.light-theme .modal-foco-overlay .progresso-foco {
+  background: rgba(0,0,0,0.1);
+}
+body.light-theme .modal-foco-overlay .progresso-foco-bar {
+  background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 /* ---- BACKUP ---- */
@@ -635,17 +551,13 @@ body.light-theme .data-badge i {
   color: #1a1a2e;
 }
 
-/* ---- LOGIN (CORREÇÃO FINAL) ---- */
+/* ---- LOGIN ---- */
 body.light-theme .login-container {
   background: rgba(255,255,255,0.95);
   border-color: rgba(0,0,0,0.1);
 }
 body.light-theme .login-container h2 {
   color: #1a1a2e;
-}
-/* Força o slogan a ficar visível, sobrescrevendo o estilo inline */
-body.light-theme .login-container p {
-  color: #1a1a2e !important;
 }
 body.light-theme .login-container input {
   background: rgba(0,0,0,0.05);
@@ -676,48 +588,6 @@ body.light-theme .register-link {
   color: rgba(0,0,0,0.7) !important;
 }
 body.light-theme .password-container input {
-  color: #1a1a2e;
-}
-
-/* ============================
-   ESTILOS GERAIS DE SELECT/OPTION PARA TODOS OS TEMAS
-============================ */
-body.purple-theme select,
-body.purple-theme .modal-select,
-body.purple-theme .inline-form select {
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-}
-body.purple-theme select option,
-body.purple-theme .modal-select option,
-body.purple-theme .inline-form select option {
-  background: #1e1e2e;
-  color: #fff;
-}
-
-body.dark-theme select,
-body.dark-theme .modal-select,
-body.dark-theme .inline-form select {
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-}
-body.dark-theme select option,
-body.dark-theme .modal-select option,
-body.dark-theme .inline-form select option {
-  background: #1a1a2e;
-  color: #fff;
-}
-
-body.light-theme select,
-body.light-theme .modal-select,
-body.light-theme .inline-form select {
-  background: rgba(0,0,0,0.05);
-  color: #1a1a2e;
-}
-body.light-theme select option,
-body.light-theme .modal-select option,
-body.light-theme .inline-form select option {
-  background: #fff;
   color: #1a1a2e;
 }
 
@@ -844,8 +714,6 @@ body.light-theme .inline-form select option {
   backdrop-filter: blur(24px);
   min-height: 70px;
   margin-bottom: 20px;
-  position: relative;
-  z-index: 10;
 }
 
 .header-left {
@@ -854,7 +722,6 @@ body.light-theme .inline-form select option {
   gap: 12px;
 }
 
-/* ---- LOGO (TAMANHO CORRETO) ---- */
 .logo-img {
   width: 44px;
   height: 44px;
@@ -970,7 +837,6 @@ body.light-theme .inline-form select option {
 /* ===== DROPDOWN ===== */
 .user-dropdown {
   position: relative;
-  z-index: 10;
 }
 .dropdown-toggle {
   width: 34px;
@@ -1000,7 +866,7 @@ body.light-theme .inline-form select option {
   border-radius: 12px;
   padding: 8px 0;
   min-width: 180px;
-  z-index: 3000; /* Garante que fique sobre os botões da linha */
+  z-index: 2000;
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
@@ -1034,8 +900,6 @@ body.light-theme .inline-form select option {
   gap: 12px;
   margin-bottom: 12px;
   padding: 8px 0;
-  position: relative;
-  z-index: 1;
 }
 .view-toggle {
   display: flex;
@@ -1554,7 +1418,7 @@ body.dark-theme .cal-task.p3 { border-left-color: #4ade80; }
   color: inherit;
 }
 
-/* ===== MODAL DIA (compartilhado) ===== */
+/* ===== MODAL DIA ===== */
 .modal-dia-add {
   margin-bottom: 14px;
   padding: 12px;
@@ -1832,10 +1696,6 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
 .login-container h2 {
   color: #fff;
   margin-bottom: 24px;
-}
-.login-container p {
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 30px;
 }
 .login-container input {
   width: 100%;
