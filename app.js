@@ -7,8 +7,8 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult
+  getRedirectResult,
+  signInWithRedirect
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
@@ -273,7 +273,7 @@ window.mostrarIndicadorSync = function (mensagem, tipo = "success") {
 };
 
 /* =========================
-   LOGIN (CORRIGIDO)
+   LOGIN
 ========================= */
 window.togglePasswordVisibility = (id, btn) => {
   const inp = document.getElementById(id);
@@ -302,114 +302,41 @@ window.mostrarLogin = () => {
 };
 
 window.fazerLogin = async () => {
-  const emailInput = document.getElementById("loginEmail");
-  const passwordInput = document.getElementById("loginPassword");
-  const errEl = document.getElementById("loginErrorMessage");
-  
-  if (!emailInput || !passwordInput) {
-    if (errEl) errEl.textContent = "Erro interno. Tente recarregar.";
-    return;
-  }
-
-  const email = emailInput.value.trim();
-  const senha = passwordInput.value;
-
-  if (!email || !senha) {
-    if (errEl) errEl.textContent = "Preencha email e senha.";
-    return;
-  }
-
   try {
+    const email = document.getElementById("loginEmail")?.value?.trim();
+    const senha = document.getElementById("loginPassword")?.value;
     await signInWithEmailAndPassword(auth, email, senha);
-    // O onAuthStateChanged vai lidar com a navegação
-    if (errEl) errEl.textContent = "";
-  } catch (error) {
-    console.error(error);
-    if (errEl) {
-      if (error.code === 'auth/user-not-found') {
-        errEl.textContent = "Usuário não encontrado. Cadastre-se primeiro.";
-      } else if (error.code === 'auth/wrong-password') {
-        errEl.textContent = "Senha incorreta.";
-      } else if (error.code === 'auth/invalid-email') {
-        errEl.textContent = "Email inválido.";
-      } else if (error.code === 'auth/too-many-requests') {
-        errEl.textContent = "Muitas tentativas. Tente mais tarde.";
-      } else {
-        errEl.textContent = error.message || "Erro ao fazer login.";
-      }
-    }
+  } catch {
+    const err = document.getElementById("loginErrorMessage");
+    if (err) err.textContent = "Email ou senha inválidos!";
   }
 };
 
 window.fazerCadastro = async () => {
-  const emailEl = document.getElementById("registerEmail");
-  const pwdEl = document.getElementById("registerPassword");
-  const confEl = document.getElementById("registerConfirm");
-  const errEl = document.getElementById("registerErrorMessage");
-
-  if (!emailEl || !pwdEl || !confEl) {
-    if (errEl) errEl.textContent = "Erro interno. Tente recarregar.";
-    return;
-  }
-
-  const email = emailEl.value.trim();
-  const pwd = pwdEl.value;
-  const conf = confEl.value;
-
+  const email = document.getElementById("registerEmail")?.value?.trim();
+  const pwd = document.getElementById("registerPassword")?.value;
+  const conf = document.getElementById("registerConfirm")?.value;
+  const err = document.getElementById("registerErrorMessage");
   if (pwd !== conf) {
-    if (errEl) errEl.textContent = "Senhas não coincidem";
+    if (err) err.textContent = "Senhas não coincidem";
     return;
   }
-
-  if (pwd.length < 6) {
-    if (errEl) errEl.textContent = "Senha deve ter pelo menos 6 caracteres";
-    return;
-  }
-
   try {
     await createUserWithEmailAndPassword(auth, email, pwd);
     mostrarIndicadorSync("✅ Conta criada!");
-    if (errEl) errEl.textContent = "";
-  } catch (error) {
-    console.error(error);
-    if (errEl) {
-      if (error.code === 'auth/email-already-in-use') {
-        errEl.textContent = "Email já cadastrado.";
-      } else if (error.code === 'auth/invalid-email') {
-        errEl.textContent = "Email inválido.";
-      } else {
-        errEl.textContent = error.message || "Erro ao cadastrar.";
-      }
-    }
+  } catch (e) {
+    if (err) err.textContent = e.message || "Erro ao cadastrar";
   }
 };
 
 window.loginComGoogle = async () => {
   try {
-    await signInWithRedirect(auth, googleProvider);
-    // O redirecionamento vai ocorrer, depois voltamos para handleGoogleRedirect
-  } catch (error) {
-    console.error(error);
-    mostrarIndicadorSync("❌ Erro ao iniciar login com Google", "error");
+    const result = await signInWithPopup(auth, googleProvider);
+    mostrarIndicadorSync(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!`);
+  } catch {
+    mostrarIndicadorSync("❌ Erro no login com Google", "error");
   }
 };
-
-// Função para processar o redirect do Google
-async function handleGoogleRedirect() {
-  try {
-    const result = await getRedirectResult(auth);
-    if (result) {
-      mostrarIndicadorSync(`✅ Bem-vindo, ${result.user.displayName || result.user.email}!`);
-    }
-  } catch (error) {
-    console.error(error);
-    if (error.code === 'auth/account-exists-with-different-credential') {
-      mostrarIndicadorSync("❌ Já existe uma conta com este email. Use a senha.", "error");
-    } else {
-      mostrarIndicadorSync("❌ Erro no login com Google", "error");
-    }
-  }
-}
 
 window.fazerLogout = () => signOut(auth);
 
@@ -1968,7 +1895,7 @@ function bindUI() {
 }
 
 /* ============================================================
-   🎤 COMANDOS DE VOZ (Web Speech API)
+   🎤 COMANDOS DE VOZ (Web Speech API) – CORRIGIDO
    ============================================================ */
 
 // Verifica se o navegador suporta reconhecimento de voz
@@ -1983,22 +1910,58 @@ let timeoutReconhecimento = null;
 // Elemento do botão
 const btnMicrofone = document.getElementById('btnMicrofone');
 
+// Variável global para acumular o texto da fala
+let textoCompleto = '';
+
 // Configuração do reconhecimento
 if (recognition) {
   recognition.lang = 'pt-BR';
-  recognition.continuous = false;
-  recognition.interimResults = false;
+  recognition.continuous = true; // MUDANÇA: agora fica ouvindo continuamente
+  recognition.interimResults = true; // MUDANÇA: captura resultados parciais
   recognition.maxAlternatives = 1;
 
   recognition.onresult = function(event) {
-    const ultimoResultado = event.results[event.results.length - 1];
-    if (ultimoResultado.isFinal) {
-      const texto = ultimoResultado[0].transcript.trim();
-      processarComandoVoz(texto);
+    let interimTranscript = '';
+    let finalTranscript = '';
+
+    // Itera sobre todos os resultados
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += transcript;
+      } else {
+        interimTranscript += transcript;
+      }
+    }
+
+    // Atualiza o texto completo
+    if (finalTranscript) {
+      textoCompleto += finalTranscript;
+    }
+
+    // Mostra feedback visual (opcional)
+    if (interimTranscript) {
+      console.log('🎤 Ouvindo (parcial):', interimTranscript);
+    }
+
+    // Se já tiver um resultado final e houver silêncio, processa
+    if (finalTranscript && textoCompleto.trim().length > 0) {
+      clearTimeout(timeoutReconhecimento);
+      timeoutReconhecimento = setTimeout(() => {
+        if (textoCompleto.trim().length > 0) {
+          processarComandoVoz(textoCompleto.trim());
+          textoCompleto = ''; // Limpa após processar
+        }
+      }, 1500); // Aguarda 1.5 segundos de silêncio para processar
     }
   };
 
   recognition.onend = function() {
+    // Se ainda tem texto pendente, processa
+    if (textoCompleto.trim().length > 0) {
+      processarComandoVoz(textoCompleto.trim());
+      textoCompleto = '';
+    }
     microfoneAtivo = false;
     reconhecimentoEmAndamento = false;
     if (btnMicrofone) {
@@ -2024,6 +1987,7 @@ if (recognition) {
       btnMicrofone.innerHTML = '<i class="fas fa-microphone"></i>';
     }
     clearTimeout(timeoutReconhecimento);
+    textoCompleto = '';
   };
 } else {
   console.warn('Web Speech API não suportada neste navegador.');
@@ -2044,6 +2008,7 @@ window.toggleMicrofone = function() {
   }
 
   if (microfoneAtivo) {
+    // Para de ouvir
     recognition.stop();
     microfoneAtivo = false;
     reconhecimentoEmAndamento = false;
@@ -2052,26 +2017,27 @@ window.toggleMicrofone = function() {
       btnMicrofone.innerHTML = '<i class="fas fa-microphone"></i>';
     }
     mostrarIndicadorSync('🛑 Microfone desligado', 'info');
+    // Limpa texto acumulado
+    textoCompleto = '';
     return;
   }
 
+  // Inicia escuta
   try {
+    // Reinicia o recognition para limpar estado anterior
+    recognition.abort();
+    recognition.continuous = true;
+    recognition.lang = 'pt-BR';
+    
     recognition.start();
     microfoneAtivo = true;
     reconhecimentoEmAndamento = true;
+    textoCompleto = ''; // Limpa texto acumulado
     if (btnMicrofone) {
       btnMicrofone.classList.add('listening');
       btnMicrofone.innerHTML = '<i class="fas fa-stop-circle"></i>';
     }
-    mostrarIndicadorSync('🎤 Ouvindo... fale seu comando', 'info');
-
-    clearTimeout(timeoutReconhecimento);
-    timeoutReconhecimento = setTimeout(() => {
-      if (microfoneAtivo) {
-        recognition.stop();
-        mostrarIndicadorSync('⏱️ Tempo esgotado. Tente novamente.', 'info');
-      }
-    }, 10000);
+    mostrarIndicadorSync('🎤 Ouvindo... fale seu comando (pausa de 1.5s para processar)', 'info');
   } catch (e) {
     console.error('Erro ao iniciar reconhecimento:', e);
     mostrarIndicadorSync('❌ Erro ao acessar microfone', 'error');
@@ -2095,7 +2061,10 @@ if (btnMicrofone) {
  */
 function processarComandoVoz(texto) {
   const textoLimpo = texto.toLowerCase().trim();
-  console.log('📝 Comando recebido:', textoLimpo);
+  console.log('📝 Comando recebido (completo):', textoLimpo);
+
+  // Remove pontuação extra
+  const textoLimpoSemPontuacao = textoLimpo.replace(/[.,;:?!]/g, ' ').replace(/\s+/g, ' ').trim();
 
   const padroes = [
     /(?:adicionar|criar|nova|add)\s*(?:tarefa|task)?\s*(.+?)(?:\s*(?:no|em|no card|no espaço|em card|em espaço)\s*(.+))?/i,
@@ -2106,7 +2075,7 @@ function processarComandoVoz(texto) {
   let cardNome = null;
 
   for (const padrao of padroes) {
-    const match = texto.match(padrao);
+    const match = textoLimpoSemPontuacao.match(padrao);
     if (match) {
       titulo = match[1]?.trim();
       cardNome = match[2]?.trim();
@@ -2116,7 +2085,7 @@ function processarComandoVoz(texto) {
 
   if (!titulo) {
     const palavrasRemover = ['adicionar', 'criar', 'nova', 'tarefa', 'task', 'add'];
-    let textoAux = textoLimpo;
+    let textoAux = textoLimpoSemPontuacao;
     for (const palavra of palavrasRemover) {
       textoAux = textoAux.replace(new RegExp(`^${palavra}\\s+`, 'i'), '');
     }
@@ -2149,32 +2118,32 @@ function processarComandoVoz(texto) {
   }
 
   let prioridade = 'p2';
-  if (/\b(urgente|alta|importante|prioridade alta|prioridade 1|p1)\b/i.test(texto)) {
+  if (/\b(urgente|alta|importante|prioridade alta|prioridade 1|p1)\b/i.test(textoLimpoSemPontuacao)) {
     prioridade = 'p1';
-  } else if (/\b(baixa|tranquilo|fácil|prioridade baixa|prioridade 3|p3)\b/i.test(texto)) {
+  } else if (/\b(baixa|tranquilo|fácil|prioridade baixa|prioridade 3|p3)\b/i.test(textoLimpoSemPontuacao)) {
     prioridade = 'p3';
   }
 
   let recorrencia = '';
-  if (/\b(diária|todo dia|diariamente|recorrente diária|recorrencia diaria)\b/i.test(texto)) {
+  if (/\b(diária|todo dia|diariamente|recorrente diária|recorrencia diaria)\b/i.test(textoLimpoSemPontuacao)) {
     recorrencia = 'diaria';
-  } else if (/\b(dias úteis|dias uteis|recorrente dias úteis|recorrencia dias uteis)\b/i.test(texto)) {
+  } else if (/\b(dias úteis|dias uteis|recorrente dias úteis|recorrencia dias uteis)\b/i.test(textoLimpoSemPontuacao)) {
     recorrencia = 'dias_uteis';
-  } else if (/\b(semanal|toda semana|recorrente semanal|recorrencia semanal)\b/i.test(texto)) {
+  } else if (/\b(semanal|toda semana|recorrente semanal|recorrencia semanal)\b/i.test(textoLimpoSemPontuacao)) {
     recorrencia = 'semanal';
-  } else if (/\b(mensal|todo mês|recorrente mensal|recorrencia mensal)\b/i.test(texto)) {
+  } else if (/\b(mensal|todo mês|recorrente mensal|recorrencia mensal)\b/i.test(textoLimpoSemPontuacao)) {
     recorrencia = 'mensal';
   }
 
   let data = getDataHoje();
-  if (/\b(amanhã|amanha)\b/i.test(texto)) {
+  if (/\b(amanhã|amanha)\b/i.test(textoLimpoSemPontuacao)) {
     const amanha = new Date();
     amanha.setDate(amanha.getDate() + 1);
     data = `${amanha.getFullYear()}-${String(amanha.getMonth() + 1).padStart(2, '0')}-${String(amanha.getDate()).padStart(2, '0')}`;
-  } else if (/\b(hoje)\b/i.test(texto)) {
+  } else if (/\b(hoje)\b/i.test(textoLimpoSemPontuacao)) {
     data = getDataHoje();
   } else {
-    const dataMatch = texto.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?/);
+    const dataMatch = textoLimpoSemPontuacao.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?/);
     if (dataMatch) {
       const dia = parseInt(dataMatch[1]);
       const mes = parseInt(dataMatch[2]) - 1;
@@ -2227,9 +2196,6 @@ async function initApp() {
   aplicarTemaSalvo();
   bindUI();
   atualizarStatusConexao();
-
-  // Processar redirect do Google (se houver)
-  await handleGoogleRedirect();
 
   const dataHeader = document.getElementById("dataHojeHeader");
   const dataMobile = document.getElementById("dataHojeMobile");
