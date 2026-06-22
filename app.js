@@ -1900,12 +1900,14 @@ function bindUI() {
 
 // Verifica se o navegador suporta reconhecimento de voz
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+let recognition = null;
 
 // Estado do microfone
 let microfoneAtivo = false;
 let reconhecimentoEmAndamento = false;
 let timeoutReconhecimento = null;
+let tentativasReconexao = 0;
+const MAX_TENTATIVAS = 3;
 
 // Elemento do botão
 const btnMicrofone = document.getElementById('btnMicrofone');
@@ -1913,18 +1915,39 @@ const btnMicrofone = document.getElementById('btnMicrofone');
 // Variável global para acumular o texto da fala
 let textoCompleto = '';
 
-// Configuração do reconhecimento
-if (recognition) {
-  recognition.lang = 'pt-BR';
-  recognition.continuous = true; // MUDANÇA: agora fica ouvindo continuamente
-  recognition.interimResults = true; // MUDANÇA: captura resultados parciais
-  recognition.maxAlternatives = 1;
+// Cria o recognition apenas se suportado
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+} else {
+  console.warn('Web Speech API não suportada neste navegador.');
+  if (btnMicrofone) {
+    btnMicrofone.style.opacity = '0.3';
+    btnMicrofone.title = 'Reconhecimento de voz não suportado';
+    btnMicrofone.disabled = true;
+  }
+}
 
+// Função para configurar o recognition
+function configurarRecognition() {
+  if (!recognition) return;
+  recognition.lang = 'pt-BR';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+  try {
+    recognition.abort(); // limpa estado anterior
+  } catch (e) { /* ignora */ }
+}
+
+// Configura inicialmente
+if (recognition) configurarRecognition();
+
+// Eventos do recognition (definidos apenas se suportado)
+if (recognition) {
   recognition.onresult = function(event) {
     let interimTranscript = '';
     let finalTranscript = '';
 
-    // Itera sobre todos os resultados
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const transcript = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
@@ -1934,30 +1957,26 @@ if (recognition) {
       }
     }
 
-    // Atualiza o texto completo
     if (finalTranscript) {
       textoCompleto += finalTranscript;
     }
 
-    // Mostra feedback visual (opcional)
     if (interimTranscript) {
       console.log('🎤 Ouvindo (parcial):', interimTranscript);
     }
 
-    // Se já tiver um resultado final e houver silêncio, processa
     if (finalTranscript && textoCompleto.trim().length > 0) {
       clearTimeout(timeoutReconhecimento);
       timeoutReconhecimento = setTimeout(() => {
         if (textoCompleto.trim().length > 0) {
           processarComandoVoz(textoCompleto.trim());
-          textoCompleto = ''; // Limpa após processar
+          textoCompleto = '';
         }
-      }, 1500); // Aguarda 1.5 segundos de silêncio para processar
+      }, 1500);
     }
   };
 
   recognition.onend = function() {
-    // Se ainda tem texto pendente, processa
     if (textoCompleto.trim().length > 0) {
       processarComandoVoz(textoCompleto.trim());
       textoCompleto = '';
@@ -1969,17 +1988,39 @@ if (recognition) {
       btnMicrofone.innerHTML = '<i class="fas fa-microphone"></i>';
     }
     clearTimeout(timeoutReconhecimento);
+    tentativasReconexao = 0; // reseta tentativas ao finalizar normalmente
   };
 
   recognition.onerror = function(event) {
     console.error('Erro no reconhecimento de voz:', event.error);
-    if (event.error === 'not-allowed') {
+
+    if (event.error === 'network') {
+      mostrarIndicadorSync('⚠️ Problema de conexão. Tentando novamente...', 'info');
+      tentativasReconexao++;
+      if (tentativasReconexao <= MAX_TENTATIVAS) {
+        setTimeout(() => {
+          if (microfoneAtivo && recognition) {
+            try {
+              recognition.abort();
+              configurarRecognition();
+              recognition.start();
+            } catch (e) {
+              console.error('Falha ao reiniciar reconhecimento:', e);
+            }
+          }
+        }, 2000);
+        return;
+      } else {
+        mostrarIndicadorSync('❌ Não foi possível conectar ao servidor de voz.', 'error');
+      }
+    } else if (event.error === 'not-allowed') {
       mostrarIndicadorSync('❌ Permissão do microfone negada!', 'error');
     } else if (event.error === 'no-speech') {
       mostrarIndicadorSync('⏳ Nenhuma fala detectada. Tente novamente.', 'info');
     } else {
       mostrarIndicadorSync('❌ Erro: ' + event.error, 'error');
     }
+
     microfoneAtivo = false;
     reconhecimentoEmAndamento = false;
     if (btnMicrofone) {
@@ -1989,13 +2030,6 @@ if (recognition) {
     clearTimeout(timeoutReconhecimento);
     textoCompleto = '';
   };
-} else {
-  console.warn('Web Speech API não suportada neste navegador.');
-  if (btnMicrofone) {
-    btnMicrofone.style.opacity = '0.3';
-    btnMicrofone.title = 'Reconhecimento de voz não suportado';
-    btnMicrofone.disabled = true;
-  }
 }
 
 /**
@@ -2008,7 +2042,6 @@ window.toggleMicrofone = function() {
   }
 
   if (microfoneAtivo) {
-    // Para de ouvir
     recognition.stop();
     microfoneAtivo = false;
     reconhecimentoEmAndamento = false;
@@ -2017,27 +2050,24 @@ window.toggleMicrofone = function() {
       btnMicrofone.innerHTML = '<i class="fas fa-microphone"></i>';
     }
     mostrarIndicadorSync('🛑 Microfone desligado', 'info');
-    // Limpa texto acumulado
     textoCompleto = '';
+    tentativasReconexao = 0;
     return;
   }
 
-  // Inicia escuta
   try {
-    // Reinicia o recognition para limpar estado anterior
     recognition.abort();
-    recognition.continuous = true;
-    recognition.lang = 'pt-BR';
-    
+    configurarRecognition();
     recognition.start();
     microfoneAtivo = true;
     reconhecimentoEmAndamento = true;
-    textoCompleto = ''; // Limpa texto acumulado
+    textoCompleto = '';
+    tentativasReconexao = 0;
     if (btnMicrofone) {
       btnMicrofone.classList.add('listening');
       btnMicrofone.innerHTML = '<i class="fas fa-stop-circle"></i>';
     }
-    mostrarIndicadorSync('🎤 Ouvindo... fale seu comando (pausa de 1.5s para processar)', 'info');
+    mostrarIndicadorSync('🎤 Ouvindo... fale seu comando', 'info');
   } catch (e) {
     console.error('Erro ao iniciar reconhecimento:', e);
     mostrarIndicadorSync('❌ Erro ao acessar microfone', 'error');
@@ -2063,7 +2093,6 @@ function processarComandoVoz(texto) {
   const textoLimpo = texto.toLowerCase().trim();
   console.log('📝 Comando recebido (completo):', textoLimpo);
 
-  // Remove pontuação extra
   const textoLimpoSemPontuacao = textoLimpo.replace(/[.,;:?!]/g, ' ').replace(/\s+/g, ' ').trim();
 
   const padroes = [
