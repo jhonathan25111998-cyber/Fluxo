@@ -1893,7 +1893,6 @@ function bindUI() {
   window.addEventListener("online", atualizarStatusConexao);
   window.addEventListener("offline", atualizarStatusConexao);
 }
-
 /* ============================================================
    🎤 COMANDOS DE VOZ (Web Speech API) – CORRIGIDO
    ============================================================ */
@@ -2095,6 +2094,23 @@ function processarComandoVoz(texto) {
 
   const textoLimpoSemPontuacao = textoLimpo.replace(/[.,;:?!]/g, ' ').replace(/\s+/g, ' ').trim();
 
+  // 🚀 FILTRO DE PALAVRAS-CHAVE
+  const palavrasChave = ['adicionar', 'criar', 'nova', 'add', 'tarefa', 'task'];
+  const comecaComPalavraChave = palavrasChave.some(palavra => 
+    textoLimpoSemPontuacao.startsWith(palavra)
+  );
+
+  if (!comecaComPalavraChave) {
+    mostrarIndicadorSync('ℹ️ Comando não reconhecido. Diga: "Adicionar tarefa <título> no card <nome>"', 'info');
+    if (window.speechSynthesis) {
+      const utterance = new SpeechSynthesisUtterance('Comando não reconhecido. Tente novamente.');
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+    return;
+  }
+
   const padroes = [
     /(?:adicionar|criar|nova|add)\s*(?:tarefa|task)?\s*(.+?)(?:\s*(?:no|em|no card|no espaço|em card|em espaço)\s*(.+))?/i,
     /(?:tarefa|task)\s*(.+?)(?:\s*(?:no|em|no card|no espaço|em card|em espaço)\s*(.+))?/i
@@ -2124,7 +2140,7 @@ function processarComandoVoz(texto) {
   }
 
   if (!titulo) {
-    mostrarIndicadorSync('❌ Não entendi o comando. Tente: "Adicionar tarefa <título> no card <nome>"', 'error');
+    mostrarIndicadorSync('❌ Não entendi o título da tarefa. Tente: "Adicionar tarefa <título> no card <nome>"', 'error');
     return;
   }
 
@@ -2213,6 +2229,11 @@ function processarComandoVoz(texto) {
     utterance.lang = 'pt-BR';
     utterance.rate = 0.9;
     window.speechSynthesis.speak(utterance);
+  }
+
+  // Para o microfone automaticamente após processar o comando
+  if (recognition) {
+    recognition.stop();
   }
 }
 
