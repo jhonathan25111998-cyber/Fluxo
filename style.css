@@ -389,7 +389,7 @@ body.light-theme .footer-stats-item i {
   color: #1a1a2e;
 }
 
-/* ---- MODAIS GERAIS (CORREÇÃO FORÇADA PARA MODO CLARO) ---- */
+/* ---- MODAIS GERAIS (CORREÇÃO FORÇADA) ---- */
 body.light-theme .modal-conteudo {
   background: rgba(255,255,255,0.98) !important;
   border-color: rgba(0,0,0,0.1) !important;
@@ -1874,4 +1874,53 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
     width: 100%;
   }
   .alerta-tarefas { white-space: normal; text-align: center; }
+}
+
+/* ============================================================
+   CORREÇÃO FORÇADA PARA MODO CLARO – SOBRESCREVE ESTILOS INLINE
+   ============================================================ */
+body.light-theme .modal-foco-overlay h2,
+body.light-theme .modal-foco-overlay #tarefaFocoTexto,
+body.light-theme .modal-foco-overlay #cronometroInfo,
+body.light-theme .modal-foco-overlay .controles-foco span,
+body.light-theme #modalDiaResumo,
+body.light-theme .metas-header h2,
+body.light-theme .modal-perfil-overlay label,
+body.light-theme .login-container p,
+body.light-theme .register-link {
+  color: #1a1a2e !important;
+}
+
+/* Ícone do sino no alerta (modo claro) */
+body.light-theme .alerta-tarefas i {
+  color: #7c3aed !important;
+}
+
+/* Ícone do cérebro no modo foco (modo claro) */
+body.light-theme .modal-foco-overlay .fa-brain {
+  color: #7c3aed !important;
+}
+
+/* Inputs e selects do modal perfil (modo claro) */
+body.light-theme .modal-perfil-overlay .modal-input,
+body.light-theme .modal-perfil-overlay .modal-select {
+  color: #1a1a2e !important;
+  background: rgba(0,0,0,0.05) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+
+/* Badge de tarefas no calendário (modo claro) */
+body.light-theme .cal-dia-badge {
+  color: #b91c1c !important;
+}
+
+/* Garante que o texto do modal descrição fique escuro */
+body.light-theme .modal-descricao-overlay .modal-texto,
+body.light-theme .modal-descricao-overlay .modal-titulo {
+  color: #1a1a2e !important;
+}
+
+/* Garante que o título do modal foco "🎯 Modo Foco" fique escuro */
+body.light-theme .modal-foco-overlay h2 {
+  color: #1a1a2e !important;
 }
