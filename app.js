@@ -341,7 +341,7 @@ window.loginComGoogle = async () => {
 window.fazerLogout = () => signOut(auth);
 
 /* =========================
-   FIRESTORE SYNC (DADOS + PERFIL)
+   FIRESTORE SYNC (DADOS + PERFIL) – com tratamento de erro
 ========================= */
 async function salvarTudoFirebase() {
   if (!currentUser) return;
@@ -357,7 +357,12 @@ async function salvarTudoFirebase() {
     };
     await setDoc(doc(db, "usuarios", currentUser.uid), dados);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao salvar no Firebase:', err);
+    if (err.code === 'permission-denied') {
+      mostrarIndicadorSync('⚠️ Permissão negada. Verifique as regras do Firestore.', 'error');
+    } else {
+      mostrarIndicadorSync('⚠️ Erro ao sincronizar com o servidor.', 'error');
+    }
   }
 }
 
@@ -378,13 +383,28 @@ async function carregarDadosFirebase() {
         localStorage.setItem("profile", JSON.stringify(d.profile));
         aplicarPerfil(d.profile);
       }
+    } else {
+      // Se não existir, cria um documento vazio
+      await setDoc(docRef, { 
+        tarefas: [],
+        metas: [],
+        cardsTarefas: [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }],
+        tempoTotalFocado: 0,
+        tempoFocadoHoje: 0,
+        tarefasReagendadasHoje: 0,
+        ultimaAtualizacao: new Date().toISOString()
+      });
     }
     tarefas = JSON.parse(localStorage.getItem("tarefas") || "[]");
     metas = JSON.parse(localStorage.getItem("metas") || "[]");
     cardsTarefas = JSON.parse(localStorage.getItem("cardsTarefas") || "[]");
     if (cardsTarefas.length === 0) cardsTarefas = [{ id: "default_" + Date.now(), nome: "Minhas Tarefas" }];
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao carregar dados do Firebase:', err);
+    if (err.code === 'permission-denied') {
+      mostrarIndicadorSync('⚠️ Permissão negada. Verifique as regras do Firestore.', 'error');
+    }
+    // Mantém os dados locais existentes
   }
 }
 
@@ -479,7 +499,11 @@ window.salvarPerfil = async function() {
       mostrarIndicadorSync("✅ Perfil atualizado!");
     } catch (err) {
       console.error(err);
-      mostrarIndicadorSync("❌ Erro ao salvar perfil", "error");
+      if (err.code === 'permission-denied') {
+        mostrarIndicadorSync('⚠️ Permissão negada. Verifique as regras do Firestore.', 'error');
+      } else {
+        mostrarIndicadorSync("❌ Erro ao salvar perfil", "error");
+      }
     }
   }
   window._avatarTemp = null;
@@ -2037,6 +2061,12 @@ if (recognition) {
 window.toggleMicrofone = function() {
   if (!recognition) {
     mostrarIndicadorSync('❌ Reconhecimento de voz não suportado', 'error');
+    return;
+  }
+
+  // Verifica se está online antes de iniciar
+  if (!navigator.onLine) {
+    mostrarIndicadorSync('⚠️ Você está offline. Conecte-se à internet para usar o microfone.', 'error');
     return;
   }
 
