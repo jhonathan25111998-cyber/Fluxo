@@ -1277,28 +1277,81 @@ body.light-theme .password-container input {
 }
 
 .inline-form {
-  display: none; margin-top: 10px; padding: 10px;
-  border-radius: 10px; background: rgba(0,0,0,0.3);
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.3);
 }
 .inline-form.show { display: block; }
-.inline-form input, .inline-form select, .inline-form textarea {
-  width: 100%; margin-bottom: 6px; padding: 8px; color: #fff;
-  border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+.inline-form input,
+.inline-form select,
+.inline-form textarea {
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 8px;
+  color: #fff;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
   background: rgba(255,255,255,0.08);
 }
-.inline-form-buttons { display: flex; gap: 8px; }
-.btn-confirm, .btn-cancel {
-  flex: 1; border: none; border-radius: 8px; padding: 6px; color: #fff; cursor: pointer;
+.inline-form input::placeholder,
+.inline-form textarea::placeholder {
+  color: rgba(255,255,255,0.7);
 }
-.btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); }
-.btn-cancel { background: rgba(255,255,255,0.1); }
+.inline-form-buttons {
+  display: flex;
+  gap: 8px;
+}
+.btn-confirm,
+.btn-cancel {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+  color: #fff;
+  cursor: pointer;
+}
+.btn-confirm {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+.btn-cancel {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ---- INLINE FORM NO MODO CLARO ---- */
+body.light-theme .inline-form {
+  background: rgba(0,0,0,0.06);
+}
+body.light-theme .inline-form input,
+body.light-theme .inline-form select,
+body.light-theme .inline-form textarea {
+  color: #1a1a2e;
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(0,0,0,0.15);
+}
+body.light-theme .inline-form input::placeholder,
+body.light-theme .inline-form textarea::placeholder {
+  color: rgba(0,0,0,0.4);
+}
+body.light-theme .btn-cancel {
+  color: #1a1a2e;
+  background: rgba(0,0,0,0.06);
+}
 
 /* ===== TAREFA ITEM ===== */
 .tarefa-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 12px; margin-bottom: 8px; border-radius: 12px; cursor: grab;
-  transition: all 0.2s; background: rgba(30,30,46,0.6);
-  border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  cursor: grab;
+  transition: all 0.2s;
+  background: rgba(30,30,46,0.6);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-left: 4px solid transparent;
 }
 .tarefa-item:hover { background: rgba(255,255,255,0.08); }
 .tarefa-item.dragging { opacity: 0.3; cursor: grabbing; }
@@ -1310,39 +1363,71 @@ body.dark-theme .tarefa-item.p2 { border-left-color: #ffd24a !important; }
 body.dark-theme .tarefa-item.p3 { border-left-color: #4ade80 !important; }
 
 .task-left {
-  display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
 .drag-handle { color: rgba(255,255,255,0.4); font-size: 14px; cursor: grab; flex-shrink: 0; }
 .task-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
 .task-info { flex: 1; min-width: 0; }
 .task-title {
-  color: #fff; font-size: 14px; font-weight: 500;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  cursor: pointer; transition: 0.2s;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: 0.2s;
 }
 .task-title:hover { color: #a855f7; }
 .task-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
 .meta-date, .meta-tag {
-  font-size: 11px; padding: 2px 6px; border-radius: 4px;
-  color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.08);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.08);
 }
 .meta-date { cursor: pointer; transition: 0.2s; }
 .meta-date:hover { color: #a855f7; background: rgba(168,85,247,0.3); }
 .task-meta .badge.atrasada {
-  color: #ff9999; background: rgba(239,68,68,0.3);
+  color: #ff9999;
+  background: rgba(239,68,68,0.3);
   animation: pulse 2s infinite;
 }
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
 
 .task-actions-2x2 {
-  margin-left: 12px; flex-shrink: 0;
-  display: grid; grid-template-columns: 32px 32px; grid-template-rows: 32px; gap: 4px;
+  margin-left: 12px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 32px 32px;
+  grid-template-rows: 32px;
+  gap: 4px;
 }
 .task-action-btn {
-  width: 32px; height: 32px; border: none; border-radius: 8px;
-  cursor: pointer; color: rgba(255,255,255,0.8);
-  background: rgba(255,255,255,0.08); transition: 0.2s;
-  display: flex; align-items: center; justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.08);
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .task-action-btn i { color: inherit; }
 .task-action-btn:hover { color: #fff; transform: scale(1.05); background: rgba(168,85,247,0.3); }
@@ -1350,25 +1435,74 @@ body.dark-theme .tarefa-item.p3 { border-left-color: #4ade80 !important; }
 .task-action-btn.danger:hover i { color: var(--danger); }
 
 /* ===== MODO FOCO ===== */
-.timer-foco-grande { margin: 16px 0; color: #667eea; font-size: 48px; font-weight: bold; font-family: monospace; }
-.progresso-foco { height: 4px; overflow: hidden; margin: 20px 0; border-radius: 2px; background: rgba(255,255,255,0.1); }
-.progresso-foco-bar { width: 0%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); }
-.controles-foco { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.timer-foco-grande {
+  margin: 16px 0;
+  color: #667eea;
+  font-size: 48px;
+  font-weight: bold;
+  font-family: monospace;
+}
+.progresso-foco {
+  height: 4px;
+  overflow: hidden;
+  margin: 20px 0;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+}
+.progresso-foco-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+.controles-foco {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .btn-glass {
-  margin: 4px; border: none; border-radius: 40px; padding: 8px 16px;
-  color: #fff; cursor: pointer; background: linear-gradient(135deg, #667eea, #764ba2);
+  margin: 4px;
+  border: none;
+  border-radius: 40px;
+  padding: 8px 16px;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #667eea, #764ba2);
 }
 .btn-glass i { color: #fff; }
 .btn-prorrogar { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.btn-musica { margin: 8px 4px; border: none; border-radius: 40px; padding: 8px 16px; color: #fff; cursor: pointer; background: #17a2b8; }
+.btn-musica {
+  margin: 8px 4px;
+  border: none;
+  border-radius: 40px;
+  padding: 8px 16px;
+  color: #fff;
+  cursor: pointer;
+  background: #17a2b8;
+}
 .btn-musica i { color: #fff; }
 
 /* ===== CALENDÁRIO ===== */
-#cardsView, #calendarioView { width: 100%; }
-.calendario-nav { margin-bottom: 12px; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
-.calendario-view-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+#cardsView,
+#calendarioView {
+  width: 100%;
+}
+.calendario-nav {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.calendario-view-selector {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
 .cal-view-btn {
-  padding: 4px 14px; border-radius: 40px;
+  padding: 4px 14px;
+  border-radius: 40px;
   border: 1px solid rgba(255,255,255,0.2);
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.7);
@@ -1564,7 +1698,10 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
   gap: 6px;
 }
 .modal-dia-btn {
-  width: 30px; height: 30px; border: none; border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   color: rgba(255,255,255,0.9);
   background: rgba(255,255,255,0.1);
@@ -1814,66 +1951,191 @@ body.dark-theme .modal-dia-item.p3 { border-left-color: #4ade80; }
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
-  body { padding: 12px; padding-bottom: 80px; }
-  .header-fluxo { min-height: 60px; padding: 6px 12px; flex-wrap: wrap; gap: 8px; }
-  .header-left { gap: 8px; }
-  .logo-img { width: 36px; height: 36px; }
-  .logo-fallback { width: 32px; height: 32px; }
-  .logo-fallback i { font-size: 16px; }
-  .logo-texto .logo-titulo { font-size: 16px; }
-  .logo-texto .logo-subtitulo { font-size: 8px; }
-  .header-right { gap: 6px; flex-wrap: wrap; }
+  body {
+    padding: 12px;
+    padding-bottom: 80px;
+  }
+  .header-fluxo {
+    min-height: 60px;
+    padding: 6px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .header-left {
+    gap: 8px;
+  }
+  .logo-img {
+    width: 36px;
+    height: 36px;
+  }
+  .logo-fallback {
+    width: 32px;
+    height: 32px;
+  }
+  .logo-fallback i {
+    font-size: 16px;
+  }
+  .logo-texto .logo-titulo {
+    font-size: 16px;
+  }
+  .logo-texto .logo-subtitulo {
+    font-size: 8px;
+  }
+  .header-right {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
   .theme-toggle,
   .voice-btn {
     width: 30px;
     height: 30px;
     font-size: 14px;
   }
-  .user-avatar-small { width: 28px; height: 28px; }
-  .user-avatar-small i { font-size: 16px; }
-  .user-name { font-size: 12px; }
-  .user-badge { font-size: 8px; padding: 1px 8px; }
-  .dropdown-toggle { width: 30px; height: 30px; font-size: 14px; }
+  .user-avatar-small {
+    width: 28px;
+    height: 28px;
+  }
+  .user-avatar-small i {
+    font-size: 16px;
+  }
+  .user-name {
+    font-size: 12px;
+  }
+  .user-badge {
+    font-size: 8px;
+    padding: 1px 8px;
+  }
+  .dropdown-toggle {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
 
-  .linha-botoes { gap: 8px; justify-content: center; }
-  .view-btn { font-size: 12px; padding: 4px 12px; }
-  .top-action-btn { font-size: 11px; padding: 4px 10px; }
-  .metas-toggle-btn { font-size: 12px; padding: 4px 14px; }
-  .alerta-tarefas { font-size: 11px; padding: 3px 10px; max-width: 100%; }
-  .alerta-tarefas i { font-size: 12px; }
+  .linha-botoes {
+    gap: 8px;
+    justify-content: center;
+  }
+  .view-btn {
+    font-size: 12px;
+    padding: 4px 12px;
+  }
+  .top-action-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  .metas-toggle-btn {
+    font-size: 12px;
+    padding: 4px 14px;
+  }
+  .alerta-tarefas {
+    font-size: 11px;
+    padding: 3px 10px;
+    max-width: 100%;
+  }
+  .alerta-tarefas i {
+    font-size: 12px;
+  }
 
-  .calendario-grade { gap: 8px; }
-  .cal-dia { min-height: 86px; padding: 6px; }
-  .cal-task { font-size: 9px; padding: 2px 5px; }
-  .modal-dia-conteudo { width: 96%; }
-  .modal-dia-lista { max-height: 44vh; }
-  .data-hoje { display: none; }
-  .data-card-mobile { display: flex; justify-content: center; margin-bottom: 12px; }
-  .footer-stats { height: 48px; }
-  .footer-stats-item { font-size: 10px; gap: 4px; }
-  .footer-stats-item i { font-size: 12px; }
-  .calendario-grade.modo-semana { grid-template-columns: 1fr !important; gap: 8px; }
-  .calendario-grade.modo-dia { grid-template-columns: 1fr !important; }
-  .btn-nova-tarefa { display: flex !important; }
-  .card-resumo-item { font-size: 11px; padding: 4px 10px; }
+  .calendario-grade {
+    gap: 8px;
+  }
+  .cal-dia {
+    min-height: 86px;
+    padding: 6px;
+  }
+  .cal-task {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+  .modal-dia-conteudo {
+    width: 96%;
+  }
+  .modal-dia-lista {
+    max-height: 44vh;
+  }
+  .data-hoje {
+    display: none;
+  }
+  .data-card-mobile {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .footer-stats {
+    height: 48px;
+  }
+  .footer-stats-item {
+    font-size: 10px;
+    gap: 4px;
+  }
+  .footer-stats-item i {
+    font-size: 12px;
+  }
+  .calendario-grade.modo-semana {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+  .calendario-grade.modo-dia {
+    grid-template-columns: 1fr !important;
+  }
+  .btn-nova-tarefa {
+    display: flex !important;
+  }
+  .card-resumo-item {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
 }
 
 @media (max-width: 480px) {
-  body { padding: 8px; padding-bottom: 80px; }
-  .blocos-tarefas { grid-template-columns: 1fr; }
-  .task-actions-2x2 { grid-template-columns: 28px 28px; gap: 3px; }
-  .task-action-btn { width: 28px; height: 28px; }
-  .task-action-btn i { font-size: 12px; }
-  .modal-dia-add-row { grid-template-columns: 1fr; }
-  .modal-dia-item { flex-direction: column; gap: 8px; }
-  .modal-dia-actions { width: 100%; grid-template-columns: repeat(4, 1fr); }
-  .modal-dia-btn { width: 100%; height: 34px; }
-  .linha-botoes { flex-direction: column; align-items: stretch; }
-  .view-toggle, .action-buttons, .alerta-tarefas, .metas-toggle-btn {
+  body {
+    padding: 8px;
+    padding-bottom: 80px;
+  }
+  .blocos-tarefas {
+    grid-template-columns: 1fr;
+  }
+  .task-actions-2x2 {
+    grid-template-columns: 28px 28px;
+    gap: 3px;
+  }
+  .task-action-btn {
+    width: 28px;
+    height: 28px;
+  }
+  .task-action-btn i {
+    font-size: 12px;
+  }
+  .modal-dia-add-row {
+    grid-template-columns: 1fr;
+  }
+  .modal-dia-item {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .modal-dia-actions {
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .modal-dia-btn {
+    width: 100%;
+    height: 34px;
+  }
+  .linha-botoes {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .view-toggle,
+  .action-buttons,
+  .alerta-tarefas,
+  .metas-toggle-btn {
     justify-content: center;
     width: 100%;
   }
-  .alerta-tarefas { white-space: normal; text-align: center; }
+  .alerta-tarefas {
+    white-space: normal;
+    text-align: center;
+  }
 }
 
 /* ============================================================
@@ -1923,4 +2185,25 @@ body.light-theme .modal-descricao-overlay .modal-titulo {
 /* Garante que o título do modal foco "🎯 Modo Foco" fique escuro */
 body.light-theme .modal-foco-overlay h2 {
   color: #1a1a2e !important;
+}
+
+/* Placeholders no modo claro – garantia */
+body.light-theme .modal-input::placeholder,
+body.light-theme .modal-select::placeholder,
+body.light-theme .modal-textarea::placeholder {
+  color: rgba(0,0,0,0.4) !important;
+}
+
+/* Placeholders no modo escuro */
+body.dark-theme .modal-input::placeholder,
+body.dark-theme .modal-select::placeholder,
+body.dark-theme .modal-textarea::placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}
+
+/* Placeholders no modo padrão (purple) */
+body.purple-theme .modal-input::placeholder,
+body.purple-theme .modal-select::placeholder,
+body.purple-theme .modal-textarea::placeholder {
+  color: rgba(255,255,255,0.6) !important;
 }
